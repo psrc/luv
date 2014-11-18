@@ -2,13 +2,14 @@ library(Hmisc)
 dir <- '/Users/hana/ForecastProducts/LUV/curve_fitting'
 setwd(dir)
 today <- '11182014'
+years.of.observed.data <- c(2000, 2010, 2013)
 # load anchor points
 all.data <- read.table(paste0('TargetYr_Anchors',today,'.csv'), sep=',', header=TRUE, check.names=FALSE)
 #all.data <- all.data[,-which(colnames(all.data)=="2040")]
 x.all <- as.integer(substr(colnames(all.data)[3:ncol(all.data)], 1,4))
 x.unique <- unique(x.all)
 lxall <- length(x.unique)
-years.of.observed.data <- c(2000, 2010, 2013)
+
 # create lower and upper bounds
 #cols <- which(as.integer(substr(colnames(all.data)[3:ncol(all.data)], 1, 4))>2013)
 #proj.data <- all.data[,cols+2]
@@ -51,9 +52,9 @@ for(iarea in 1:nrow(all.data)) { # iterate over each area
 	sampl2030 <- runif(n, data[rownames2030[1], 'y'], data[rownames2030[2],'y'])
 	sampl2040 <- runif(n, data[rownames2040[1], 'y'], data[rownames2040[2], 'y'])
 	samplidx <- sample(1:length(idx1), R)
-	y <- data$y[1:(length(observed.data)+2)]
+	y <- data$y[1:(length(years.of.observed.data)+2)]
 	ilast.two <- (length(y)-1):length(y)
-	iobserved <- 1:length(observed.data)
+	iobserved <- 1:length(years.of.observed.data)
 	#minidx <- min2idx <- max1idx <- NA
 	#minderiv <- min2deriv <- 9999999999
 	#max1deriv <- 0
