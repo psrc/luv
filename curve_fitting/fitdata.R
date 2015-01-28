@@ -1,8 +1,8 @@
 library(Hmisc)
 dir <- '/Users/hana/ForecastProducts/LUV/curve_fitting'
 setwd(dir)
-today <- '11182014'
-years.of.observed.data <- c(2000, 2010, 2013)
+today <- '01132015'
+years.of.observed.data <- c(2000, 2013)
 # load anchor points
 all.data <- read.table(paste0('TargetYr_Anchors',today,'.csv'), sep=',', header=TRUE, check.names=FALSE)
 #all.data <- all.data[,-which(colnames(all.data)=="2040")]
@@ -21,11 +21,12 @@ lxall <- length(x.unique)
 # #write.table(all.data, file='PopTargetYrControlsLowHigh.csv', sep=',', row.names=FALSE)
 
 x1 <- seq(min(years.of.observed.data), 2040) # values on the x-axis
+x1h <- seq(max(years.of.observed.data), 2040) # values on the x-axis for hyman method if first point removed
 n <- 100    # number of points beween the bounds
-R <- 1000   # number of combinations, i.e. number of curves (must be <= n^2)
+R <- 5000   # number of combinations, i.e. number of curves (must be <= n^2)
 idx1 <- rep(1:n, n)
 idx2 <- rep(1:n, each=n)
-results <- matrix(NA, nrow=0, ncol=length(x1))
+results <- resultsH <- matrix(NA, nrow=0, ncol=length(x1))
 
 max.year.observed.data <- max(years.of.observed.data)
 
@@ -59,6 +60,7 @@ for(iarea in 1:nrow(all.data)) { # iterate over each area
 	#minderiv <- min2deriv <- 9999999999
 	#max1deriv <- 0
 	deriv2 <- deriv1 <- rep(NA, R)
+	deriv2h <- deriv1h <- rep(NA, R)
 	for(i in 1:R) {
 		y[ilast.two] <- c(sampl2030[idx1[i]], sampl2040[idx2[i]])
 		splfun <- splinefun(x, y, method="natural")
@@ -66,6 +68,10 @@ for(iarea in 1:nrow(all.data)) { # iterate over each area
 		deriv2[i] <- mean(abs(splfun(x1, deriv=2))[x1>max.year.observed.data & x1<2040])
 		deriv1[i] <- mean(splfun(x1, deriv=1)[x1>max.year.observed.data])
 		#integ <- integrate(f, min(x1), max(x1))[[1]]
+		if(sampl2030[idx1[i]] < y[iobserved[length(iobserved)]] || sampl2030[idx1[i]] > sampl2040[idx2[i]]) next
+		splfunH <- if(y[2] < y[1]) splinefun(x[2:length(x)], y[2:length(y)], method="hyman") else splinefun(x, y, method="hyman")
+		deriv2h[i] <- mean(abs(splfunH(x1, deriv=2))[x1>max.year.observed.data & x1<2040])
+		deriv1h[i] <- mean(splfunH(x1, deriv=1)[x1>max.year.observed.data])
 	}
 	p2 <- deriv2/sum(deriv2)
 	p1 <- deriv1/sum(deriv1)
@@ -82,18 +88,47 @@ for(iarea in 1:nrow(all.data)) { # iterate over each area
 		ylim=c(min(data$y, fit.spl1max$y), max(data$y, fit.spl1max$y)), xlab='', ylab='', xlim=c(min(x1),max(x1)))
 	errbar(x[ilast.two], y[ilast.two], yplus=c(data[rownames2030[2], 'y'], data[rownames2040[2], 'y']), 
 					yminus=c(data[rownames2030[1], 'y'], data[rownames2040[1], 'y']), add=TRUE, col='white')
-
-	#lines(fit.spline, col='black')
-	#lines(fit.splmin, col='green')
-	lines(fit.spl1max, col='red')
+	lines(fit.spl1max, col='green')
 	results <- rbind(results, fit.spl1max$y)
+	if(any(!is.na(deriv1h))) {
+		p2h <- deriv2h/sum(deriv2h, na.rm=TRUE)
+		p1h <- deriv1h/sum(deriv1h, na.rm=TRUE)
+		max1idxH <- which.max(1/p2h*p1h)	
+		if(data$y[iobserved][2] < data$y[iobserved][1]) {
+			data.splH <- data.frame(x=x[iobserved[2]:length(x)], y=c(data$y[iobserved][2], sampl2030[idx1[max1idxH]], sampl2040[idx2[max1idxH]]))
+			fit.spl1maxH <- spline(data.splH$x, data.splH$y, n=length(x1h), method="hyman")
+			linear <- approx(x[iobserved], data$y[iobserved], xout=x1[x1<fit.spl1maxH$x[1]])
+			fit.spl1maxH$x <- c(linear$x, fit.spl1maxH$x)
+			fit.spl1maxH$y <- c(linear$y, fit.spl1maxH$y)
+		} else {
+			data.splH <- data.frame(x=x, y=c(data$y[iobserved], sampl2030[idx1[max1idxH]], sampl2040[idx2[max1idxH]]))
+			fit.spl1maxH <- spline(data.splH$x, data.splH$y, n=length(x1), method="hyman")
+		}
+	
+	# for(i in 1:R) {
+		# #if(i == max1idx) next
+		# if(sampl2030[idx1[i]] < data$y[2] || sampl2030[idx1[i]] > sampl2040[idx2[i]]) next
+		# data.spl <- data.frame(x=x, y=c(data$y[iobserved], sampl2030[idx1[i]], sampl2040[idx2[i]]))
+		# spl <- spline(data.spl$x, data.spl$y, n=length(x1), method="hyman")
+		# lines(spl, col="grey")
+	# }	
+		lines(fit.spl1maxH, col='red')	
+		resultsH <- rbind(resultsH, fit.spl1maxH$y)
+	} else {
+		resultsH <- rbind(resultsH, rep(NA, ncol(resultsH)))
+	}
 }
 dev.off()
 colnames(results) <- x1
 # store results as an ASCII file
 results <- as.data.frame(round(results))
 results <- cbind(Jurisdiction=all.data[,'Jurisdiction'], results)
-write.table(results, file=paste0('luv_optspline_numeric_', today, '.csv'), sep='\t', row.names=FALSE)
+write.table(results, file=paste0('luv_optspline_natural_numeric_', today, '.csv'), sep='\t', row.names=FALSE)
+
+resultsH <- as.data.frame(round(resultsH))
+resultsH <- cbind(Jurisdiction=all.data[,'Jurisdiction'], resultsH)
+write.table(resultsH, file=paste0('luv_optspline_hyman_numeric_', today, '.csv'), sep='\t', row.names=FALSE)
+
 
 # This code creates the plot in the documentation 
 # pdf('methexamplecurves.pdf', height=5, width=8)
