@@ -15,6 +15,8 @@ git clone https://github.com/psrc/luv.git luv
 
 Also, check that R is working from the command line by typing R into the bash terminal. If it is not found using the above installer should fix it.
 
+On modelsrv3 the repository is installed in ``d://luvgit``.
+
 ## Running the Makefile
 
 The Makefile is a collection of scripts that do some part of the QC. It's currently under development, so most of them are just placeholders. To test the script, first locate where LUV results are located. Open the file input.txt and modify the 'directory' line appropriately. You can use comments to comment out unused rows. Make sure the fields are separated by tabs. 
