@@ -15,11 +15,11 @@ export QC_RESULT_PATH=$(shell pwd)/$(RESULT_PATH)
 
 
 .PHONY : test
-test : testreport.txt
+test : $(RESULT_PATH)/testreport.txt
 
 .PHONY : ind
 ind : 
-	python create_indicator_files.py
+	python $(SCRIPT_PATH)/create_indicator_files.py
 
 .PHONY : all
 all: report maps rplots
@@ -38,13 +38,11 @@ rplots : rplots.png
 
 .PHONY : clean
 clean : 
-	rm -f testreport.txt
-	rm -f *.Rout
 	rm -f $(SCRIPT_PATH)/*.Rout
 	rm -f $(RESULT_PATH)/*.txt
 
-testreport.txt : create_testreport.R
-	R CMD BATCH create_testreport.R
+$(RESULT_PATH)/testreport.txt : $(SCRIPT_PATH)/create_testreport.R
+	R CMD BATCH $(SCRIPT_PATH)/create_testreport.R $(SCRIPT_PATH)/create_testreport.Rout
 
 map.png : create_map.py
 	python create_map.py

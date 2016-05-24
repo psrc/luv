@@ -13,7 +13,6 @@ geographies <- c('faz', 'zone')
 indicator.path.run1 <- file.path(base.dir, run1, 'indicators')
 
 # Check decreases
-cat("\nChecking for decreases ...")
 result <- NULL
 years <- c(2014, 2040)
 for (ind in indicator.names) {
@@ -29,8 +28,4 @@ for (ind in indicator.names) {
 	}
 }
 colnames(result)[3:ncol(result)] <- c('geo_id', 'difference', 'percent')
-cat(" done.\n")
-subs.faz <- subset(result, geography == 'faz' & abs(percent) > 10 & abs(difference) > 50)
-subs.faz <- subs.faz[order(subs.faz$percent, decreasing=FALSE),]
-print(subs.faz)
-write.table(subs.faz, file.path(result.dir, 'qc_rtable_decrease.txt'), sep='\t', row.names=FALSE)
+write.table(result, file.path(result.dir, 'qc_rtable_decrease.txt'), sep='\t', row.names=FALSE)
