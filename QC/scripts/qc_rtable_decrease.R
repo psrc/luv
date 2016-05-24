@@ -4,6 +4,7 @@
 run1 <- Sys.getenv('QC_RUN1')
 run2 <- Sys.getenv('QC_RUN2')
 base.dir <- Sys.getenv('QC_BASE_DIRECTORY')
+result.dir <- Sys.getenv('QC_RESULT_PATH')
 
 options(stringsAsFactors=FALSE)
 
@@ -32,4 +33,4 @@ cat(" done.\n")
 subs.faz <- subset(result, geography == 'faz' & abs(percent) > 10 & abs(difference) > 50)
 subs.faz <- subs.faz[order(subs.faz$percent, decreasing=FALSE),]
 print(subs.faz)
-write.table(subs.faz, 'testreport.txt', sep='\t', row.names=FALSE)
+write.table(subs.faz, file.path(result.dir, 'qc_rtable_decrease.txt'), sep='\t', row.names=FALSE)
