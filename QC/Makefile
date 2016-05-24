@@ -1,8 +1,11 @@
+.PHONY : test
+test : testreport
+
 .PHONY : all
 all: report maps rplots
 
-.PHONY : report
-report : report.txt 
+.PHONY : testreport
+testreport : testreport.txt 
 
 .PHONY : maps
 maps : map.png
@@ -12,11 +15,11 @@ rplots : rplots.png
 
 .PHONY : clean
 clean : 
-	rm -f report.txt
-	rm *.Rout
+	rm -f testreport.txt
+	rm -f *.Rout
 
-report.txt : create_report.R
-	R CMD BATCH create_report.R
+testreport.txt : create_testreport.R
+	R CMD BATCH create_testreport.R
 
 map.png : create_map.py
 	python create_map.py

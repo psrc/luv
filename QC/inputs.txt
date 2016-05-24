@@ -1,3 +1,4 @@
 directory	/Volumes/e$/opusgit/urbansim_data/data/psrc_parcel/runs
+#directory	e://opusgit/urbansim_data/data/psrc_parcel/runs
 run1	run_64.run_2016_05_04_15_02
 run2	run_170.run_2015_09_15_16_02

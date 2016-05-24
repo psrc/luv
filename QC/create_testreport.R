@@ -27,4 +27,4 @@ cat(" done.\n")
 subs.faz <- subset(result, geography == 'faz' & abs(percent) > 10 & abs(difference) > 50)
 subs.faz <- subs.faz[order(subs.faz$percent, decreasing=FALSE),]
 print(subs.faz)
-write.table(subs.faz, 'report.txt', sep='\t', row.names=FALSE)
+write.table(subs.faz, 'testreport.txt', sep='\t', row.names=FALSE)
