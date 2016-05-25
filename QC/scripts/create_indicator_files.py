@@ -204,14 +204,10 @@ def get_indicators(cache_directory, run_description, years = [2014,2015,2020,202
 
 import os
 from opus_core.indicator_framework.core.indicator_factory import IndicatorFactory
-from opus_core.misc import load_table_from_text_file
 
 if __name__ == '__main__':
-    inputs = load_table_from_text_file("inputs.txt", split_delimiter="\t", comment='#')
-    inpdict = {}
-    for row in inputs[0]:
-        inpdict[row[0]] = row[1]
-    indicators = get_indicators(os.path.join(inpdict['directory'], inpdict['run1']), inpdict.get('description_run1', ''))
+    indicators = get_indicators(os.path.join(os.environ['QC_BASE_DIRECTORY'], os.environ['QC_RUN1']), 
+                                os.getenv('QC_RUN1_DESCR', ''))
     IndicatorFactory().create_indicators(
         indicators = indicators,
         display_error_box = False, 
