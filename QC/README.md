@@ -3,7 +3,7 @@
 This directory contains a set of scripts each of which performs a QC sub-task. The scripts are connected via a Makefile also found in this directory. 
 
 ## Installation
-On Windows, check that [Git Bash](https://git-for-windows.github.io) is installed. Then open a Git Bash and type ``make --help``. If you get an error that make is not found, install make from [SWCarpentryInstaller](https://github.com/swcarpentry/windows-installer/releases/latest). 
+On Windows, check that [Git Bash](https://git-for-windows.github.io) is installed. Then open a Git Bash and type ``make --help``. If you get an error that make is not found, install make from [SWCarpentryInstaller](https://github.com/swcarpentry/windows-installer/releases/latest). If you still get an error, you might need to add the location of make.exe into your Path environment.
 
 As with any GitHub repository, clone the luv repository into your local computer: In a Git Bash navigate to a directory you want the local repository reside and type 
 
@@ -13,7 +13,7 @@ git clone https://github.com/psrc/luv.git luv
 
 (The ``luv`` at the end is a name of your choice.) It should create a directory of the specified name, here ``luv``, that is identical to the GitHub repository.
 
-Also, check that R is working from the command line by typing R into the bash terminal. If it is not found using the above installer should fix it.
+Also, check that R is working from the command line by typing R into the bash terminal. If it is not found using the above installer should fix it. Or, adding the location of R.exe into your Path environment.
 
 On modelsrv3 the repository is installed in ``d://luvgit``.
 
