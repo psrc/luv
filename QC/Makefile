@@ -37,6 +37,7 @@ all: report maps rplots
 rtables : $(RTABLE_RESULT_FILES)
 
 $(RESULT_PATH)/qc_rtable_%.txt : $(SCRIPT_PATH)/qc_rtable_%.R
+	@rm -f $(QC_RESULT_PATH)/report.txt
 	R CMD BATCH $(SCRIPT_PATH)/qc_rtable_$*.R  $(SCRIPT_PATH)/qc_rtable_$*.Rout
 
 .PHONY : maps
