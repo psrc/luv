@@ -1,0 +1,12 @@
+
+QC DECREASES  ( 2014  -  2040 )
+Thresholds: 100  (absolute),  5  (percent)
+****************************************
+
+indicator	geo	total	negat	remains	percent	max.neg	max.loc	median.neg
+households	faz	219	0	219	0	NA	NA	NA
+households	zone	3700	0	3700	0	NA	NA	NA
+population	faz	219	4	215	1.83	1827	8936	643.5
+population	zone	3700	10	3690	0.27	202	3449	112.5
+employment	faz	219	7	212	3.2	363	8500	242
+employment	zone	3700	10	3690	0.27	376	3464	152.5
