@@ -54,6 +54,7 @@ Currently, the following phonies are implemented:
    * **clean**: delete test outputs and output files of the current run (defined by QC\_NAME in inputs.txt)
    * **ind**: run python indicator script (in scripts/create\_indicator\_files.py) on cache defined via QC\_BASE_DIRECTORY/QC\_RUN1 in inputs.txt
    * **rtables**: run R code in scripts/qc\_rtable\_\*.R
+   * **rplots**: run R code in scripts/rplots\_\*.R
 
 
 ## Synchronization
