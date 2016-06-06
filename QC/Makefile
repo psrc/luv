@@ -10,11 +10,19 @@ RESULT_BASE_PATH=results
 # trim white spaces around 
 RESULT_PATH=$(RESULT_BASE_PATH)/$(shell echo $(QC_NAME) | xargs)
 RESULT_TEST_PATH=$(RESULT_BASE_PATH)/test
+
 RTABLE_SCRIPT_FILES=$(wildcard $(SCRIPT_PATH)/qc_rtable_*.R)
-RTABLE_SCRIPTOUT_FILES=$(patsubst $(SCRIPT_PATH)/qc_rtable_*.R, $(SCRIPT_PATH)/qc_rtable_%.Rout, \
+RPLOT_SCRIPT_FILES=$(wildcard $(SCRIPT_PATH)/rplots_*.R)
+
+RTABLE_SCRIPTOUT_FILES=$(patsubst $(SCRIPT_PATH)/qc_rtable_%.R, $(SCRIPT_PATH)/qc_rtable_%.Rout, \
 				$(RTABLE_SCRIPT_FILES))
+RPLOT_SCRIPTOUT_FILES=$(patsubst $(SCRIPT_PATH)/rplots_%.R, $(SCRIPT_PATH)/rplots_%.Rout, \
+                                $(RPLOT_SCRIPT_FILES))
+
 RTABLE_RESULT_FILES=$(patsubst $(SCRIPT_PATH)/qc_rtable_%.R, $(RESULT_PATH)/qc_rtable_%.txt, \
 				$(RTABLE_SCRIPT_FILES))
+RPLOT_RESULT_FILES=$(patsubst $(SCRIPT_PATH)/rplots_%.R, $(RESULT_PATH)/rplots_%.html, \
+                                $(RPLOT_SCRIPT_FILES))
 
 # The following converts POSIX into Windows path, 
 # which is needed when other processes (e.g. R) use it.  
@@ -40,11 +48,15 @@ $(RESULT_PATH)/qc_rtable_%.txt : $(SCRIPT_PATH)/qc_rtable_%.R
 	@rm -f $(QC_RESULT_PATH)/report.txt
 	R CMD BATCH $(SCRIPT_PATH)/qc_rtable_$*.R  $(SCRIPT_PATH)/qc_rtable_$*.Rout
 
+.PHONY : rplots
+rplots : $(RPLOT_RESULT_FILES)
+
+$(RESULT_PATH)/rplots_%.txt : $(SCRIPT_PATH)/rplots_%.R
+	R CMD BATCH $(SCRIPT_PATH)/rplots_$*.R  $(SCRIPT_PATH)/rplots_$*.Rout
+
+# placeholder
 .PHONY : maps
 maps : map.png
-
-.PHONY : rplots
-rplots : rplots.png
 
 .PHONY : clean
 clean : 
@@ -59,9 +71,7 @@ $(RESULT_TEST_PATH)/testreport.txt : $(SCRIPT_PATH)/create_testreport.R
 	export QC_RESULT_PATH=$(WRKDIR)/$(RESULT_TEST_PATH); \
 	R CMD BATCH $(SCRIPT_PATH)/create_testreport.R $(SCRIPT_PATH)/create_testreport.Rout
 
+# placeholder
 map.png : create_map.py
 	python create_map.py
-
-rplots.png : create_rplots.R
-	R CMD BATCH create_rplots.R
 

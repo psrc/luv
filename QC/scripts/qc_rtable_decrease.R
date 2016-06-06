@@ -9,14 +9,14 @@ absolute.threshold <- as.integer(Sys.getenv('DECREASE_THRESHOLD'))
 percent.threshold <- as.integer(Sys.getenv('DECREASE_THRESHOLD_PERCENT'))
 if(is.na(absolute.threshold)) absolute.threshold <- 0
 if(is.na(percent.threshold)) percent.threshold <- 0
-years <- c(2014, 2040)
+years <- c(2014, 2015)
 
 if(!dir.exists(result.dir)) dir.create(result.dir)
 
 options(stringsAsFactors=FALSE)
 
 indicator.names <- c('households', 'population', 'employment')
-geographies <- c('faz', 'zone')
+geographies <- c('city', 'faz', 'zone')
 indicator.path.run1 <- file.path(base.dir, run1, 'indicators')
 
 # Check decreases
@@ -37,7 +37,7 @@ for (ind in indicator.names) {
 			this.result <- data.frame(indicator=rep(ind, lneg), geography=rep(geo, lneg), this.result)
 			result <- rbind(result, this.result)
 			this.report[,'max.neg'] <- -min(dif[negatives])
-			this.report[,'max.loc'] <- ind.values[which.min(dif[negatives]), paste(geo, 'id', sep="_")]
+			this.report[,'max.loc'] <- ind.values[which.min(dif), paste(geo, 'id', sep="_")]
 			this.report[,'median.neg'] <- -median(dif[negatives])
 		}
 		report <- rbind(report, this.report)
