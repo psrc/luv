@@ -51,7 +51,7 @@ $(RESULT_PATH)/qc_rtable_%.txt : $(SCRIPT_PATH)/qc_rtable_%.R
 .PHONY : rplots
 rplots : $(RPLOT_RESULT_FILES)
 
-$(RESULT_PATH)/rplots_%.txt : $(SCRIPT_PATH)/rplots_%.R
+$(RESULT_PATH)/rplots_%.html : $(SCRIPT_PATH)/rplots_%.R
 	R CMD BATCH $(SCRIPT_PATH)/rplots_$*.R  $(SCRIPT_PATH)/rplots_$*.Rout
 
 # placeholder
@@ -61,7 +61,7 @@ maps : map.png
 .PHONY : clean
 clean : 
 	rm -f $(SCRIPT_PATH)/*.Rout
-	rm -f $(RESULT_PATH)/*.txt
+	rm -fr $(RESULT_PATH)/*
 	rm -fr $(RESULT_TEST_PATH)
 
 # Lines in the following recipe needs to be connected via ; and \ in order 
