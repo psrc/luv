@@ -15,6 +15,12 @@ git clone https://github.com/psrc/luv.git luv
 
 Also, check that R is working from the command line by typing R into the bash terminal. If it is not found using the above installer should fix it. Or, adding the location of R.exe into your Path environment.
 
+While R is open, install the package ``plotly`` using
+
+```
+install.packages('plotly', dependencies=TRUE)
+```
+
 On modelsrv3 the repository is installed in ``d://luvgit``.
 
 ## Running the Makefile
