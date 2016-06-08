@@ -13,7 +13,10 @@ git clone https://github.com/psrc/luv.git luv
 
 (The ``luv`` at the end is a name of your choice.) It should create a directory of the specified name, here ``luv``, that is identical to the GitHub repository.
 
-Also, check that R is working from the command line by typing R into the bash terminal. If it is not found using the above installer should fix it. Or, adding the location of R.exe into your Path environment.
+On modelsrv3 the repository is installed in ``d://luvgit``.
+
+
+Also, check that R is working from the command line by typing R into the bash terminal. If it is not found, using the above installer should fix it. Or, adding the location of R.exe into your Path environment.
 
 While R is open, install the package ``plotly`` using
 
@@ -21,7 +24,8 @@ While R is open, install the package ``plotly`` using
 install.packages('plotly', dependencies=TRUE)
 ```
 
-On modelsrv3 the repository is installed in ``d://luvgit``.
+On Windows machines you will most likely need to install [pandoc](http://pandoc.org/installing.html) (click on "downlod page", scroll to the bottom of the page and select the windows installer).
+ 
 
 ## Running the Makefile
 
