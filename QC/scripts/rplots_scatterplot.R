@@ -23,9 +23,9 @@ if(make) {
     run2 <- "run_170.run_2015_09_15_16_02" 
     run.name <- 'run71'
     result.dir <- file.path("C:/Users/Christy/Desktop/luv/QC/results", run.name)
-    faz.lookup <- read.table("C:/Users/Christy/Desktop/luv/QC/data/faz_names.txt", header =TRUE, sep = "\t")
-    zone.lookup <- read.table("C:/Users/Christy/Desktop/luv/QC/data/zones.txt", header =TRUE, sep = "\t")
 }
+faz.lookup <- read.table(file.path("data", "faz_names.txt"), header =TRUE, sep = "\t")
+zone.lookup <- read.table(file.path("data", "zones.txt"), header =TRUE, sep = "\t")
 
 runname1 <- unlist(strsplit(run1,"[.]"))[[1]]
 runname2 <- unlist(strsplit(run2,"[.]"))[[1]]

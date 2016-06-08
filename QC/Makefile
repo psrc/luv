@@ -21,7 +21,7 @@ RPLOT_SCRIPTOUT_FILES=$(patsubst $(SCRIPT_PATH)/rplots_%.R, $(SCRIPT_PATH)/rplot
 
 RTABLE_RESULT_FILES=$(patsubst $(SCRIPT_PATH)/qc_rtable_%.R, $(RESULT_PATH)/qc_rtable_%.txt, \
 				$(RTABLE_SCRIPT_FILES))
-RPLOT_RESULT_FILES=$(patsubst $(SCRIPT_PATH)/rplots_%.R, $(RESULT_PATH)/rplots_%.html, \
+RPLOT_RESULT_FILES=$(patsubst $(SCRIPT_PATH)/rplots_%.R, $(SCRIPT_PATH)/rplots_%.Rout, \
                                 $(RPLOT_SCRIPT_FILES))
 
 # The following converts POSIX into Windows path, 
@@ -44,14 +44,14 @@ all: report maps rplots
 .PHONY : rtables
 rtables : $(RTABLE_RESULT_FILES)
 
-$(RESULT_PATH)/qc_rtable_%.txt : $(SCRIPT_PATH)/qc_rtable_%.R
+$(RESULT_PATH)/qc_rtable_%.txt : $(SCRIPT_PATH)/qc_rtable_%.R inputs.txt
 	@rm -f $(QC_RESULT_PATH)/report.txt
 	R CMD BATCH $(SCRIPT_PATH)/qc_rtable_$*.R  $(SCRIPT_PATH)/qc_rtable_$*.Rout
 
 .PHONY : rplots
 rplots : $(RPLOT_RESULT_FILES)
 
-$(RESULT_PATH)/rplots_%.html : $(SCRIPT_PATH)/rplots_%.R
+$(SCRIPT_PATH)/rplots_%.Rout : $(SCRIPT_PATH)/rplots_%.R inputs.txt
 	R CMD BATCH $(SCRIPT_PATH)/rplots_$*.R  $(SCRIPT_PATH)/rplots_$*.Rout
 
 # placeholder
