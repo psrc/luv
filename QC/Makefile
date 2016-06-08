@@ -54,6 +54,7 @@ rplots : $(RPLOT_RESULT_FILES)
 $(SCRIPT_PATH)/rplots_%.Rout : $(SCRIPT_PATH)/rplots_%.R inputs.txt
 	R CMD BATCH $(SCRIPT_PATH)/rplots_$*.R  $(SCRIPT_PATH)/rplots_$*.Rout
 
+
 # placeholder
 .PHONY : maps
 maps : map.png

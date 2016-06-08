@@ -2,6 +2,7 @@
 QC_NAME=run71
 QC_BASE_DIRECTORY=//modelsrv3/e$$/opusgit/urbansim_data/data/psrc_parcel/runs
 #QC_BASE_DIRECTORY=/Volumes/e$$/opusgit/urbansim_data/data/psrc_parcel/runs
+#QC_BASE_DIRECTORY=/Users/hana/opus/urbansim_data/data/psrc_parcel/runs
 #QC_BASE_DIRECTORY=e://opusgit/urbansim_data/data/psrc_parcel/runs
 QC_RUN1=run_71.run_2016_05_26_12_41
 QC_RUN2=run_170.run_2015_09_15_16_02

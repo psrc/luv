@@ -2,6 +2,7 @@
 
 library(plotly)
 library(htmlwidgets)
+library(rmarkdown)
 
 #environment inputs
 attribute <- c("population", "households","employment", "residential_units")
@@ -30,6 +31,12 @@ zone.lookup <- read.table(file.path("data", "zones.txt"), header =TRUE, sep = "\
 runname1 <- unlist(strsplit(run1,"[.]"))[[1]]
 runname2 <- unlist(strsplit(run2,"[.]"))[[1]]
 if(!dir.exists(result.dir)) dir.create(result.dir)
+
+# put a header into the index file
+source('templates/create_Rmd_blocks.R')
+index.file <- file.path(result.dir, 'index.Rmd')
+create.header(index.file, title="LUV QC Scatterplots", date=date())
+create.section(index.file, title=paste("Scatterplots for ", runname1, "and", runname2))
 
 for (a in 1:length(geography)){
   for (i in 1:length(attribute)){
@@ -75,10 +82,16 @@ for (a in 1:length(geography)){
                 )
     
     #print (p)
-    print (paste0("Plotting ", as.name(attribute[i]), " by ", as.name(geography[a])))
-    htmlwidgets::saveWidget(as.widget(p),file.path(result.dir, paste0('rplots_', as.name(attribute[i]),"_",as.name(geography[a]),"_scatterplot.html")))
+    subtitle <- paste0(as.name(attribute[i]), " by ", as.name(geography[a]))
+    print (paste0("Plotting ", subtitle))
+    html.file <- file.path(result.dir, paste0('rplots_', as.name(attribute[i]), "_", as.name(geography[a]), "_scatterplot.html"))
+    htmlwidgets::saveWidget(as.widget(p), html.file)
+    # add text into the index file
+    add.text(index.file, paste0("* [", subtitle, "](", html.file, ")"))
   }
 }
+# convert index.Rmd into index.html
+render(index.file)
 print ("Plotting complete! Check results directory.")
 
 
