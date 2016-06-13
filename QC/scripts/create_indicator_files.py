@@ -19,7 +19,8 @@ def get_indicators(cache_directory, run_description, years = [2014,2015,2020,202
             package_order_exceptions={},
             ),       
     )
-
+    jobs_by_large_area_by_sector = map(lambda x: "emp_sector_%s = large_area.aggregate(urbansim_parcel.building.number_of_jobs_of_sector_%s, intermediates=[parcel,zone,faz])" % (x, x), range(1,20))
+    
     indicators=[
     
     # FAZ indicators 
@@ -151,6 +152,16 @@ def get_indicators(cache_directory, run_description, years = [2014,2015,2020,202
            source_data = source_data,
            ),
     
+    # ## Large Area Indicators
+    # ============================
+    
+        DatasetTable(
+           source_data = source_data,
+           dataset_name = 'large_area',
+           name = 'employment_by_sector',
+           attributes = jobs_by_large_area_by_sector + ['large_area.county_id'],
+           output_type = 'tab'
+               ),    
 
 # #### ============  Miscellaneous tables
 # #### ============  Checked pretty regularly 
@@ -170,34 +181,34 @@ def get_indicators(cache_directory, run_description, years = [2014,2015,2020,202
            source_data = source_data,
          ),
     
-    #  Regional Total Tables, meant to be run annually	 
+    #  Regional Total Tables	 
              
              
-      # Table(
-          # attribute = 'residential_units=alldata.aggregate_all(urbansim_parcel.building.residential_units)',
-          # dataset_name = 'alldata',
-          # source_data = source_data,
-          # ),
-      # Table(
-          # attribute = 'non_residential_sqft=alldata.aggregate_all(urbansim_parcel.building.non_residential_sqft)',
-          # dataset_name = 'alldata',
-          # source_data = source_data,
-          # ),
-      # Table(
-          # attribute = 'households=alldata.aggregate_all(urbansim_parcel.building.number_of_households)',
-          # dataset_name = 'alldata',
-          # source_data = source_data,
-          # ),
-      # Table(
-          # attribute = 'employment=alldata.aggregate_all(urbansim_parcel.building.number_of_jobs)',
-          # dataset_name = 'alldata',
-          # source_data = source_data,
-          # ),
-      # Table(
-          # attribute = 'population=alldata.aggregate_all(urbansim_parcel.building.population)',
-          # dataset_name = 'alldata',
-          # source_data = source_data,
-          # ),
+      Table(
+          attribute = 'residential_units=alldata.aggregate_all(urbansim_parcel.building.residential_units)',
+          dataset_name = 'alldata',
+          source_data = source_data,
+          ),
+      Table(
+          attribute = 'non_residential_sqft=alldata.aggregate_all(urbansim_parcel.building.non_residential_sqft)',
+          dataset_name = 'alldata',
+          source_data = source_data,
+          ),
+      Table(
+          attribute = 'households=alldata.aggregate_all(urbansim_parcel.building.number_of_households)',
+          dataset_name = 'alldata',
+          source_data = source_data,
+          ),
+      Table(
+          attribute = 'employment=alldata.aggregate_all(urbansim_parcel.building.number_of_jobs)',
+          dataset_name = 'alldata',
+          source_data = source_data,
+          ),
+      Table(
+          attribute = 'population=alldata.aggregate_all(urbansim_parcel.building.population)',
+          dataset_name = 'alldata',
+          source_data = source_data,
+          ),
     
     ]
     return indicators

@@ -1,0 +1,5 @@
+county_id	name
+61	Snohomish
+33	Seattle
+53	Pierce
+35	Kitsap

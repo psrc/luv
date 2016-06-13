@@ -1,0 +1,20 @@
+name,sector_id
+Natural resources and mining,1
+Construction,2
+Aerospace,3
+Other durable goods,4
+Nondurable goods,5
+Wholesale trade,6
+Retail trade,7
+Transportation and warehousing,8
+Utilities,9
+Telecommunications,10
+Other information,11
+Financial activities,12
+Professional and business services,13
+Food services and drinking places,14
+Educational services,15
+Health services,16
+Other services,17
+Government,18
+Education,19
