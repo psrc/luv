@@ -87,7 +87,7 @@ for (a in 1:length(geography)){
     html.file <- file.path(result.dir, paste0('rplots_', as.name(attribute[i]), "_", as.name(geography[a]), "_scatterplot.html"))
     htmlwidgets::saveWidget(as.widget(p), html.file)
     # add text into the index file
-    add.text(index.file, paste0("* [", subtitle, "](", html.file, ")"))
+    add.text(index.file, paste0("* [", subtitle, "](", paste0('file://', html.file), ")"))
   }
 }
 # convert index.Rmd into index.html
