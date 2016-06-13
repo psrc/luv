@@ -73,10 +73,16 @@ for (a in 1:length(geography)){
                  x = estrun1,
                  y = estrun2,
                  text = paste0("ID: ", merge.table[,1], " FAZ Name: ", merge.table[,ncol(merge.table)]),
+                 name = as.character(as.name(attribute[i])),
                  type = 'scatter',
                  mode = 'markers'
                  )%>%
-                add_trace(x=c(0,max(estrun1)), y=c(0,max(estrun1)),mode = "line")%>%
+        add_trace(x=c(0,max(estrun1)), 
+                  y=c(0,max(estrun1)),
+                  name = "1:1 line", 
+                  marker = list(size = 0),
+                  opacity = .6,
+                  mode = "lines")%>%
         layout(font = list(family="Segoe UI", size = 13.5),
                title = paste0(as.name(attribute[i]), " by ", as.name(geography[a])),
                xaxis = list(title = runname1),
