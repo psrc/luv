@@ -1,4 +1,4 @@
-#This script will produce scatterplots in html comparing 2040 estimates from runs that are specified in input.txt
+#This script will produce scatterplots in html comparing 2040 estimates from runs that are specified in inputs.txt
 
 library(plotly)
 library(htmlwidgets)
@@ -24,6 +24,8 @@ if(make) {
     run2 <- "run_170.run_2015_09_15_16_02" 
     run.name <- 'run71'
     result.dir <- file.path("C:/Users/Christy/Desktop/luv/QC/results", run.name)
+    faz.lookup <- read.table("C:/Users/Christy/Desktop/luv/QC/data/faz_names.txt", header =TRUE, sep = "\t")
+    zone.lookup <- read.table("C:/Users/Christy/Desktop/luv/QC/data/zones.txt", header =TRUE, sep = "\t")
 }
 faz.lookup <- read.table(file.path("data", "faz_names.txt"), header =TRUE, sep = "\t")
 zone.lookup <- read.table(file.path("data", "zones.txt"), header =TRUE, sep = "\t")
@@ -74,6 +76,7 @@ for (a in 1:length(geography)){
                  type = 'scatter',
                  mode = 'markers'
                  )%>%
+                add_trace(x=c(0,max(estrun1)), y=c(0,max(estrun1)),mode = "line")%>%
         layout(font = list(family="Segoe UI", size = 13.5),
                title = paste0(as.name(attribute[i]), " by ", as.name(geography[a])),
                xaxis = list(title = runname1),
