@@ -1,0 +1,187 @@
+city_id,growth_center_id,name
+2,501,Auburn
+9,601,Ballard-Interbay
+13,503,Bellevue
+139,504,Bothell Canyon Park
+65,505,Bremerton
+23,506,Burien
+9,602,Duwamish
+95,508,Everett
+20,509,Federal Way
+0,603,Frederickson
+7,511,Kent
+7,604,Kent MIC
+14,513,Kirkland Totem Lake
+79,514,Lakewood
+94,515,Lynnwood
+8,605,North Tukwila
+95,606,Paine Field / Boeing Everett
+59,607,Port of Tacoma
+85,519,Puyallup Downtown
+85,520,Puyallup South Hill
+15,521,Redmond Downtown
+15,522,Redmond-Overlake
+12,523,Renton
+4,524,SeaTac
+9,525,Seattle Downtown
+9,526,Seattle First Hill/Capitol Hill
+9,527,Seattle Northgate
+9,528,Seattle South Lake Union
+9,529,Seattle University Community
+9,530,Seattle Uptown
+70,531,Silverdale
+65,608,South Kitsap Industrial Area
+59,533,Tacoma Downtown
+59,534,Tacoma Mall
+8,535,Tukwila
+0,1,Algona
+0,2,Auburn
+0,3,Auburn PAA
+0,4,Bear Creek UPD
+0,5,Beaux Arts
+0,6,Bellevue
+0,7,Bellevue PAA
+0,8,Black Diamond
+0,9,Black Diamond PAA
+0,10,Bothell
+0,11,Bothell PAA
+0,12,Burien
+0,13,Carnation
+0,14,Clyde Hill
+0,15,Covington
+0,16,Covington PAA
+0,17,Des Moines
+0,18,Duvall
+0,19,Enumclaw
+0,20,Federal Way
+0,21,Federal Way PAA
+0,22,Hunts Point
+0,23,Issaquah
+0,24,Issaquah PAA
+0,25,Kenmore
+0,26,Kent
+0,27,Kent PAA
+0,28,Kirkland
+0,29,Kirkland PAA
+0,30,Lake Forest Park
+0,31,Maple Valley
+0,32,Maple Valley PAA
+0,33,Medina
+0,34,Mercer Island
+0,35,Milton
+0,36,Milton PAA
+0,37,Newcastle
+0,38,Newcastle PAA
+0,39,Normandy Park
+0,40,North Bend
+0,41,North Highline
+0,42,Pacific
+0,43,Pacific PAA
+0,44,Redmond
+0,45,Redmond PAA
+0,46,Renton
+0,47,Renton PAA
+0,48,Rural
+0,49,Sammamish
+0,50,Sammamish PAA
+0,51,SeaTac
+0,52,Seattle
+0,53,Seattle PAA
+0,54,Shoreline
+0,55,Skykomish
+0,56,Snoqualmie
+0,57,Tukwila
+0,58,Tukwila PAA
+0,59,UU
+0,60,Woodinville
+0,61,Yarrow Point
+0,62,Bainbridge Island
+0,63,Bremerton
+0,64,Bremerton East UGA
+0,65,Bremerton West UGA
+0,66,Central Kitsap UGA
+0,67,Gorst UGA
+0,68,Kingston UGA
+0,69,Port Orchard
+0,70,Port Orchard UGA
+0,71,Poulsbo
+0,72,Poulsbo PUTA
+0,73,Rural
+0,74,Silverdale
+0,75,SKIA UGA
+0,76,ULID6
+0,77,Auburn
+0,78,Bonney Lake
+0,79,Buckley
+0,80,Carbonado
+0,81,DuPont
+0,82,Eatonville
+0,83,Edgewood
+0,84,Enumclaw
+0,85,Fife
+0,86,Fircrest
+0,87,Gig Harbor
+0,88,JBLM
+0,89,Lakewood
+0,90,Milton
+0,91,Orting
+0,92,Pacific
+0,93,Puyallup
+0,94,Roy
+0,95,Rural
+0,96,Ruston
+0,97,South Prairie
+0,98,Steilacoom
+0,99,Sumner
+0,100,Tacoma
+0,101,University Place
+0,102,UU
+0,103,Wilkeson
+0,104,Arlington
+0,105,ARLINGTON UGA
+0,106,Bothell
+0,107,BOTHELL MUGA
+0,108,Brier
+0,109,BRIER MUGA
+0,110,Darrington
+0,111,DARRINGTON UGA
+0,112,Edmonds
+0,113,EDMONDS MUGA
+0,114,Everett
+0,115,EVERETT MUGA
+0,116,Gold Bar
+0,117,GOLD BAR UGA
+0,118,Granite Falls
+0,119,GRANITE FALLS UGA
+0,120,Index
+0,121,Lake Stevens
+0,122,LAKE STEVENS UGA
+0,123,LAKE STICKNEY GAP
+0,124,LARCH WAY OVERLAP
+0,125,Lynnwood
+0,126,LYNNWOOD MUGA
+0,127,MALTBY UGA
+0,128,Marysville
+0,129,MARYSVILLE UGA
+0,130,MEADOWDALE GAP
+0,131,Mill Creek
+0,132,MILL CREEK MUGA
+0,133,Monroe
+0,134,MONROE UGA
+0,135,Mountlake Terrace
+0,136,MOUNTLAKE TERRACE MUGA
+0,137,Mukilteo
+0,138,MUKILTEO MUGA
+0,139,PAINE FIELD MUGA
+0,140,Rural
+0,141,SILVER FIRS GAP
+0,142,Snohomish
+0,143,SNOHOMISH UGA
+0,144,Stanwood
+0,145,STANWOOD UGA
+0,146,Sultan
+0,147,SULTAN UGA
+0,148,Woodway
+0,149,WOODWAY MUGA
+22,536,Issaquah RGC
+80,537,University Place RGC
