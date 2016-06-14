@@ -9,7 +9,7 @@ absolute.threshold <- as.integer(Sys.getenv('DECREASE_THRESHOLD'))
 percent.threshold <- as.integer(Sys.getenv('DECREASE_THRESHOLD_PERCENT'))
 if(is.na(absolute.threshold)) absolute.threshold <- 0
 if(is.na(percent.threshold)) percent.threshold <- 0
-years <- c(2014, 2015)
+years <- c(2014, 2040)
 
 if(!dir.exists(result.dir)) dir.create(result.dir)
 
@@ -47,11 +47,11 @@ for (ind in indicator.names) {
 colnames(result)[3:ncol(result)] <- c('geo_id', 'difference', 'percent')
 write.table(result, file.path(result.dir, paste0('qc_rtable_decrease_', absolute.threshold, '_', percent.threshold, '.txt')), sep='\t', row.names=FALSE)
 
-# write into report.txt
-freport <- file.path(result.dir, 'report.txt')
-cat('\nQC DECREASES  (', years[1], ' - ', years[2], ')', file=freport, append=TRUE)
-cat('\nThresholds:', absolute.threshold, ' (absolute), ', percent.threshold, ' (percent)', file=freport, append=TRUE)
-cat('\n****************************************\n\n', file=freport, append=TRUE)
-write.table(report, file=freport, append=TRUE, sep='\t', row.names=FALSE, quote=FALSE)
+# write report
+source('templates/create_Rmd_blocks.R')
+freport <- file.path(result.dir, paste0('rtables_decrease_', absolute.threshold, '_', percent.threshold, '.Rmd'))
+if(file.exists(freport)) unlink(freport)
+create.section(freport, title=paste('QC Decreases  in ', years[1], '-', years[2], ')'))
+create.subsection(freport, title=paste('Thresholds:', absolute.threshold, '(absolute),', percent.threshold, '(percent)'))
+add.table(freport, report)
 
-#print(report)

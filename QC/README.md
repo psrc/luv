@@ -65,6 +65,12 @@ Currently, the following phonies are implemented:
    * **ind**: run python indicator script (in scripts/create\_indicator\_files.py) on cache defined via QC\_BASE_DIRECTORY/QC\_RUN1 in inputs.txt
    * **rtables**: run R code in scripts/qc\_rtable\_\*.R
    * **rplots**: run R code in scripts/rplots\_\*.R
+   * **index**: run R code in scripts/create\_index\_file.R (see below for more details)
+   * **all**: run the phonies rtables, rplots and index
+
+## Viewing Results
+
+Each script should write its summary results into an Rmd file (in [R Markdown](http://rmarkdown.rstudio.com)), using a prefix that corresponds to its phonie (e.g. 'rplots\_', 'rtables\_'). The script 'scripts/create\_index\_file.R' (invoked by the index phonie) combines such files into one and translates it into index.html that can be viewed from a browser. 
 
 
 ## Synchronization

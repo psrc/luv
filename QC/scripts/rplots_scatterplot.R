@@ -2,7 +2,6 @@
 
 library(plotly)
 library(htmlwidgets)
-library(rmarkdown)
 
 #environment inputs
 attribute <- c("population", "households","employment", "residential_units")
@@ -36,8 +35,8 @@ if(!dir.exists(result.dir)) dir.create(result.dir)
 
 # put a header into the index file
 source('templates/create_Rmd_blocks.R')
-index.file <- file.path(result.dir, 'index.Rmd')
-create.header(index.file, title="LUV QC Scatterplots", date=date())
+index.file <- file.path(result.dir, 'rplots_scatter.Rmd')
+if(file.exists(index.file)) unlink(index.file)
 create.section(index.file, title=paste("Scatterplots for ", runname1, "and", runname2))
 
 for (a in 1:length(geography)){
@@ -100,7 +99,6 @@ for (a in 1:length(geography)){
   }
 }
 # convert index.Rmd into index.html
-render(index.file)
 print ("Plotting complete! Check results directory.")
 
 

@@ -39,17 +39,26 @@ ind :
 	python $(SCRIPT_PATH)/create_indicator_files.py
 
 .PHONY : all
-all: report maps rplots
+all: rtables_raw rplots_raw index
 
 .PHONY : rtables
-rtables : $(RTABLE_RESULT_FILES)
+rtables : rtables_raw index
 
-$(RESULT_PATH)/qc_rtable_%.txt : $(SCRIPT_PATH)/qc_rtable_%.R inputs.txt
-	@rm -f $(QC_RESULT_PATH)/report.txt
-	R CMD BATCH $(SCRIPT_PATH)/qc_rtable_$*.R  $(SCRIPT_PATH)/qc_rtable_$*.Rout
+.PHONY : rtables_raw
+rtables_raw : $(RTABLE_RESULT_FILES)
 
 .PHONY : rplots
-rplots : $(RPLOT_RESULT_FILES)
+rplots : rplots_raw index
+
+.PHONY : rplots_raw
+rplots_raw : $(RPLOT_RESULT_FILES)
+
+index : $(SCRIPT_PATH)/create_index_file.R inputs.txt
+	R CMD BATCH $(SCRIPT_PATH)/create_index_file.R  $(SCRIPT_PATH)/create_index_file.Rout
+
+$(RESULT_PATH)/qc_rtable_%.txt : $(SCRIPT_PATH)/qc_rtable_%.R inputs.txt
+	#@rm -f $(QC_RESULT_PATH)/report.txt
+	R CMD BATCH $(SCRIPT_PATH)/qc_rtable_$*.R  $(SCRIPT_PATH)/qc_rtable_$*.Rout
 
 $(SCRIPT_PATH)/rplots_%.Rout : $(SCRIPT_PATH)/rplots_%.R inputs.txt
 	R CMD BATCH $(SCRIPT_PATH)/rplots_$*.R  $(SCRIPT_PATH)/rplots_$*.Rout

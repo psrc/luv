@@ -12,15 +12,29 @@ create.header <- function(file, title, author=NULL, date=NULL, output="html_docu
 }
 
 create.section <- function(file, title, text="") {
-	cat("#", title, "\n\n", file=file, append=TRUE)
+	cat("##", title, "\n\n", file=file, append=TRUE)
 	cat(text, "\n", file=file, append=TRUE)
 }
 
 create.subsection <- function(file, title, text="") {
-	cat("##", title, "\n\n", file=file, append=TRUE)
+	cat("###", title, "\n\n", file=file, append=TRUE)
 	cat(text, "\n", file=file, append=TRUE)
 }
 
 add.text <- function(file, text){
 	cat(text, "\n", file=file, append=TRUE)
+}
+
+add.table <- function(file, df){
+	#add.text(file, "```{r, eval=FALSE}")
+	cat(paste(names(df), collapse = "|"), file=file, append=TRUE)
+	cat("\n", file=file, append=TRUE)
+	cat(paste(rep("-", ncol(df)), collapse = "|"), file=file, append=TRUE)
+	cat("\n", file=file, append=TRUE)
+
+	for(i in 1:nrow(df)){
+		cat(paste(df[i,], collapse = "|"), file=file, append=TRUE)
+		cat("\n", file=file, append=TRUE)
+	}
+	#add.text(file, "```")
 }
