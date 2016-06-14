@@ -18,10 +18,10 @@ On modelsrv3 the repository is installed in ``d://luvgit``.
 
 Also, check that R is working from the command line by typing R into the bash terminal. If it is not found, using the above installer should fix it. Or, adding the location of R.exe into your Path environment.
 
-While R is open, install the package ``plotly`` using
+While R is open, install the packages ``plotly`` and ``data.table`` using
 
 ```
-install.packages('plotly', dependencies=TRUE)
+install.packages(c('plotly', 'data.table'), dependencies=TRUE)
 ```
 
 On Windows machines you will most likely need to install [pandoc](http://pandoc.org/installing.html) (click on "downlod page", scroll to the bottom of the page and select the windows installer).
