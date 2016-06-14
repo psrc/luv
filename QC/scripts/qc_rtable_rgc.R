@@ -43,6 +43,7 @@ rgc.total <- merge(rgc.total, lookup.rgc, by='growth_center_id')
 au.table.all <- rgc.total[,c('growth_center_id', 'name', 'total.base', 'au.base', 'total', 'au')]
 au.table.all$name <- as.character(au.table.all$name)
 
+# AU per unit for RGCs
 au.table <- subset(au.table.all, growth_center_id < 600)
 au.table.output <- au.table
 colnames(au.table.output)[3:ncol(au.table.output)] <- c(paste(c('AU', 'AU/acre'), base.year), paste(c('AU', 'AU/acre'), year))
@@ -53,8 +54,19 @@ create.section(freport, title=paste('QC Regional Growth Centers'))
 create.subsection(freport, title='Activity Units per Acre - RGCs')
 add.table.highlight(freport, au.table.output, which(au.table$au < 45))
 
+# AU per unit for MICs
 au.mic.table <- subset(au.table.all, growth_center_id >= 600)
 au.mic.table.output <- au.mic.table
 colnames(au.mic.table.output) <- colnames(au.table.output)
 create.subsection(freport, title='Activity Units per Acre - MICs')
 add.table.highlight(freport, au.mic.table.output, which(au.mic.table$au < 45))
+
+# Job loss in MIC
+mic.jobs <- subset(rgc.values$employment, growth_center_id >= 600)
+mic.jobs <- cbind(mic.jobs, difference=mic.jobs[,3] - mic.jobs[,2])
+mic.jobs <- merge(lookup.rgc[,c('growth_center_id', 'name')], mic.jobs,  by='growth_center_id')
+mic.jobs$name <- as.character(mic.jobs$name)
+idx1 <- which(mic.jobs$difference <= -10000)
+idx2 <- which(mic.jobs$difference > -10000 & mic.jobs$difference < 0)
+create.subsection(freport, title='Job Loss in MICs')
+add.table.highlight(freport, mic.jobs, highlight=idx1, highlight2=idx2, color='pink', color2='yellow')
