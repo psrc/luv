@@ -1,4 +1,7 @@
+#This script will produce scattermaps in html comparing 2040 estimates from runs that are specified in inputs.txt
+
 library(plotly)
+library(htmlwidgets)
 
 attribute <- c("population", "households","employment", "residential_units")
 geography <- c("zone")#, "faz")
@@ -16,21 +19,28 @@ if(make) {
   zone.lookup <- read.table(file.path("data", "zones.txt"), header =TRUE, sep = "\t")
   fazxy.lookup <- read.table(file.path("data","fazxy.txt"), header =TRUE, sep = "\t")
   zonexy.lookup <- read.table(file.path("data", "zonesxy.txt"), header =TRUE, sep = "\t")
+  source('templates/create_Rmd_blocks.R')
 } else {
   base.dir <- "//modelsrv3/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
   run1 <- "run_71.run_2016_05_26_12_41"
   run2 <- "run_170.run_2015_09_15_16_02" 
-  run.name <- 'run71_map'
+  run.name <- 'run71'
   result.dir <- file.path("C:/Users/Christy/Desktop/luv/QC/results", run.name)
   faz.lookup <- read.table("C:/Users/Christy/Desktop/luv/QC/data/faz_names.txt", header =TRUE, sep = "\t")
   zone.lookup <- read.table("C:/Users/Christy/Desktop/luv/QC/data/zones.txt", header =TRUE, sep = "\t")
   fazxy.lookup <- read.table("C:/Users/Christy/Desktop/luv/QC/data/fazxy.txt", header =TRUE, sep = "\t")
   zonexy.lookup <- read.table("C:/Users/Christy/Desktop/luv/QC/data/zonesxy.txt", header =TRUE, sep = "\t")
+  source('C:/Users/Christy/Desktop/luv/QC/templates/create_Rmd_blocks.R')
 }
 
 runname1 <- unlist(strsplit(run1,"[.]"))[[1]]
 runname2 <- unlist(strsplit(run2,"[.]"))[[1]]
 if(!dir.exists(result.dir)) dir.create(result.dir)
+
+# put a header into the index file
+index.file <- file.path(result.dir, 'rplots_scattermap.Rmd')
+if(file.exists(index.file)) unlink(index.file)
+create.section(index.file, title=paste("Scattermaps for ", runname1, "and", runname2))
 
 diff.table <- NULL
 
@@ -108,7 +118,13 @@ for (a in 1:length(geography)){
   
  q <- subplot(p, nrows = 2)
  
- print (q)
+ subtitle <- paste0("Scattermap of all indicators by ", as.name(geography[a]))
+ print (paste0("Plotting ", subtitle))
+ html.file <- file.path(result.dir, paste0('rplots', "_", as.name(geography[a]), "_scattermap.html"))
+ htmlwidgets::saveWidget(as.widget(q), html.file)
+ 
+ # add text into the index file
+ add.text(index.file, paste0("* [", subtitle, "](", paste0('file://', html.file), ")"))
 
 } #end of geography loop
 
