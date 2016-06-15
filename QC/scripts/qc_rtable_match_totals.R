@@ -36,21 +36,26 @@ for (ind in indicator.names) {
 		simcol <- paste0("simulated_", ctyear)
 		colnames(no.match)[colnames(no.match) == paste(ind, ctyear, sep="_")] <- simcol
 		dif <- no.match[[simcol]] - no.match$CT
-		dif.percent <- dif/no.match[[simcol]]
+		dif.percent <- dif/no.match[[simcol]] * 100
 		this.result <- cbind(data.frame(indicator=rep(ind, nrow(no.match)),  no.match), 
-							 data.frame(difference=dif, percent=round(dif.percent,2)))
+							 data.frame(difference=dif, percent=round(dif.percent,1)))
 		result <- rbind(result, this.result)
 		this.report[,'max.percent'] <- max(abs(this.result$percent))
 	}
 	report <- rbind(report, this.report)
 }
 
+# output result table
+res.file <- file.path(result.dir, 'qc_rtable_CTmatch.txt')
+write.table(result, res.file, sep='\t', row.names=FALSE)
+
+# write report
 source('templates/create_Rmd_blocks.R')
 freport <- file.path(result.dir, 'rtables_CTmatch.Rmd')
 if(file.exists(freport)) unlink(freport)
 create.section(freport, title='QC Control Total Mismatch')
 report$indicator <- as.character(report$indicator)
 add.table(freport, report)
-
+add.text(freport, paste0("[See more details](", paste0('file://', res.file), ")"))
 
 

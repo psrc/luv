@@ -45,7 +45,8 @@ for (ind in indicator.names) {
 }
 # output result table
 colnames(result)[3:ncol(result)] <- c('geo_id', 'difference', 'percent')
-write.table(result, file.path(result.dir, paste0('qc_rtable_decrease_', absolute.threshold, '_', percent.threshold, '.txt')), sep='\t', row.names=FALSE)
+res.file <- file.path(result.dir, paste0('qc_rtable_decrease_', absolute.threshold, '_', percent.threshold, '.txt'))
+write.table(result, res.file, sep='\t', row.names=FALSE)
 
 # write report
 source('templates/create_Rmd_blocks.R')
@@ -54,4 +55,5 @@ if(file.exists(freport)) unlink(freport)
 create.section(freport, title=paste('QC Decreases  in ', years[1], '-', years[2], ')'))
 create.subsection(freport, title=paste('Thresholds:', absolute.threshold, '(absolute),', percent.threshold, '(percent)'))
 add.table(freport, report)
+add.text(freport, paste0("[See more details](", paste0('file://', res.file), ")"))
 

@@ -19,11 +19,6 @@ RTABLE_SCRIPTOUT_FILES=$(patsubst $(SCRIPT_PATH)/qc_rtable_%.R, $(SCRIPT_PATH)/q
 RPLOT_SCRIPTOUT_FILES=$(patsubst $(SCRIPT_PATH)/rplots_%.R, $(SCRIPT_PATH)/rplots_%.Rout, \
                                 $(RPLOT_SCRIPT_FILES))
 
-RTABLE_RESULT_FILES=$(patsubst $(SCRIPT_PATH)/qc_rtable_%.R, $(RESULT_PATH)/qc_rtable_%.txt, \
-				$(RTABLE_SCRIPT_FILES))
-RPLOT_RESULT_FILES=$(patsubst $(SCRIPT_PATH)/rplots_%.R, $(SCRIPT_PATH)/rplots_%.Rout, \
-                                $(RPLOT_SCRIPT_FILES))
-
 # The following converts POSIX into Windows path, 
 # which is needed when other processes (e.g. R) use it.  
 WRKDIR=$(shell pwd  | sed 's|^/\([a-z]\)/|\1:/|')
@@ -45,19 +40,18 @@ all: rtables_raw rplots_raw index
 rtables : rtables_raw index
 
 .PHONY : rtables_raw
-rtables_raw : $(RTABLE_RESULT_FILES)
+rtables_raw : $(RTABLE_SCRIPTOUT_FILES)
 
 .PHONY : rplots
 rplots : rplots_raw index
 
 .PHONY : rplots_raw
-rplots_raw : $(RPLOT_RESULT_FILES)
+rplots_raw : $(RPLOT_SCRIPTOUT_FILES)
 
 index : $(SCRIPT_PATH)/create_index_file.R inputs.txt
 	R CMD BATCH $(SCRIPT_PATH)/create_index_file.R  $(SCRIPT_PATH)/create_index_file.Rout
 
-$(RESULT_PATH)/qc_rtable_%.txt : $(SCRIPT_PATH)/qc_rtable_%.R inputs.txt
-	#@rm -f $(QC_RESULT_PATH)/report.txt
+$(SCRIPT_PATH)/qc_rtable_%.Rout : $(SCRIPT_PATH)/qc_rtable_%.R inputs.txt
 	R CMD BATCH $(SCRIPT_PATH)/qc_rtable_$*.R  $(SCRIPT_PATH)/qc_rtable_$*.Rout
 
 $(SCRIPT_PATH)/rplots_%.Rout : $(SCRIPT_PATH)/rplots_%.R inputs.txt
