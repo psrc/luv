@@ -22,23 +22,24 @@ for (ind in c('population', 'employment')) {
 	rgc.values[[ind]] <- read.table(file.path(indicator.path.run1, paste0('growth_center__table__', ind, '.csv')), sep=',', header=TRUE)[,c('growth_center_id', paste(ind,c(base.year, year),sep='_'))]
 	city.values[[ind]] <- read.table(file.path(indicator.path.run1, paste0('city__table__', ind, '.csv')), sep=',', header=TRUE)[,c('city_id', paste(ind,c(base.year, year),sep='_'))]
 }
-rgc.acres <- read.table(file.path(indicator.path.run1, 'growth_center__table__acres.csv'), sep=',', header=TRUE)[,c('growth_center_id', paste('acres',base.year,sep='_'))]
-colnames(rgc.acres)[2] <- 'acres'
-rgc.total <- merge(merge(rgc.values$population, rgc.values$employment, by='growth_center_id'), rgc.acres, by='growth_center_id')
+lookup.rgc <- read.table('data/growth_centers.csv', sep=',', header=TRUE)
+#rgc.acres <- read.table(file.path(indicator.path.run1, 'growth_center__table__acres.csv'), sep=',', header=TRUE)[,c('growth_center_id', paste('acres',base.year,sep='_'))]
+#colnames(rgc.acres)[2] <- 'acres'
+rgc.total <- merge(merge(rgc.values$population, rgc.values$employment, by='growth_center_id'), lookup.rgc, by='growth_center_id')
 rgc.total <- cbind(rgc.total, total.base=rgc.total[[paste('population',base.year,sep='_')]] + rgc.total[[paste('employment',base.year,sep='_')]], 
 								total=rgc.total[[paste('population',year,sep='_')]] + rgc.total[[paste('employment',year,sep='_')]])
 rgc.total <- subset(rgc.total, growth_center_id >= 500)
 rgc.total <- cbind(rgc.total, au.base=round(rgc.total$total.base/rgc.total$acres,1), au=round(rgc.total$total/rgc.total$acres,1))
 
-city.acres <- read.table(file.path(indicator.path.run1, 'city__table__acres.csv'), sep=',', header=TRUE)[,c('city_id', paste('acres',base.year,sep='_'))]
-colnames(city.acres)[2] <- 'acres'
-city.total <- merge(merge(city.values$population, city.values$employment, by='city_id'), city.acres, by='city_id')
-city.total <- cbind(city.total, total.base=city.total[[paste('population',base.year,sep='_')]] + city.total[[paste('employment',base.year,sep='_')]], 
-								total=city.total[[paste('population',year,sep='_')]] + city.total[[paste('employment',year,sep='_')]])
-city.total <- cbind(city.total, au.base=city.total$total.base/city.total$acres, au=city.total$total/city.total$acres)
+#city.acres <- read.table(file.path(indicator.path.run1, 'city__table__acres.csv'), sep=',', header=TRUE)[,c('city_id', paste('acres',base.year,sep='_'))]
+#colnames(city.acres)[2] <- 'acres'
+#city.total <- merge(merge(city.values$population, city.values$employment, by='city_id'), city.acres, by='city_id')
+#city.total <- cbind(city.total, total.base=city.total[[paste('population',base.year,sep='_')]] + city.total[[paste('employment',base.year,sep='_')]], 
+#								total=city.total[[paste('population',year,sep='_')]] + city.total[[paste('employment',year,sep='_')]])
+#city.total <- cbind(city.total, au.base=city.total$total.base/city.total$acres, au=city.total$total/city.total$acres)
 
-lookup.rgc <- read.table('data/growth_centers.csv', sep=',', header=TRUE)
-rgc.total <- merge(rgc.total, lookup.rgc, by='growth_center_id')
+
+#rgc.total <- merge(rgc.total, lookup.rgc, by='growth_center_id')
 
 au.table.all <- rgc.total[,c('growth_center_id', 'name', 'total.base', 'au.base', 'total', 'au')]
 au.table.all$name <- as.character(au.table.all$name)
