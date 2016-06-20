@@ -5,7 +5,7 @@ library(htmlwidgets)
 
 #environment inputs
 attribute <- c("population", "households","employment", "residential_units")
-geography <- c("zone", "faz")
+geography <- c("zone", "faz", "city")
 year1 <- (2040)
 year2 <- (2040)
 extension <- ".csv"
@@ -23,11 +23,12 @@ if(make) {
     run2 <- "run_170.run_2015_09_15_16_02" 
     run.name <- 'run71'
     result.dir <- file.path("C:/Users/Christy/Desktop/luv/QC/results", run.name)
-    faz.lookup <- read.table("C:/Users/Christy/Desktop/luv/QC/data/faz_names.txt", header =TRUE, sep = "\t")
-    zone.lookup <- read.table("C:/Users/Christy/Desktop/luv/QC/data/zones.txt", header =TRUE, sep = "\t")
+    #faz.lookup <- read.table("C:/Users/Christy/Desktop/luv/QC/data/faz_names.txt", header =TRUE, sep = "\t")
+    #zone.lookup <- read.table("C:/Users/Christy/Desktop/luv/QC/data/zones.txt", header =TRUE, sep = "\t")
 }
 faz.lookup <- read.table(file.path("data", "faz_names.txt"), header =TRUE, sep = "\t")
 zone.lookup <- read.table(file.path("data", "zones.txt"), header =TRUE, sep = "\t")
+city.lookup <- read.table(file.path("data", "cities.csv"), header =TRUE, sep = ",")
 
 runname1 <- unlist(strsplit(run1,"[.]"))[[1]]
 runname2 <- unlist(strsplit(run2,"[.]"))[[1]]
@@ -35,7 +36,7 @@ if(!dir.exists(result.dir)) dir.create(result.dir)
 
 # put a header into the index file
 source('templates/create_Rmd_blocks.R')
-index.file <- file.path(result.dir, 'rplots_scatter.Rmd')
+index.file <- file.path(result.dir, paste0('rplots_scatter', runname2, '.Rmd'))
 if(file.exists(index.file)) unlink(index.file)
 create.section(index.file, title=paste("Scatterplots for ", runname1, "and", runname2))
 
@@ -64,7 +65,9 @@ for (a in 1:length(geography)){
       merge.table <- merge(merge.table, faz.lookup, "faz_id")
       merge.table <- merge.table[,c(2, 1, 3:(ncol(merge.table)))] 
     }else{
-        merge.table <- merge(merge.table, faz.lookup, "faz_id")
+    	if (geography[a]=="faz")
+        	merge.table <- merge(merge.table, faz.lookup, "faz_id")
+        else merge.table <- merge(merge.table, city.lookup, "city_id")
       }  
   
     #plot
