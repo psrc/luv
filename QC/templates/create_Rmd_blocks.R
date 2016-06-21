@@ -29,13 +29,20 @@ add.text <- function(file, text){
 	cat(text, "\n", file=file, append=TRUE)
 }
 
+alignment <- function(df) {
+    align <- ""
+    for(i in 1:ncol(df))
+         align <- paste0(align, if(is.numeric(df[[i]])) "-:|" else "-|")
+    return(align)
+}
+
 add.table <- function(file, df){
 	#add.text(file, "```{r, eval=FALSE}")
 	cat(paste(names(df), collapse = "|"), file=file, append=TRUE)
 	cat("\n", file=file, append=TRUE)
-	cat(paste(rep("-", ncol(df)), collapse = "|"), file=file, append=TRUE)
+	cat(alignment(df), file=file, append=TRUE)
+	#cat(paste(rep("-", ncol(df)), collapse = "|"), file=file, append=TRUE)
 	cat("\n", file=file, append=TRUE)
-
 	for(i in 1:nrow(df)){
 		cat(paste(df[i,], collapse = "|"), file=file, append=TRUE)
 		cat("\n", file=file, append=TRUE)
@@ -51,7 +58,8 @@ add.table.highlight <- function(file, df, highlight=c(), color='yellow', highlig
 	
 	cat(paste(names(df), collapse = "|"), file=file, append=TRUE)
 	cat("\n", file=file, append=TRUE)
-	cat(paste(rep("-", ncol(df)), collapse = "|"), file=file, append=TRUE)
+	cat(alignment(df), file=file, append=TRUE)
+	#cat(paste(rep("-", ncol(df)), collapse = "|"), file=file, append=TRUE)
 	cat("\n", file=file, append=TRUE)
 	for(i in 1:nrow(df)){
 		if(i %in% c(highlight, highlight2)) {

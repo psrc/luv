@@ -27,10 +27,11 @@ for (ind in c('population', 'employment', 'residential_units', 'households')) {
 	all.values[[ind]] <- read.table(file.path(indicator.path.run1, paste0('alldata__table__', ind, '.csv')), sep=',', header=TRUE)[,c('alldata_id', paste(ind,c(base.year, year),sep='_'))]
 }
 lookup.rgc <- read.table('data/growth_centers.csv', sep=',', header=TRUE)
+lookup.rgc <- subset(lookup.rgc, growth_center_id >= 500)
 #rgc.acres <- read.table(file.path(indicator.path.run1, 'growth_center__table__acres.csv'), sep=',', header=TRUE)[,c('growth_center_id', paste('acres',base.year,sep='_'))]
 #colnames(rgc.acres)[2] <- 'acres'
 
-# Totals for RGCs vs region and city
+# Shares of RGCs within region and city
 #====================================
 rgc.total <- merge(merge(rgc.values$households, rgc.values$residential_units, by='growth_center_id'), rgc.values$employment, by='growth_center_id')
 city.total <- merge(merge(city.values$households, city.values$residential_units, by='city_id'), city.values$employment, by='city_id')
@@ -44,10 +45,12 @@ for (ind in c('households', 'residential_units', 'employment')) {
 	colnames(all.total)[ncol(all.total)] <- paste0(ind,"_change")
 }
 rgc.total <- subset(rgc.total, growth_center_id >= 500)
-rgc.total.table <- colSums(rgc.total[,2:ncol(rgc.total)])
-city.total <- city.total[city.total$city_id %in% lookup.rgc$city_id,]
-city.total.table <- colSums(city.total[,2:ncol(city.total)])
-rgc.with.city <- merge(merge(rgc.total, lookup.rgc[,c('growth_center_id', 'city_id', 'name')], by='growth_center_id'), city.total, by='city_id')
+rgc.total.nomic <- subset(rgc.total, growth_center_id < 600)
+rgc.total.table <- colSums(rgc.total.nomic[,2:ncol(rgc.total.nomic)])
+lookup.rgc.nomic <- subset(lookup.rgc, growth_center_id < 600)
+city.total.nomic <- city.total[city.total$city_id %in% lookup.rgc.nomic$city_id,]
+city.total.table <- colSums(city.total.nomic[,2:ncol(city.total.nomic)])
+rgc.with.city <- merge(merge(rgc.total.nomic, lookup.rgc.nomic[,c('growth_center_id', 'city_id', 'name')], by='growth_center_id'), city.total, by='city_id')
 detail.report.files <- list()
 res.region <- res.city <- NULL
 for (ind in c('households', 'residential_units', 'employment')) {
@@ -65,13 +68,14 @@ for (ind in c('households', 'residential_units', 'employment')) {
 							 share.change=round(100*rgc.with.city[[paste0(ind, "_change.x")]]/rgc.with.city[[paste0(ind, "_change.y")]],1),
 							 name = rgc.with.city[['name']])
 	colnames(ind.report)[2:(ncol(ind.report)-1)] <-  c(paste("share", base.year), paste("share", year), paste("share change", base.year, "-", year))
+	ind.report <- ind.report[order(as.character(ind.report$name)), ]
 	detail.report.files[[ind]] <- file.path(result.dir, paste0("qc_rtable_rgc_", ind, ".txt"))
 	write.table(ind.report, detail.report.files[[ind]], row.names=FALSE, sep="\t")
 }
 res.region$indicator <- as.character(res.region$indicator)
 res.city$indicator <- as.character(res.city$indicator)
 colnames(res.region)[2:4] <- c(paste("total", base.year), paste("total", year), paste("change", base.year, "-", year))
-colnames(res.city)[2:4] <- colnames(res.region)[2:3]
+colnames(res.city)[2:4] <- colnames(res.region)[2:4]
 
 create.subsection(freport, title='Allocation to RGCs')
 add.text(freport, "#### Share of region (%): \n")
@@ -82,6 +86,37 @@ add.text(freport, "More details on share of cities for: ")
 add.text(freport, paste0("[", c('households', 'residential_units', 'employment'), "](file://", unlist(detail.report.files), ")", collapse=', ')) 
 add.text(freport, "\n")
 	
+# RGC vs the rest of region and city
+#====================================
+city.total.allrgc <- city.total[city.total$city_id %in% lookup.rgc$city_id,]
+city.total.all.table <- colSums(city.total.allrgc[,2:ncol(city.total.allrgc)])
+rgcall.with.city <- merge(merge(rgc.total, lookup.rgc[,c('growth_center_id', 'city_id', 'name')], by='growth_center_id'), city.total, by='city_id')
+data.by.type <- list(RGC=subset(rgc.total, growth_center_id < 600), MIC=subset(rgc.total, growth_center_id >= 600),
+					cities=city.total.all.table, region=all.total)
+add.text(freport, "#### By type, rest of cities and region: \n")
+for (ind in c('households', 'residential_units', 'employment')) {
+	type.table <- NULL
+	for(ctype in c("RGC", "MIC")) {
+		base <- sum(data.by.type[[ctype]][[paste0(ind, "_", base.year)]])
+		total <- sum(data.by.type[[ctype]][[paste0(ind, "_", year)]])
+		type.table <- rbind(type.table, data.frame(area=ctype, base=base, total=total, change=total-base, percent=round(100*(total-base)/base,1),
+													AAPC=round(100*((total/base)^(1/(year-base.year))-1), 2)))
+	}
+	for(ctype in c("cities", "region")) {
+		base <- sum(data.by.type[[ctype]][[paste0(ind, "_", base.year)]]) - sum(type.table$base)
+		total <- sum(data.by.type[[ctype]][[paste0(ind, "_", year)]]) - sum(type.table$total)
+		type.table <- rbind(type.table, data.frame(area=paste("rest of", ctype), base=base, total=total, change=total-base, percent=round(100*(total-base)/base,1),
+													AAPC=round(100*((total/base)^(1/(year-base.year))-1), 2)))
+	}
+	sums <- colSums(type.table[2:4])
+	type.table <- rbind(type.table, data.frame(area="Total", base=sums['base'], total=sums['total'], change=sums['change'],
+						percent=round(100*(sums['total']-sums['base'])/sums['base'],1),
+						  AAPC=round(100*((sums['total']/sums['base'])^(1/(year-base.year))-1), 2)))
+	add.text(freport, paste("#####", ind, "\n"))
+	type.table$area <- as.character(type.table$area)
+	colnames(type.table)[2:5] <- c(base.year, year, paste("change", base.year, "-", year), "percent change")
+	add.table.highlight(freport, type.table, nrow(type.table), color="lightgrey")
+}
 	
 # AU per unit for RGCs
 #======================
@@ -96,6 +131,7 @@ au.table.all$name <- as.character(au.table.all$name)
 
 au.table <- subset(au.table.all, growth_center_id < 600)
 au.table.output <- au.table
+colnames(au.table.output)[1] <- "id"
 colnames(au.table.output)[3:ncol(au.table.output)] <- c(paste(c('AU', 'AU/acre'), base.year), paste(c('AU', 'AU/acre'), year))
 source('templates/create_Rmd_blocks.R')
 
@@ -117,5 +153,6 @@ mic.jobs <- merge(lookup.rgc[,c('growth_center_id', 'name')], mic.jobs,  by='gro
 mic.jobs$name <- as.character(mic.jobs$name)
 idx1 <- which(mic.jobs$difference <= -10000)
 idx2 <- which(mic.jobs$difference > -10000 & mic.jobs$difference < 0)
+colnames(mic.jobs)[1] <- "id"
 create.subsection(freport, title='Job Loss in MICs')
 add.table.highlight(freport, mic.jobs, highlight=idx1, highlight2=idx2, color='pink', color2='yellow')
