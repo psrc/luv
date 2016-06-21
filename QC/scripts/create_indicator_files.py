@@ -96,11 +96,11 @@ def get_indicators(cache_directory, run_description, years = [2014,2015,2020,202
            dataset_name = 'city',
            source_data = source_data,
            ),
-       Table(
-           attribute = 'acres=city.aggregate(parcel.parcel_sqft/43560.)',
-           dataset_name = 'city',
-           source_data = source_data,
-           ),        
+       #Table(
+       #    attribute = 'acres=city.aggregate(parcel.parcel_sqft/43560.)',
+       #    dataset_name = 'city',
+       #    source_data = source_data,
+       #    ),        
 
     # ## Tract-City indicators
     # ==================
@@ -155,11 +155,11 @@ def get_indicators(cache_directory, run_description, years = [2014,2015,2020,202
            dataset_name = 'growth_center',
            source_data = source_data,
            ),
-       Table(
-           attribute = 'acres=growth_center.aggregate(parcel.parcel_sqft/43560.)',
-           dataset_name = 'growth_center',
-           source_data = source_data,
-           ),       
+       #Table(
+       #    attribute = 'acres=growth_center.aggregate(parcel.parcel_sqft/43560.)',
+       #    dataset_name = 'growth_center',
+       #    source_data = source_data,
+       #    ),       
     
     # ## Large Area Indicators
     # ============================
