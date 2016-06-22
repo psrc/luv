@@ -2,6 +2,7 @@
 
 library(plotly)
 library(htmlwidgets)
+library(RColorBrewer)
 
 attribute <- c("population", "households","employment", "residential_units")
 geography <- c("zone","faz")
@@ -43,6 +44,7 @@ if(file.exists(index.file)) unlink(index.file)
 create.section(index.file, title=paste("Scattermaps for ", runname1, "and", runname2))
 
 
+
 for (a in 1:length(geography)){
   
   diff.table <- NULL
@@ -67,8 +69,6 @@ for (a in 1:length(geography)){
     # merge tables
     merge.table <- merge(table1, table2, by = colnames(datatable2)[grepl("_id",names(datatable2))])
     merge.table <- cbind(merge.table, diff=merge.table$estrun1-merge.table$estrun2, indicator=as.character(attribute[i]))
-    merge.table <- cbind(merge.table, valtype = ifelse(merge.table$diff >= 0, "positive", "negative"))
-    merge.table <- cbind(merge.table, group = paste0(merge.table$indicator, " ", merge.table$valtype))
     
     # select largest differences
     merge.table <- merge.table[order(merge.table$diff),]
@@ -102,7 +102,7 @@ for (a in 1:length(geography)){
            subunitcolor = toRGB("white"))
  
  # id for anchoring traces on different plots
- diff.table$id <- as.integer(factor(diff.table$group))
+ diff.table$id <- as.integer(factor(diff.table$indicator))
  
  # hover info
  diff.table$hover <- with(diff.table, paste("ID: ", diff.table[,1], Name, '<br>',"2040 est. difference: ", diff))
@@ -113,17 +113,14 @@ for (a in 1:length(geography)){
              lon = long, 
              lat = lat, 
              geo = paste0("geo", id),
-             group = group,
+             group = indicator,
              name = as.character(attribute[i]),
              text = hover,
              showlegend = T,
-             
-             
-             marker = list(symbols = valtype, symbol = list("circle", "square"), size=(abs(diff))/120, opacity = 0.5)) %>%
+             marker = list(size=(abs(diff))/120, opacity = 0.5)) %>%
       layout(font = list(family="Segoe UI", size = 13.5),
             title = paste0('Greatest differences in 2040 estimates between ', runname1, " and ", runname2, " by ", geography[a]),
             geo = g,
-            
             margin = list(l=50, b=50, t=90, r=100),
             hovermode = T)
   
