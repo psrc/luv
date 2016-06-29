@@ -1,11 +1,15 @@
-# This script will produce scattermaps in html comparing 2040 estimates from runs that are specified in inputs.txt
+# This script will produce choropleth maps in html comparing 2040 estimates from runs that are specified in inputs.txt
+# script crashes with zone geography -- pandoc out of memory error
 
-library(plotly)
+library(leaflet)
+library(rgdal)
+library(sp)
 library(htmlwidgets)
 library(RColorBrewer)
 
+# environment inputs
 attribute <- c("population", "households","employment", "residential_units")
-geography <- c("zone","faz")
+geography <- c("faz")#,"zone",)
 year1 <- (2040)
 year2 <- (2040)
 extension <- ".csv"
@@ -18,35 +22,39 @@ if(make) {
   result.dir <- Sys.getenv('QC_RESULT_PATH')
   faz.lookup <- read.table(file.path("data", "faz_names.txt"), header =TRUE, sep = "\t")
   zone.lookup <- read.table(file.path("data", "zones.txt"), header =TRUE, sep = "\t")
-  fazxy.lookup <- read.table(file.path("data","fazxy.txt"), header =TRUE, sep = "\t")
-  zonexy.lookup <- read.table(file.path("data", "zonesxy.txt"), header =TRUE, sep = "\t")
+  dsn <- file.path("data")
+  layer_faz <- "FAZ_2010_WGS84"
+  layer_taz <- "TAZ_2010_WGS84"
+  layer_centers <- "centers_WGS84"
   source('templates/create_Rmd_blocks.R')
 } else {
   base.dir <- "//modelsrv3/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
-  run1 <- "run_71.run_2016_05_26_12_41"
-  run2 <- "run_170.run_2015_09_15_16_02" 
-  run.name <- 'run71'
+  run1 <- "run_75.run_2016_06_20_17_26"
+  run2 <- "run_78.run_2016_06_23_09_47" 
+  run.name <- 'run75v78_test'
   result.dir <- file.path("C:/Users/Christy/Desktop/luv/QC/results", run.name)
   faz.lookup <- read.table("C:/Users/Christy/Desktop/luv/QC/data/faz_names.txt", header =TRUE, sep = "\t")
   zone.lookup <- read.table("C:/Users/Christy/Desktop/luv/QC/data/zones.txt", header =TRUE, sep = "\t")
-  fazxy.lookup <- read.table("C:/Users/Christy/Desktop/luv/QC/data/fazxy.txt", header =TRUE, sep = "\t")
-  zonexy.lookup <- read.table("C:/Users/Christy/Desktop/luv/QC/data/zonesxy.txt", header =TRUE, sep = "\t")
+  dsn <- "C:/Users/Christy/Desktop/luv/QC/data"
+  layer_faz <- "FAZ_2010_WGS84"
+  layer_taz <- "TAZ_2010_WGS84"
+  layer_centers <- "centers_WGS84"
   source('C:/Users/Christy/Desktop/luv/QC/templates/create_Rmd_blocks.R')
 }
+
+centers <- readOGR(dsn=dsn, layer=layer_centers)
 
 runname1 <- unlist(strsplit(run1,"[.]"))[[1]]
 runname2 <- unlist(strsplit(run2,"[.]"))[[1]]
 if(!dir.exists(result.dir)) dir.create(result.dir)
 
 # put a header into the index file
-index.file <- file.path(result.dir, 'rplots_scattermap.Rmd')
+index.file <- file.path(result.dir, 'rplots_choroplethmap.Rmd')
 if(file.exists(index.file)) unlink(index.file)
-create.section(index.file, title=paste("Scattermaps for ", runname1, "and", runname2))
+create.section(index.file, title=paste("Choropleth maps for ", runname1, "and", runname2))
 
-
+# create tables, maps
 for (a in 1:length(geography)){
-  
-  diff.table <- NULL
   
   for (i in 1:length(attribute)){
     # run1
@@ -67,96 +75,81 @@ for (a in 1:length(geography)){
     
     # merge tables
     merge.table <- merge(table1, table2, by = colnames(datatable2)[grepl("_id",names(datatable2))])
-    merge.table <- cbind(merge.table, diff=merge.table$estrun1-merge.table$estrun2, indicator=switch(attribute[i],"population"="Total Population", "households"="Households", "employment"="Employment", "residential_units"="Residential Units"))
-    merge.table <- cbind(merge.table, valtype = ifelse(merge.table$diff >= 0, "positive", "negative"))
-    #merge.table <- cbind(merge.table, group = paste0(merge.table$indicator, " ", merge.table$valtype))
+    merge.table <- cbind(merge.table, diff=merge.table$estrun1-merge.table$estrun2)#, indicator=switch(attribute[i],"population"="Total Population", "households"="Households", "employment"="Employment", "residential_units"="Residential Units"))
     
-    # select largest differences
-    merge.table <- merge.table[order(merge.table$diff),]
-    top <- head(merge.table, n=20)
-    bottom <- tail(merge.table, n=20)
-    ifelse (is.null(diff.table),diff.table <- rbind(top, bottom), diff.table <- rbind(diff.table, top, bottom))
-  } # end of attribute loop
-  
-    value.type <- c("positive", "negative")
-    for (v in 1:length(value.type)) {
-      subtable <-subset(diff.table, valtype == value.type[v])
-      
     # merge with lookup tables
     if (geography[a]=="zone"){
+      taz <- readOGR(dsn=dsn,layer=layer_taz)
       drops <- c("area_type_id", "district_id")
       combine.lookup <- merge(zone.lookup, faz.lookup, by = "faz_id")
       combine.lookup <- combine.lookup[,!(names(combine.lookup) %in% drops)]
-      new.zonexy.lookup <- zonexy.lookup[,!(names(zonexy.lookup) %in% drops)]
-      combine.lookup <- merge(combine.lookup, new.zonexy.lookup, by = c("zone_id","faz_id"))
-      subtable <- merge(subtable, combine.lookup, by="zone_id")
+      map.table <- merge(merge.table, combine.lookup, by = "zone_id")
+      map.table <- map.table[,!(names(map.table) == "faz_id")]
+      colnames(map.table)[1] <- paste0("id")
+      shp.merge <- merge(taz, map.table, by.x=c("TAZ"), by.y=c("id"))
+      shp.merge$name_id <- shp.merge$TAZ
     } else {
-      combine.lookup <- merge(faz.lookup, fazxy.lookup, by = "faz_id")
-      subtable <- merge(subtable, combine.lookup, by = "faz_id")
+      faz <- readOGR(dsn=dsn,layer=layer_faz)
+      map.table <- merge(merge.table, faz.lookup, by = "faz_id")
+      colnames(map.table)[1] <- paste0("id")
+      shp.merge <- merge(faz, map.table, by.x=c("FAZ10"), by.y=c("id"))
+      shp.merge$name_id <- shp.merge$FAZ10
     }
 
-    # common map properties
-    g <- list(scope = 'usa', 
-           projection = list(type="mercator"),
-           lonaxis = list(range = c(-123.2,-118.9)), 
-           lataxis = list(range = c(46.9,48.4)),
-           resolution = "50", 
-           showland = T, 
-           landcolor = toRGB("gray90"), 
-           showcountries = F, 
-           subunitcolor = toRGB("white"))
+    # map 
+    print (paste0("Mapping ", attribute[i], " by ", geography[a]))
     
- 
-    # id for anchoring traces on different plots
-    subtable$id <- as.integer(factor(subtable$indicator))
- 
-    # hover info
-    subtable$hover <- with(subtable, paste("Name: ", Name,'<br>', "ID: ", subtable[,1],'<br>', runname1,': ',estrun1, '<br>', runname2, ': ', estrun2, '<br>', "Delta: ", diff))
-    
-    # text label
-    ind <- unique(subtable$indicator)
-    id2 <- unique(subtable$id)
-    txt.table <- data.frame(indic = ind, id2)
-    
-    # plot 
-    p <- plot_ly(subtable, 
-             type = 'scattergeo', 
-             lon = long, 
-             lat = lat, 
-             geo = paste0("geo", id),
-             group = indicator,
-             name = as.character(attribute[i]),
-             text = hover,
-             showlegend = F,
-             marker = list(size=17, color=diff,colors="PRGn", opacity = 0.5)) %>%
-        add_trace(lat = 47.80207, 
-                  lon = -121.007592,
-                  mode = 'text', 
-                  group = indic,
-                  geo = paste0("geo",id2),
-                  text = indic,
-                  data = txt.table,
-                  type = 'scattergeo',
-                  showlegend =F)%>%
-        layout(
-            font = list(family="Segoe UI", size = 13.5),
-            title = paste0('2040 estimate differences for ', runname1, " and ", runname2, " by ", geography[a],'<br>',"(",value.type[v]," delta)"),
-            geo = g,
-            margin = list(l=50, b=50, t=90, r=100),
-            hovermode = T)
-  
-    q <- subplot(p, nrows = 2)
-    #print(q)
+    pal <- colorBin(palette = "PuOr", bins = 9, domain=shp.merge$diff, pretty = FALSE)
+      
+    geo.popup1 <- paste0("<strong>ID: </strong>", shp.merge$name_id, 
+                        "<br><strong>Name: </strong>", shp.merge$Name,
+                        "<br><strong>Difference: </strong>", shp.merge$diff
+                        )
+    geo.popup2 <- paste0("<strong>Center: </strong>", centers$name_id) 
+      
+    m <- leaflet(data=shp.merge)%>% 
+      addProviderTiles("CartoDB.Positron", group = "Basic Street Map")%>%
+      addProviderTiles("Esri.WorldImagery", group = "Imagery")%>%
+      addPolygons(fillColor = ~pal(diff), 
+                  fillOpacity = 0.7,
+                  stroke = TRUE,
+                  color = "#8a8a95",
+                  weight = 1,
+                  group = "Data",
+                  popup = geo.popup1)%>%
+      addPolygons(data=centers,
+                  stroke = TRUE,
+                  color = "#a9a9b1",
+                  dashArray = "5",
+                  weight = 2,
+                  group = "Centers",
+                  popup = geo.popup2)%>%
+      addLegend("bottomright", 
+                pal = pal, 
+                values = ~diff,
+                title = paste0(runname1, " and ", runname2, "<br>Difference in 2040 ", attribute[i], " by ", geography[a]),
+                opacity =1,
+                labFormat = labelFormat(digits = 0, big.mark = ","))%>%
+      addLayersControl(baseGroups = c("Basic Street Map", "Imagery"),
+                       overlayGroups = c("Data", "Centers"),
+                       options = layersControlOptions(collapsed = FALSE)
+                      )
+      
+    print(m)
 
     # create html files
-    subtitle <- paste0("All indicators with ", value.type[v], " delta by ", as.name(geography[a]))
-    print (paste0("Plotting ", subtitle))
-    html.file <- file.path(result.dir, paste0('rplots', "_",value.type[v],"_delta_", as.name(geography[a]), "_scattermap.html"))
-    htmlwidgets::saveWidget(as.widget(q), html.file)
+    subtitle <- paste0(attribute[i], " by ", as.name(geography[a]))
+    html.file <- file.path(result.dir, paste0('rplots', "_",as.name(attribute[i]),"_by_", as.name(geography[a]), "_choroplethmap.html"))
+    saveWidget(m, file=html.file)
  
     # add text into the index file
     add.text(index.file, paste0("* [", subtitle, "](", paste0('file://', html.file), ")"))
-  } # end of value.type loop
+    
+    
+  } # end of attribute loop
+  
+  print (paste0("Mapping ", geography[a],"s Complete!"))
+  
 } # end of geography loop
 
 
