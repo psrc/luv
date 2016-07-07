@@ -9,7 +9,7 @@ library(RColorBrewer)
 
 # environment inputs
 attribute <- c("population", "households","employment", "residential_units")
-geography <- c("faz")#,"zone",)
+geography <- c("faz")#,"zone")
 year1 <- (2040)
 year2 <- (2040)
 extension <- ".csv"
@@ -99,10 +99,14 @@ for (a in 1:length(geography)){
     # map 
     print (paste0("Mapping ", attribute[i], " by ", geography[a]))
     
-    pal <- colorBin(palette = "PuOr", bins = 9, domain=shp.merge$diff, pretty = FALSE)
+    colors <- rev(brewer.pal(n=9, name="RdBu"))
+    pal <- colorBin(colors, bins = 9, domain=shp.merge$diff, pretty = FALSE)
+    
       
     geo.popup1 <- paste0("<strong>ID: </strong>", shp.merge$name_id, 
                         "<br><strong>Name: </strong>", shp.merge$Name,
+                        "<br><strong>", runname1," estimate: </strong>", shp.merge$estrun1,
+                        "<br><strong>", runname2," estimate: </strong>", shp.merge$estrun2,
                         "<br><strong>Difference: </strong>", shp.merge$diff
                         )
     geo.popup2 <- paste0("<strong>Center: </strong>", centers$name_id) 
