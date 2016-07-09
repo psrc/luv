@@ -75,72 +75,213 @@ for (a in 1:length(geography)){
     
     # merge tables
     merge.table <- merge(table1, table2, by = colnames(datatable2)[grepl("_id",names(datatable2))])
-    merge.table <- cbind(merge.table, diff=merge.table$estrun1-merge.table$estrun2)#, indicator=switch(attribute[i],"population"="Total Population", "households"="Households", "employment"="Employment", "residential_units"="Residential Units"))
+    merge.table <- cbind(merge.table, diff=merge.table$estrun1-merge.table$estrun2)
     
-    # merge with lookup tables
-    if (geography[a]=="zone"){
-      taz <- readOGR(dsn=dsn,layer=layer_taz)
-      drops <- c("area_type_id", "district_id")
-      combine.lookup <- merge(zone.lookup, faz.lookup, by = "faz_id")
-      combine.lookup <- combine.lookup[,!(names(combine.lookup) %in% drops)]
-      map.table <- merge(merge.table, combine.lookup, by = "zone_id")
-      map.table <- map.table[,!(names(map.table) == "faz_id")]
-      colnames(map.table)[1] <- paste0("id")
-      shp.merge <- merge(taz, map.table, by.x=c("TAZ"), by.y=c("id"))
-      shp.merge$name_id <- shp.merge$TAZ
+    value.type <- NULL
+    
+    # check for positive and negative values
+    pos <- merge.table[merge.table$diff >=0,]
+    if ((nrow(pos) != 0) & (nrow(pos) < nrow(merge.table))){ 
+      value.type <- c("positive", "negative")
+    } else if (nrow(pos) == nrow(merge.table)){
+      value.type <- c("positive")
     } else {
-      faz <- readOGR(dsn=dsn,layer=layer_faz)
-      map.table <- merge(merge.table, faz.lookup, by = "faz_id")
-      colnames(map.table)[1] <- paste0("id")
-      shp.merge <- merge(faz, map.table, by.x=c("FAZ10"), by.y=c("id"))
-      shp.merge$name_id <- shp.merge$FAZ10
+      value.type <- c("negative")
     }
-
-    # map 
-    print (paste0("Mapping ", attribute[i], " by ", geography[a]))
     
-    colors <- rev(brewer.pal(n=9, name="RdBu"))
-    pal <- colorBin(colors, bins = 9, domain=shp.merge$diff, pretty = FALSE)
+    print(value.type)
     
+    for (v in 1:length(value.type)){
+      table1 <- switch(value.type[v], "positive"=subset(merge.table,merge.table$diff>=0), "negative"=subset(merge.table,merge.table$diff<0))
       
-    geo.popup1 <- paste0("<strong>ID: </strong>", shp.merge$name_id, 
-                        "<br><strong>Name: </strong>", shp.merge$Name,
-                        "<br><strong>", runname1," estimate: </strong>", shp.merge$estrun1,
-                        "<br><strong>", runname2," estimate: </strong>", shp.merge$estrun2,
-                        "<br><strong>Difference: </strong>", shp.merge$diff
-                        )
-    geo.popup2 <- paste0("<strong>Center: </strong>", centers$name_id) 
+      # merge with lookup tables
+      if (geography[a]=="zone"){
+        taz <- readOGR(dsn=dsn,layer=layer_taz)
+        drops <- c("area_type_id", "district_id")
+        combine.lookup <- merge(zone.lookup, faz.lookup, by = "faz_id")
+        combine.lookup <- combine.lookup[,!(names(combine.lookup) %in% drops)]
+        map.table <- merge(table1, combine.lookup, by = "zone_id")
+        map.table <- map.table[,!(names(map.table) == "faz_id")]
+        colnames(map.table)[1] <- paste0("id")
+        shp.merge <- merge(taz, map.table, by.x=c("TAZ"), by.y=c("id"))
+        shp.merge$name_id <- shp.merge$TAZ
+      } else {
+        faz <- readOGR(dsn=dsn,layer=layer_faz)
+        map.table <- merge(table1, faz.lookup, by = "faz_id")
+        colnames(map.table)[1] <- paste0("id")
+        shp.merge <- merge(faz, map.table, by.x=c("FAZ10"), by.y=c("id"))
+        shp.merge$name_id <- shp.merge$FAZ10
+      }
+        
+        assign(paste("shp.",value.type[v], sep = ""),shp.merge)
       
-    m <- leaflet(data=shp.merge)%>% 
-      addProviderTiles("CartoDB.Positron", group = "Basic Street Map")%>%
-      addProviderTiles("Esri.WorldImagery", group = "Imagery")%>%
-      addPolygons(fillColor = ~pal(diff), 
-                  fillOpacity = 0.7,
-                  stroke = TRUE,
-                  color = "#8a8a95",
-                  weight = 1,
-                  group = "Data",
-                  popup = geo.popup1)%>%
-      addPolygons(data=centers,
-                  stroke = TRUE,
-                  color = "#a9a9b1",
-                  dashArray = "5",
-                  weight = 2,
-                  group = "Centers",
-                  popup = geo.popup2)%>%
-      addLegend("bottomright", 
-                pal = pal, 
-                values = ~diff,
-                title = paste0(runname1, " and ", runname2, "<br>Difference in 2040 ", attribute[i], " by ", geography[a]),
-                opacity =1,
-                labFormat = labelFormat(digits = 0, big.mark = ","))%>%
-      addLayersControl(baseGroups = c("Basic Street Map", "Imagery"),
-                       overlayGroups = c("Data", "Centers"),
-                       options = layersControlOptions(collapsed = FALSE)
-                      )
+    } # end of value.type loop
+    
+    # scenarios for mapping
+    if (exists("shp.positive") & exists("shp.negative")){
+      shp.positive <- shp.positive[!is.na(shp.positive@data$diff),]
+      shp.negative <- shp.negative[!is.na(shp.negative@data$diff),]
       
-    print(m)
-
+      # map 
+      print (paste0("Mapping ", attribute[i], " by ", geography[a]))
+      
+      geo.popup1 <- paste0("<strong>ID: </strong>", shp.positive$name_id, 
+                           "<br><strong>Name: </strong>", shp.positive$Name,
+                           "<br><strong>", runname1," estimate: </strong>", shp.positive$estrun1,
+                           "<br><strong>", runname2," estimate: </strong>", shp.positive$estrun2,
+                           "<br><strong>Difference: </strong>", shp.positive$diff
+                          )
+      geo.popup2 <- paste0("<strong>ID: </strong>", shp.negative$name_id, 
+                           "<br><strong>Name: </strong>", shp.negative$Name,
+                           "<br><strong>", runname1," estimate: </strong>", shp.negative$estrun1,
+                           "<br><strong>", runname2," estimate: </strong>", shp.negative$estrun2,
+                           "<br><strong>Difference: </strong>", shp.negative$diff
+                          )
+      geo.popup3 <- paste0("<strong>Center: </strong>", centers$name_id) 
+      
+      colors <- brewer.pal(n=5, name="Reds")
+      pal <- colorBin(colors, bins = 5, domain=shp.positive$diff, pretty = FALSE)
+      
+      colors2 <- rev(brewer.pal(n=5, name="Blues"))
+      pal2 <- colorBin(colors2, bins = 5, domain=shp.negative$diff, pretty = FALSE)
+      
+      m <- leaflet(data=shp.positive)%>% 
+        addProviderTiles("CartoDB.Positron", group = "Street Map")%>%
+        addProviderTiles("Esri.WorldImagery", group = "Imagery")%>%
+        addPolygons(fillColor = ~pal(diff), 
+                    fillOpacity = 0.7,
+                    stroke = TRUE,
+                    color = "#8a8a95",
+                    weight = 1,
+                    group = "Data",
+                    popup = geo.popup1)%>%
+        addPolygons(data=shp.negative,
+                    fillColor = ~pal2(diff), 
+                    fillOpacity = 0.7,
+                    stroke = TRUE,
+                    color = "#8a8a95",
+                    weight = 1,
+                    group = "Data",
+                    popup = geo.popup2)%>%
+        addPolygons(data=centers,
+                    stroke = TRUE,
+                    color = "#a9a9b1",
+                    dashArray = "5",
+                    weight = 2,
+                    group = "Centers",
+                    popup = geo.popup3)%>%
+        addLegend("bottomright", 
+                  pal = pal, 
+                  values = ~diff,
+                  title = "",
+                  opacity =1,
+                  labFormat = labelFormat(digits = 0, big.mark = ","))%>%
+        addLegend("bottomright",
+                  pal = pal2,
+                  values = ~diff,
+                  title = paste0(runname1, " and ", runname2, "<br>Difference in 2040 ", attribute[i], " by ", geography[a]),
+                  opacity =1,
+                  labFormat = labelFormat(digits = 0, big.mark = ","))%>%
+        addLayersControl(baseGroups = c("Street Map", "Imagery"),
+                         overlayGroups = c("Data", "Centers"),
+                         options = layersControlOptions(collapsed = FALSE)
+        )
+      
+      print(m)
+    } else if (value.type == "positive"){
+      shp.positive <- shp.positive[!is.na(shp.positive@data$diff),]
+      # map 
+      print (paste0("Mapping ", attribute[i], " by ", geography[a]))
+      
+      geo.popup1 <- paste0("<strong>ID: </strong>", shp.positive$name_id, 
+                           "<br><strong>Name: </strong>", shp.positive$Name,
+                           "<br><strong>", runname1," estimate: </strong>", shp.positive$estrun1,
+                           "<br><strong>", runname2," estimate: </strong>", shp.positive$estrun2,
+                           "<br><strong>Difference: </strong>", shp.positive$diff
+      )
+      
+      geo.popup3 <- paste0("<strong>Center: </strong>", centers$name_id) 
+      
+      colors <- brewer.pal(n=5, name="Reds")
+      pal <- colorBin(colors, bins = 5, domain=shp.positive$diff, pretty = FALSE)
+      
+      m <- leaflet(data=shp.positive)%>% 
+        addProviderTiles("CartoDB.Positron", group = "Street Map")%>%
+        addProviderTiles("Esri.WorldImagery", group = "Imagery")%>%
+        addPolygons(fillColor = ~pal(diff), 
+                    fillOpacity = 0.7,
+                    stroke = TRUE,
+                    color = "#8a8a95",
+                    weight = 1,
+                    group = "Data",
+                    popup = geo.popup1)%>%
+        addPolygons(data=centers,
+                    stroke = TRUE,
+                    color = "#a9a9b1",
+                    dashArray = "5",
+                    weight = 2,
+                    group = "Centers",
+                    popup = geo.popup3)%>%
+        addLegend("bottomright", 
+                  pal = pal, 
+                  values = ~diff,
+                  title = paste0(runname1, " and ", runname2, "<br>Difference in 2040 ", attribute[i], " by ", geography[a]),
+                  opacity =1,
+                  labFormat = labelFormat(digits = 0, big.mark = ","))%>%
+        addLayersControl(baseGroups = c("Street Map", "Imagery"),
+                         overlayGroups = c("Data", "Centers"),
+                         options = layersControlOptions(collapsed = FALSE)
+        )
+      
+      print(m)
+    } else {
+      shp.negative <- shp.negative[!is.na(shp.negative@data$diff),]
+      # map 
+      print (paste0("Mapping ", attribute[i], " by ", geography[a]))
+      
+      geo.popup2 <- paste0("<strong>ID: </strong>", shp.negative$name_id, 
+                           "<br><strong>Name: </strong>", shp.negative$Name,
+                           "<br><strong>", runname1," estimate: </strong>", shp.negative$estrun1,
+                           "<br><strong>", runname2," estimate: </strong>", shp.negative$estrun2,
+                           "<br><strong>Difference: </strong>", shp.negative$diff
+      )
+      geo.popup3 <- paste0("<strong>Center: </strong>", centers$name_id) 
+      
+      colors2 <- rev(brewer.pal(n=5, name="Blues"))
+      pal2 <- colorBin(colors2, bins = 5, domain=shp.negative$diff, pretty = FALSE)
+      
+      m <- leaflet(data=shp.negative)%>% 
+        addProviderTiles("CartoDB.Positron", group = "Street Map")%>%
+        addProviderTiles("Esri.WorldImagery", group = "Imagery")%>%
+        addPolygons(data=shp.negative,
+                    fillColor = ~pal2(diff), 
+                    fillOpacity = 0.7,
+                    stroke = TRUE,
+                    color = "#8a8a95",
+                    weight = 1,
+                    group = "Data",
+                    popup = geo.popup2)%>%
+        addPolygons(data=centers,
+                    stroke = TRUE,
+                    color = "#a9a9b1",
+                    dashArray = "5",
+                    weight = 2,
+                    group = "Centers",
+                    popup = geo.popup3)%>%
+        addLegend("bottomright",
+                  pal = pal2,
+                  values = ~diff,
+                  title = paste0(runname1, " and ", runname2, "<br>Difference in 2040 ", attribute[i], " by ", geography[a]),
+                  opacity =1,
+                  labFormat = labelFormat(digits = 0, big.mark = ","))%>%
+        addLayersControl(baseGroups = c("Street Map", "Imagery"),
+                         overlayGroups = c("Data", "Centers"),
+                         options = layersControlOptions(collapsed = FALSE)
+        )
+      
+      print(m)
+    }
+    
     # create html files
     subtitle <- paste0(attribute[i], " by ", as.name(geography[a]))
     html.file <- file.path(result.dir, paste0('rplots', "_",as.name(attribute[i]),"_by_", as.name(geography[a]), "_choroplethmap.html"))
@@ -149,7 +290,9 @@ for (a in 1:length(geography)){
     # add text into the index file
     add.text(index.file, paste0("* [", subtitle, "](", paste0('file://', html.file), ")"))
     
-    
+    # clear shapes
+    if(exists("shp.positive")) remove(shp.positive)
+    if(exists("shp.negative")) remove(shp.negative)   
   } # end of attribute loop
   
   print (paste0("Mapping ", geography[a],"s Complete!"))
