@@ -94,6 +94,15 @@ Each script should write its summary results into an Rmd file (in [R Markdown](h
 
 As this is under active development, don't forget to ``pull`` regularly to keep the repository version in sync with your local code. If you're writing a script, push it to the repository also on a regular basis so that everybody is informed what others are working on.
 
+If you made local changes into inputs.txt, e.g. changes in directories, do not commit those as everybody has different values in this file. To exclude input.txt from committing and pushing, do (from the QC directory)
+
+```
+git add -u
+git reset -- inputs.txt
+git commit -m 'describe your changes'
+git push
+```
+
 If you have local changes you want to throw out, e.g. in Makefile, do (from the QC directory)
 
 ```
