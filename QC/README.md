@@ -29,7 +29,7 @@ On Windows machines you will most likely need to install [pandoc](http://pandoc.
 
 ## Running the Makefile
 
-Navigate into the luv/QC directory. The Makefile here is a collection of scripts that do some part of the QC. It's currently under development, so most of them are just placeholders. To test the script, first locate where LUV results are located. Open the file input.txt and modify the 'directory' line appropriately. (If your file system is connected to the E drive on modelsrv3, you might not need any changes). You can use comments to comment out unused rows. 
+Navigate into the luv/QC directory. The Makefile here is a collection of scripts that do some part of the QC. To test the script, first locate where LUV results are located. Open the file input.txt and modify the 'QC\_BASE\_DIRECTORY' and 'QC\_RUN1' lines appropriately. (If your file system is connected to the E drive on modelsrv3, you might not need any changes). You can use comments to comment out unused rows. Note that the file is space sensitive, so make sure there are no spaces at the end of the lines.
 Then run the following line from your bash terminal:
 
 ```
@@ -44,6 +44,25 @@ To delete the created files, type
 make clean
 ```
 
+After an UrbanSim run is finished, indicator files need to be created. Make sure the 'QC\_RUN1' entry in input.txt points to the right run, then type
+
+
+```
+make ind
+```
+
+Note that the above step need Opus to be installed.
+
+For running the QC, some scripts perform comparisons of the current run (defined in  'QC\_RUN1') with another one, which should be defined in 'QC\_RUN2'. Also in inputs.txt, the entry 'QC\_NAME' defines a directory where QC results are stored, and thus has the potential of overwriting existing results.
+
+To run all the QCs, type
+
+```
+make all
+```
+
+For running only a subset of the scripts, see next section.
+
 
 ## Extending the Makefile
 
@@ -54,8 +73,6 @@ make rtables
 ```
 will run all R-scripts in the 'scripts' directory that are of the form 'qc\_rtable\_\*.R' where \* can be any character string. Such scripts should store their results in the 'results/{run\_name}' directory where {run\_name} corresponds to the QC\_NAME entry in the inputs.txt file.  The absolute path of this directory can be obtained from the environmental variable QC\_RESULT\_PATH. 
 
-We can create other grouppings, e.g. for plots or maps. 
-
 Scripts can operate either on the indicator files (as the testreport), or on outputs of other scripts. (That's where dependecies defined in a Makefile come very handy.)
 
 Currently, the following phonies are implemented:
@@ -65,12 +82,12 @@ Currently, the following phonies are implemented:
    * **ind**: run python indicator script (in scripts/create\_indicator\_files.py) on cache defined via QC\_BASE_DIRECTORY/QC\_RUN1 in inputs.txt (needs Opus installed)
    * **rtables**: run R code in scripts/qc\_rtable\_\*.R
    * **rplots**: run R code in scripts/rplots\_\*.R
-   * **index**: run R code in scripts/create\_index\_file.R (see below for more details)
+   * **index**: run R code in scripts/create\_index\_file.R (see next section for more details)
    * **all**: run the phonies rtables, rplots and index
 
 ## Viewing Results
 
-Each script should write its summary results into an Rmd file (in [R Markdown](http://rmarkdown.rstudio.com)), using a prefix that corresponds to its phonie (e.g. 'rplots\_', 'rtables\_'). The script 'scripts/create\_index\_file.R' (invoked by the index phonie) combines such files into one and translates it into index.html that can be viewed from a browser. 
+Each script should write its summary results into an Rmd file (in [R Markdown](http://rmarkdown.rstudio.com)), using a prefix that corresponds to its phonie (e.g. 'rplots\_', 'rtables\_'). The script 'scripts/create\_index\_file.R' (invoked by the index phonie) combines such files into one and translates it into index.html that can be viewed from a browser.  The file located in the corresponding results directory.
 
 
 ## Synchronization

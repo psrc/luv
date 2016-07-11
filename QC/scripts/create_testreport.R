@@ -2,7 +2,6 @@
 
 # Obtain inputs from the environment
 run1 <- Sys.getenv('QC_RUN1')
-run2 <- Sys.getenv('QC_RUN2')
 base.dir <- Sys.getenv('QC_BASE_DIRECTORY')
 result.dir <- Sys.getenv('QC_RESULT_PATH')
 if(!dir.exists(result.dir)) dir.create(result.dir)

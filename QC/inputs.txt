@@ -1,14 +1,14 @@
 # QC_NAME is obligatory entry; defines subdirectory for the QC results
-QC_NAME=run74
-QC_BASE_DIRECTORY=//modelsrv3/e$$/opusgit/urbansim_data/data/psrc_parcel/runs
-#QC_BASE_DIRECTORY=/Volumes/e$$/opusgit/urbansim_data/data/psrc_parcel/runs
+QC_NAME=run75
+#QC_BASE_DIRECTORY=//modelsrv3/e$$/opusgit/urbansim_data/data/psrc_parcel/runs
+QC_BASE_DIRECTORY=/Volumes/e$$/opusgit/urbansim_data/data/psrc_parcel/runs
 #QC_BASE_DIRECTORY=/Users/hana/opus/urbansim_data/data/psrc_parcel/runs
 #QC_BASE_DIRECTORY=e://opusgit/urbansim_data/data/psrc_parcel/runs
 #QC_RUN1=run_71.run_2016_05_26_12_41
 #QC_RUN1=run_73.run_2016_06_13_16_56
 #QC_RUN1=run_72.run_2016_06_13_16_55
-QC_RUN1=run_74.run_2016_06_16_15_40
+QC_RUN2=run_78.run_2016_06_23_09_47
 QC_RUN2=run_170.run_2015_09_15_16_02
-QC_RUN2=run_73.run_2016_06_13_16_56
+QC_RUN1=run_75.run_2016_06_20_17_26
 #DECREASE_THRESHOLD=100
 #DECREASE_THRESHOLD_PERCENT=2
