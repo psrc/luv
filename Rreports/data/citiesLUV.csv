@@ -1,0 +1,143 @@
+city_id,city_name,county_id
+49,Snohomish-Rural,1
+94,Lynnwood,1
+95,Everett,1
+96,Brier,1
+97,Brier MUGA,1
+98,Edmonds,1
+99,Meadowdale Gap,1
+100,Mill Creek,1
+101,Mountlake Terrace,1
+102,Lynnwood MUGA,1
+103,Mill Creek MUGA,1
+104,Larch Way Overlap,1
+105,Bothell MUGA,1
+106,Marysville,1
+107,Lake Stickney Gap,1
+108,Mukilteo MUGA,1
+109,Everett MUGA,1
+110,Monroe,1
+111,Arlington,1
+112,Snohomish,1
+113,Lake Stevens,1
+114,Sultan,1
+115,Woodway,1
+116,Darrington,1
+117,Gold Bar UGA,1
+118,Edmonds MUGA,1
+119,Mountlake Terrace MUGA,1
+120,Mukilteo,1
+121,Marysville UGA,1
+122,Lake Stevens UGA,1
+123,Stanwood,1
+124,Arlington UGA,1
+125,Monroe UGA,1
+126,Snohomish UGA,1
+127,Silver Firs Gap,1
+128,Gold Bar,1
+129,Granite Falls,1
+130,Stanwood UGA,1
+131,Index,1
+132,Maltby UGA,1
+133,Granite Falls UGA,1
+134,PAINE FIELD AREA,1
+135,Sultan UGA,1
+136,Woodway MUGA,1
+137,Darrington UGA,1
+139,Bothell,1
+1,Normandy Park,2
+2,Auburn,2
+3,King-Rural,2
+4,Sea Tac,2
+5,Shoreline,2
+6,Renton PAA,2
+7,Kent,2
+8,Tukwila,2
+9,Seattle,2
+10,Kent PAA,2
+11,North Highline,2
+12,Renton,2
+13,Bellevue,2
+14,Kirkland,2
+15,Redmond,2
+16,Covington,2
+17,Enumclaw,2
+18,Des Moines,2
+19,Mercer Island,2
+20,Federal Way,2
+21,Sammamish,2
+22,Issaquah,2
+23,Burien,2
+24,Sammamish PAA,2
+25,Federal Way PAA,2
+26,Kenmore,2
+27,Duvall,2
+28,Bothell,2
+30,Woodinville,2
+31,Algona,2
+32,North Bend,2
+33,Lake Forest Park,2
+34,Redmond PAA,2
+35,Black Diamond,2
+36,Newcastle PAA,2
+37,Snoqualmie,2
+38,Bear Creek UPD,2
+39,Pacific,2
+40,Tukwila PAA,2
+41,Clyde Hill,2
+42,Maple Valley,2
+43,Newcastle,2
+44,Issaquah PAA,2
+45,Black Diamond PAA,2
+47,Yarrow Point,2
+48,Hunts Point,2
+50,Medina,2
+51,Beaux Arts,2
+52,Skykomish,2
+46,UUU,2
+54,Milton,2
+55,Carnation,2
+57,Milton PAA,2
+58,Bellevue PAA,2
+60,Auburn PAA,2
+61,Pacific PAA,2
+62,Seattle PAA,2
+63,Kitsap-Rural,3
+64,Port Orchard,3
+65,Bremerton,3
+66,Bremerton UGA,3
+67,Port Orchard UGA,3
+68,Central Kitsap UGA,3
+69,Bainbridge Island,3
+70,Silverdale,3
+71,Poulsbo,3
+72,Poulsbo PUTA,3
+73,Kingston UGA,3
+29,Pierce-Rural,4
+53,UU,4
+59,Tacoma,4
+74,Steilacoom,4
+75,JBLM,4
+76,DuPont,4
+77,Gig Harbor,4
+78,Roy,4
+79,Lakewood,4
+80,University Place,4
+81,Fircrest,4
+82,Ruston,4
+83,Fife,4
+84,Eatonville,4
+85,Puyallup,4
+86,Orting,4
+87,Edgewood,4
+88,Sumner,4
+89,Bonney Lake,4
+90,South Prairie,4
+91,Carbonado,4
+92,Buckley,4
+93,Wilkeson,4
+138,Auburn,4
+141,Milton,4
+142,Pacific,4
+140,Enumclaw,0
+56,Covington PAA,0

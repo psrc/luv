@@ -1,0 +1,19 @@
+county_id	large_area_id	large_area_name
+61	1	NW Snohomish
+61	2	Everett
+61	3	SW Snohomish
+61	4	Snohomish Other
+33	5	Shoreline
+33	6	Seattle
+33	7	Eastside King
+33	8	SW King
+33	9	Green River
+33	10	SE King
+33	11	King Other
+53	12	Tacoma
+53	13	SW Pierce
+53	14	Pierce Other
+53	15	Peninsula
+35	16	South Kitsap
+35	17	Central Kitsap
+35	18	North Kitsap

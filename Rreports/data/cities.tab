@@ -1,0 +1,96 @@
+city_id:i4	city_name:S28	city_name_extended:S28	county_id:i4
+1	Algona	Algona	2
+2	Arlington	Arlington	1
+3	Auburn	Auburn - King	2
+4	Bainbridge Island	Bainbridge Island	3
+5	Beaux Arts	Beaux Arts	2
+6	Bellevue	Bellevue	2
+7	Black Diamond	Black Diamond	2
+8	Bonney Lake	Bonney Lake	4
+9	Bothell	Bothell - King	2
+10	Bremerton	Bremerton	3
+11	Brier	Brier	1
+12	Buckley	Buckley	4
+13	Burien	Burien	2
+14	Carbonado	Carbonado	4
+15	Carnation	Carnation	2
+16	Clyde Hill	Clyde Hill	2
+17	Covington	Covington	2
+18	Darrington	Darrington	1
+19	Des Moines	Des Moines	2
+20	Dupont	Dupont	4
+21	Duvall	Duvall	2
+22	Eatonville	Eatonville	4
+23	Edgewood	Edgewood	4
+24	Edmonds	Edmonds	1
+25	Enumclaw	Enumclaw	2
+26	Everett	Everett	1
+27	Federal Way	Federal Way	2
+28	Fife	Fife	4
+29	Fircrest	Fircrest	4
+30	Gig Harbor	Gig Harbor	4
+31	Gold Bar	Gold Bar	1
+32	Granite Falls	Granite Falls	1
+33	Hunts Point	Hunts Point	2
+34	Index	Index	1
+35	Issaquah	Issaquah	2
+36	Kenmore	Kenmore	2
+37	Kent	Kent	2
+38	King Rural	King Rural	2
+39	Kirkland	Kirkland	2
+40	Kitsap Rural	Kitsap Rural	3
+41	Lake Forest Park	Lake Forest Park	2
+42	Lake Stevens	Lake Stevens	1
+43	Lakewood	Lakewood	4
+44	Lynnwood	Lynnwood	1
+45	Maple Valley	Maple Valley	2
+46	Marysville	Marysville	1
+47	Medina	Medina	2
+48	Mercer Island	Mercer Island	2
+49	Mill Creek	Mill Creek	1
+50	Milton	Milton - King	2
+51	Monroe	Monroe	1
+52	Mountlake Terrace	Mountlake Terrace	1
+53	Mukilteo	Mukilteo	1
+54	Newcastle	Newcastle	2
+55	Normandy Park	Normandy Park	2
+56	North Bend	North Bend	2
+57	Orting	Orting	4
+58	Pacific	Pacific - King	2
+59	Pierce Rural	Pierce Rural	4
+60	Port Orchard	Port Orchard	3
+61	Poulsbo	Poulsbo	3
+62	Puyallup	Puyallup	4
+63	Redmond	Redmond	2
+64	Renton	Renton	2
+65	Roy	Roy	4
+66	Ruston	Ruston	4
+67	Sammamish	Sammamish	2
+68	Seatac	Seatac	2
+69	Seattle	Seattle	2
+70	Shoreline	Shoreline	2
+71	Silverdale	Silverdale	3
+72	Skykomish	Skykomish	2
+73	Snohomish City	Snohomish City	1
+74	Snohomish Rural	Snohomish Rural	1
+75	Snoqualmie	Snoqualmie	2
+76	South Prairie	South Prairie	4
+77	Stanwood	Stanwood	1
+78	Steilacoom	Steilacoom	4
+79	Sultan	Sultan	1
+80	Sumner	Sumner	4
+81	Tacoma	Tacoma	4
+82	Tukwila	Tukwila	2
+83	University Place	University Place	4
+84	Wilkeson	Wilkeson	4
+85	Woodinville	Woodinville	2
+86	Woodway	Woodway	1
+87	Yarrow Point	Yarrow Point	2
+88	King Unincorporated UGA	King Unincorporated UGA	2
+89	Kitsap Unincorporated UGA	Kitsap Unincorporated UGA	3
+90	Pierce Unincorporated UGA	Pierce Unincorporated UGA	4
+91	Snohomish Unincorporated UGA	Snohomish Unincorporated UGA	1
+92	Auburn	Auburn - Pierce	4
+93	Bothell	Bothell - Snohomish	1
+94	Milton	Milton - Pierce	4
+95	Pacific	Pacific - Pierce	4

@@ -1,5 +1,6 @@
 # Check activity units in RGCs
 
+source('templates/create_Rmd_blocks.R')
 if(!interactive()) { # running using Makefile
 	# Obtain inputs from the environment
 	run1 <- Sys.getenv('QC_RUN1')
@@ -133,8 +134,6 @@ au.table <- subset(au.table.all, growth_center_id < 600)
 au.table.output <- au.table
 colnames(au.table.output)[1] <- "id"
 colnames(au.table.output)[3:ncol(au.table.output)] <- c(paste(c('AU', 'AU/acre'), base.year), paste(c('AU', 'AU/acre'), year))
-source('templates/create_Rmd_blocks.R')
-
 
 create.subsection(freport, title='Activity Units per Acre - RGCs')
 add.table.highlight(freport, au.table.output, which(au.table$au < 45))
