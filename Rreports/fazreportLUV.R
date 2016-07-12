@@ -88,7 +88,7 @@ if(show.comments) source(file.path(wrkdir, 'data', paste0('commentsLUV',geograph
 
 
 remove.na <- function(data)
-	apply(data, c(1,2), function(x) if(trim.leading(x)=='NA') '' else x)
+	apply(data, c(1,2), function(x) if(trim(x)=='NA') '' else x)
 
 
 
