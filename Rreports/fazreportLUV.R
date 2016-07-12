@@ -4,6 +4,7 @@
 #
 
 trim.leading <- function (x)  sub("^\\s+", "", x)
+curdir <- getwd()
 
 ##### BEGIN USER SETTINGS ######
 if(!interactive()) { # running using Makefile

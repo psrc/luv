@@ -17,7 +17,7 @@ if(make) {
   base.dir <- Sys.getenv('QC_BASE_DIRECTORY')
   run1 <- Sys.getenv('QC_RUN1')
   run2.all <- Sys.getenv('QC_RUN2')
-  run2.all <- trim.leading(unlist(strsplit(run2.all, ","))) # run2 can have multiple directories; split by comma
+  run2.all <- trim(unlist(strsplit(run2.all, ","))) # run2 can have multiple directories; split by comma
   result.dir <- Sys.getenv('QC_RESULT_PATH')
   faz.lookup <- read.table(file.path("data", "faz_names.txt"), header =TRUE, sep = "\t")
   zone.lookup <- read.table(file.path("data", "zones.txt"), header =TRUE, sep = "\t")
