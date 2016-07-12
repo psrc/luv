@@ -16,7 +16,7 @@ if(!interactive()) { # running using Makefile
 	result.dir <- "." # Sys.getenv('QC_RESULT_PATH')
 	other.runs <- Sys.getenv('RREPORT_RUNS')
 	other.runs <- trim.leading(unlist(strsplit(other.runs, ",")))
-	annual <- as.logical(Sys.getenv('RREPORT_ANNUAL'))
+	annual <- as.logical(Sys.getenv('RREPORT_ANNUAL', 'FALSE'))
 } else { # running interactively
 	run1 <- "run_81.run_2016_07_05_16_00"
 	base.dir <- "/Volumes/e$/opusgit/urbansim_data/data/psrc_parcel/runs"

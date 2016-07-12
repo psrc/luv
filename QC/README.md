@@ -111,7 +111,7 @@ and
 make rreport-faz
 ```
 
-The scripts uses the run from QC\_RUN1. In addition, comparison runs can be given in an entry of input.txt called RREPORT\_RUNS which should be given as a comma-separated character string. The entry RREPORT\_ANNUAL should be either TRUE or FALSE and it determines, if intermediate years are shown in the plots. Note that usually we create 5-year indicators only. In order to get annual indicators if  RREPORT\_ANNUAL is set to TRUE (and if they haven't been created yet), run 
+The scripts uses the run from QC\_RUN1. In addition, comparison runs can be given in an entry of input.txt called RREPORT\_RUNS which should be given as a comma-separated character string. (Do not include the same value as QC\_RUN1 into RREPORT\_RUNS as QC\_RUN1 is automatically included.) The entry RREPORT\_ANNUAL should be either TRUE or FALSE and it determines, if intermediate years are shown in the plots. Note that usually we create 5-year indicators only. In order to get annual indicators if  RREPORT\_ANNUAL is set to TRUE (and if they haven't been created yet), run 
 
 ```
 make ind-an

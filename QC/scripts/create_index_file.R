@@ -19,6 +19,7 @@ index.file <- file.path(result.dir, 'index.Rmd')
 create.header(index.file, title=paste("LUV QC for ", run.name), date=date())
 create.chunk('rtables_')
 create.chunk('rplots_')
+create.chunk('emplots_')
 
 
 # convert index.Rmd into index.html

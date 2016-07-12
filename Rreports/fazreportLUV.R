@@ -3,7 +3,7 @@
 # March, 2015
 #
 
-trim.leading <- function (x)  sub("^\\s+", "", x)
+trim <- function (x) gsub("^\\s+|\\s+$", "", x) # function for triming whitespace 
 curdir <- getwd()
 
 ##### BEGIN USER SETTINGS ######
@@ -15,8 +15,8 @@ if(!interactive()) { # running using Makefile
 	base.dir <- Sys.getenv('QC_BASE_DIRECTORY')
 	result.dir <- "." # Sys.getenv('QC_RESULT_PATH')
 	other.runs <- Sys.getenv('RREPORT_RUNS')
-	other.runs <- trim.leading(unlist(strsplit(other.runs, ",")))
-	annual <- as.logical(Sys.getenv('RREPORT_ANNUAL'))
+	other.runs <- trim(unlist(strsplit(other.runs, ",")))
+	annual <- as.logical(Sys.getenv('RREPORT_ANNUAL', 'FALSE'))
 } else { # running interactively
 	run1 <- "run_81.run_2016_07_05_16_00"
 	base.dir <- "/Volumes/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
