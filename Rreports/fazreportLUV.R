@@ -3,42 +3,58 @@
 # March, 2015
 #
 
-##### BEGIN USER SETTINGS ######
-#runs <- c(114, 113, "245mr1") # runs to include
-runs <- c(142, 138, 133, 113)
-runs <- c(81, 170)
-#runs <- c(73, 72, 71, 170)
+trim.leading <- function (x)  sub("^\\s+", "", x)
 
-#ci.run <- c(245) # which run has confidence intervals 
+##### BEGIN USER SETTINGS ######
+if(!interactive()) { # running using Makefile
+	# Obtain inputs from the environment
+	if(!file.exists('fazreportLUV.R')) # probably called via Makefile from the QC directory
+		setwd('../Rreports') 
+	run1 <- Sys.getenv('QC_RUN1')
+	base.dir <- Sys.getenv('QC_BASE_DIRECTORY')
+	result.dir <- "." # Sys.getenv('QC_RESULT_PATH')
+	other.runs <- Sys.getenv('RREPORT_RUNS')
+	other.runs <- trim.leading(unlist(strsplit(other.runs, ",")))
+	annual <- as.logical(Sys.getenv('RREPORT_ANNUAL'))
+} else { # running interactively
+	run1 <- "run_81.run_2016_07_05_16_00"
+	base.dir <- "/Volumes/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
+	run.name <- "run81"
+	result.dir <- "."
+	other.runs <- c('run_78.run_2016_06_23_09_47', 'run_170.run_2015_09_15_16_02')
+	other.runs <- c()
+	annual <- TRUE
+}
+runs <- c(run1, other.runs)
+run.numbers <- sapply(strsplit(sapply(strsplit(runs, '[.]'), function(x) x[1]), '_'), function(x) x[2])
+
+
+# CIs are switched off for LUV R reports
+ci.run <- c() # which run has confidence intervals 
 			       # (only the last one is included in the table)
-ci.run <- c()
 show.median <- FALSE
 ci.run.name <- list("235" = 'MRr') # only needed if different from run number
-#ci.run.name <- list("245" = 'MRr245')
-
 
 # Directory containing the runs with indicators. 
 # The indicators directory must contain files of the type 'faz__tab__xxx.tab'
-#sim.dir <- '/Volumes/e$/opusgit/urbansim_data/data/psrc_parcel/runs' 
-sim.dir <- file.path(getwd(), 'runs') 
-sim.prefix <- 'run_' # name of the run sub-directory without the run number, e.g. 'run_' for directory run_199
+sim.dir <- base.dir
+#sim.prefix <- 'run_' # name of the run sub-directory without the run number, e.g. 'run_' for directory run_199
 
 # Directory containing confidence intervals
 # It should contain a sub-directory 'runxxx_quantiles' with faz-level CI files (xxx is ci.run)
 ci.dir <- file.path(getwd(), 'quantiles')
 
-show.all.years <- TRUE # should results from all years be shown as dotted lines
+show.all.years <- annual # should results from all years be shown as dotted lines
 not.all.years <- c() # if show.all.years is TRUE, put here runs that are exceptions
 show.lut <- FALSE
 show.comments <- FALSE
 
 geography <- 'faz'
-output.file.name <- paste(geography, 'reportLUV', if(show.all.years) 'allyears' else '', '_', paste(runs, collapse='_'), sep='')
+output.file.name <- file.path(result.dir, paste(geography, 'reportLUV', if(show.all.years) 'annual' else '', '_', paste(run.numbers, collapse='_'), sep=''))
 
-years <- c(2000, 2010, 2020, 2025, 2030, 2035, 2040) # for plots
-years <- c(2000, seq(2010, 2040, by=5))
-years.for.table <- seq(2000, 2040, by=10)
-all.years <- if(show.all.years) 2010:2040 else c()
+years <- c(2014, seq(2015, 2040, by=5))
+years.for.table <- c(2014, 2015, seq(2020, 2040, by=10))
+all.years <- if(show.all.years) 2014:2040 else c()
 
 save.data.as.ascii <- FALSE
 add.data.from <- list("2014"= c("2014_faz_data_for_R_Report_No_Adj_or_Military.csv", "black"))
@@ -50,9 +66,15 @@ library(grid)
 library(gridExtra)
 
 lyears <- length(years)
-indicators <- c('households',  'population', 'jobs')
-ci.names <- list(jobs='job', households='household', population='population')
-titles <- list(households='Households', jobs='Employment', population='HH Population')
+indicators <- c('households',  'population', 'employment')
+indicators.obs <- as.list(indicators)
+ci.names <- list(employment='job', households='household', population='population')
+titles <- list(households='Households', employment='Employment', population='HH Population')
+if(show.all.years) {
+	indicators <- paste0(indicators, "An")
+	names(titles) <- paste0(names(titles), "An")
+}
+names(indicators.obs) <- indicators
 
 
 
@@ -62,7 +84,7 @@ output.file.name.txt <- paste(output.file.name,  'txt', sep='.')
 wrkdir <- getwd()
 if(show.comments) source(file.path(wrkdir, 'data', paste0('commentsLUV',geography,'.R')), chdir=TRUE)
 
-trim.leading <- function (x)  sub("^\\s+", "", x)
+
 
 remove.na <- function(data)
 	apply(data, c(1,2), function(x) if(trim.leading(x)=='NA') '' else x)
@@ -80,7 +102,7 @@ cities <- read.table(file.path(wrkdir, 'data', "citiesLUV.csv"), sep=',', header
 
 for (what in indicators) {
 	# Load observed data
-	trend.file.name <- file.path(wrkdir, 'data',  paste(what, '_observed_', geography, '.txt', sep=''))
+	trend.file.name <- file.path(wrkdir, 'data',  paste(indicators.obs[[what]], '_observed_', geography, '.txt', sep=''))
 	if(file.exists(trend.file.name)) {
 		trend.data.raw <- data.frame(read.table(trend.file.name, sep='\t', header=TRUE))
 		fazids.tr[[what]] <- trend.data.raw[,1]
@@ -89,7 +111,7 @@ for (what in indicators) {
 		colnames(trend.data[[what]]) <- substr(colnames(trend.data[[what]]), 2,5)
 		trend.data[[what]] <- trend.data[[what]][,is.element(colnames(trend.data[[what]]), as.character(years))]
 	}
-	lut.file.name <- file.path(wrkdir, 'data',  paste(what, '_LUT_', geography, '.txt', sep=''))
+	lut.file.name <- file.path(wrkdir, 'data',  paste(indicators.obs[[what]], '_LUT_', geography, '.txt', sep=''))
 	if(show.lut && file.exists(lut.file.name)) {
 		lut.data.raw <- data.frame(read.table(lut.file.name, sep='\t', header=TRUE))
 		fazids.lut[[what]] <- lut.data.raw[,1]
@@ -103,7 +125,7 @@ for (what in indicators) {
 	for(irun in 1:length(runs)) {
 		run <- runs[irun]
 		# Load indicators
-		data <- read.table(file.path(sim.dir, paste(sim.prefix, run, sep=''), 
+		data <- read.table(file.path(sim.dir,  run,  
 						'indicators', paste(geography, '__table__', what, '.csv', sep='')), sep=',', header=TRUE)
 		sim[[what]][[run]] <- data[,2:ncol(data)]
 		fazids[[what]][[run]] <- data[,1]
@@ -141,6 +163,7 @@ for(faz in zones) {
 		run.table.columns <- c()
 		for(irun in 1:length(runs)) {
 			run <- runs[irun]
+			runn <- run.numbers[irun]
 			idx <- which(fazids[[what]][[run]]==faz)
 			if (length(idx) <=0) {faz_not_found <- TRUE; break}
 			coln <- colnames(sim[[what]][[run]])
@@ -150,12 +173,12 @@ for(faz in zones) {
 			yidx <- which(as.character(years.for.df) %in% run.cols[col.idx])
 			matched.amount <- rep(NA, lyears.for.df)
 			matched.amount[yidx] <- as.numeric(amount)
-			this.data <- data.frame(run=rep(run, lyears.for.df), Time=years.for.df, 
+			this.data <- data.frame(run=rep(runn, lyears.for.df), Time=years.for.df, 
 							amount=matched.amount)
 			datafrs <- if(irun == 1) this.data else datafrs <- rbind(datafrs, this.data)
 			this.tabdata <- this.data[,'amount', drop=FALSE]
-			colnames(this.tabdata) <- paste('run', run)
-			run.table.columns <- c(run.table.columns, paste('run', run))
+			colnames(this.tabdata) <- paste('run', runn)
+			run.table.columns <- c(run.table.columns, paste('run', runn))
 			last.table.columns <- c()
 			tabDF <- cbind(tabDF, this.tabdata)
 		}
@@ -182,7 +205,7 @@ for(faz in zones) {
 			tabDF$LUT[tabDF$Time %in% as.integer(colnames(lut.data[[what]]))] <- lut.data[[what]][idxl,]
 		}
 		# Create plot of lines
-		g[[what]] <- ggplot(subset(datafrs, (Time %in% years) | (Time==2014 & as.integer(run) < 100)), aes(Time, amount, colour=factor(run))) + geom_line() + 
+		g[[what]] <- ggplot(subset(datafrs, (Time %in% years) | (Time==2014 & as.integer(run) < 170)), aes(Time, amount, colour=factor(run))) + geom_line() + 
 							scale_y_continuous('') + scale_x_continuous('') + 
 							scale_colour_discrete(name = '') +
 							ggtitle(titles[[what]]) + 
@@ -191,10 +214,10 @@ for(faz in zones) {
 									legend.key.size = unit(0.02, "npc"),
 									plot.title=element_text(size=12))
 		if(length(all.years) > 0)
-			g[[what]] <- g[[what]] + geom_line(data=subset(datafrs, run %in% runs & !(run %in% not.all.years) & Time %in% all.years), linetype=3)
+			g[[what]] <- g[[what]] + geom_line(data=subset(datafrs, run %in% run.numbers & !(run %in% not.all.years) & Time %in% all.years), linetype=3)
 		if(length(add.data.from)>0) { # additional data points, e.g. 2014 data
 			for(addyear in names(add.data.from)){
-				adddata <- subset(add.data.points[[addyear]], faz_id==faz)[,what]
+				adddata <- subset(add.data.points[[addyear]], faz_id==faz)[,indicators.obs[[what]]]
 				if(length(adddata) > 0) {
 					adddata <- data.frame(Time=as.integer(addyear), amount=adddata)
 					g[[what]] <- g[[what]] + geom_point(data=adddata, colour=add.data.from[[addyear]][2])
@@ -270,3 +293,4 @@ for(faz in zones) {
 }
 cat('\n')
 dev.off()
+setwd(curdir)

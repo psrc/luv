@@ -3,29 +3,48 @@
 # March, 2015
 #
 
-##### BEGIN USER SETTINGS ######
-#runs <- c(219, 223, 235) # runs to include
-#runs <- c(113, 114, "245mr1")
-runs <- c(131, 129, 113)
-runs <- c(73, 72, 170)
+trim.leading <- function (x)  sub("^\\s+", "", x)
+curdir <- getwd()
 
+##### BEGIN USER SETTINGS ######
+if(!interactive()) { # running using Makefile
+	# Obtain inputs from the environment
+	if(!file.exists('cityreportLUV.R')) # probably called via Makefile from the QC directory
+		setwd('../Rreports') 
+	run1 <- Sys.getenv('QC_RUN1')
+	base.dir <- Sys.getenv('QC_BASE_DIRECTORY')
+	result.dir <- "." # Sys.getenv('QC_RESULT_PATH')
+	other.runs <- Sys.getenv('RREPORT_RUNS')
+	other.runs <- trim.leading(unlist(strsplit(other.runs, ",")))
+	annual <- as.logical(Sys.getenv('RREPORT_ANNUAL'))
+} else { # running interactively
+	run1 <- "run_81.run_2016_07_05_16_00"
+	base.dir <- "/Volumes/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
+	run.name <- "run81"
+	result.dir <- "."
+	other.runs <- c('run_78.run_2016_06_23_09_47', 'run_170.run_2015_09_15_16_02')
+	other.runs <- c()
+	annual <- TRUE
+}
+runs <- c(run1, other.runs)
+run.numbers <- sapply(strsplit(sapply(strsplit(runs, '[.]'), function(x) x[1]), '_'), function(x) x[2])
 
 # Directory containing the runs with indicators. 
 # The indicators directory must contain files of the type 'faz__tab__xxx.tab'
 #sim.dir <- '/Users/hana/psrc3656/workspace/data/psrc_parcel/runs' 
-sim.dir <- file.path(getwd(), 'runs') 
-sim.prefix <- 'run_' # name of the run sub-directory without the run number, e.g. 'run_' for directory run_199
+#sim.dir <- file.path(getwd(), 'runs')
+sim.dir <- base.dir
+#sim.prefix <- 'run_' # name of the run sub-directory without the run number, e.g. 'run_' for directory run_199
 
-show.all.years <- TRUE # should results from all years be shown as dotted lines
+show.all.years <- annual # should results from all years be shown as dotted lines
 not.all.years <- c() # if show.all.years is TRUE, put here runs that are exceptions
 
 geography <- 'city'
-output.file.name <- paste(geography, 'reportLUV', if(show.all.years) 'allyears' else '', '_', paste(runs, collapse='_'), sep='')
+output.file.name <- file.path(result.dir, paste(geography, 'reportLUV', if(show.all.years) 'annual' else '', '_', paste(run.numbers, collapse='_'), sep=''))
 
-years <- c(2000, 2010, 2020, 2025, 2030, 2035, 2040) # for plots
-years <- c(2000, seq(2010, 2040, by=5))
-years.for.table <- seq(2000, 2040, by=10)
-all.years <- if(show.all.years) 2010:2040 else c()
+years <- c(2014, seq(2015, 2040, by=5))
+years.for.table <- c(2014, 2015, seq(2020, 2040, by=10))
+all.years <- if(show.all.years) 2014:2040 else c()
 
 save.data.as.ascii <- FALSE
 ###### END USER SETTINGS ############
@@ -36,18 +55,22 @@ library(grid)
 library(gridExtra)
 
 lyears <- length(years)
-indicators <- c('households',  'population', 'jobs')
-ci.names <- list(jobs='job', households='household', population='population')
-titles <- list(households='Households', jobs='Employment', population='HH Population')
-
-
+indicators <- c('households',  'population', 'employment')
+indicators.obs <- as.list(indicators)
+ci.names <- list(employment='job', households='household', population='population')
+titles <- list(households='Households', employment='Employment', population='HH Population')
+if(show.all.years) {
+	indicators <- paste0(indicators, "An")
+	names(titles) <- paste0(names(titles), "An")
+}
+names(indicators.obs) <- indicators
 
 output.file.name.pdf <- paste(output.file.name,  'pdf', sep='.')
 output.file.name.txt <- paste(output.file.name,  'txt', sep='.')
 
 wrkdir <- getwd()
 
-trim.leading <- function (x)  sub("^\\s+", "", x)
+
 
 remove.na <- function(data)
 	apply(data, c(1,2), function(x) if(trim.leading(x)=='NA') '' else x)
@@ -62,7 +85,7 @@ id.correspondence <- id.correspondence[order(id.correspondence[,'city_id']),]
 
 for (what in indicators) {
 	# Load observed data
-	trend.file.name <- file.path(wrkdir, 'data',  paste(what, '_observed_', geography, '.txt', sep=''))
+	trend.file.name <- file.path(wrkdir, 'data',  paste(indicators.obs[[what]], '_observed_', geography, '.txt', sep=''))
 	if(file.exists(trend.file.name)) {
 		trend.data.raw <- data.frame(read.table(trend.file.name, sep='\t', header=TRUE))
 		ids.tr[[what]] <- trend.data.raw[,1]
@@ -75,7 +98,7 @@ for (what in indicators) {
 	for(irun in 1:length(runs)) {
 		run <- runs[irun]
 		# Load indicators
-		data <- read.table(file.path(sim.dir, paste(sim.prefix, run, sep=''), 
+		data <- read.table(file.path(sim.dir, run, 
 						'indicators', paste(geography, '__table__', what, '.csv', sep='')), sep=',', header=TRUE)
 		sim[[what]][[run]] <- data[,2:ncol(data)]
 		ids[[what]][[run]] <- data[,1]
@@ -84,7 +107,6 @@ for (what in indicators) {
 	}
 	trend.data[[what]][] <- NA
 }
-
 area.names <-  id.correspondence[,c('city_id', 'city_name')]
 colnames(area.names) <- c('id', 'name')
 zones <- ids[[indicators[1]]][[runs[1]]]
@@ -104,6 +126,7 @@ for(geo in sort(zones)) {
 		run.table.columns <- c()
 		for(irun in 1:length(runs)) {
 			run <- runs[irun]
+			runn <- run.numbers[irun]
 			idx <- which(ids[[what]][[run]]==geo)
 			if (length(idx) <=0) {not_found <- TRUE; break}
 			coln <- colnames(sim[[what]][[run]])
@@ -113,12 +136,12 @@ for(geo in sort(zones)) {
 			yidx <- which(as.character(years.for.df) %in% run.cols[col.idx])
 			matched.amount <- rep(NA, lyears.for.df)
 			matched.amount[yidx] <- as.numeric(amount)
-			this.data <- data.frame(run=rep(run, lyears.for.df), Time=years.for.df, 
+			this.data <- data.frame(run=rep(runn, lyears.for.df), Time=years.for.df, 
 							amount=matched.amount)
 			datafrs <- if(irun == 1) this.data else datafrs <- rbind(datafrs, this.data)
 			this.tabdata <- this.data[,'amount', drop=FALSE]
-			colnames(this.tabdata) <- paste('run', run)
-			run.table.columns <- c(run.table.columns, paste('run', run))
+			colnames(this.tabdata) <- paste('run', runn)
+			run.table.columns <- c(run.table.columns, paste('run', runn))
 			last.table.columns <- c()
 			tabDF <- cbind(tabDF, this.tabdata)
 		}
@@ -132,7 +155,7 @@ for(geo in sort(zones)) {
 		tabDF$Actual <- rep(NA, nrow(tabDF))
 		tabDF$Actual[tabDF$Time %in% as.integer(colnames(trend.data[[what]]))] <- trend.data[[what]][idxt,]
 		# Create plot of lines
-		g[[what]] <- ggplot(subset(datafrs, (Time %in% years) | (Time==2014 & as.integer(run) < 100)), aes(Time, amount, colour=factor(run))) + geom_line() + 
+		g[[what]] <- ggplot(subset(datafrs, (Time %in% years) | (Time==2014 & as.integer(run) < 170)), aes(Time, amount, colour=factor(run))) + geom_line() + 
 							scale_y_continuous('') + scale_x_continuous('') + 
 							scale_colour_discrete(name = '') +
 							ggtitle(titles[[what]]) + 
@@ -141,7 +164,7 @@ for(geo in sort(zones)) {
 									legend.key.size = unit(0.02, "npc"),
 									plot.title=element_text(size=12))
 		if(length(all.years) > 0)
-			g[[what]] <- g[[what]] + geom_line(data=subset(datafrs, run %in% runs & !(run %in% not.all.years) & Time %in% all.years), linetype=3)
+			g[[what]] <- g[[what]] + geom_line(data=subset(datafrs, run %in% run.numbers & !(run %in% not.all.years) & Time %in% all.years), linetype=3)
 		# Create table
 		tidx <- c(which(is.element(tabDF[,1], years.for.table)), which(tabDF[,1]==9999))
 		tidx.raw <- tidx
@@ -200,3 +223,5 @@ for(geo in sort(zones)) {
 }
 cat('\n')
 dev.off()
+
+setwd(curdir)

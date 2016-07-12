@@ -1,6 +1,6 @@
 # QCing Land Use Vision
 
-This directory contains a set of scripts each of which performs a QC sub-task. The scripts are connected via a Makefile also found in this directory. 
+This directory contains a set of scripts each of which performs a QC sub-task. The scripts are connected via a Makefile also found in this directory. In addition, one can generate Opus indicators or create R-reports on different geography levels.
 
 ## Installation
 On Windows, check that [Git Bash](https://git-for-windows.github.io) is installed. Then open a Git Bash and type ``make --help``. If you get an error that make is not found, install make from [SWCarpentryInstaller](https://github.com/swcarpentry/windows-installer/releases/latest). If you still get an error, you might need to add the location of make.exe into your Path environment.
@@ -24,7 +24,12 @@ While R is open, install the packages ``plotly``, ``data.table``, ``leaflet``, `
 install.packages(c('plotly', 'data.table', 'leaflet', 'rgdal', 'sp'), dependencies=TRUE)
 ```
 
+If you plan to generate R-reports, you will also need ``ggplot2``, ``grid`` and ``gridExtra``. I believe they should be installed as dependencies in the previous step.
+
+
 On Windows machines you will most likely need to install [pandoc](http://pandoc.org/installing.html) (click on "downlod page", scroll to the bottom of the page and select the windows installer).
+
+For generating indicators (optional), [Opus needs to be installed](http://twiki/DSA/InstallingUrbanSim). 
  
 
 ## Running the Makefile
@@ -61,7 +66,7 @@ To run all the QCs, type
 make all
 ```
 
-For running only a subset of the scripts, see next section.
+For running only a subset of the scripts and other options, see next section.
 
 
 ## Extending the Makefile
@@ -80,14 +85,41 @@ Currently, the following phonies are implemented:
    * **test**: test the system
    * **clean**: delete test outputs and output files of the current run (defined by QC\_NAME in inputs.txt)
    * **ind**: run python indicator script (in scripts/create\_indicator\_files.py) on cache defined via QC\_BASE_DIRECTORY/QC\_RUN1 in inputs.txt (needs Opus installed)
+   * **ind-an**: generate annual indicators implemented in scripts/create\_annual\_indicator\_files.py (useful for R-reports, see Section R-Reports). As above, Opus needs to be installed.
    * **rtables**: run R code in scripts/qc\_rtable\_\*.R
    * **rplots**: run R code in scripts/rplots\_\*.R
    * **index**: run R code in scripts/create\_index\_file.R (see next section for more details)
    * **all**: run the phonies rtables, rplots and index
+   * **rreport-city**: generate R-report on the city level (see Section R-Reports)
+   * **rreport-faz**: generate R-report on the faz level (see Section R-Reports)
 
 ## Viewing Results
 
 Each script should write its summary results into an Rmd file (in [R Markdown](http://rmarkdown.rstudio.com)), using a prefix that corresponds to its phonie (e.g. 'rplots\_', 'rtables\_'). The script 'scripts/create\_index\_file.R' (invoked by the index phonie) combines such files into one and translates it into index.html that can be viewed from a browser.  The file located in the corresponding results directory.
+
+## R-Reports
+
+One can generate R-reports via the Makefile, using the phonies  
+
+```
+make rreport-city
+``` 
+
+and
+
+```
+make rreport-faz
+```
+
+The scripts uses the run from QC\_RUN1. In addition, comparison runs can be given in an entry of input.txt called RREPORT\_RUNS which should be given as a comma-separated character string. The entry RREPORT\_ANNUAL should be either TRUE or FALSE and it determines, if intermediate years are shown in the plots. Note that usually we create 5-year indicators only. In order to get annual indicators if  RREPORT\_ANNUAL is set to TRUE (and if they haven't been created yet), run 
+
+```
+make ind-an
+```
+
+prior to generating the R-reports. It will create files in the QC\_RUN1 indicators directory which are called *An, e.g. faz\_\_table\_\_employmentAn.csv containing annual indicators. Note that this can take long time to process.
+
+The resulting R-reports are stored as pdf files in its own directory which is ``../Rreports`` from the current directory, i.e. relative to the repository, [luv/Rreports](https://github.com/psrc/luv/tree/master/Rreports). 
 
 
 ## Synchronization
