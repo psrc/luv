@@ -10,20 +10,22 @@ year1 <- (2040)
 year2 <- (2040)
 extension <- ".csv"
 
+trim <- function (x) gsub("^\\s+|\\s+$", "", x) # function for triming whitespace 
+
 make <- !interactive()
 if(make) {
   base.dir <- Sys.getenv('QC_BASE_DIRECTORY')
   run1 <- Sys.getenv('QC_RUN1')
-  run2 <- Sys.getenv('QC_RUN2')
+  run2.all <- Sys.getenv('QC_RUN2')
+  run2.all <- trim.leading(unlist(strsplit(run2.all, ","))) # run2 can have multiple directories; split by comma
   result.dir <- Sys.getenv('QC_RESULT_PATH')
   faz.lookup <- read.table(file.path("data", "faz_names.txt"), header =TRUE, sep = "\t")
   zone.lookup <- read.table(file.path("data", "zones.txt"), header =TRUE, sep = "\t")
   city.lookup <- read.table(file.path("data", "cities.csv"), header =TRUE, sep = ",")
-  
 } else {
   base.dir <- "//modelsrv3/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
   run1 <- "run_74.run_2016_06_16_15_40"
-  run2 <- "run_73.run_2016_06_13_16_56" 
+  run2.all <- "run_73.run_2016_06_13_16_56" 
   run.name <- 'run74'
   result.dir <- file.path("C:/Users/Christy/Desktop/luv/QC/results", run.name)
   faz.lookup <- read.table("C:/Users/Christy/Desktop/luv/QC/data/faz_names.txt", header =TRUE, sep = "\t")
@@ -32,16 +34,19 @@ if(make) {
 }
 
 runname1 <- unlist(strsplit(run1,"[.]"))[[1]]
-runname2 <- unlist(strsplit(run2,"[.]"))[[1]]
+runnames2 <- sapply(strsplit(run2.all,"[.]"), function(x) x[1]) # can have multiple values
 if(!dir.exists(result.dir)) dir.create(result.dir)
 
 # put a header into the index file
 source('templates/create_Rmd_blocks.R')
-index.file <- file.path(result.dir, paste0('rplots_scatter', runname2, '.Rmd'))
+index.file <- file.path(result.dir, 'rplots_scatter.Rmd')
 if(file.exists(index.file)) unlink(index.file)
-create.section(index.file, title=paste("Scatterplots for ", runname1, "and", runname2))
+create.section(index.file, title="Scatterplots")
 
-
+for (irun in 1:length(run2.all)) {
+	run2 <- run2.all[irun]
+	runname2 <- runnames2[irun]
+	add.text(index.file, paste("####", runname1, "vs.", runname2, "\n"))
 
 # build plotly table for subplot
 for (a in 1:length(geography)){
@@ -131,7 +136,8 @@ for (a in 1:length(geography)){
   add.text(index.file, paste0("* [", subtitle, "](", paste0('file://', html.file), ")"))
   
 } # end of geography loop
+add.text(index.file, "\n\n")
+} # end of run2 loop
 
-# convert index.Rmd into index.html
 print ("Plotting complete! Check results directory.")
 

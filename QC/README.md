@@ -58,7 +58,7 @@ make ind
 
 Note that the above step need Opus to be installed.
 
-For running the QC, some scripts perform comparisons of the current run (defined in  'QC\_RUN1') with another one, which should be defined in 'QC\_RUN2'. Also in inputs.txt, the entry 'QC\_NAME' defines a directory where QC results are stored, and thus has the potential of overwriting existing results.
+For running the QC, some scripts perform comparisons of the current run (defined in  'QC\_RUN1') with other runs, which should be defined in 'QC\_RUN2' as comma-separated character string. Also in inputs.txt, the entry 'QC\_NAME' defines a directory where QC results are stored, and thus has the potential of overwriting existing results.
 
 To run all the QCs, type
 

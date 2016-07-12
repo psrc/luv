@@ -18,7 +18,6 @@ make <- !interactive()
 if(make) {
   base.dir <- Sys.getenv('QC_BASE_DIRECTORY')
   run1 <- Sys.getenv('QC_RUN1')
-  run2 <- Sys.getenv('QC_RUN2')
   result.dir <- Sys.getenv('QC_RESULT_PATH')
   faz.lookup <- read.table(file.path("data", "faz_names.txt"), header =TRUE, sep = "\t")
   zone.lookup <- read.table(file.path("data", "zones.txt"), header =TRUE, sep = "\t")
@@ -30,7 +29,7 @@ if(make) {
 } else {
   base.dir <- "//modelsrv3/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
   run1 <- "run_75.run_2016_06_20_17_26"
-  run2 <-"run_78.run_2016_06_23_09_47"
+  #run2 <-"run_78.run_2016_06_23_09_47"
   run.name <- 'run75v78_test'
   result.dir <- file.path("C:/Users/Christy/Desktop/luv/QC/results", run.name)
   faz.lookup <- read.table("C:/Users/Christy/Desktop/luv/QC/data/faz_names.txt", header =TRUE, sep = "\t")
@@ -50,7 +49,7 @@ index.file <- file.path(result.dir, 'rplots_chorogeo_growth.Rmd')
 if(file.exists(index.file)) unlink(index.file)
 create.section(index.file, title=paste("Choropleth maps for 2014-40 Growth"))
 
-runnames <- c(run1, run2)
+runnames <- run1
 for (r in 1:length(runnames)){
   runname <- unlist(strsplit(runnames[r],"[.]"))[[1]]  
   
