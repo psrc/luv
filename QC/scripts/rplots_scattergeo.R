@@ -292,7 +292,7 @@ for (a in 1:length(geography)){
     
     # create html files
     subtitle <- paste0(attribute[i], " by ", as.name(geography[a]))
-    html.file <- file.path(result.dir, paste0('rplots', "_",as.name(attribute[i]),"_by_", as.name(geography[a]), "_choroplethmap.html"))
+    html.file <- file.path(result.dir, paste0('rplots_', runname2, "_",as.name(attribute[i]),"_by_", as.name(geography[a]), "_choroplethmap.html"))
     saveWidget(m, file=html.file)
  
     # add text into the index file

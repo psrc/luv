@@ -130,7 +130,7 @@ for (a in 1:length(geography)){
   print (p)
   subtitle <- paste0("All indicators by ", as.name(geography[a]))
   print (paste0("Plotting ", subtitle))
-  html.file <- file.path(result.dir, paste0("rplots_", as.name(geography[a]), "_scatterplot.html"))
+  html.file <- file.path(result.dir, paste0("rplots_", runname2, "_", as.name(geography[a]), "_scatterplot.html"))
   htmlwidgets::saveWidget(as.widget(p), html.file)
   # add text into the index file
   add.text(index.file, paste0("* [", subtitle, "](", paste0('file://', html.file), ")"))
