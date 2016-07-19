@@ -14,11 +14,14 @@ RESULT_TEST_PATH=$(RESULT_BASE_PATH)/test
 
 RTABLE_SCRIPT_FILES=$(wildcard $(SCRIPT_PATH)/qc_rtable_*.R)
 RPLOT_SCRIPT_FILES=$(wildcard $(SCRIPT_PATH)/rplots_*.R)
+RMAP_SCRIPT_FILES=$(wildcard $(SCRIPT_PATH)/rmaps_*.R)
 
 RTABLE_SCRIPTOUT_FILES=$(patsubst $(SCRIPT_PATH)/qc_rtable_%.R, $(SCRIPT_PATH)/qc_rtable_%.Rout, \
 				$(RTABLE_SCRIPT_FILES))
 RPLOT_SCRIPTOUT_FILES=$(patsubst $(SCRIPT_PATH)/rplots_%.R, $(SCRIPT_PATH)/rplots_%.Rout, \
                                 $(RPLOT_SCRIPT_FILES))
+RMAP_SCRIPTOUT_FILES=$(patsubst $(SCRIPT_PATH)/rmaps_%.R, $(SCRIPT_PATH)/rmaps_%.Rout, \
+                                $(RMAP_SCRIPT_FILES))
 
 # The following converts POSIX into Windows path, 
 # which is needed when other processes (e.g. R) use it.  
@@ -53,6 +56,12 @@ rplots : rplots_raw index
 .PHONY : rplots_raw
 rplots_raw : $(RPLOT_SCRIPTOUT_FILES)
 
+.PHONY : rmaps
+rmaps : rmaps_raw index
+
+.PHONY : rmaps_raw
+rmaps_raw : $(RMAP_SCRIPTOUT_FILES)
+
 .PHONY : empplots
 empplots : $(RESULT_PATH)/qc_scatterplot_emp_cnty.html
 
@@ -74,6 +83,9 @@ $(SCRIPT_PATH)/qc_rtable_%.Rout : $(SCRIPT_PATH)/qc_rtable_%.R inputs.txt
 
 $(SCRIPT_PATH)/rplots_%.Rout : $(SCRIPT_PATH)/rplots_%.R inputs.txt
 	R CMD BATCH $(SCRIPT_PATH)/rplots_$*.R  $(SCRIPT_PATH)/rplots_$*.Rout
+
+$(SCRIPT_PATH)/rmaps_%.Rout : $(SCRIPT_PATH)/rmaps_%.R inputs.txt
+	R CMD BATCH $(SCRIPT_PATH)/rmaps_$*.R  $(SCRIPT_PATH)/rmaps_$*.Rout
 
 $(RREPORT_PATH)/fazreportLUV.Rout : $(RREPORT_PATH)/fazreportLUV.R inputs.txt
 	R CMD BATCH $(RREPORT_PATH)/fazreportLUV.R $(RREPORT_PATH)/fazreportLUV.Rout
