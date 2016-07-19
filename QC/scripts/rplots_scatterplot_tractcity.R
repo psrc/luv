@@ -89,7 +89,7 @@ for (a in 1:length(geography)){
     merge.table$indicator <- switch(attribute[i],"population"="Population", "households"="Households", "employment"="Employment", "residential_units"="Residential Units")
     luv1c <- subset(luv1.comments, luv1.elements == switch(attribute[i], "households"="household", "employment"="job", "XXX"))
     #if(nrow(luv1c) > 0)
-    	merge.table <- merge(merge.table, luv1c, by.x="tractcity_id", by.y="tractcity_2014", all.x=TRUE)
+    	merge.table <- merge(merge.table, luv1c, by="tractcity_id", all.x=TRUE)
     
     indicators.table <- if(is.null(indicators.table)) merge.table else rbind(indicators.table,merge.table)
   
@@ -98,7 +98,7 @@ for (a in 1:length(geography)){
   # id for anchoring traces on different plots
   indicators.table$id <- as.integer(factor(indicators.table$indicator))
   indicators.table$name <- paste(substr(indicators.table$census_2010_tract_id, 6, 11), indicators.table$city_name)
-  
+  indicators.table$has_comment <- !is.na(indicators.table$target_value)
   
   
   #plot
@@ -110,10 +110,11 @@ for (a in 1:length(geography)){
                group = indicator,
                xaxis = paste0("x", id),
                type = 'scatter',
-               mode = 'markers'
+               mode = 'markers',
+               size = ifelse(has_comment, 4, 1)
                )%>%
-      add_trace(x=c(0,max(estrun1)), 
-                y=c(0,max(estrun1)),
+      add_trace(x=c(0,100), 
+                y=c(0,100),
                 group = indicator,
                 xaxis = paste0("x", id),
                 marker = list(color="grey", size = 0),
