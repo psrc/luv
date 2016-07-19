@@ -10,6 +10,7 @@ if(!interactive()) { # running using Makefile
 
 create.chunk <- function(prefix) {
 	rmd <- list.files(result.dir, pattern = paste0("^", prefix, ".*\\.Rmd"), recursive = TRUE, include.dirs = TRUE)
+	if(length(rmd)==0)return()
 	chunks <- paste0("```{r child = '", rmd, "'}\n```\n")
 	cat(chunks, sep = '\n', append=TRUE, file=index.file)
 }
