@@ -88,8 +88,9 @@ Currently, the following phonies are implemented:
    * **ind-an**: generate annual indicators implemented in scripts/create\_annual\_indicator\_files.py (useful for R-reports, see Section R-Reports). As above, Opus needs to be installed.
    * **rtables**: run R code in scripts/qc\_rtable\_\*.R
    * **rplots**: run R code in scripts/rplots\_\*.R
+   * **rmaps**: run R code in scripts/rmaps\_\*.R
    * **index**: run R code in scripts/create\_index\_file.R (see next section for more details)
-   * **all**: run the phonies rtables, rplots and index
+   * **all**: run the phonies rtables, rplots, rmaps and index
    * **rreport-city**: generate R-report on the city level (see Section R-Reports)
    * **rreport-faz**: generate R-report on the faz level (see Section R-Reports)
 
