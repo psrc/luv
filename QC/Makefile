@@ -42,7 +42,7 @@ ind-an :
 	python $(SCRIPT_PATH)/create_annual_indicator_files.py
 
 .PHONY : all
-all: rtables_raw rplots_raw index
+all: rtables_raw rplots_raw rmaps_raw index
 
 .PHONY : rtables
 rtables : rtables_raw index
