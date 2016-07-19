@@ -20,29 +20,32 @@ if(make) {
   run2.all <- Sys.getenv('QC_RUN2')
   run2.all <- trim(unlist(strsplit(run2.all, ","))) # run2 can have multiple directories; split by comma
   result.dir <- Sys.getenv('QC_RESULT_PATH')
+  lookup <- read.table(file.path("data", "tractcity.csv"), header =TRUE, sep = ",")
+  city.lookup <- read.table(file.path("data", 'cities.csv'), header=TRUE, sep=',')
+  source('templates/create_Rmd_blocks.R')
+  luv1.comments <- read.table(file.path("data", "luv1_comments_tc14_part.csv"), header=TRUE, sep=",")
 } else {
-  base.dir <- "/Volumes/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
+  base.dir <- "//modelsrv3/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
   run1 <- "run_82.run_2016_07_11_16_07"
   #run1 <- "run_81.run_2016_07_05_16_00"
   run2.all <- c("run_81.run_2016_07_05_16_00", "luv_1.compiled")
   run.name <- 'run82'
-  result.dir <- "results"
+  result.dir <- file.path("C:/Users/Christy/Desktop/luv/QC/results", run.name)
+  lookup <- read.table("C:/Users/Christy/Desktop/luv/QC/data/tractcity.csv", header =TRUE, sep = ",")
+  city.lookup <- read.table("C:/Users/Christy/Desktop/luv/QC/data/cities.csv", header =TRUE, sep = ",")
+  source('C:/Users/Christy/Desktop/luv/QC/templates/create_Rmd_blocks.R')
+  luv1.comments <- read.table("C:/Users/Christy/Desktop/luv/QC/data/luv1_comments_tc14_part.csv", header=TRUE, sep=",")
 }
 
-lookup <- read.table(file.path("data", "tractcity.csv"), header =TRUE, sep = ",")
-city.lookup <- read.table(file.path("data", 'cities.csv'), header=TRUE, sep=',')
-  
 runname1 <- unlist(strsplit(run1,"[.]"))[[1]]
 runnames2 <- sapply(strsplit(run2.all,"[.]"), function(x) x[1]) # can have multiple values
 if(!dir.exists(result.dir)) dir.create(result.dir)
 
 # put a header into the index file
-source('templates/create_Rmd_blocks.R')
 index.file <- file.path(result.dir, 'rplots_scatter_tractcity.Rmd')
 if(file.exists(index.file)) unlink(index.file)
 create.section(index.file, title="Scatterplots for city shares by tractcity")
 
-luv1.comments <- read.table(file.path("data", "luv1_comments_tc14_part.csv"), header=TRUE, sep=",")
 luv1.elements <- sapply(strsplit(trim(as.character(luv1.comments$element)), "[.]"), function(x) x[1])
 
 for (irun in 1:length(run2.all)) {
@@ -98,20 +101,22 @@ for (a in 1:length(geography)){
   # id for anchoring traces on different plots
   indicators.table$id <- as.integer(factor(indicators.table$indicator))
   indicators.table$name <- paste(substr(indicators.table$census_2010_tract_id, 6, 11), indicators.table$city_name)
-  indicators.table$has_comment <- !is.na(indicators.table$target_value)
+  indicators.table$has_comment <- ifelse(!is.na(indicators.table$target_value), 10,3)
   
   
   #plot
   p <- plot_ly(indicators.table,
                x = estrun1,
                y = estrun2,
-               text = paste0("ID: ", indicators.table[,'tractcity_id'], " Name: ", indicators.table[,'name'],"<br>",
-               "Totals: (", indicators.table[,'estrun1_raw'], ", ", indicators.table[,'estrun2_raw'],"), Target: ", indicators.table[,'target_value']),
+               size = has_comment,
+               hoverinfo = "text",
+               text = paste0( "Percentage: (", indicators.table[,'estrun1'], ", ", indicators.table[,'estrun2'],")<br>Totals: (", indicators.table[,'estrun1_raw'], ", ", indicators.table[,'estrun2_raw'],"), Target: ", indicators.table[,'target_value'],
+                              "<br>ID: ", indicators.table[,'tractcity_id'], " Name: ", indicators.table[,'name']),
                group = indicator,
                xaxis = paste0("x", id),
                type = 'scatter',
-               mode = 'markers',
-               size = ifelse(has_comment, 4, 1)
+               mode = 'markers'
+               
                )%>%
       add_trace(x=c(0,100), 
                 y=c(0,100),
