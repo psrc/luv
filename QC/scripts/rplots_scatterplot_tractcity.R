@@ -101,21 +101,23 @@ for (a in 1:length(geography)){
   # id for anchoring traces on different plots
   indicators.table$id <- as.integer(factor(indicators.table$indicator))
   indicators.table$name <- paste(substr(indicators.table$census_2010_tract_id, 6, 11), indicators.table$city_name)
-  indicators.table$has_comment <- ifelse(!is.na(indicators.table$target_value), 10,3)
-  
+  #indicators.table$has_comment <- ifelse(!is.na(indicators.table$target_value), 10,3)
+  indicators.table$sym <- ifelse(!is.na(indicators.table$target_value), 2, 1)
+  shapes <- c("circle-open","cross")
+  indicators.table$shapes <- shapes[indicators.table$sym]
   
   #plot
   p <- plot_ly(indicators.table,
                x = estrun1,
                y = estrun2,
-               size = has_comment,
                hoverinfo = "text",
                text = paste0( "Percentage: (", indicators.table[,'estrun1'], ", ", indicators.table[,'estrun2'],")<br>Totals: (", indicators.table[,'estrun1_raw'], ", ", indicators.table[,'estrun2_raw'],"), Target: ", indicators.table[,'target_value'],
                               "<br>ID: ", indicators.table[,'tractcity_id'], " Name: ", indicators.table[,'name']),
                group = indicator,
                xaxis = paste0("x", id),
                type = 'scatter',
-               mode = 'markers'
+               mode = 'markers',
+               marker = list(symbol=shapes)
                
                )%>%
       add_trace(x=c(0,100), 
