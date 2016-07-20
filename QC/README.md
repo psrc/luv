@@ -127,7 +127,7 @@ The resulting R-reports are stored as pdf files in its own directory which is ``
 
 As this is under active development, don't forget to ``pull`` regularly to keep the repository version in sync with your local code. If you're writing a script, push it to the repository also on a regular basis so that everybody is informed what others are working on.
 
-If you made local changes into inputs.txt, e.g. changes in directories, do not commit those as everybody has different values in this file. To exclude input.txt from committing and pushing, do (from the QC directory)
+If you made local changes into inputs.txt, e.g. changes in directories, do not commit those, as everybody has different values in this file. To exclude input.txt from committing and pushing, do (from the QC directory)
 
 ```
 git add -u
@@ -136,12 +136,18 @@ git commit -m 'describe your changes'
 git push
 ```
 
-If you have local changes you want to throw out, e.g. in Makefile, do (from the QC directory)
+If you have local changes you want to discard, e.g. in Makefile, do (from the QC directory)
 
 ```
-git checkout Makefile .
+git checkout Makefile
 ```
-Repeat this for all files for which you want to discard your changes. Then do
+Repeat this for all files for which you want to discard your changes. Or, to discard all local changes, do
+
+```
+git checkout .
+```
+
+Then to synchronize with the GitHub repository, do 
 
 ```
 git pull
