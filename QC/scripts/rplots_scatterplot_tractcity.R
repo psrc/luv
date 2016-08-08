@@ -44,7 +44,7 @@ if(!dir.exists(result.dir)) dir.create(result.dir)
 # put a header into the index file
 index.file <- file.path(result.dir, 'rplots_scatter_tractcity.Rmd')
 if(file.exists(index.file)) unlink(index.file)
-create.section(index.file, title="Scatterplots for city shares by tractcity")
+create.section(index.file, title="Scatterplots of city shares by tractcity")
 
 luv1.elements <- sapply(strsplit(trim(as.character(luv1.comments$element)), "[.]"), function(x) x[1])
 
