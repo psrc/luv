@@ -87,7 +87,9 @@ for (a in 1:length(geography)){
     
     # merge tables
     merge.table <- merge(table1, table2, by = colnames(datatable2)[grepl("_id",names(datatable2))])
-    merge.table <- cbind(merge.table, diff=merge.table$estrun1-merge.table$estrun2)
+    dif <- merge.table$estrun1-merge.table$estrun2
+    if(all(dif==0)) next # do not show maps where there is no difference between run1 and run2, because the mapping fails
+    merge.table <- cbind(merge.table, diff=dif)
     
     value.type <- NULL
     
