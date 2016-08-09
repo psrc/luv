@@ -26,37 +26,54 @@ def get_indicators(cache_directory, run_description, years = [2015], base_year=2
     # ==================
     
        #Table(
-
+           #attribute = 'max_all_dev_residential_capacity=city.aggregate(psrc_parcel.parcel.max_developable_residential_capacity)',
+           #dataset_name = 'city',
+           #source_data = source_data,
+           #), 
+       #Table(
+           #attribute = 'max_all_dev_nonresidential_capacity=city.aggregate(psrc_parcel.parcel.max_developable_nonresidential_capacity)',
+           #dataset_name = 'city',
+           #source_data = source_data,
+           #), 
+       #Table(
+           #attribute = 'max_all_dev_capacity=city.aggregate(psrc_parcel.parcel.max_developable_capacity)',
+           #dataset_name = 'city',
+           #source_data = source_data,
+           #),
+       #Table(
+           #attribute = 'max_dev_residential_capacity=city.aggregate(parcel.aggregate(development_project_proposal.disaggregate(psrc_parcel.parcel.max_developable_residential_capacity), function=maximum))',
+           #dataset_name = 'city',
+           #source_data = source_data,
+           #), 
+       #Table(
+           #attribute = 'max_dev_nonresidential_capacity=city.aggregate(parcel.aggregate(development_project_proposal.disaggregate(psrc_parcel.parcel.max_developable_nonresidential_capacity), function=maximum))',
+           #dataset_name = 'city',
+           #source_data = source_data,
+           #), 
+       #Table(
+           #attribute = 'max_dev_capacity=city.aggregate(parcel.aggregate(development_project_proposal.disaggregate(psrc_parcel.parcel.max_developable_capacity), function=maximum))',
+           #dataset_name = 'city',
+           #source_data = source_data,
+           #),  
+       
+       # ## FAZ indicators
+       # ==================
+    
        Table(
-           attribute = 'max_all_dev_residential_capacity=city.aggregate(psrc_parcel.parcel.max_developable_residential_capacity)',
-           dataset_name = 'city',
+           attribute = 'max_dev_residential_capacity=faz.aggregate(parcel.aggregate(development_project_proposal.disaggregate(psrc_parcel.parcel.max_developable_residential_capacity), function=maximum), intermediates=[zone])',
+           dataset_name = 'faz',
            source_data = source_data,
            ), 
        Table(
-           attribute = 'max_all_dev_nonresidential_capacity=city.aggregate(psrc_parcel.parcel.max_developable_nonresidential_capacity)',
-           dataset_name = 'city',
+           attribute = 'max_dev_nonresidential_capacity=faz.aggregate(parcel.aggregate(development_project_proposal.disaggregate(psrc_parcel.parcel.max_developable_nonresidential_capacity), function=maximum), intermediates=[zone])',
+           dataset_name = 'faz',
            source_data = source_data,
            ), 
        Table(
-           attribute = 'max_all_dev_capacity=city.aggregate(psrc_parcel.parcel.max_developable_capacity)',
-           dataset_name = 'city',
+           attribute = 'max_dev_capacity=faz.aggregate(parcel.aggregate(development_project_proposal.disaggregate(psrc_parcel.parcel.max_developable_capacity), function=maximum), intermediates=[zone])',
+           dataset_name = 'faz',
            source_data = source_data,
-           ),
-       Table(
-           attribute = 'max_dev_residential_capacity=city.aggregate(parcel.aggregate(development_project_proposal.disaggregate(psrc_parcel.parcel.max_developable_residential_capacity), function=maximum))',
-           dataset_name = 'city',
-           source_data = source_data,
-           ), 
-       Table(
-           attribute = 'max_dev_nonresidential_capacity=city.aggregate(parcel.aggregate(development_project_proposal.disaggregate(psrc_parcel.parcel.max_developable_nonresidential_capacity), function=maximum))',
-           dataset_name = 'city',
-           source_data = source_data,
-           ), 
-       Table(
-           attribute = 'max_dev_capacity=city.aggregate(parcel.aggregate(development_project_proposal.disaggregate(psrc_parcel.parcel.max_developable_capacity), function=maximum))',
-           dataset_name = 'city',
-           source_data = source_data,
-           ),       
+           ),     
     
     ]
     return indicators
