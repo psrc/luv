@@ -8,10 +8,10 @@ library(htmlwidgets)
 library(RColorBrewer)
 
 # environment inputs
-attribute <- c("population", "households","employment", "residential_units")
+attribute <- c("population", "households","employment", "residential_units", "max_dev_nonresidential_capacity", "max_dev_residential_capacity", "max_dev_capacity")
 geography <- c("faz")#,"zone")
-year1 <- (2040)
-year2 <- (2040)
+year1 <- c(rep(2040, 4), rep(2015, 3))
+year2 <- year1
 extension <- ".csv"
 
 trim <- function (x) gsub("^\\s+|\\s+$", "", x) # function for triming whitespace 
@@ -69,7 +69,7 @@ for (a in 1:length(geography)){
     filename1 <- paste0(geography[a],'__',"table",'__',attribute[i], extension)
     datatable1 <- read.csv(file.path(base.dir, run1,"indicators",filename1), header = TRUE, sep = ",")
     column_id <- colnames(datatable1)[grepl("_id",names(datatable1))]
-    column_est <-colnames(datatable1)[grepl(year1,names(datatable1))]
+    column_est <-colnames(datatable1)[grepl(year1[i],names(datatable1))]
     table1 <- datatable1[,c(column_id,column_est)]
     colnames(table1)[2] <- paste0("estrun1")
     
@@ -77,7 +77,7 @@ for (a in 1:length(geography)){
     filename2 <- paste0(geography[a],'__',"table",'__',attribute[i], extension)
     datatable2 <- read.csv(file.path(base.dir, run2,"indicators",filename2), header = TRUE, sep = ",")
     column_id2 <- colnames(datatable2)[grepl("_id",names(datatable2))]
-    column_est2 <-colnames(datatable2)[grepl(year2,names(datatable2))]
+    column_est2 <-colnames(datatable2)[grepl(year2[i],names(datatable2))]
     table2 <- datatable2[,c(column_id2,column_est2)]
     colnames(table2)[2] <- paste0("estrun2")
     
@@ -187,7 +187,7 @@ for (a in 1:length(geography)){
         addLegend("bottomright",
                   pal = pal2,
                   values = ~diff,
-                  title = paste0(runname1, " and ", runname2, "<br>Difference in 2040 ", attribute[i], " by ", geography[a]),
+                  title = paste0(runname1, " and ", runname2, "<br>Difference in ", year1[i], " ", attribute[i], " by ", geography[a]),
                   opacity =1,
                   labFormat = labelFormat(digits = 0, big.mark = ","))%>%
         addLayersControl(baseGroups = c("Street Map", "Imagery"),
