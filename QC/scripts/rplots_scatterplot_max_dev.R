@@ -44,7 +44,7 @@ if(!dir.exists(result.dir)) dir.create(result.dir)
 # put a header into the index file
 index.file <- file.path(result.dir, 'rplots_scatter_max_dev.Rmd')
 if(file.exists(index.file)) unlink(index.file)
-create.section(index.file, title="Scatterplots of max developable capacity")
+create.section(index.file, title="Maximum developable capacity")
 
 for (irun in 1:length(run2.all)) {
 	run2 <- run2.all[irun]
@@ -55,7 +55,7 @@ for (irun in 1:length(run2.all)) {
 for (a in 1:length(geography)){
   
   indicators.table <- NULL
-  
+  out.table1 <- out.table2 <- c()
   for (i in 1:length(attribute)){
   	for(all.pcl in c(FALSE)) {
     	#run1
@@ -69,6 +69,8 @@ for (a in 1:length(geography)){
     	colnames(table1)[2] <- paste0("estrun1")
     	table1$estrun1 <- round(table1$estrun1)
     	if(attribute[i] != "dev_residential_capacity") table1$estrun1 <- table1$estrun1/1000.
+    	out.table1 <- if(is.null(out.table1)) table1 else merge(out.table1, table1, by=column_id)
+    	colnames(out.table1)[colnames(out.table1)=="estrun1"] <- attribute.list[[attribute[i]]]
     	
     	#run2
     	filename2 <- paste0(geography[a],'__',"table",'__max_', if(all.pcl) 'all_' else '', attribute[i], extension)
@@ -81,18 +83,30 @@ for (a in 1:length(geography)){
     	colnames(table2)[2] <- paste0("estrun2")
     	table2$estrun2 <- round(table2$estrun2)
     	if(attribute[i] != "dev_residential_capacity") table2$estrun2 <- table2$estrun2/1000.
+    	out.table2 <- if(is.null(out.table2)) table2 else merge(out.table2, table2, by=column_id)
+    	colnames(out.table2)[colnames(out.table2)=="estrun2"] <- attribute.list[[attribute[i]]]
     	
     	#merge tables
     	merge.table <- merge(table1, table2, by = colnames(datatable2)[grepl("_id",names(datatable2))])
-    	if (geography[a]=="faz")
+    	if (geography[a]=="faz"){
         		merge.table <- merge(merge.table, faz.lookup, "faz_id")
-      	else merge.table <- merge(merge.table, city.lookup, "city_id")
-
+        		if(i == length(attribute)) {
+        			out.table1 <- merge(out.table1, faz.lookup, "faz_id")
+        			out.table2 <- merge(out.table2, faz.lookup, "faz_id")
+        		}
+      	} else {
+      		merge.table <- merge(merge.table, city.lookup, "city_id")
+      		if(i == length(attribute)) {
+      			out.table1 <- merge(out.table1, city.lookup, "city_id")
+      			out.table2 <- merge(out.table2, city.lookup, "city_id")
+			}
+		}
     	merge.table$indicator <- paste(attribute.list[[attribute[i]]], if(all.pcl) "(all parcels)" else "")    
     	indicators.table <- if(is.null(indicators.table)) merge.table else rbind(indicators.table,merge.table)
   	}
   } # end of attribute loop
   if(is.null(indicators.table)) next
+
   # id for anchoring traces on different plots
   indicators.table$id <- as.integer(factor(indicators.table$indicator))
   
@@ -137,7 +151,12 @@ for (a in 1:length(geography)){
   html.file <- file.path(result.dir, paste0("rplots_max_dev_", runname2, "_", as.name(geography[a]), "_scatterplot.html"))
   htmlwidgets::saveWidget(as.widget(p), html.file)
   # add text into the index file
-  add.text(index.file, paste0("* [", subtitle, "](", paste0('file://', html.file), ")"))
+  add.text(index.file, paste0("* **", subtitle, ":**\n    + [scatterplot](", paste0('file://', html.file), ")"))
+  res.file1 <- file.path(result.dir, paste0('qc_rtable_maxcap_', runname1, "_", as.name(geography[a]), '.txt'))
+  write.table(out.table1, res.file1, sep='\t', row.names=FALSE)
+  res.file2 <- file.path(result.dir, paste0('qc_rtable_maxcap_', runname2, "_", as.name(geography[a]), '.txt'))
+  write.table(out.table2, res.file2, sep='\t', row.names=FALSE)
+  add.text(index.file, paste0("    + tables: [", runname1, "](", paste0('file://', res.file1), "), [", runname2, "](", paste0('file://', res.file2), ")"))
   
 } # end of geography loop
 #add.text(index.file, "\n\n")
