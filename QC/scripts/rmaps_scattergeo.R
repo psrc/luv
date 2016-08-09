@@ -67,7 +67,9 @@ for (a in 1:length(geography)){
   for (i in 1:length(attribute)){
     # run1
     filename1 <- paste0(geography[a],'__',"table",'__',attribute[i], extension)
-    datatable1 <- read.csv(file.path(base.dir, run1,"indicators",filename1), header = TRUE, sep = ",")
+    full.filename1 <- file.path(base.dir, run1,"indicators",filename1)
+    if(!file.exists(full.filename1)) next
+    datatable1 <- read.csv(full.filename1, header = TRUE, sep = ",")
     column_id <- colnames(datatable1)[grepl("_id",names(datatable1))]
     column_est <-colnames(datatable1)[grepl(year1[i],names(datatable1))]
     table1 <- datatable1[,c(column_id,column_est)]
@@ -75,7 +77,9 @@ for (a in 1:length(geography)){
     
     # run2
     filename2 <- paste0(geography[a],'__',"table",'__',attribute[i], extension)
-    datatable2 <- read.csv(file.path(base.dir, run2,"indicators",filename2), header = TRUE, sep = ",")
+    full.filename2 <- file.path(base.dir, run2,"indicators",filename2)
+    if(!file.exists(full.filename2)) next
+    datatable2 <- read.csv(full.filename2, header = TRUE, sep = ",")
     column_id2 <- colnames(datatable2)[grepl("_id",names(datatable2))]
     column_est2 <-colnames(datatable2)[grepl(year2[i],names(datatable2))]
     table2 <- datatable2[,c(column_id2,column_est2)]
