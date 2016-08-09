@@ -18,16 +18,17 @@ if(!interactive()) { # running using Makefile
 	other.runs <- trim(unlist(strsplit(other.runs, ",")))
 	annual <- as.logical(Sys.getenv('RREPORT_ANNUAL', 'FALSE'))
 } else { # running interactively
-	run1 <- "run_81.run_2016_07_05_16_00"
+	run1 <- "81_plus_r97.compiled"
 	base.dir <- "/Volumes/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
 	run.name <- "run81"
 	result.dir <- "."
 	other.runs <- c('run_78.run_2016_06_23_09_47', 'run_170.run_2015_09_15_16_02')
-	other.runs <- c()
-	annual <- TRUE
+	other.runs <- c("run_81.run_2016_07_05_16_00", "luv_1.compiled")
+	annual <- FALSE
 }
 runs <- c(run1, other.runs)
-run.numbers <- sapply(strsplit(sapply(strsplit(runs, '[.]'), function(x) x[1]), '_'), function(x) x[2])
+#run.numbers <- sapply(strsplit(sapply(strsplit(runs, '[.]'), function(x) x[1]), '_'), function(x) x[2])
+run.numbers <- sapply(strsplit(runs, '[.]'), function(x) x[1])
 
 
 # CIs are switched off for LUV R reports
@@ -178,8 +179,10 @@ for(faz in zones) {
 							amount=matched.amount)
 			datafrs <- if(irun == 1) this.data else datafrs <- rbind(datafrs, this.data)
 			this.tabdata <- this.data[,'amount', drop=FALSE]
-			colnames(this.tabdata) <- paste('run', runn)
-			run.table.columns <- c(run.table.columns, paste('run', runn))
+			#colnames(this.tabdata) <- paste('run', runn)
+			colnames(this.tabdata) <- runn
+			#run.table.columns <- c(run.table.columns, paste('run', runn))
+			run.table.columns <- c(run.table.columns, runn)
 			last.table.columns <- c()
 			tabDF <- cbind(tabDF, this.tabdata)
 		}

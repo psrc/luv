@@ -27,7 +27,8 @@ if(!interactive()) { # running using Makefile
 	annual <- TRUE
 }
 runs <- c(run1, other.runs)
-run.numbers <- sapply(strsplit(sapply(strsplit(runs, '[.]'), function(x) x[1]), '_'), function(x) x[2])
+#run.numbers <- sapply(strsplit(sapply(strsplit(runs, '[.]'), function(x) x[1]), '_'), function(x) x[2])
+run.numbers <- sapply(strsplit(runs, '[.]'), function(x) x[1])
 
 # Directory containing the runs with indicators. 
 # The indicators directory must contain files of the type 'faz__tab__xxx.tab'
@@ -140,8 +141,10 @@ for(geo in sort(zones)) {
 							amount=matched.amount)
 			datafrs <- if(irun == 1) this.data else datafrs <- rbind(datafrs, this.data)
 			this.tabdata <- this.data[,'amount', drop=FALSE]
-			colnames(this.tabdata) <- paste('run', runn)
-			run.table.columns <- c(run.table.columns, paste('run', runn))
+			#colnames(this.tabdata) <- paste('run', runn)
+			colnames(this.tabdata) <- runn
+			#run.table.columns <- c(run.table.columns, paste('run', runn))
+			run.table.columns <- c(run.table.columns, runn)
 			last.table.columns <- c()
 			tabDF <- cbind(tabDF, this.tabdata)
 		}
