@@ -19,7 +19,24 @@ def import_packages():
     from plotly import tools
     import plotly.graph_objs as go
 
+def get_base_dir():
+    with open(os.getcwd()[:-7]+'inputs.txt', 'r') as f:
+        line_data = f.readlines()
+        
+    for l in line_data:
+        if l[0] =="#":
+            pass
+        
+        if str(l[:l.find("=")]) == "QC_BASE_DIRECTORY":
+            
+            base_dir = str(l[l.find("=")+1:]).strip()
 
+    return base_dir
+    
+    
+    
+    
+    
 def remove_duplicates(values):
     output = []
     seen = set()
@@ -40,7 +57,7 @@ def get_runid():
             year = y
             try:
                
-                df_name = pd.read_table('\\\\MODELSRV3\\e$\\opusgit\\urbansim_data\\data\\psrc_parcel\\runs\\'+run_num+'\\indicators'+'/'+'large_area__dataset_table__employment_by_aggr_sector__'+year+".tab")
+                df_name = pd.read_table(base_dir +'/'+run_num+ '/indicators/'+'large_area__dataset_table__employment_by_aggr_sector__'+year+".tab")
                 
             except:
                 print "Alert: Aggregated Large Area Employment file for year "+ y + " is not available for the run  "+ str(run_num) 
@@ -86,7 +103,7 @@ def creat_pklfiles():
             year = y
             try:
                
-                df_name = pd.read_table('\\\\MODELSRV3\\e$\\opusgit\\urbansim_data\\data\\psrc_parcel\\runs\\'+run_num+'\\indicators'+'/'+'large_area__dataset_table__employment_by_aggr_sector__'+year+".tab")
+                df_name = pd.read_table(base_dir +'/'+ run_num+'/indicators'+'/'+'large_area__dataset_table__employment_by_aggr_sector__'+year+".tab")
                 
             except:
                 print "Alert: Aggregated Large Area Employment file for year "+ y + " is not available for the run  "+ str(run_num) 
@@ -287,10 +304,11 @@ if __name__ == "__main__":
     print "Import successful!"
     
     
-    
+    base_dir = get_base_dir()
     runs_folder = get_input_luv()
     data_year = ['2014', '2015','2020','2025','2030','2035','2040' ]
     county_id = [33,35,53,61]
+    print "base_dir: ", base_dir
     print "data points: ", data_year
     print "list of runs: ", runs_folder
     print "list of county ids: ", county_id
@@ -300,10 +318,12 @@ if __name__ == "__main__":
     init_plk_list = creat_pklfiles()
     print "got the temp files..."
     df_main = get_master_df()
-    print "got the temp files..."
     df_main_region_list = get_regfile_run()
     df_main_list = get_cntyfile_run_year()
+    print "got the data frames for the scatterplot..."
     get_scatter_html()
+    print "scatterplots deployed to default browser..."
     remove_tmp_dir()
+    print "temporary files/folders removed... Finish!"
     
     
