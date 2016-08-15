@@ -7,9 +7,9 @@ if(!interactive()) { # running using Makefile
 	base.dir <- Sys.getenv('QC_BASE_DIRECTORY')
 	result.dir <- Sys.getenv('QC_RESULT_PATH')
 } else { # running interactively
-	run1 <- "run_71.run_2016_05_26_12_41"
+	run1 <- "run_81.run_2016_07_05_16_00"
 	base.dir <- "/Volumes/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
-	run.name <- "run71"
+	run.name <- "run81_test"
 	result.dir <- file.path("results", run.name)
 }
 year <- 2040
@@ -144,6 +144,20 @@ au.mic.table.output <- au.mic.table
 colnames(au.mic.table.output) <- colnames(au.table.output)
 create.subsection(freport, title='Activity Units per Acre - MICs')
 add.table.highlight(freport, au.mic.table.output, which(au.mic.table$au < 45))
+
+# details table
+outtable <- rgc.au
+outtable <- cbind(outtable, popu.base=round(outtable[[paste('population',base.year,sep='_')]]/outtable$acres,1), 
+				empu.base=round(outtable[[paste('employment',base.year,sep='_')]]/outtable$acres,1),
+				popu=round(outtable[[paste('population',year,sep='_')]]/outtable$acres,1), 
+				empu=round(outtable[[paste('employment',year,sep='_')]]/outtable$acres,1))
+outtable <- outtable[,c('growth_center_id', 'name', paste('population',base.year,sep='_'), 'popu.base', paste('employment',base.year,sep='_'), 'empu.base',
+					paste('population',year,sep='_'), 'popu', paste('employment',year,sep='_'), 'empu')]
+colnames(outtable)[1] <- 'id'
+colnames(outtable)[c(4, 6, 8, 10)] <-  c(paste0(c('Pop/acre_', 'Emp/acre_'), base.year), paste(c('Pop/acre_', 'Emp/acre_'), year))
+au.detail.file <- file.path(result.dir, paste0("qc_rtable_rgc_au_details.txt"))
+write.table(outtable, au.detail.file, row.names=FALSE, sep="\t")
+add.text(freport, paste0("[See more details](file://", au.detail.file, ")"))
 
 # Job loss in MIC
 mic.jobs <- subset(rgc.values$employment, growth_center_id >= 600)
