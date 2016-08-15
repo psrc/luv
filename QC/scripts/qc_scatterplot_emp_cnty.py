@@ -71,6 +71,10 @@ def get_input_luv():
     
     
 def creat_pklfiles():
+    #Create a temp directory for the pkl files:
+    if not os.path.exists(os.getcwd()[:-7]+"tmp_tbls\\"):
+        os.makedirs(os.getcwd()[:-7]+"tmp_tbls\\")
+    
     
     # Create .pkl tables for all indicator files with try & except
     
@@ -241,6 +245,8 @@ def get_scatter_html():
     plotly.offline.plot(fig, filename = os.getcwd()[:-7]+"results\\"+"luv2_emp_run_"+("_").join(str(x) for x in run_id)+"_scatter"+'_'+time.strftime("%m%d%Y")+".html")
     #plotly.offline.plot(fig, filename = "luv2_emp_run_"+("_").join(str(x) for x in run_id)+"_scatter"+'_'+time.strftime("%m%d%Y")+".Rmd")
     
+def remove_tmp_dir():
+    shutil.rmtree(os.getcwd()[:-7]+"tmp_tbls\\")
     
 if __name__ == "__main__":
     # import_input_standalone()
@@ -277,6 +283,7 @@ if __name__ == "__main__":
     from plotly.tools import FigureFactory as FF
     from plotly import tools
     import plotly.graph_objs as go
+    import shutil
     print "Import successful!"
     
     
@@ -297,5 +304,6 @@ if __name__ == "__main__":
     df_main_region_list = get_regfile_run()
     df_main_list = get_cntyfile_run_year()
     get_scatter_html()
+    remove_tmp_dir()
     
     
