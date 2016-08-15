@@ -29,7 +29,12 @@ def get_base_dir():
         
         if str(l[:l.find("=")]) == "QC_BASE_DIRECTORY":
             
-            base_dir = str(l[l.find("=")+1:]).strip()
+            input_dir = str(l[l.find("=")+1:]).strip()
+            input_dir_list = list(input_dir)
+            del input_dir_list[input_dir.find("$")]
+            base_dir = "".join(input_dir_list)
+            
+            
 
     return base_dir
     
@@ -305,6 +310,7 @@ if __name__ == "__main__":
     
     
     base_dir = get_base_dir()
+    
     runs_folder = get_input_luv()
     data_year = ['2014', '2015','2020','2025','2030','2035','2040' ]
     county_id = [33,35,53,61]
