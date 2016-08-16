@@ -112,7 +112,7 @@ Currently, the following phonies are implemented:
    * **rtables**: run R code in scripts/qc\_rtable\_\*.R
    * **rplots**: run R code in scripts/rplots\_\*.R
    * **rmaps**: run R code in scripts/rmaps\_\*.R
-   * **emplots**: run python in scripts/qc\_scatterplot\_emp\_cnty.py which generates time series plots of jobs by sector and county. 
+   * **emplots**: run python in scripts/qc\_tsplot\_emp\_cnty.py which generates time series plots of jobs by sector and county. 
    * **index**: run R code in scripts/create\_index\_file.R (see next section for more details)
    * **clean-index**: removes the index output file
    * **all**: run the phonies rtables, rplots, rmaps, emplots and index

@@ -59,14 +59,14 @@ def get_runid():
             year = y
             try:
                
-                df_name = pd.read_table(base_dir +'/'+run_num+ '/indicators/'+'large_area__dataset_table__employment_by_aggr_sector__'+year+".tab")
+                df_name = pd.read_table(os.path.join(base_dir, run_num, 'indicators', 'large_area__dataset_table__employment_by_aggr_sector__'+year+".tab"))
                 
             except:
                 print "Alert: Aggregated Large Area Employment file for year "+ y + " is not available for the run  "+ str(run_num) 
                 
             else:
                 dot_loc = r.find(".")
-                run_id.append(r[4:dot_loc])
+                run_id.append(r[0:dot_loc])
                 
     run_id = remove_duplicates(run_id)
     return run_id
@@ -136,7 +136,7 @@ def get_master_df():
         df_work = df_work.groupby(by=['county_id'], axis=0).sum().reset_index().astype('int').drop(['large_area_id'], axis=1)
         df_work['year'] = df[-8:-4]
         dot_loc = df.find(".")
-        run = df[7:dot_loc]
+        run = df[3:dot_loc]
         col = df_work.columns.values.tolist()
         col_list=[]
         for i in col:
@@ -269,8 +269,8 @@ def get_scatter_html():
                          plot_bgcolor='rgba(245, 246, 249, 1)', 
                          paper_bgcolor =   'rgb(217,217,217)')
       
-    htmlfile = os.path.join(result_dir, "luv2_emp_run_"+("_").join(str(x) for x in run_id)+"_scatter"+'_'+time.strftime("%m%d%Y")+".html")
-    #plotly.offline.plot(fig, filename = "qc_scatterplot_emp_cnty.html")
+    #htmlfile = os.path.join(result_dir, "luv2_emp_run_"+("_").join(str(x) for x in run_id)+"_scatter"+'_'+time.strftime("%m%d%Y")+".html")
+    htmlfile = os.path.join(result_dir, "qc_ts_emp_cnty.html")
     plotly.offline.plot(fig, filename = htmlfile, auto_open = plot_val)
     #plotly.offline.plot(fig, filename = "luv2_emp_run_"+("_").join(str(x) for x in run_id)+"_scatter"+'_'+time.strftime("%m%d%Y")+".Rmd")
     

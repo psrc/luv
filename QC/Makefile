@@ -67,10 +67,10 @@ rmaps_raw : $(RMAP_SCRIPTOUT_FILES)
 emplots : emplots_raw index
 
 .PHONY : emplots_raw
-emplots_raw : $(RESULT_PATH)/qc_scatterplot_emp_cnty.html
+emplots_raw : $(RESULT_PATH)/qc_ts_emp_cnty.html
 
-$(RESULT_PATH)/qc_scatterplot_emp_cnty.html : $(SCRIPT_PATH)/qc_scatterplot_emp_cnty.py inputs.txt
-	python $(SCRIPT_PATH)/qc_scatterplot_emp_cnty.py make
+$(RESULT_PATH)/qc_ts_emp_cnty.html : $(SCRIPT_PATH)/qc_tsplot_emp_cnty.py inputs.txt
+	python $(SCRIPT_PATH)/qc_tsplot_emp_cnty.py make
 
 .PHONY : rreport-faz
 rreport-faz : $(RREPORT_PATH)/fazreportLUV.Rout
