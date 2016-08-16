@@ -15,6 +15,29 @@ git clone https://github.com/psrc/luv.git luv
 
 On modelsrv3 the repository is installed in ``d://luvgit``.
 
+Check if Python is working by typing 'python' into the bash terminal. Two packages (pandas and plotly) are required to run the python script. If you have the 'Anaconda' installation, you should already have 'pandas' isntalled. You can check the list of python packages installed by using the commands below into the bash terminal:
+
+...
+$ conda list
+...
+
+or
+
+...
+$ pip list
+...
+
+To install the required packages, just type into the bash terminal:
+
+...
+$ pip install pandas
+...
+
+and
+
+...
+$ pip install plotly
+...
 
 Also, check that R is working from the command line by typing R into the bash terminal. If it is not found, using the above installer should fix it. Or, adding the location of R.exe into your Path environment.
 
