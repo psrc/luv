@@ -19,7 +19,26 @@ def import_packages():
     from plotly import tools
     import plotly.graph_objs as go
 
+def get_base_dir():
+    with open(os.getcwd()[:-7]+'inputs.txt', 'r') as f:
+        line_data = f.readlines()
+        
+    for l in line_data:
+        if l[0] =="#":
+            pass
+        
+        if str(l[:l.find("=")]) == "QC_BASE_DIRECTORY":
+            
+            input_dir = str(l[l.find("=")+1:]).strip()
+            input_dir_list = list(input_dir)
+            del input_dir_list[input_dir.find("$")]
+            base_dir = "".join(input_dir_list)
+            
+            
 
+    return base_dir
+    
+    
 def remove_duplicates(values):
     output = []
     seen = set()
@@ -40,7 +59,7 @@ def get_runid():
             year = y
             try:
                
-                df_name = pd.read_table('\\\\MODELSRV3\\e$\\opusgit\\urbansim_data\\data\\psrc_parcel\\runs\\'+run_num+'\\indicators'+'/'+'large_area__dataset_table__employment_by_aggr_sector__'+year+".tab")
+                df_name = pd.read_table(base_dir +'/'+run_num+ '/indicators/'+'large_area__dataset_table__employment_by_aggr_sector__'+year+".tab")
                 
             except:
                 print "Alert: Aggregated Large Area Employment file for year "+ y + " is not available for the run  "+ str(run_num) 
@@ -54,7 +73,7 @@ def get_runid():
     
 
 def get_input_luv():
-    with open(os.getcwd()[:-7]+'inputs.txt', 'r') as f:
+    with open(wrkdir +'inputs.txt', 'r') as f:
         line_data = f.readlines()
     run_grab = []
     for l in line_data:
@@ -64,17 +83,26 @@ def get_input_luv():
             
             run_grab.append(l[8:].strip())
             
-
     return run_grab
     
-    
+def get_run_name():
+    with open(wrkdir +'inputs.txt', 'r') as f:
+        line_data = f.readlines()
+
+    for l in line_data:
+        if l[0] =="#":
+            pass
+        if str(l[:l.find("=")]) == "QC_NAME":            
+            run_name = str(l[l.find("=")+1:]).strip()
+            
+    return run_name
     
     
 def creat_pklfiles():
     #Create a temp directory for the pkl files:
-    if not os.path.exists(os.getcwd()[:-7]+"tmp_tbls\\"):
-        os.makedirs(os.getcwd()[:-7]+"tmp_tbls\\")
     
+    if not os.path.exists(tmp_dir):
+        os.makedirs(tmp_dir)
     
     # Create .pkl tables for all indicator files with try & except
     
@@ -86,7 +114,7 @@ def creat_pklfiles():
             year = y
             try:
                
-                df_name = pd.read_table('\\\\MODELSRV3\\e$\\opusgit\\urbansim_data\\data\\psrc_parcel\\runs\\'+run_num+'\\indicators'+'/'+'large_area__dataset_table__employment_by_aggr_sector__'+year+".tab")
+                df_name = pd.read_table(os.path.join(base_dir, run_num, 'indicators', 'large_area__dataset_table__employment_by_aggr_sector__'+year+".tab"))
                 
             except:
                 print "Alert: Aggregated Large Area Employment file for year "+ y + " is not available for the run  "+ str(run_num) 
@@ -96,7 +124,7 @@ def creat_pklfiles():
                 data_frame_name = "df_"+run_num+"_"+year+".pkl"
                 init_plk_list.append(data_frame_name)
                 df_name.reset_index(drop=True)
-                df_name.to_pickle(os.getcwd()[:-7]+"tmp_tbls\\"+data_frame_name)
+                df_name.to_pickle(os.path.join(tmp_dir, data_frame_name))
     
     return init_plk_list
 
@@ -104,7 +132,7 @@ def get_master_df():
     #read all the .pkl files in to one data frame
     df_main = pd.DataFrame()
     for df in init_plk_list:
-        df_work = pd.read_pickle(os.getcwd()[:-7]+"tmp_tbls\\"+df)
+        df_work = pd.read_pickle(os.path.join(tmp_dir, df))
         df_work = df_work.groupby(by=['county_id'], axis=0).sum().reset_index().astype('int').drop(['large_area_id'], axis=1)
         df_work['year'] = df[-8:-4]
         dot_loc = df.find(".")
@@ -130,7 +158,7 @@ def get_regfile_run():
         df_main_test = df_main_test.reset_index(drop=True)
         df_main_test = df_main_test.groupby(by=['year.'+i], axis=0).sum().reset_index()
         df_main_test["county_id."+i] = "region"
-        df_main_test.to_pickle(os.getcwd()[:-7]+"tmp_tbls\\"+data_frame_name)
+        df_main_test.to_pickle(os.path.join(tmp_dir, data_frame_name))
     
     
 def get_cntyfile_run_year():
@@ -141,7 +169,7 @@ def get_cntyfile_run_year():
         df_main_list.append(data_frame_name)
         df_main_test = df_main[df_main["county_id."+i].notnull()].dropna(axis = 1, how = 'any')
         df_main_test = df_main_test.reset_index(drop=True)
-        df_main_test.to_pickle(os.getcwd()[:-7]+"tmp_tbls\\"+data_frame_name)
+        df_main_test.to_pickle(os.path.join(tmp_dir, data_frame_name))
         
 
 def get_scatter_html():        
@@ -154,7 +182,7 @@ def get_scatter_html():
             line_col = line_color[line_col_id]
             line_col_id = line_col_id +1
                 
-            df_test = pd.read_pickle(os.getcwd()[:-7]+"tmp_tbls\\"+'df_'+run+'.pkl').astype('int')
+            df_test = pd.read_pickle(os.path.join(tmp_dir, 'df_'+run+'.pkl')).astype('int')
 
             df_cnty = df_test[df_test["county_id."+run]==cnty].reset_index()
             col = df_cnty.columns.values.tolist()
@@ -199,9 +227,9 @@ def get_scatter_html():
             if scatter_list[i].name[3:-1] =="index":
                 pass
             if cnty ==33:
-                 col_id = 1
+                col_id = 1
             if cnty ==35:
-                 col_id = 2
+                col_id = 2
             if cnty ==53:
                 col_id = 3
             if cnty ==61:
@@ -242,11 +270,11 @@ def get_scatter_html():
                          paper_bgcolor =   'rgb(217,217,217)')
         
     #plotly.offline.plot(fig, filename = "qc_scatterplot_emp_cnty.html")
-    plotly.offline.plot(fig, filename = os.getcwd()[:-7]+"results\\"+"luv2_emp_run_"+("_").join(str(x) for x in run_id)+"_scatter"+'_'+time.strftime("%m%d%Y")+".html")
+    plotly.offline.plot(fig, filename = os.path.join(result_dir, "luv2_emp_run_"+("_").join(str(x) for x in run_id)+"_scatter"+'_'+time.strftime("%m%d%Y")+".html"))
     #plotly.offline.plot(fig, filename = "luv2_emp_run_"+("_").join(str(x) for x in run_id)+"_scatter"+'_'+time.strftime("%m%d%Y")+".Rmd")
     
 def remove_tmp_dir():
-    shutil.rmtree(os.getcwd()[:-7]+"tmp_tbls\\")
+    shutil.rmtree(tmp_dir)
     
 if __name__ == "__main__":
     # import_input_standalone()
@@ -286,24 +314,39 @@ if __name__ == "__main__":
     import shutil
     print "Import successful!"
     
+    make = False # Should be set to True if run from Makefile
     
-    
-    runs_folder = get_input_luv()
+    if make:
+        base_dir = os.environ['QC_BASE_DIRECTORY']
+        wrkdir = os.getcwd()
+        runs_folder = [os.environ['RUN1']] + [os.environ['RUN2']]
+    else:
+        base_dir = get_base_dir()
+        wrkdir = os.getcwd()[:-7]        
+        runs_folder = get_input_luv()
+        
     data_year = ['2014', '2015','2020','2025','2030','2035','2040' ]
     county_id = [33,35,53,61]
+    print "base_dir: ", base_dir
     print "data points: ", data_year
     print "list of runs: ", runs_folder
     print "list of county ids: ", county_id
     run_id = get_runid()
     print run_id
     print "Grabed the run numbers..."
+    run_name = get_run_name()
+    print "run name: ", run_name
+    result_dir = os.path.join(wrkdir, "results", run_name)
+    tmp_dir = os.path.join(result_dir, "tmp_tbls")
     init_plk_list = creat_pklfiles()
     print "got the temp files..."
     df_main = get_master_df()
-    print "got the temp files..."
     df_main_region_list = get_regfile_run()
     df_main_list = get_cntyfile_run_year()
+    print "got the data frames for the scatterplot..."
     get_scatter_html()
+    print "scatterplots deployed to default browser..."
     remove_tmp_dir()
+    print "temporary files/folders removed... Finish!"
     
     
