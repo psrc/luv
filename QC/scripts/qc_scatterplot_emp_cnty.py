@@ -271,7 +271,7 @@ def get_scatter_html():
       
     htmlfile = os.path.join(result_dir, "luv2_emp_run_"+("_").join(str(x) for x in run_id)+"_scatter"+'_'+time.strftime("%m%d%Y")+".html")
     #plotly.offline.plot(fig, filename = "qc_scatterplot_emp_cnty.html")
-    plotly.offline.plot(fig, filename = htmlfile)
+    plotly.offline.plot(fig, filename = htmlfile, auto_open = plot_val)
     #plotly.offline.plot(fig, filename = "luv2_emp_run_"+("_").join(str(x) for x in run_id)+"_scatter"+'_'+time.strftime("%m%d%Y")+".Rmd")
     
     # write into Rmd
@@ -334,11 +334,13 @@ if __name__ == "__main__":
         wrkdir = os.getcwd()
         runs_folder = [os.environ['QC_RUN1']] + [os.environ['QC_RUN2']]
         result_dir = os.environ['QC_RESULT_PATH']
+        plot_val = False
     else:
         base_dir = get_base_dir()
         wrkdir = os.getcwd()[:-7]        
         runs_folder = get_input_luv()
         result_dir = os.path.join(wrkdir, "results", get_run_name())
+        plot_val = True
         
     data_year = ['2014', '2015','2020','2025','2030','2035','2040' ]
     county_id = [33,35,53,61]
@@ -358,7 +360,10 @@ if __name__ == "__main__":
     df_main_list = get_cntyfile_run_year()
     print "got the data frames for the scatterplot..."
     get_scatter_html()
-    print "scatterplots deployed to default browser..."
+    if plot_val == True:
+        print "scatterplots saved in the results directory as .html and deployed to the default browser..."
+    if plot_val == False:
+        print "scatterplots saved in the results directory as .html..."
     remove_tmp_dir()
     print "temporary files/folders removed... Finish!"
     
