@@ -17,27 +17,27 @@ On modelsrv3 the repository is installed in ``d://luvgit``.
 
 Check if Python is working by typing 'python' into the bash terminal. Two packages (pandas and plotly) are required to run the python script. If you have the 'Anaconda' installation, you should already have 'pandas' isntalled. You can check the list of python packages installed by using the commands below into the bash terminal:
 
-...
+```
 $ conda list
-...
+```
 
 or
 
-...
+```
 $ pip list
-...
+```
 
 To install the required packages, just type into the bash terminal:
 
-...
+```
 $ pip install pandas
-...
+```
 
 and
 
-...
+```
 $ pip install plotly
-...
+```
 
 Also, check that R is working from the command line by typing R into the bash terminal. If it is not found, using the above installer should fix it. Or, adding the location of R.exe into your Path environment.
 
@@ -112,8 +112,10 @@ Currently, the following phonies are implemented:
    * **rtables**: run R code in scripts/qc\_rtable\_\*.R
    * **rplots**: run R code in scripts/rplots\_\*.R
    * **rmaps**: run R code in scripts/rmaps\_\*.R
+   * **emplots**: run python in scripts/qc\_scatterplot\_emp\_cnty.py which generates time series plots of jobs by sector and county. 
    * **index**: run R code in scripts/create\_index\_file.R (see next section for more details)
-   * **all**: run the phonies rtables, rplots, rmaps and index
+   * **clean-index**: removes the index output file
+   * **all**: run the phonies rtables, rplots, rmaps, emplots and index
    * **rreport-city**: generate R-report on the city level (see Section R-Reports)
    * **rreport-faz**: generate R-report on the faz level (see Section R-Reports)
 
