@@ -268,10 +268,18 @@ def get_scatter_html():
                          height=2400, width=2350,
                          plot_bgcolor='rgba(245, 246, 249, 1)', 
                          paper_bgcolor =   'rgb(217,217,217)')
-        
+      
+    htmlfile = os.path.join(result_dir, "luv2_emp_run_"+("_").join(str(x) for x in run_id)+"_scatter"+'_'+time.strftime("%m%d%Y")+".html")
     #plotly.offline.plot(fig, filename = "qc_scatterplot_emp_cnty.html")
-    plotly.offline.plot(fig, filename = os.path.join(result_dir, "luv2_emp_run_"+("_").join(str(x) for x in run_id)+"_scatter"+'_'+time.strftime("%m%d%Y")+".html"))
+    plotly.offline.plot(fig, filename = htmlfile)
     #plotly.offline.plot(fig, filename = "luv2_emp_run_"+("_").join(str(x) for x in run_id)+"_scatter"+'_'+time.strftime("%m%d%Y")+".Rmd")
+    
+    # write into Rmd
+    rmdfile = open(os.path.join(result_dir, "emplots_by_sectors.Rmd"), "w")
+    rmdfile.write("## Employment by Sector\n\n")
+    rmdfile.write("* [Employment time series by county](%s)\n" % htmlfile)
+    rmdfile.close()
+    
     
 def remove_tmp_dir():
     shutil.rmtree(tmp_dir)

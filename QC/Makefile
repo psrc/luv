@@ -43,7 +43,7 @@ ind-an :
 	python $(SCRIPT_PATH)/create_annual_indicator_files.py
 
 .PHONY : all
-all: rtables_raw rplots_raw rmaps_raw index
+all: rtables_raw rplots_raw rmaps_raw emplots_raw index
 
 .PHONY : rtables
 rtables : rtables_raw index
@@ -63,8 +63,11 @@ rmaps : rmaps_raw index
 .PHONY : rmaps_raw
 rmaps_raw : $(RMAP_SCRIPTOUT_FILES)
 
-.PHONY : empplots
-empplots : $(RESULT_PATH)/qc_scatterplot_emp_cnty.html
+.PHONY : emplots
+emplots : emplots_raw index
+
+.PHONY : emplots_raw
+emplots : $(RESULT_PATH)/qc_scatterplot_emp_cnty.html
 
 $(RESULT_PATH)/qc_scatterplot_emp_cnty.html : $(SCRIPT_PATH)/qc_scatterplot_emp_cnty.py inputs.txt
 	python $(SCRIPT_PATH)/qc_scatterplot_emp_cnty.py make
