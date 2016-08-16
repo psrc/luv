@@ -151,13 +151,14 @@ outtable <- cbind(outtable, popu.base=round(outtable[[paste('population',base.ye
 				empu.base=round(outtable[[paste('employment',base.year,sep='_')]]/outtable$acres,1),
 				popu=round(outtable[[paste('population',year,sep='_')]]/outtable$acres,1), 
 				empu=round(outtable[[paste('employment',year,sep='_')]]/outtable$acres,1))
-outtable <- outtable[,c('growth_center_id', 'name', paste('population',base.year,sep='_'), 'popu.base', paste('employment',base.year,sep='_'), 'empu.base',
-					paste('population',year,sep='_'), 'popu', paste('employment',year,sep='_'), 'empu')]
+outtable <- outtable[,c('growth_center_id', paste('population',base.year,sep='_'), 'popu.base', paste('employment',base.year,sep='_'), 'empu.base',
+					paste('population',year,sep='_'), 'popu', paste('employment',year,sep='_'), 'empu', 'name')]
 colnames(outtable)[1] <- 'id'
-colnames(outtable)[c(4, 6, 8, 10)] <-  c(paste0(c('Pop/acre_', 'Emp/acre_'), base.year), paste(c('Pop/acre_', 'Emp/acre_'), year))
+colnames(outtable)[seq(2, by=2, length=4)] <-  c(paste0(c('Pop_', 'Emp_'), base.year), paste0(c('Pop_', 'Emp_'), year))
+colnames(outtable)[seq(3, by=2, length=4)] <-  c(paste0(c('Pop/U_', 'Emp/U_'), base.year), paste0(c('Pop/U_', 'Emp/U_'), year))
 au.detail.file <- file.path(result.dir, paste0("qc_rtable_rgc_au_details.txt"))
 write.table(outtable, au.detail.file, row.names=FALSE, sep="\t")
-add.text(freport, paste0("[See more details](file://", au.detail.file, ")"))
+add.text(freport, paste0("[See more details](file://", au.detail.file, ")\n\n"))
 
 # Job loss in MIC
 mic.jobs <- subset(rgc.values$employment, growth_center_id >= 600)
