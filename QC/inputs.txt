@@ -1,21 +1,14 @@
 # QC_NAME is obligatory entry; defines subdirectory for the QC results
-#QC_NAME=run81_refined
 QC_NAME=run81
-#QC_NAME=luv1
-#QC_BASE_DIRECTORY=//modelsrv3/e$$/opusgit/urbansim_data/data/psrc_parcel/runs
-QC_BASE_DIRECTORY=/Volumes/e$$/opusgit/urbansim_data/data/psrc_parcel/runs
-#QC_BASE_DIRECTORY=/Users/hana/opus/urbansim_data/data/psrc_parcel/runs
-#QC_BASE_DIRECTORY=e://opusgit/urbansim_data/data/psrc_parcel/runs
-#QC_RUN1=run_82.run_2016_07_11_16_07
+QC_BASE_DIRECTORY=//modelsrv3/e$$/opusgit/urbansim_data/data/psrc_parcel/runs
+#QC_BASE_DIRECTORY=/Volumes/e$$/opusgit/urbansim_data/data/psrc_parcel/runs
 QC_RUN1=run_81.run_2016_07_05_16_00
 #QC_RUN1=81_plus_r97.compiled
-QC_RUN2=luv_1.compiled
-#QC_RUN1=run_78.run_2016_06_23_09_47
 #QC_RUN2=luv_1.compiled, run_78.run_2016_06_23_09_47, run_81.run_2016_07_05_16_00
 #QC_RUN2=run_81.run_2016_07_05_16_00, luv_1.compiled
-#QC_RUN2=luv_1.compiled, run_170.run_2015_09_15_16_02
+QC_RUN2=luv_1.compiled
 DECREASE_THRESHOLD=10
 DECREASE_THRESHOLD_PERCENT=1
 #RREPORT_RUNS=run_81.run_2016_07_05_16_00, run_78.run_2016_06_23_09_47, run_170.run_2015_09_15_16_02
-RREPORT_RUNS=run_81.run_2016_07_05_16_00, luv_1.compiled
+RREPORT_RUNS=81_plus_r97.compiled, luv_1.compiled
 RREPORT_ANNUAL=FALSE

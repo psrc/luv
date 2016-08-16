@@ -303,6 +303,7 @@ if __name__ == "__main__":
     # df_main_list = get_cntyfile_run_year()
     # get_scatter_html()
 
+    import sys
     import pandas as pd
     import os
     import time
@@ -314,16 +315,22 @@ if __name__ == "__main__":
     import shutil
     print "Import successful!"
     
-    make = False # Should be set to True if run from Makefile
+    # get command line arguments
+    args = sys.argv
+    
+    #make = True # Should be set to True if run from Makefile
+    make = len(args) > 1 and args[1]=="make" # pass through command-line argument
     
     if make:
         base_dir = os.environ['QC_BASE_DIRECTORY']
         wrkdir = os.getcwd()
-        runs_folder = [os.environ['RUN1']] + [os.environ['RUN2']]
+        runs_folder = [os.environ['QC_RUN1']] + [os.environ['QC_RUN2']]
+        result_dir = os.environ['QC_RESULT_PATH']
     else:
         base_dir = get_base_dir()
         wrkdir = os.getcwd()[:-7]        
         runs_folder = get_input_luv()
+        result_dir = os.path.join(wrkdir, "results", get_run_name())
         
     data_year = ['2014', '2015','2020','2025','2030','2035','2040' ]
     county_id = [33,35,53,61]
@@ -334,9 +341,7 @@ if __name__ == "__main__":
     run_id = get_runid()
     print run_id
     print "Grabed the run numbers..."
-    run_name = get_run_name()
-    print "run name: ", run_name
-    result_dir = os.path.join(wrkdir, "results", run_name)
+        
     tmp_dir = os.path.join(result_dir, "tmp_tbls")
     init_plk_list = creat_pklfiles()
     print "got the temp files..."

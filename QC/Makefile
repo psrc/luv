@@ -67,7 +67,7 @@ rmaps_raw : $(RMAP_SCRIPTOUT_FILES)
 empplots : $(RESULT_PATH)/qc_scatterplot_emp_cnty.html
 
 $(RESULT_PATH)/qc_scatterplot_emp_cnty.html : $(SCRIPT_PATH)/qc_scatterplot_emp_cnty.py inputs.txt
-	python $(SCRIPT_PATH)/qc_scatterplot_emp_cnty.py
+	python $(SCRIPT_PATH)/qc_scatterplot_emp_cnty.py make
 
 .PHONY : rreport-faz
 rreport-faz : $(RREPORT_PATH)/fazreportLUV.Rout
