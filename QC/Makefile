@@ -67,7 +67,7 @@ rmaps_raw : $(RMAP_SCRIPTOUT_FILES)
 emplots : emplots_raw index
 
 .PHONY : emplots_raw
-emplots : $(RESULT_PATH)/qc_scatterplot_emp_cnty.html
+emplots_raw : $(RESULT_PATH)/qc_scatterplot_emp_cnty.html
 
 $(RESULT_PATH)/qc_scatterplot_emp_cnty.html : $(SCRIPT_PATH)/qc_scatterplot_emp_cnty.py inputs.txt
 	python $(SCRIPT_PATH)/qc_scatterplot_emp_cnty.py make
@@ -103,6 +103,10 @@ clean :
 	rm -f $(SCRIPT_PATH)/*.Rout
 	rm -fr $(RESULT_PATH)/*
 	rm -fr $(RESULT_TEST_PATH)
+
+.PHONY : clean-index
+clean-index :
+	rm -f $(SCRIPT_PATH)/create_index_file.Rout
 
 # Lines in the following recipe needs to be connected via ; and \ in order 
 # for the R process to see the change in the env variable.
