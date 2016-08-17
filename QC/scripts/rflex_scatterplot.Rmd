@@ -1,0 +1,265 @@
+---
+title: "Run Comparison"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(plotly)
+library(shiny)
+library(htmlwidgets)
+library(leaflet)
+library(sp)
+library(rgdal)
+library(dplyr)
+library(RColorBrewer)
+
+#environment inputs
+attribute <- c("population", "households","employment", "residential_units")
+geography <- c("faz")#"zone", "city")
+year1 <- (2040)
+year2 <- (2040)
+extension <- ".csv"
+
+trim <- function (x) gsub("^\\s+|\\s+$", "", x) # function for triming whitespace 
+
+make <- !interactive()
+make <- FALSE
+if(make) {
+  base.dir <- Sys.getenv('QC_BASE_DIRECTORY')
+  run1 <- Sys.getenv('QC_RUN1')
+  run2.all <- Sys.getenv('QC_RUN2')
+  run2.all <- trim(unlist(strsplit(run2.all, ","))) # run2 can have multiple directories; split by comma
+  result.dir <- Sys.getenv('QC_RESULT_PATH')
+  faz.lookup <- read.table(file.path("data", "faz_names.txt"), header =TRUE, sep = "\t")
+  zone.lookup <- read.table(file.path("data", "zones.txt"), header =TRUE, sep = "\t")
+  city.lookup <- read.table(file.path("data", "cities.csv"), header =TRUE, sep = ",")
+} else {
+  base.dir <- "//modelsrv3/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
+  run1 <- "run_74.run_2016_06_16_15_40"
+  run2.all <- "run_73.run_2016_06_13_16_56" 
+  run.name <- 'run74'
+  #result.dir <- file.path("C:/Users/Christy/Desktop/luv/QC/results", run.name)
+  faz.lookup <- read.table("C:/Users/Christy/Desktop/luv/QC/data/faz_names.txt", header =TRUE, sep = "\t")
+  #zone.lookup <- read.table("C:/Users/Christy/Desktop/luv/QC/data/zones.txt", header =TRUE, sep = "\t")
+  #city.lookup <- read.table("C:/Users/Christy/Desktop/luv/QC/data/cities.csv", header =TRUE, sep = ",")
+  dsn <- "C:/Users/Christy/Desktop/luv/QC/data"
+  layer_faz <- "FAZ_2010_WGS84"
+}
+
+runname1 <- unlist(strsplit(run1,"[.]"))[[1]]
+runnames2 <- sapply(strsplit(run2.all,"[.]"), function(x) x[1]) # can have multiple values
+# if(!dir.exists(result.dir)) dir.create(result.dir)
+# 
+# # put a header into the index file
+# source('templates/create_Rmd_blocks.R')
+# index.file <- file.path(result.dir, 'rplots_scatter.Rmd')
+# if(file.exists(index.file)) unlink(index.file)
+# create.section(index.file, title="Scatterplots")
+
+for (irun in 1:length(run2.all)) {
+	run2 <- run2.all[irun]
+	runname2 <- runnames2[irun]
+	#add.text(index.file, paste("####", runname1, "vs.", runname2, "\n"))
+
+	# build plotly table for subplot
+	for (a in 1:length(geography)){
+	  
+	  indicators.table <- NULL
+	  
+	  for (i in 1:length(attribute)){
+	    # run1
+	    filename1 <- paste0(geography[a],'__',"table",'__',attribute[i], extension)
+	    datatable1 <- read.csv(file.path(base.dir, run1,"indicators",filename1), header = TRUE, sep = ",")
+	    column_id <- colnames(datatable1)[grepl("_id",names(datatable1))]
+	    column_est <-colnames(datatable1)[grepl(year1,names(datatable1))]
+	    table1 <- datatable1[,c(column_id,column_est)]
+	    colnames(table1)[2] <- paste0("estrun1")
+	    
+	    # run2
+	    filename2 <- paste0(geography[a],'__',"table",'__',attribute[i], extension)
+	    datatable2 <- read.csv(file.path(base.dir, run2,"indicators",filename2), header = TRUE, sep = ",")
+	    column_id2 <- colnames(datatable2)[grepl("_id",names(datatable2))]
+	    column_est2 <-colnames(datatable2)[grepl(year2,names(datatable2))]
+	    table2 <- datatable2[,c(column_id2,column_est2)]
+	    colnames(table2)[2] <- paste0("estrun2")
+	    
+	    # merge tables
+	    merge.table <- merge(table1, table2, by = colnames(datatable2)[grepl("_id",names(datatable2))])
+	    if (geography[a]=="zone"){
+	      merge.table <- merge(merge.table, zone.lookup, "zone_id")
+	      merge.table <- merge(merge.table, faz.lookup, "faz_id")
+	      merge.table <- merge.table[,c(2, 1, 3:(ncol(merge.table)))] 
+	    }else{
+	      if (geography[a]=="faz")
+	        merge.table <- merge(merge.table, faz.lookup, "faz_id")
+	      else merge.table <- merge(merge.table, city.lookup, "city_id")
+	    }  
+	    
+	    merge.table$indicator <- switch(attribute[i],
+	                                    "population"="Total Population", 
+	                                    "households"="Households", 
+	                                    "employment"="Employment", 
+	                                    "residential_units"="Residential Units")
+	    ifelse (is.null(indicators.table),
+	            indicators.table <- merge.table, 
+	            indicators.table <- rbind(indicators.table,merge.table))
+	    
+	  } # end of attribute loop
+	  
+	  # set up shapefiles
+	  if (geography[a]=="faz"){
+	    faz.shape <- readOGR(dsn=dsn,layer=layer_faz) %>% sp::merge(faz.lookup, by.x = "FAZ10", by.y = "faz_id")
+	    faz.shape$name_id <- faz.shape$FAZ10
+	  }
+	  
+	} # end of geography loop
+	
+} # end run2 loop	
+```
+
+Column {.sidebar}
+-----------------------------------------------------------------------
+
+```{r}
+selectInput(inputId = "select",
+            label = "Choose Indicator",
+            choices = c("Total Population"=1,
+                        "Households"=2,
+                        "Employment"=3,
+                        "Residential Units"=4),
+            selected = 1)
+
+```
+
+Column
+-----------------------------------------------------------------------
+
+### Scatterplot
+
+```{r}
+table <- reactive({ 
+        switch(as.integer(input$select),
+                "Total Population",
+                "Households",
+                "Employment",
+                "Residential Units") 
+})
+
+# Plotly
+output$plot <- renderPlotly({
+  
+  data <- subset(indicators.table, indicators.table$indicator==table()) 
+  
+  p <- plot_ly(data,
+               x = estrun1,
+               y = estrun2,
+               source = "source",
+               text = paste0("ID: ", data[,1], 
+                             " Name: ", data[,grepl("name|Name",names(data))]),
+               type = 'scatter',
+               mode = 'markers',
+               showlegend = F)%>%
+      add_trace(x=c(0,max(estrun1)), 
+                y=c(0,max(estrun1)),
+                marker = list(color="grey", size = 0),
+                opacity = .6,
+                mode = "lines",
+                showlegend = F)%>%
+      layout(font = list(family="Segoe UI", size = 13.5),
+             title = " ",
+             xaxis = list(title = runname1),
+             yaxis = list(title = runname2),
+             margin = list(l=100, b=100, t=90, r=100)
+             )
+  p
+})
+
+plotlyOutput('plot', width = "80%", height = "925px")
+
+```
+
+Column
+-----------------------------------------------------------------------
+
+### Map
+
+```{r}
+# Shapefile
+shape <- reactive({
+  data <- subset(indicators.table, indicators.table$indicator==table()) 
+  shape.join <- sp::merge(faz.shape, data, by.x = c("FAZ10", "Name"), by.y = c("faz_id", "Name"))
+  return (shape.join)
+})
+  
+# Draw the map without selected tracts
+output$map <- renderLeaflet({
+  
+  geo.popup1 <- paste0("<strong>ID: </strong>", shape()$name_id,
+                        "<br><strong>Name: </strong>", shape()$Name,
+                        "<br><strong>", runname2," estimate: </strong>", shape()$estrun2,
+                        "<br><strong>", runname1," estimate: </strong>", shape()$estrun1#,
+                        #"<br><strong>Difference: </strong>", shape$diff
+                       )
+                       
+  map <- leaflet(data = shape())%>%
+        addProviderTiles("CartoDB.Positron", group = "Street Map")%>%
+        addProviderTiles("Esri.WorldImagery", group = "Imagery")%>%
+        clearShapes()%>%
+        addPolygons(fillColor = "transparent",
+                    stroke = TRUE,
+                    color = "#8a8a95",
+                    weight = 1,
+                    group = "Data",
+                    layerId = ~nFAZ10,
+                    popup = geo.popup1
+                    )%>%
+        setView(lng = -122.008546, lat = 47.549390, zoom = 9)%>%
+        addLayersControl(baseGroups = c("Street Map", "Imagery"),
+                         overlayGroups = c("Data"),
+                         options = layersControlOptions(collapsed = FALSE))
+  
+})
+
+
+# Drag event for the scatterplot: will grab ids of selected points
+selected_geo <- reactive({
+  eventdata <- event_data(event = "plotly_selected", source = "source")
+  if(is.null(eventdata)){
+    return(NULL) # do nothing
+  } else {
+    geoid <- eventdata[['faz_id']]
+    if (length(geoid) == 0){ # going off example on flexdashboard
+      geoid <- 'abcdefj'
+    }
+    if (!(geoid %in% shape()$nFAZ10)) { # going off example on flexdashboard
+      return(NULL)
+    } else {
+      selected_geo <- shape()[shape()$nFAZ10 %in% geoid, ] # Give back a sp data frame of the selected name_ids
+      return(selected_geo)
+    }
+  }
+}) # end of selected_geo()
+
+
+observe({
+  req(selected_geo()) # Do this if selected_geo() is not null
+  proxy <- leafletProxy('map')
+    
+  # Clear old selection on map, and add new selection
+  proxy %>%
+    clearGroup(group = 'selected_geo') %>%
+    addPolygons(data = selected_geo(), 
+                fill = FALSE, 
+                color = '#FFFF00',
+                opacity = 1, 
+                group = 'selected_geo')
+})  
+
+
+leafletOutput('map')
+```
