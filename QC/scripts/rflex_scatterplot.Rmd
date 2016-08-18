@@ -18,7 +18,7 @@ library(rgdal)
 library(dplyr)
 library(RColorBrewer)
 
-#environment inputs
+# environment inputs
 attribute <- c("population", "households","employment", "residential_units")
 geography <- c("faz")#"zone", "city")
 year1 <- (2040)
@@ -155,6 +155,8 @@ output$plot <- renderPlotly({
   
   data <- subset(indicators.table, indicators.table$indicator==table()) 
   
+  key <- data$faz_id #uniquely identify geo for Plotly
+  
   p <- plot_ly(data,
                x = estrun1,
                y = estrun2,
@@ -162,6 +164,7 @@ output$plot <- renderPlotly({
                text = paste0("ID: ", data[,1], 
                              " Name: ", data[,grepl("name|Name",names(data))]),
                type = 'scatter',
+               key = key, # will appear in 'eventdata'
                mode = 'markers',
                showlegend = F)%>%
       add_trace(x=c(0,max(estrun1)), 
@@ -206,7 +209,7 @@ output$map <- renderLeaflet({
                         #"<br><strong>Difference: </strong>", shape$diff
                        )
                        
-  map <- leaflet(data = shape())%>%
+  map <-leaflet(data = shape())%>%
         addProviderTiles("CartoDB.Positron", group = "Street Map")%>%
         addProviderTiles("Esri.WorldImagery", group = "Imagery")%>%
         clearShapes()%>%
@@ -214,14 +217,20 @@ output$map <- renderLeaflet({
                     stroke = TRUE,
                     color = "#8a8a95",
                     weight = 1,
-                    group = "Data",
                     layerId = ~nFAZ10,
                     popup = geo.popup1
                     )%>%
+        # this 'addPolygons' should not be here, but the only way to see selected_geo so far
+        addPolygons(data = selected_geo(),
+                    fill = FALSE,
+                    color = '#FFFF00',
+                    opacity = 1)%>%
         setView(lng = -122.008546, lat = 47.549390, zoom = 9)%>%
         addLayersControl(baseGroups = c("Street Map", "Imagery"),
-                         overlayGroups = c("Data"),
+                         #overlayGroups = c("Data"),
                          options = layersControlOptions(collapsed = FALSE))
+  
+  map
   
 })
 
@@ -232,15 +241,15 @@ selected_geo <- reactive({
   if(is.null(eventdata)){
     return(NULL) # do nothing
   } else {
-    geoid <- eventdata[['faz_id']]
+    print(eventdata)
+    geoid <- eventdata[['key']]
+    print(geoid)
     if (length(geoid) == 0){ # going off example on flexdashboard
       geoid <- 'abcdefj'
-    }
-    if (!(geoid %in% shape()$nFAZ10)) { # going off example on flexdashboard
-      return(NULL)
     } else {
-      selected_geo <- shape()[shape()$nFAZ10 %in% geoid, ] # Give back a sp data frame of the selected name_ids
-      return(selected_geo)
+      sub <- shape()[shape()$nFAZ10 %in% geoid, ] # Give back a sp data frame of the selected name_ids
+      print(head(sub@data))
+      return(sub)
     }
   }
 }) # end of selected_geo()
@@ -248,18 +257,20 @@ selected_geo <- reactive({
 
 observe({
   req(selected_geo()) # Do this if selected_geo() is not null
-  proxy <- leafletProxy('map')
-    
-  # Clear old selection on map, and add new selection
-  proxy %>%
-    clearGroup(group = 'selected_geo') %>%
-    addPolygons(data = selected_geo(), 
-                fill = FALSE, 
-                color = '#FFFF00',
-                opacity = 1, 
+  
+  proxy <- leafletProxy("map")
+  
+  proxy %>% # Clear old selection on map, and add new selection
+    clearGroup(group = 'selected_geo')%>%
+    addPolygons(data = selected_geo(),
+                fill = FALSE,
+                color = "#FFFF00",
+                opacity = 1,
                 group = 'selected_geo')
 })  
 
 
-leafletOutput('map')
+leafletOutput("map")
+
+
 ```
