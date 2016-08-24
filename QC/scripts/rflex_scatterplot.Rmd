@@ -16,7 +16,7 @@ library(leaflet)
 library(sp)
 library(rgdal)
 library(dplyr)
-library(RColorBrewer)
+
 
 # environment inputs
 attribute <- c("population", "households","employment", "residential_units")
@@ -113,6 +113,7 @@ for (irun in 1:length(run2.all)) {
 	  
 	  # set up shapefiles
 	  if (geography[a]=="faz"){
+	    geo <- "FAZ"
 	    faz.shape <- readOGR(dsn=dsn,layer=layer_faz) %>% sp::merge(faz.lookup, by.x = "FAZ10", by.y = "faz_id")
 	    faz.shape$name_id <- faz.shape$FAZ10
 	  }
@@ -126,8 +127,9 @@ Column {.sidebar}
 -----------------------------------------------------------------------
 
 ```{r}
+
 selectInput(inputId = "select",
-            label = "Choose Indicator",
+            label = h4("Choose Indicator"),
             choices = c("Total Population"=1,
                         "Households"=2,
                         "Employment"=3,
@@ -135,6 +137,8 @@ selectInput(inputId = "select",
             selected = 1)
 
 ```
+
+Select the 'Box Select' or 'Lasso Select' option in the scatterplot to select points and see its location on the map.
 
 Column
 -----------------------------------------------------------------------
@@ -160,6 +164,7 @@ output$plot <- renderPlotly({
   p <- plot_ly(data,
                x = estrun1,
                y = estrun2,
+               name = "",
                source = "source",
                text = paste0("ID: ", data[,1], 
                              " Name: ", data[,grepl("name|Name",names(data))]),
@@ -194,44 +199,51 @@ Column
 ```{r}
 # Shapefile
 shape <- reactive({
-  data <- subset(indicators.table, indicators.table$indicator==table()) 
-  shape.join <- sp::merge(faz.shape, data, by.x = c("FAZ10", "Name"), by.y = c("faz_id", "Name"))
+  data1 <- subset(indicators.table, indicators.table$indicator==table()) 
+  shape.join <- sp::merge(faz.shape, data1, by.x = c("FAZ10", "Name"), by.y = c("faz_id", "Name"))
   return (shape.join)
 })
-  
+
+
 # Draw the map without selected tracts
 output$map <- renderLeaflet({
-  
-  geo.popup1 <- paste0("<strong>ID: </strong>", shape()$name_id,
-                        "<br><strong>Name: </strong>", shape()$Name,
-                        "<br><strong>", runname2," estimate: </strong>", shape()$estrun2,
-                        "<br><strong>", runname1," estimate: </strong>", shape()$estrun1#,
-                        #"<br><strong>Difference: </strong>", shape$diff
-                       )
-                       
-  map <-leaflet(data = shape())%>%
-        addProviderTiles("CartoDB.Positron", group = "Street Map")%>%
-        addProviderTiles("Esri.WorldImagery", group = "Imagery")%>%
-        clearShapes()%>%
-        addPolygons(fillColor = "transparent",
-                    stroke = TRUE,
-                    color = "#8a8a95",
-                    weight = 1,
-                    layerId = ~nFAZ10,
-                    popup = geo.popup1
-                    )%>%
-        # this 'addPolygons' should not be here, but the only way to see selected_geo so far
-        addPolygons(data = selected_geo(),
-                    fill = FALSE,
-                    color = '#FFFF00',
-                    opacity = 1)%>%
-        setView(lng = -122.008546, lat = 47.549390, zoom = 9)%>%
-        addLayersControl(baseGroups = c("Street Map", "Imagery"),
-                         #overlayGroups = c("Data"),
-                         options = layersControlOptions(collapsed = FALSE))
-  
-  map
-  
+ 
+    geo.popup1 <- paste0("<strong>ID: </strong>", shape()$name_id,
+                          "<br><strong>Name: </strong>", shape()$Name,
+                          "<br><strong>", runname2," estimate: </strong>", shape()$estrun2,
+                          "<br><strong>", runname1," estimate: </strong>", shape()$estrun1#,
+                          #"<br><strong>Difference: </strong>", shape$diff
+                         )
+                         
+    map <- leaflet()%>%
+            addProviderTiles("CartoDB.Positron", group = "Street Map")%>%
+            addProviderTiles("Esri.WorldImagery", group = "Imagery")%>%
+            clearShapes()%>%
+            addPolygons(data = shape(),
+                        fillColor = "transparent",
+                        stroke = TRUE,
+                        color = "#8a8a95",
+                        weight = 1,
+                        group = geo,
+                        popup = geo.popup1
+                        )
+    
+    subdata <- selected_geo()
+    if(length(subdata) > 0)
+        map <- map %>% 
+                addPolygons(data = selected_geo(),
+                            fill = FALSE,
+                            color = '#FFFF00',
+                            opacity = 1,
+                            group = paste0("Selected ", geo))
+
+     map <- map %>%
+       setView(lng = -122.008546, lat = 47.549390, zoom = 9)%>%
+       addLayersControl(baseGroups = c("Street Map", "Imagery"),
+                        overlayGroups = c(geo, paste0("Selected ", geo)),
+                        options = layersControlOptions(collapsed = FALSE))
+    map  
+    
 })
 
 
@@ -244,33 +256,15 @@ selected_geo <- reactive({
     print(eventdata)
     geoid <- eventdata[['key']]
     print(geoid)
-    if (length(geoid) == 0){ # going off example on flexdashboard
-      geoid <- 'abcdefj'
-    } else {
-      sub <- shape()[shape()$nFAZ10 %in% geoid, ] # Give back a sp data frame of the selected name_ids
-      print(head(sub@data))
-      return(sub)
-    }
+    sub <- shape()[shape()$nFAZ10 %in% geoid, ] # Give back a sp data frame of the selected name_ids
+    print(head(sub@data))
+    return(sub)
   }
-}) # end of selected_geo()
-
-
-observe({
-  req(selected_geo()) # Do this if selected_geo() is not null
-  
-  proxy <- leafletProxy("map")
-  
-  proxy %>% # Clear old selection on map, and add new selection
-    clearGroup(group = 'selected_geo')%>%
-    addPolygons(data = selected_geo(),
-                fill = FALSE,
-                color = "#FFFF00",
-                opacity = 1,
-                group = 'selected_geo')
-})  
+}) 
 
 
 leafletOutput("map")
 
-
 ```
+
+
