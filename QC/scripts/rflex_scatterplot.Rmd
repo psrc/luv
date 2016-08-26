@@ -95,9 +95,12 @@ for (irun in 1:length(run2.all)) {
 	      merge.table <- merge(merge.table, faz.lookup, "faz_id")
 	      merge.table <- merge.table[,c(2, 1, 3:(ncol(merge.table)))] 
 	    }else{
-	      if (geography[a]=="faz")
+	      if (geography[a]=="faz"){
 	        merge.table <- merge(merge.table, faz.lookup, "faz_id")
-	      else merge.table <- merge(merge.table, city.lookup, "city_id")
+	        merge.table$diff <- merge.table$estrun1-merge.table$estrun2
+	      } else {
+	        merge.table <- merge(merge.table, city.lookup, "city_id")
+	      }
 	    }  
 	    
 	    merge.table$indicator <- switch(attribute[i],
@@ -210,9 +213,9 @@ output$map <- renderLeaflet({
  
     geo.popup1 <- paste0("<strong>ID: </strong>", shape()$name_id,
                           "<br><strong>Name: </strong>", shape()$Name,
+                          "<br><strong>", runname1," estimate: </strong>", shape()$estrun1,
                           "<br><strong>", runname2," estimate: </strong>", shape()$estrun2,
-                          "<br><strong>", runname1," estimate: </strong>", shape()$estrun1#,
-                          #"<br><strong>Difference: </strong>", shape$diff
+                          "<br><strong>Difference: </strong>", shape()$diff
                          )
                          
     map <- leaflet()%>%
@@ -227,7 +230,7 @@ output$map <- renderLeaflet({
                         group = geo,
                         popup = geo.popup1
                         )
-    
+# Re-draw the map with selected tracts    
     subdata <- selected_geo()
     if(length(subdata) > 0)
         map <- map %>% 
@@ -253,11 +256,8 @@ selected_geo <- reactive({
   if(is.null(eventdata)){
     return(NULL) # do nothing
   } else {
-    print(eventdata)
     geoid <- eventdata[['key']]
-    print(geoid)
     sub <- shape()[shape()$nFAZ10 %in% geoid, ] # Give back a sp data frame of the selected name_ids
-    print(head(sub@data))
     return(sub)
   }
 }) 
@@ -265,6 +265,9 @@ selected_geo <- reactive({
 
 leafletOutput("map")
 
+
 ```
+
+
 
 
