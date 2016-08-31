@@ -20,7 +20,7 @@ library(dplyr)
 
 # environment inputs
 attribute <- c("population", "households","employment", "residential_units")
-geography <- c("faz")#"zone", "city")
+geography <- c( "zone","faz")#,"city")
 year1 <- (2040)
 year2 <- (2040)
 extension <- ".csv"
@@ -45,10 +45,11 @@ if(make) {
   run.name <- 'run74'
   #result.dir <- file.path("C:/Users/Christy/Desktop/luv/QC/results", run.name)
   faz.lookup <- read.table("C:/Users/Christy/Desktop/luv/QC/data/faz_names.txt", header =TRUE, sep = "\t")
-  #zone.lookup <- read.table("C:/Users/Christy/Desktop/luv/QC/data/zones.txt", header =TRUE, sep = "\t")
+  zone.lookup <- read.table("C:/Users/Christy/Desktop/luv/QC/data/zones.txt", header =TRUE, sep = "\t")
   #city.lookup <- read.table("C:/Users/Christy/Desktop/luv/QC/data/cities.csv", header =TRUE, sep = ",")
   dsn <- "C:/Users/Christy/Desktop/luv/QC/data"
   layer_faz <- "FAZ_2010_WGS84"
+  layer_zone <- "TAZ_2010_WGS84"
 }
 
 runname1 <- unlist(strsplit(run1,"[.]"))[[1]]
@@ -91,13 +92,14 @@ for (irun in 1:length(run2.all)) {
 	    # merge tables
 	    merge.table <- merge(table1, table2, by = colnames(datatable2)[grepl("_id",names(datatable2))])
 	    if (geography[a]=="zone"){
-	      merge.table <- merge(merge.table, zone.lookup, "zone_id")
-	      merge.table <- merge(merge.table, faz.lookup, "faz_id")
-	      merge.table <- merge.table[,c(2, 1, 3:(ncol(merge.table)))] 
-	    }else{
+	      merge.table <- merge(merge.table, zone.lookup, "zone_id") %>% merge(faz.lookup, "faz_id") 
+        merge.table$diff <- merge.table$estrun1-merge.table$estrun2
+        merge.table <- merge.table[,c(2, 1, 3, 4, 8, 7)] 
+	    } else {
 	      if (geography[a]=="faz"){
 	        merge.table <- merge(merge.table, faz.lookup, "faz_id")
-	        merge.table$diff <- merge.table$estrun1-merge.table$estrun2
+          merge.table$diff <- merge.table$estrun1-merge.table$estrun2
+          merge.table <- merge.table[,c(1:3, 5, 4)] 
 	      } else {
 	        merge.table <- merge(merge.table, city.lookup, "city_id")
 	      }
@@ -110,16 +112,22 @@ for (irun in 1:length(run2.all)) {
 	                                    "residential_units"="Residential Units")
 	    ifelse (is.null(indicators.table),
 	            indicators.table <- merge.table, 
-	            indicators.table <- rbind(indicators.table,merge.table))
+	            indicators.table <- rbind(indicators.table, merge.table))
 	    
 	  } # end of attribute loop
 	  
-	  # set up shapefiles
-	  if (geography[a]=="faz"){
-	    geo <- "FAZ"
-	    faz.shape <- readOGR(dsn=dsn,layer=layer_faz) %>% sp::merge(faz.lookup, by.x = "FAZ10", by.y = "faz_id")
-	    faz.shape$name_id <- faz.shape$FAZ10
-	  }
+    # assign tables and shapefiles to geography-based list
+    if (geography[a]=="faz"){
+      
+      faz.shape <- readOGR(dsn=dsn,layer=layer_faz) %>% sp::merge(faz.lookup, by.x = "FAZ10", by.y = "faz_id")
+      faz.shape$name_id <- faz.shape$FAZ10
+      faz <- list(tbl = indicators.table, shp = faz.shape)
+    } else if (geography[a]=="zone"){
+      
+      zone.shape <- readOGR(dsn=dsn,layer=layer_zone) %>% sp::merge(zone.lookup, by.x = "TAZ", by.y = "zone_id")
+      zone.shape$name_id <- zone.shape$TAZ
+      zone <- list(tbl = indicators.table, shp = zone.shape)
+    }
 	  
 	} # end of geography loop
 	
@@ -130,8 +138,13 @@ Column {.sidebar}
 -----------------------------------------------------------------------
 
 ```{r}
+selectInput(inputId = "select_geography",
+            label = h4("Choose Geography"),
+            choices = c("TAZ" = 1,
+                        "FAZ" = 2),
+            selected = 1)
 
-selectInput(inputId = "select",
+selectInput(inputId = "select_indicator",
             label = h4("Choose Indicator"),
             choices = c("Total Population"=1,
                         "Households"=2,
@@ -141,7 +154,7 @@ selectInput(inputId = "select",
 
 ```
 
-Select the 'Box Select' or 'Lasso Select' option in the scatterplot to select points and see its location on the map.
+Use the 'Box Select' or 'Lasso Select' option in the scatterplot to select points and view its location on the map.
 
 Column
 -----------------------------------------------------------------------
@@ -149,20 +162,32 @@ Column
 ### Scatterplot
 
 ```{r}
+
 table <- reactive({ 
-        switch(as.integer(input$select),
-                "Total Population",
-                "Households",
-                "Employment",
-                "Residential Units") 
+        switch(as.integer(input$select_indicator),
+              "Total Population",
+              "Households",
+              "Employment",
+              "Residential Units") 
+})
+
+geog <- reactive({
+  if (input$select_geography == 1){
+    return(zone$tbl)
+  } else if (input$select_geography == 2){
+    return(faz$tbl)
+  }
 })
 
 # Plotly
 output$plot <- renderPlotly({
   
-  data <- subset(indicators.table, indicators.table$indicator==table()) 
+  data <- subset(geog(), geog()$indicator==table()) 
   
-  key <- data$faz_id #uniquely identify geo for Plotly
+  # uniquely identify geo for Plotly
+  switch(as.integer(input$select_geography),
+         key <- data$zone_id,
+         key <- data$faz_id)
   
   p <- plot_ly(data,
                x = estrun1,
@@ -201,18 +226,39 @@ Column
 
 ```{r}
 # Shapefile
-shape <- reactive({
-  data1 <- subset(indicators.table, indicators.table$indicator==table()) 
-  shape.join <- sp::merge(faz.shape, data1, by.x = c("FAZ10", "Name"), by.y = c("faz_id", "Name"))
-  return (shape.join)
+shape_select <- reactive({ 
+                switch(as.integer(input$select_geography),
+                         zone$shp,
+                         faz$shp) 
 })
 
+shape <- reactive({
+  data1 <- subset(geog(), geog()$indicator==table())
+  if (input$select_geography == 1){
+    shape.join <- sp::merge(shape_select(), data1, by.x = c("TAZ"), by.y = c("zone_id"))
+    return(shape.join)
+  } else if (input$select_geography == 2){
+    shape.join <- sp::merge(shape_select(), data1, by.x = c("FAZ10", "Name"), by.y = c("faz_id", "Name"))
+    return(shape.join)
+  }
+})
 
-# Draw the map without selected tracts
+# leaflet layer control
+geo <- reactive({
+  if (input$select_geography == 1){
+    geo <- "TAZ"
+    return(geo)
+  } else if (input$select_geography == 2){
+    geo <- "FAZ"
+    return(geo)
+  }
+})
+
+# Draw the map without selected geographies
 output$map <- renderLeaflet({
  
     geo.popup1 <- paste0("<strong>ID: </strong>", shape()$name_id,
-                          "<br><strong>Name: </strong>", shape()$Name,
+                          "<br><strong>Large Area Name: </strong>", shape()$Name,
                           "<br><strong>", runname1," estimate: </strong>", shape()$estrun1,
                           "<br><strong>", runname2," estimate: </strong>", shape()$estrun2,
                           "<br><strong>Difference: </strong>", shape()$diff
@@ -227,10 +273,11 @@ output$map <- renderLeaflet({
                         stroke = TRUE,
                         color = "#8a8a95",
                         weight = 1,
-                        group = geo,
+                        group = geo(),
                         popup = geo.popup1
                         )
-# Re-draw the map with selected tracts    
+
+    # Re-draw the map with selected geographies    
     subdata <- selected_geo()
     if(length(subdata) > 0)
         map <- map %>% 
@@ -238,12 +285,12 @@ output$map <- renderLeaflet({
                             fill = FALSE,
                             color = '#FFFF00',
                             opacity = 1,
-                            group = paste0("Selected ", geo))
+                            group = paste0("Selected ", geo()))
 
-     map <- map %>%
+    map <- map %>%
        setView(lng = -122.008546, lat = 47.549390, zoom = 9)%>%
        addLayersControl(baseGroups = c("Street Map", "Imagery"),
-                        overlayGroups = c(geo, paste0("Selected ", geo)),
+                        overlayGroups = c(geo(), paste0("Selected ", geo())),
                         options = layersControlOptions(collapsed = FALSE))
     map  
     
@@ -257,8 +304,13 @@ selected_geo <- reactive({
     return(NULL) # do nothing
   } else {
     geoid <- eventdata[['key']]
-    sub <- shape()[shape()$nFAZ10 %in% geoid, ] # Give back a sp data frame of the selected name_ids
-    return(sub)
+    if (input$select_geography == 1){
+      sub <- shape()[shape()$TAZ %in% geoid, ] # Give back a sp data frame of the selected ids
+      return(sub)
+    } else if (input$select_geography == 2){
+      sub <- shape()[shape()$nFAZ10 %in% geoid, ] 
+      return(sub)
+    }  
   }
 }) 
 
