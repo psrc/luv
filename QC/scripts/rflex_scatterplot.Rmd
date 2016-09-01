@@ -20,7 +20,7 @@ library(dplyr)
 
 # environment inputs
 attribute <- c("population", "households","employment", "residential_units")
-geography <- c( "zone","faz")#,"city")
+geography <- c( "zone", "faz", "city")
 year1 <- (2040)
 year2 <- (2040)
 extension <- ".csv"
@@ -46,10 +46,11 @@ if(make) {
   #result.dir <- file.path("C:/Users/Christy/Desktop/luv/QC/results", run.name)
   faz.lookup <- read.table("C:/Users/Christy/Desktop/luv/QC/data/faz_names.txt", header =TRUE, sep = "\t")
   zone.lookup <- read.table("C:/Users/Christy/Desktop/luv/QC/data/zones.txt", header =TRUE, sep = "\t")
-  #city.lookup <- read.table("C:/Users/Christy/Desktop/luv/QC/data/cities.csv", header =TRUE, sep = ",")
+  city.lookup <- read.table("C:/Users/Christy/Desktop/luv/QC/data/cities.csv", header =TRUE, sep = ",")
   dsn <- "C:/Users/Christy/Desktop/luv/QC/data"
   layer_faz <- "FAZ_2010_WGS84"
   layer_zone <- "TAZ_2010_WGS84"
+  layer_city <- "JURIS_2014_WGS84"
 }
 
 runname1 <- unlist(strsplit(run1,"[.]"))[[1]]
@@ -67,7 +68,7 @@ for (irun in 1:length(run2.all)) {
 	runname2 <- runnames2[irun]
 	#add.text(index.file, paste("####", runname1, "vs.", runname2, "\n"))
 
-	# build plotly table for subplot
+	# build plotly source table
 	for (a in 1:length(geography)){
 	  
 	  indicators.table <- NULL
@@ -95,16 +96,15 @@ for (irun in 1:length(run2.all)) {
 	      merge.table <- merge(merge.table, zone.lookup, "zone_id") %>% merge(faz.lookup, "faz_id") 
         merge.table$diff <- merge.table$estrun1-merge.table$estrun2
         merge.table <- merge.table[,c(2, 1, 3, 4, 8, 7)] 
-	    } else {
-	      if (geography[a]=="faz"){
+	    } else if (geography[a]=="faz"){
 	        merge.table <- merge(merge.table, faz.lookup, "faz_id")
           merge.table$diff <- merge.table$estrun1-merge.table$estrun2
           merge.table <- merge.table[,c(1:3, 5, 4)] 
-	      } else {
+	    } else {
 	        merge.table <- merge(merge.table, city.lookup, "city_id")
-	      }
-	    }  
-	    
+	        merge.table$diff <- merge.table$estrun1-merge.table$estrun2
+	    }
+	     
 	    merge.table$indicator <- switch(attribute[i],
 	                                    "population"="Total Population", 
 	                                    "households"="Households", 
@@ -118,15 +118,18 @@ for (irun in 1:length(run2.all)) {
 	  
     # assign tables and shapefiles to geography-based list
     if (geography[a]=="faz"){
-      
       faz.shape <- readOGR(dsn=dsn,layer=layer_faz) %>% sp::merge(faz.lookup, by.x = "FAZ10", by.y = "faz_id")
       faz.shape$name_id <- faz.shape$FAZ10
       faz <- list(tbl = indicators.table, shp = faz.shape)
     } else if (geography[a]=="zone"){
-      
       zone.shape <- readOGR(dsn=dsn,layer=layer_zone) %>% sp::merge(zone.lookup, by.x = "TAZ", by.y = "zone_id")
       zone.shape$name_id <- zone.shape$TAZ
       zone <- list(tbl = indicators.table, shp = zone.shape)
+    } else {
+      city.shape <- readOGR(dsn=dsn,layer=layer_city) %>% sp::merge(city.lookup, by = "city_id")
+      city.shape$name_id <- city.shape$city_id
+      city.shape$Name <- city.shape$city_name
+      city <- list(tbl = indicators.table, shp = city.shape)
     }
 	  
 	} # end of geography loop
@@ -141,15 +144,16 @@ Column {.sidebar}
 selectInput(inputId = "select_geography",
             label = h4("Choose Geography"),
             choices = c("TAZ" = 1,
-                        "FAZ" = 2),
+                        "FAZ" = 2,
+                        "City" = 3),
             selected = 1)
 
 selectInput(inputId = "select_indicator",
             label = h4("Choose Indicator"),
-            choices = c("Total Population"=1,
-                        "Households"=2,
-                        "Employment"=3,
-                        "Residential Units"=4),
+            choices = c("Total Population"= 1,
+                        "Households"= 2,
+                        "Employment"= 3,
+                        "Residential Units"= 4),
             selected = 1)
 
 ```
@@ -172,11 +176,10 @@ table <- reactive({
 })
 
 geog <- reactive({
-  if (input$select_geography == 1){
-    return(zone$tbl)
-  } else if (input$select_geography == 2){
-    return(faz$tbl)
-  }
+        switch(as.integer(input$select_geography),
+               zone$tbl,
+               faz$tbl,
+               city$tbl)
 })
 
 # Plotly
@@ -187,7 +190,8 @@ output$plot <- renderPlotly({
   # uniquely identify geo for Plotly
   switch(as.integer(input$select_geography),
          key <- data$zone_id,
-         key <- data$faz_id)
+         key <- data$faz_id,
+         key <- data$city_id)
   
   p <- plot_ly(data,
                x = estrun1,
@@ -195,7 +199,7 @@ output$plot <- renderPlotly({
                name = "",
                source = "source",
                text = paste0("ID: ", data[,1], 
-                             " Name: ", data[,grepl("name|Name",names(data))]),
+                             " Name: ", data[,grepl("name|Name|city_name",names(data))]),
                type = 'scatter',
                key = key, # will appear in 'eventdata'
                mode = 'markers',
@@ -228,8 +232,9 @@ Column
 # Shapefile
 shape_select <- reactive({ 
                 switch(as.integer(input$select_geography),
-                         zone$shp,
-                         faz$shp) 
+                       zone$shp,
+                       faz$shp,
+                       city$shp) 
 })
 
 shape <- reactive({
@@ -239,6 +244,9 @@ shape <- reactive({
     return(shape.join)
   } else if (input$select_geography == 2){
     shape.join <- sp::merge(shape_select(), data1, by.x = c("FAZ10", "Name"), by.y = c("faz_id", "Name"))
+    return(shape.join)
+  } else {
+    shape.join <- sp::merge(shape_select(), data1, by = "city_id")
     return(shape.join)
   }
 })
@@ -250,6 +258,9 @@ geo <- reactive({
     return(geo)
   } else if (input$select_geography == 2){
     geo <- "FAZ"
+    return(geo)
+  } else {
+    geo <- "City"
     return(geo)
   }
 })
@@ -310,7 +321,10 @@ selected_geo <- reactive({
     } else if (input$select_geography == 2){
       sub <- shape()[shape()$nFAZ10 %in% geoid, ] 
       return(sub)
-    }  
+    } else {
+      sub <- shape()[shape()$city_id %in% geoid, ] 
+      return(sub)
+    } 
   }
 }) 
 
