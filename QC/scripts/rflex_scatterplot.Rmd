@@ -267,7 +267,50 @@ geo <- reactive({
 
 # Draw the map without selected geographies
 output$map <- renderLeaflet({
- 
+  
+  # Set up symbology and categorization
+    rng <- range(shape()$diff)
+    if (rng[1] < 0 & rng[2] > 0){
+      diff.range <- "both"
+    } else if (rng[1] >=0 & rng[2] > 0){
+      diff.range <- "pos"
+    } else if (rng[1] < 0 & rng[2] < 0){
+      diff.range <- "neg"
+    } else {
+      diff.range <- "none"
+    }
+
+    if (diff.range == "both"){
+      color <- c("#053061",
+                 "#2166ac", 
+                 "#4393c3", 
+                 "#92c5de", 
+                 "#d1e5f0", 
+                 "#ffffff", 
+                 "#f7f7f7", 
+                 "#fddbc7", 
+                 "#f4a582", 
+                 "#d6604d", 
+                 "#b2182b", 
+                 "#67001f")
+      if (input$select_geography == 1){ # separate bins for TAZ
+      bin <- c(-7000, -3000, -1000, -500,- 250, 0, 1, 250, 500, 1000, 3000, 7000)
+      } else { # for other geographies
+      bin <- c(-70000, -30000, -10000, -5000,- 2500, 0, 1, 2500, 5000, 10000, 30000, 70000)
+      }
+    } else if (diff.range == "pos"){
+      color <- "Reds"
+      bin <- c(0, 500, 1000, 2500, 5000, 7000, 10000, 25000, 30000, 70000)
+    } else if (diff.range == "neg"){
+      color <- "Blues"
+      bin <- c(-70000, -30000, -10000, -25000, -5000,- 2500, -1000, -500, 0)
+    } else if (diff.range == "none"){
+      color <- "transparent"
+      bin <- c(0, 1)
+    }
+    
+    pal <- colorBin(palette = color, bins = bin, domain=shape()$diff, pretty = FALSE)    
+
     geo.popup1 <- paste0("<strong>ID: </strong>", shape()$name_id,
                           "<br><strong>Large Area Name: </strong>", shape()$Name,
                           "<br><strong>", runname1," estimate: </strong>", shape()$estrun1,
@@ -280,13 +323,20 @@ output$map <- renderLeaflet({
             addProviderTiles("Esri.WorldImagery", group = "Imagery")%>%
             clearShapes()%>%
             addPolygons(data = shape(),
-                        fillColor = "transparent",
+                        fillColor = ~pal(shape()$diff),
+                        fillOpacity = 0.7,
                         stroke = TRUE,
                         color = "#8a8a95",
                         weight = 1,
                         group = geo(),
                         popup = geo.popup1
-                        )
+                        )%>%
+            addLegend(position = "bottomright",
+                      pal = pal,
+                      values = pal(shape()$diff),
+                      title = paste0("Run difference by ", geo()),
+                      opacity =1,
+                      labFormat = labelFormat(digits = 0, big.mark = ","))
 
     # Re-draw the map with selected geographies    
     subdata <- selected_geo()
