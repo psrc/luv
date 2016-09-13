@@ -45,6 +45,10 @@ ind-an :
 .PHONY : all
 all: rtables_raw rplots_raw rmaps_raw emplots_raw index
 
+.PHONY : dash
+dash: 
+	R CMD BATCH $(SCRIPT_PATH)/run_dash.R $(SCRIPT_PATH)/run_dash.Rout
+
 .PHONY : rtables
 rtables : rtables_raw index
 

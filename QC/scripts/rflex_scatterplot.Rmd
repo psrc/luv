@@ -27,32 +27,37 @@ extension <- ".csv"
 
 trim <- function (x) gsub("^\\s+|\\s+$", "", x) # function for triming whitespace 
 
-make <- !interactive()
-make <- FALSE
+#make <- !interactive()
+#make <- FALSE
+make <- nchar(Sys.getenv('QC_NAME')) > 0 
+
 if(make) {
   base.dir <- Sys.getenv('QC_BASE_DIRECTORY')
   run1 <- Sys.getenv('QC_RUN1')
   run2.all <- Sys.getenv('QC_RUN2')
   run2.all <- trim(unlist(strsplit(run2.all, ","))) # run2 can have multiple directories; split by comma
-  result.dir <- Sys.getenv('QC_RESULT_PATH')
-  faz.lookup <- read.table(file.path("data", "faz_names.txt"), header =TRUE, sep = "\t")
-  zone.lookup <- read.table(file.path("data", "zones.txt"), header =TRUE, sep = "\t")
-  city.lookup <- read.table(file.path("data", "cities.csv"), header =TRUE, sep = ",")
+  #result.dir <- Sys.getenv('QC_RESULT_PATH')
+  wrkdir <- file.path(Sys.getenv('QC_SCRIPT_PATH'), "..")
+  dsn <- file.path(wrkdir, "data")
 } else {
-  base.dir <- "//modelsrv3/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
+  #base.dir <- "//modelsrv3/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
+  base.dir <- "/Volumes/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
   run1 <- "run_74.run_2016_06_16_15_40"
   run2.all <- "run_73.run_2016_06_13_16_56" 
   run.name <- 'run74'
+  #dsn <- "C:/Users/Christy/Desktop/luv/QC/data"
+  dsn <- "/Users/hana/ForecastProducts/LUV/QC/data"
   #result.dir <- file.path("C:/Users/Christy/Desktop/luv/QC/results", run.name)
-  faz.lookup <- read.table("C:/Users/Christy/Desktop/luv/QC/data/faz_names.txt", header =TRUE, sep = "\t")
-  zone.lookup <- read.table("C:/Users/Christy/Desktop/luv/QC/data/zones.txt", header =TRUE, sep = "\t")
-  city.lookup <- read.table("C:/Users/Christy/Desktop/luv/QC/data/cities.csv", header =TRUE, sep = ",")
-  dsn <- "C:/Users/Christy/Desktop/luv/QC/data"
-  layer_faz <- "FAZ_2010_WGS84"
-  layer_zone <- "TAZ_2010_WGS84"
-  layer_city <- "JURIS_2014_WGS84"
 }
+faz.lookup <- read.table(file.path(dsn, "faz_names.txt"), header =TRUE, sep = "\t")
+zone.lookup <- read.table(file.path(dsn, "zones.txt"), header =TRUE, sep = "\t")
+city.lookup <- read.table(file.path(dsn, "cities.csv"), header =TRUE, sep = ",")
 
+
+layer_faz <- "FAZ_2010_WGS84"
+layer_zone <- "TAZ_2010_WGS84"
+layer_city <- "JURIS_2014_WGS84"
+  
 runname1 <- unlist(strsplit(run1,"[.]"))[[1]]
 runnames2 <- sapply(strsplit(run2.all,"[.]"), function(x) x[1]) # can have multiple values
 # if(!dir.exists(result.dir)) dir.create(result.dir)
