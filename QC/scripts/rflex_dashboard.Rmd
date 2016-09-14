@@ -1,5 +1,5 @@
 ---
-title: "Run Comparison"
+title: "LUV QC Dashboard"
 output: 
   flexdashboard::flex_dashboard:
     orientation: columns
@@ -11,9 +11,9 @@ runtime: shiny
 library(flexdashboard)
 library(plotly)
 library(shiny)
-library(htmlwidgets)
+#library(htmlwidgets)
 library(leaflet)
-library(sp)
+#library(sp)
 library(rgdal)
 library(dplyr)
 
@@ -27,8 +27,6 @@ extension <- ".csv"
 
 trim <- function (x) gsub("^\\s+|\\s+$", "", x) # function for triming whitespace 
 
-#make <- !interactive()
-#make <- FALSE
 make <- nchar(Sys.getenv('QC_NAME')) > 0 
 
 if(make) {
@@ -40,19 +38,19 @@ if(make) {
   wrkdir <- file.path(Sys.getenv('QC_SCRIPT_PATH'), "..")
   dsn <- file.path(wrkdir, "data")
 } else {
-  #base.dir <- "//modelsrv3/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
-  base.dir <- "/Volumes/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
+  base.dir <- "//modelsrv3/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
+  #base.dir <- "/Volumes/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
   run1 <- "run_74.run_2016_06_16_15_40"
-  run2.all <- "run_73.run_2016_06_13_16_56" 
+  run2.all <- c("run_73.run_2016_06_13_16_56","luv_1.compiled")
   run.name <- 'run74'
-  #dsn <- "C:/Users/Christy/Desktop/luv/QC/data"
-  dsn <- "/Users/hana/ForecastProducts/LUV/QC/data"
+  dsn <- "C:/Users/Christy/Desktop/luv/QC/data"
+  #dsn <- "/Users/hana/ForecastProducts/LUV/QC/data"
   #result.dir <- file.path("C:/Users/Christy/Desktop/luv/QC/results", run.name)
 }
+
 faz.lookup <- read.table(file.path(dsn, "faz_names.txt"), header =TRUE, sep = "\t")
 zone.lookup <- read.table(file.path(dsn, "zones.txt"), header =TRUE, sep = "\t")
 city.lookup <- read.table(file.path(dsn, "cities.csv"), header =TRUE, sep = ",")
-
 
 layer_faz <- "FAZ_2010_WGS84"
 layer_zone <- "TAZ_2010_WGS84"
@@ -60,18 +58,10 @@ layer_city <- "JURIS_2014_WGS84"
   
 runname1 <- unlist(strsplit(run1,"[.]"))[[1]]
 runnames2 <- sapply(strsplit(run2.all,"[.]"), function(x) x[1]) # can have multiple values
-# if(!dir.exists(result.dir)) dir.create(result.dir)
-# 
-# # put a header into the index file
-# source('templates/create_Rmd_blocks.R')
-# index.file <- file.path(result.dir, 'rplots_scatter.Rmd')
-# if(file.exists(index.file)) unlink(index.file)
-# create.section(index.file, title="Scatterplots")
 
 for (irun in 1:length(run2.all)) {
 	run2 <- run2.all[irun]
 	runname2 <- runnames2[irun]
-	#add.text(index.file, paste("####", runname1, "vs.", runname2, "\n"))
 
 	# build plotly source table
 	for (a in 1:length(geography)){
@@ -139,22 +129,36 @@ for (irun in 1:length(run2.all)) {
 	  
 	} # end of geography loop
 	
+	# assign geography, tables, and shapefiles to run2 lists
+	assign(paste(runname2, ".data", sep=""), list(zone = zone, faz = faz, city = city))
+	
 } # end run2 loop	
 ```
 
+Run Comparison
+=======================================================================
 Column {.sidebar}
 -----------------------------------------------------------------------
 
 ```{r}
+selectInput(inputId = "select_run2",
+            label = h4(paste0("Compare ",`runname1`," with")),
+            choices = runnames2
+            )
+```
+
+####And select the following:
+```{r}
+
 selectInput(inputId = "select_geography",
-            label = h4("Choose Geography"),
+            label = h5("Geography"),
             choices = c("TAZ" = 1,
                         "FAZ" = 2,
                         "City" = 3),
             selected = 1)
 
 selectInput(inputId = "select_indicator",
-            label = h4("Choose Indicator"),
+            label = h5("Indicator"),
             choices = c("Total Population"= 1,
                         "Households"= 2,
                         "Employment"= 3,
@@ -171,6 +175,10 @@ Column
 ### Scatterplot
 
 ```{r}
+# global reactions
+run <- reactive({
+  paste0(input$select_run2, ".data")
+})
 
 table <- reactive({ 
         switch(as.integer(input$select_indicator),
@@ -181,16 +189,15 @@ table <- reactive({
 })
 
 geog <- reactive({
-        switch(as.integer(input$select_geography),
-               zone$tbl,
-               faz$tbl,
-               city$tbl)
+        geo <- as.integer(input$select_geography)
+        get(run())[[geo]][[1]]
 })
 
 # Plotly
 output$plot <- renderPlotly({
-  
+ 
   data <- subset(geog(), geog()$indicator==table()) 
+  runname2.trim <- sapply(strsplit(run(),"[.]"), function(x) x[1])
   
   # uniquely identify geo for Plotly
   switch(as.integer(input$select_geography),
@@ -218,7 +225,7 @@ output$plot <- renderPlotly({
       layout(font = list(family="Segoe UI", size = 13.5),
              title = " ",
              xaxis = list(title = runname1),
-             yaxis = list(title = runname2),
+             yaxis = list(title = runname2.trim),
              margin = list(l=100, b=100, t=90, r=100)
              )
   p
@@ -234,12 +241,11 @@ Column
 ### Map
 
 ```{r}
+# global reactions
 # Shapefile
 shape_select <- reactive({ 
-                switch(as.integer(input$select_geography),
-                       zone$shp,
-                       faz$shp,
-                       city$shp) 
+                geo <- as.integer(input$select_geography)
+                get(run())[[geo]][[2]]
 })
 
 shape <- reactive({
@@ -273,6 +279,8 @@ geo <- reactive({
 # Draw the map without selected geographies
 output$map <- renderLeaflet({
   
+  runname2.trim <- sapply(strsplit(run(),"[.]"), function(x) x[1])
+  
   # Set up symbology and categorization
     rng <- range(shape()$diff)
     if (rng[1] < 0 & rng[2] > 0){
@@ -299,7 +307,7 @@ output$map <- renderLeaflet({
                  "#b2182b", 
                  "#67001f")
       if (input$select_geography == 1){ # separate bins for TAZ
-      bin <- c(-7000, -3000, -1000, -500,- 250, 0, 1, 250, 500, 1000, 3000, 7000)
+      bin <- c(-70000, -3000, -1000, -500,- 250, 0, 1, 250, 500, 1000, 3000, 70000)
       } else { # for other geographies
       bin <- c(-70000, -30000, -10000, -5000,- 2500, 0, 1, 2500, 5000, 10000, 30000, 70000)
       }
@@ -319,7 +327,7 @@ output$map <- renderLeaflet({
     geo.popup1 <- paste0("<strong>ID: </strong>", shape()$name_id,
                           "<br><strong>Large Area Name: </strong>", shape()$Name,
                           "<br><strong>", runname1," estimate: </strong>", shape()$estrun1,
-                          "<br><strong>", runname2," estimate: </strong>", shape()$estrun2,
+                          "<br><strong>", runname2.trim," estimate: </strong>", shape()$estrun2,
                           "<br><strong>Difference: </strong>", shape()$diff
                          )
                          
@@ -389,6 +397,8 @@ leafletOutput("map")
 
 ```
 
+Tab 2
+=======================================================================
 
-
-
+Tab 3
+=======================================================================
