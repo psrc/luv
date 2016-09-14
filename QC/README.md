@@ -41,10 +41,10 @@ $ pip install plotly
 
 Also, check that R is working from the command line by typing R into the bash terminal. If it is not found, using the above installer should fix it. Or, adding the location of R.exe into your Path environment.
 
-While R is open, install the packages ``plotly``, ``data.table``, ``leaflet``, ``rgdal``, ``sp`` using
+While R is open, install the packages ``flexdashboard``, ``shiny``, ``dplyr``, ``plotly``, ``data.table``, ``leaflet``, ``rgdal``, ``sp`` using
 
 ```
-install.packages(c('plotly', 'data.table', 'leaflet', 'rgdal', 'sp'), dependencies=TRUE)
+install.packages(c('flexdashboard', 'shiny', 'dplyr', 'plotly', 'data.table', 'leaflet', 'rgdal', 'sp'), dependencies=TRUE)
 ```
 
 If you plan to generate R-reports, you will also need ``ggplot2``, ``grid`` and ``gridExtra``. I believe they should be installed as dependencies in the previous step.
