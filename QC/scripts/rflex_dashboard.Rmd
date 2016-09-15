@@ -15,7 +15,7 @@ library(shiny)
 library(leaflet)
 #library(sp)
 library(rgdal)
-library(dplyr)
+library(magrittr)
 
 
 # environment inputs
