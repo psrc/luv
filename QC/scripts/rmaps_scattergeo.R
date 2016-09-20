@@ -8,8 +8,8 @@ library(htmlwidgets)
 library(RColorBrewer)
 
 # environment inputs
-attribute <- c("population", "households","employment", "residential_units", "max_dev_nonresidential_capacity", "max_dev_residential_capacity", "max_dev_capacity")
-geography <- c("faz")#,"zone")
+attribute <- c("max_dev_nonresidential_capacity", "max_dev_residential_capacity", "max_dev_capacity")
+geography <- c("faz")
 year1 <- c(rep(2040, 4), rep(2015, 3))
 year2 <- year1
 extension <- ".csv"
