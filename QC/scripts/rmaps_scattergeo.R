@@ -10,7 +10,7 @@ library(RColorBrewer)
 # environment inputs
 attribute <- c("max_dev_nonresidential_capacity", "max_dev_residential_capacity", "max_dev_capacity")
 geography <- c("faz")
-year1 <- c(rep(2040, 4), rep(2015, 3))
+year1 <- rep(2015, 3)
 year2 <- year1
 extension <- ".csv"
 
@@ -23,28 +23,26 @@ if(make) {
   run2.all <- Sys.getenv('QC_RUN2')
   run2.all <- trim(unlist(strsplit(run2.all, ","))) # run2 can have multiple directories; split by comma
   result.dir <- Sys.getenv('QC_RESULT_PATH')
-  faz.lookup <- read.table(file.path("data", "faz_names.txt"), header =TRUE, sep = "\t")
-  zone.lookup <- read.table(file.path("data", "zones.txt"), header =TRUE, sep = "\t")
   dsn <- file.path("data")
-  layer_faz <- "FAZ_2010_WGS84"
-  layer_taz <- "TAZ_2010_WGS84"
-  layer_centers <- "centers_WGS84"
   source('templates/create_Rmd_blocks.R')
 } else {
   base.dir <- "//modelsrv3/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
-  run1 <- "run_75.run_2016_06_20_17_26"
-  run2.all <- "run_78.run_2016_06_23_09_47" 
-  run.name <- 'run75v78_test'
-  result.dir <- file.path("C:/Users/Christy/Desktop/luv/QC/results", run.name)
-  faz.lookup <- read.table("C:/Users/Christy/Desktop/luv/QC/data/faz_names.txt", header =TRUE, sep = "\t")
-  zone.lookup <- read.table("C:/Users/Christy/Desktop/luv/QC/data/zones.txt", header =TRUE, sep = "\t")
-  dsn <- "C:/Users/Christy/Desktop/luv/QC/data"
-  layer_faz <- "FAZ_2010_WGS84"
-  layer_taz <- "TAZ_2010_WGS84"
-  layer_centers <- "centers_WGS84"
-  source('C:/Users/Christy/Desktop/luv/QC/templates/create_Rmd_blocks.R')
+  base.dir <- "/Volumes/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
+  run1 <- "run_124.run_2016_09_14_20_47"
+  run2.all <- c("run_105.run_2016_08_25_14_39", "run_81.run_2016_07_05_16_00", "81_plus_r97.compiled", "luv_1.compiled") 
+  run.name <- 'run124'
+  wrkdir <- "/Users/hana/ForecastProducts/LUV/QC"
+  #wrkdir <- "C:/Users/Christy/Desktop/luv/QC"
+  result.dir <- file.path(wrkdir, "results", run.name)
+  dsn <- file.path(wrkdir, "data")
+  source(file.path(wrkdir, 'templates/create_Rmd_blocks.R'))
 }
 
+faz.lookup <- read.table(file.path(dsn, "faz_names.txt"), header =TRUE, sep = "\t")
+zone.lookup <- read.table(file.path(dsn, "zones.txt"), header =TRUE, sep = "\t")
+layer_faz <- "FAZ_2010_WGS84"
+layer_taz <- "TAZ_2010_WGS84"
+layer_centers <- "centers_WGS84"
 centers <- readOGR(dsn=dsn, layer=layer_centers)
 
 runname1 <- unlist(strsplit(run1,"[.]"))[[1]]
@@ -94,8 +92,9 @@ for (a in 1:length(geography)){
     value.type <- NULL
     
     # check for positive and negative values
-    pos <- merge.table[merge.table$diff >=0,]
-    if ((nrow(pos) != 0) & (nrow(pos) < nrow(merge.table))){ 
+    pos <- merge.table[merge.table$diff >= 0,]
+    maxdif <- max(merge.table$diff)
+    if ((nrow(pos) != 0) && (nrow(pos) < nrow(merge.table)) && maxdif > 0){ 
       value.type <- c("positive", "negative")
     } else if (nrow(pos) == nrow(merge.table)){
       value.type <- c("positive")
@@ -106,7 +105,8 @@ for (a in 1:length(geography)){
     print(value.type)
     
     for (v in 1:length(value.type)){
-      table1 <- switch(value.type[v], "positive"=subset(merge.table,merge.table$diff>=0), "negative"=subset(merge.table,merge.table$diff<0))
+      table1 <- switch(value.type[v], 
+      				"positive"=subset(merge.table,merge.table$diff>=0), "negative"= subset(merge.table, if(maxdif > 0) merge.table$diff<0  else merge.table$diff<=0))
       
       # merge with lookup tables
       if (geography[a]=="zone"){
@@ -132,7 +132,7 @@ for (a in 1:length(geography)){
     } # end of value.type loop
     
     # scenarios for mapping
-    if (exists("shp.positive") & exists("shp.negative")){
+    if (exists("shp.positive") && exists("shp.negative")){
       shp.positive <- shp.positive[!is.na(shp.positive@data$diff),]
       shp.negative <- shp.negative[!is.na(shp.negative@data$diff),]
       

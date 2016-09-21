@@ -277,7 +277,7 @@ def get_scatter_html():
     # write into Rmd
     rmdfile = open(os.path.join(result_dir, "emplots_by_sectors.Rmd"), "w")
     rmdfile.write("## Employment by Sector\n\n")
-    rmdfile.write("* [Employment time series by county](%s)\n" % htmlfile)
+    rmdfile.write("* [Employment time series by county](file://%s)\n" % htmlfile)
     rmdfile.close()
     
     
