@@ -176,11 +176,11 @@ def get_scatter_html():
     scatter_list = []
     for cnty in county_id:
         
-        line_color = ['rgb(49,163,84)','rgb(253,141,60)',   'rgb(44,127,184)', 'rgb(117,107,177)' ]
-        line_col_id = 0
+        #line_color = ['rgb(49,163,84)', 'rgb(253,141,60)', 'rgb(44,127,184)', 'rgb(117,107,177)' ]
+        #line_col_id = 0
         for run in run_id:
-            line_col = line_color[line_col_id]
-            line_col_id = line_col_id +1
+            #line_col = line_color[line_col_id]
+            #line_col_id = line_col_id +1
                 
             df_test = pd.read_pickle(os.path.join(tmp_dir, 'df_'+run+'.pkl')).astype('int')
 
@@ -194,7 +194,7 @@ def get_scatter_html():
                     cnty_scatter = go.Scatter(x=df_cnty["year."+run], 
                                                   y=df_cnty[c], 
                                                   mode = 'lines+markers',
-                                                  marker = dict(color = line_col),
+                                                  #marker = dict(color = line_col),
                                                   name= str(cnty)+'_'+(c)+':',
                                                   text = str(cnty)+"_"+c[:3]+"."+"_"+run+":",
                                                   hoverinfo = "x+text+y")
@@ -341,6 +341,10 @@ if __name__ == "__main__":
         runs_folder = get_input_luv()
         result_dir = os.path.join(wrkdir, "results", get_run_name())
         plot_val = True
+    run_dirs = []
+    for folder in runs_folder:
+        run_dirs = run_dirs + list(set(map(lambda x: x.lstrip().rstrip(), folder.split(',')))) # use set to make the list unique
+    runs_folder = run_dirs
         
     data_year = ['2014', '2015','2020','2025','2030','2035','2040' ]
     county_id = [33,35,53,61]
