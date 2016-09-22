@@ -3,8 +3,9 @@
 This directory contains a set of scripts each of which performs a QC sub-task. The scripts are connected via a Makefile also found in this directory. In addition, one can generate Opus indicators or create R-reports on different geography levels.
 
 ## Installation
-On Windows, check that [Git Bash](https://git-for-windows.github.io) is installed. Then open a Git Bash and type ``make --help``. If you get an error that make is not found, install make from [SWCarpentryInstaller](https://github.com/swcarpentry/windows-installer/releases/latest). If you still get an error, you might need to add the location of make.exe into your Path environment.
+On Windows, check that [Git Bash](https://git-for-windows.github.io) is installed. Then open a Git Bash and type ``make --help``. If you get an error that make is not found, install "make" version 4.1 using the installer at ``X:\DSA\Software\Make Setup v4.1.0.exe``. If you still get an error, you might need to add the location of make.exe into your Path environment (The installer above sets it to ``C:\Make``). After you install, you'll need to close and re-open any Bash or command windows to use the new version.
 
+<!--O from [SWCarpentryInstaller](https://github.com/swcarpentry/windows-installer/releases/latest)-->
 As with any GitHub repository, clone the luv repository into your local computer: In a Git Bash navigate to a directory you want the local repository reside and type 
 
 ```
@@ -12,8 +13,6 @@ git clone https://github.com/psrc/luv.git luv
 ```
 
 (The ``luv`` at the end is a name of your choice.) It should create a directory of the specified name, here ``luv``, that is identical to the GitHub repository.
-
-On modelsrv3 the repository is installed in ``d://luvgit``.
 
 Check if Python is working by typing 'python' into the bash terminal. Two packages (pandas and plotly) are required to run the python script. If you have the 'Anaconda' installation, you should already have 'pandas' isntalled. You can check the list of python packages installed by using the commands below into the bash terminal:
 
@@ -39,7 +38,7 @@ and
 $ pip install plotly
 ```
 
-Also, check that R is working from the command line by typing R into the bash terminal. If it is not found, using the above installer should fix it. Or, adding the location of R.exe into your Path environment.
+Make sure [R](https://www.r-project.org) is installed. Also, check that R is working from the command line by typing R into the bash terminal. If it is not found, add the location of R.exe into your Path environment (on modelsrv3 it's ``C:\Program Files\R\R-3.3.1\bin``).
 
 While R is open, install the packages ``flexdashboard``, ``shiny``, ``magrittr``, ``plotly``, ``data.table``, ``leaflet``, ``rgdal``, ``sp`` using
 
@@ -50,9 +49,11 @@ install.packages(c('flexdashboard', 'shiny', 'magrittr', 'plotly', 'data.table',
 If you plan to generate R-reports, you will also need ``ggplot2``, ``grid`` and ``gridExtra``. I believe they should be installed as dependencies in the previous step.
 
 
-On Windows machines you will most likely need to install [pandoc](http://pandoc.org/installing.html) (click on "downlod page", scroll to the bottom of the page and select the windows installer).
+On Windows machines you will most likely need to install [pandoc](http://pandoc.org/installing.html) (click on "download page", scroll to the bottom of the page and select the windows installer).
 
 For generating indicators (optional), [Opus needs to be installed](http://twiki/DSA/InstallingUrbanSim). 
+
+Note that eveything should be installed and working on modelsrv3 in ``d://luvgit``.
  
 
 ## Running the Makefile
@@ -116,12 +117,15 @@ Currently, the following phonies are implemented:
    * **index**: run R code in scripts/create\_index\_file.R (see next section for more details)
    * **clean-index**: removes the index output file
    * **all**: run the phonies rtables, rplots, rmaps, emplots and index
+   * **dash**: create a browser-based dashboard 
    * **rreport-city**: generate R-report on the city level (see Section R-Reports)
    * **rreport-faz**: generate R-report on the faz level (see Section R-Reports)
 
 ## Viewing Results
 
-Each script should write its summary results into an Rmd file (in [R Markdown](http://rmarkdown.rstudio.com)), using a prefix that corresponds to its phonie (e.g. 'rplots\_', 'rtables\_'). The script 'scripts/create\_index\_file.R' (invoked by the index phonie) combines such files into one and translates it into index.html that can be viewed from a browser.  The file located in the corresponding results directory.
+Each script should write its summary results into an Rmd file (in [R Markdown](http://rmarkdown.rstudio.com)), using a prefix that corresponds to its phonie (e.g. 'rplots\_', 'rtables\_'). The script 'scripts/create\_index\_file.R' (invoked by the index phonie) combines such files into one and translates it into index.html that can be viewed from a browser.  The file is located in the corresponding results directory.
+
+**New:** Typing ''make dash'' (preceeded by ''make all'') will launch a dashboard in your browser allowing you to view the results interactively. To exit the dashboard press Ctrl-C. 
 
 ## R-Reports
 
