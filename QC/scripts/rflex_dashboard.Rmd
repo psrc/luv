@@ -4,6 +4,7 @@ output:
   flexdashboard::flex_dashboard:
     orientation: columns
     vertical_layout: fill
+    theme: readable
 runtime: shiny
 ---
 
@@ -34,18 +35,19 @@ if(make) {
   run1 <- Sys.getenv('QC_RUN1')
   run2.all <- Sys.getenv('QC_RUN2')
   run2.all <- trim(unlist(strsplit(run2.all, ","))) # run2 can have multiple directories; split by comma
-  #result.dir <- Sys.getenv('QC_RESULT_PATH')
+  result.dir <- Sys.getenv('QC_RESULT_PATH')
+  result.name <- Sys.getenv('QC_NAME')
   wrkdir <- file.path(Sys.getenv('QC_SCRIPT_PATH'), "..")
   dsn <- file.path(wrkdir, "data")
 } else {
   base.dir <- "//modelsrv3/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
   #base.dir <- "/Volumes/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
-  run1 <- "run_74.run_2016_06_16_15_40"
-  run2.all <- c("run_73.run_2016_06_13_16_56","luv_1.compiled")
-  run.name <- 'run74'
+  run1 <- "run_99.run_2016_08_15_17_11"
+  run2.all <- c("run_81.run_2016_07_05_16_00","luv_1.compiled")
+  run.name <- 'run99'
   dsn <- "C:/Users/Christy/Desktop/luv/QC/data"
   #dsn <- "/Users/hana/ForecastProducts/LUV/QC/data"
-  #result.dir <- file.path("C:/Users/Christy/Desktop/luv/QC/results", run.name)
+  result.dir <- file.path("C:/Users/Christy/Desktop/luv/QC/results", run.name)
 }
 
 faz.lookup <- read.table(file.path(dsn, "faz_names.txt"), header =TRUE, sep = "\t")
@@ -397,8 +399,19 @@ leafletOutput("map")
 
 ```
 
-Tab 2
+`r runname1` Index (Test)
 =======================================================================
 
-Tab 3
-=======================================================================
+```{r}
+if(make){
+  htmltools::includeHTML(file.path(result.dir,'index.html'))
+} else {
+  htmltools::includeHTML('C:/Users/Christy/Desktop/luv/QC/results/run81/index.html')
+}
+
+
+```
+
+
+
+
