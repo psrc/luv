@@ -399,6 +399,20 @@ leafletOutput("map")
 
 ```
 
+Growth 2014-40
+=======================================================================
+
+```{r}
+# External Shiny App via shinyAppDir
+
+shinyAppFile(
+  file.path(Sys.getenv('QC_SCRIPT_PATH'), "rshiny_growth_maps.R")
+  
+)
+
+```
+
+
 `r runname1` Index (Test)
 =======================================================================
 
@@ -411,7 +425,5 @@ if(make){
 
 
 ```
-
-
 
 
