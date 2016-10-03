@@ -3,6 +3,7 @@ library(shiny)
 library(leaflet)
 library(rgdal)
 library(sp)
+library(magrittr)
 #library(RColorBrewer)
 
 # Preapre data and shapes ==========================
@@ -10,8 +11,7 @@ library(sp)
 
 attribute <- c("population","households","employment","residential_units")
 geography <- c("zone", "faz", "city")
-year1 <- (2014)
-year2 <- (2040)
+years <- c(2014, 2015, 2020, 2025, 2030, 2035, 2040)
 extension <- ".csv"
 
 trim <- function (x) gsub("^\\s+|\\s+$", "", x) # function for triming whitespace 
@@ -67,11 +67,15 @@ for (r in 1:length(runnames)){
       filename1 <- paste0(geography[a],'__',"table",'__',attribute[i], extension)
       datatable1 <- read.csv(file.path(base.dir, runnames[r],"indicators",filename1), header = TRUE, sep = ",")
       column_id <- colnames(datatable1)[grepl("_id",names(datatable1))]
-      column_est <-colnames(datatable1)[grepl(paste0(year1,"|",year2),names(datatable1))]
+      column_est <- NULL
+      for (y in 1: length(years)){
+        column_est1 <- colnames(datatable1)[grepl((years[y]),names(datatable1))]
+        ifelse (is.null(column_est1), 
+                column_est <- column_est1,
+                column_est <- cbind(column_est, column_est1))
+      }
       table <- datatable1[,c(column_id,column_est)]
-      colnames(table)[2:3] <- c("yr1","yr2")
-      table <- cbind(table, diff=table$yr2-table$yr1)
-      
+      colnames(table)[2:ncol(table)] <- paste0("yr", sapply(years, function(x) x[1]))
       table$indicator <- switch(attribute[i],
                                 "population"="Total Population", 
                                 "households"="Households", 
@@ -110,10 +114,14 @@ for (r in 1:length(runnames)){
 # UI ===============================================
 
 ui <- fluidPage(
-  #h2(paste0("2014-2040 Growth")),
-  sidebarLayout(sidebarPanel(selectInput(inputId = "select_run",
-                             label = "Run",
-                             choices = runs),
+  
+  sidebarLayout(sidebarPanel(h4(class="header", checked=NA,
+                                      tags$b("Select the following to see growth since 2014")
+                                      ),
+                            br(),
+                            selectInput(inputId = "select_run",
+                                         label = "Run",
+                                         choices = runs),
                             selectInput(inputId = "select_geography",
                                         label = "Geography",
                                         choices = c("TAZ"=1,
@@ -127,6 +135,14 @@ ui <- fluidPage(
                                                     "Employment"=3,
                                                     "Residential Units"=4),
                                         selected = 1),
+                            sliderInput(inputId = "select_year",
+                                        label = "End Year",
+                                        min = years[2],
+                                        max = years[length(years)],
+                                        value = years[length(years)],
+                                        step = 5,
+                                        sep = ""
+                                        ),
                  width = 2
                  ), # end sidebarPanel
     mainPanel(leafletOutput("map", width = "100%", height = "840px"),
@@ -156,6 +172,14 @@ server <- function(input, output, session) {
            "Residential Units") 
   })
   
+  year <- reactive({
+    paste0("yr", input$select_year)
+  })
+  
+  year.label <- reactive({
+    unlist(strsplit(year(),"r"))[[2]]
+  })
+  
   geog <- reactive({
     geo <- as.integer(input$select_geography)
     get(run())[[geo]][[1]]
@@ -168,6 +192,11 @@ server <- function(input, output, session) {
   
   shape <- reactive({
     data1 <- subset(geog(), geog()$indicator==table())
+    year.start <- data1[,2]
+    year.col <- which(names(data1) == year())
+    year.end <- data1[, year.col]
+    data1 <- cbind(data1, diff = year.end - year.start)
+    
     if (input$select_geography == 1){
       shape.join <- sp::merge(shape_select(), data1, by.x = c("TAZ"), by.y = c("zone_id")) %>% 
         merge(faz.lookup, by = "faz_id") 
@@ -229,7 +258,7 @@ server <- function(input, output, session) {
       if (input$select_geography == 1){ # separate bins for TAZ
         bin <- c(-70000, -3000, -1000, -500,- 250, 0, 1, 250, 500, 1000, 3000, 70000)
       } else { # for other geographies
-        bin <- c(-70000, -30000, -10000, -5000,- 2500, 0, 1, 2500, 5000, 10000, 30000, 70000)
+        bin <- c(-170000, -30000, -10000, -5000,- 2500, 0, 1, 2500, 5000, 10000, 30000, 170000)
       }
     } else if (diff.range == "pos"){
       color <- "Reds"
@@ -244,10 +273,13 @@ server <- function(input, output, session) {
     
     pal <- colorBin(palette = color, bins = bin, domain=shape()$diff, pretty = FALSE) 
     
+    # popup setup
+    year.start <- match(paste0("yr", years[[1]]),names(shape()))
+    year.end <- match(year(), names(shape()))
     geo.popup1 <- paste0("<strong>ID: </strong>", shape()$name_id,
                          "<br><strong>", geo(), " Name: </strong>", shape()$Name,
-                         "<br><strong>", year1," estimate: </strong>", shape()$yr1,
-                         "<br><strong>", year2," estimate: </strong>", shape()$yr2,
+                         "<br><strong>", years[[1]]," estimate: </strong>", shape()@data[,year.start],
+                         "<br><strong>", year.label()," estimate: </strong>", shape()@data[,year.end],
                          "<br><strong>Difference: </strong>", shape()$diff
     )
     
@@ -273,7 +305,7 @@ server <- function(input, output, session) {
       addLegend("bottomright",
                 pal = pal,
                 values = pal(shape()$diff),
-                title = paste0("2014-40 growth by ", geo()),
+                title = paste0("2014-", year.label(), " growth by ", geo()),
                 opacity =1,
                 labFormat = labelFormat(digits = 0, big.mark = ","))%>%
       setView(lng = -122.008546, lat = 47.549390, zoom = 9)%>%
