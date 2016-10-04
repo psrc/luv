@@ -74,7 +74,8 @@ emplots : emplots_raw index
 emplots_raw : $(RESULT_PATH)/qc_ts_emp_cnty.html
 
 $(RESULT_PATH)/qc_ts_emp_cnty.html : $(SCRIPT_PATH)/qc_tsplot_emp_cnty.py inputs.txt
-	python $(SCRIPT_PATH)/qc_tsplot_emp_cnty.py make
+	python $(SCRIPT_PATH)/qc_tsplot_emp_cnty.py -m
+	python $(SCRIPT_PATH)/qc_tsplot_emp_cnty.py -m -s
 
 .PHONY : rreport-faz
 rreport-faz : $(RREPORT_PATH)/fazreportLUV.Rout

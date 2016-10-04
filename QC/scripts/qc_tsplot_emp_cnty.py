@@ -264,13 +264,19 @@ def get_ts_html():
       
     #htmlfile = os.path.join(result_dir, "luv2_emp_run_"+("_").join(str(x) for x in run_id)+"_scatter"+'_'+time.strftime("%m%d%Y")+".html")
     htmlfile = os.path.join(result_dir, "qc_ts_emp_cnty.html")
+    if special:
+        htmlfile = os.path.join(result_dir, "qc_ts_emp_sp.html")
     plotly.offline.plot(fig, filename = htmlfile, auto_open = plot_val)
     #plotly.offline.plot(fig, filename = "luv2_emp_run_"+("_").join(str(x) for x in run_id)+"_scatter"+'_'+time.strftime("%m%d%Y")+".Rmd")
     
     # write into Rmd
-    rmdfile = open(os.path.join(result_dir, "emplots_by_sectors.Rmd"), "w")
-    rmdfile.write("## Employment by Sector\n\n")
-    rmdfile.write("* [Employment time series by county](file://%s)\n" % htmlfile)
+    if not special:
+        rmdfile = open(os.path.join(result_dir, "emplots_by_sectors.Rmd"), "w")
+        rmdfile.write("## Employment by Sector\n\n")
+        rmdfile.write("* [Employment time series by county](file://%s)\n" % htmlfile)
+    else:
+        rmdfile = open(os.path.join(result_dir, "emplots_by_sectors.Rmd"), "a")
+        rmdfile.write("* [Employment time series by special places](file://%s)\n" % htmlfile)
     rmdfile.close()
     
     
