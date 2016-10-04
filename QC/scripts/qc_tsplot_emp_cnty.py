@@ -1,24 +1,5 @@
 
 
-
-
-# def import_input_standalone():
-    # from qc_scatterplot_emp_cnty_inputs import data_year, runs_folder, county_id 
-    # return data_year
-    # return runs_folder
-    # return county_id
-
-
-def import_packages():
-    import pandas as pd
-    import os
-    import time
-    import plotly
-    import plotly.plotly as py
-    from plotly.tools import FigureFactory as FF
-    from plotly import tools
-    import plotly.graph_objs as go
-
 def get_base_dir():
     with open(os.getcwd()[:-7]+'inputs.txt', 'r') as f:
         line_data = f.readlines()
@@ -107,17 +88,20 @@ def creat_pklfiles():
     # Create .pkl tables for all indicator files with try & except
     
     init_plk_list =[]
-   
+    geo = "large_area"
+    if special:
+        geo = "zone"
+        
     for r in runs_folder:
         run_num = r
         for y in data_year:
             year = y
             try:
                
-                df_name = pd.read_table(os.path.join(base_dir, run_num, 'indicators', 'large_area__dataset_table__employment_by_aggr_sector__'+year+".tab"))
+                df_name = pd.read_table(os.path.join(base_dir, run_num, 'indicators', '%s__dataset_table__employment_by_aggr_sector__%s.tab' % (geo, year)))
                 
             except:
-                print "Alert: Aggregated Large Area Employment file for year "+ y + " is not available for the run  "+ str(run_num) 
+                print "Alert: Aggregated Employment file for "+geo+ " and year "+ y + " is not available for the run  "+ str(run_num) 
                 
             else:
                 year = y
@@ -133,7 +117,14 @@ def get_master_df():
     df_main = pd.DataFrame()
     for df in init_plk_list:
         df_work = pd.read_pickle(os.path.join(tmp_dir, df))
-        df_work = df_work.groupby(by=['county_id'], axis=0).sum().reset_index().astype('int').drop(['large_area_id'], axis=1)
+        if special:
+            df_work = pd.merge(df_work, place_table, on="zone_id")
+            # aggregate from zones to special places 
+            df_work = df_work.groupby(by=['place_id'], axis=0).sum().reset_index().astype('int').drop(['zone_id'], axis=1)
+            # add name column
+            #df_work = pd.merge(df_work, place_table.drop(['zone_id'], axis=1).drop_duplicates(), on="place_id")
+        else:
+            df_work = df_work.groupby(by=['county_id'], axis=0).sum().reset_index().astype('int').drop(['large_area_id'], axis=1)
         df_work['year'] = df[-8:-4]
         dot_loc = df.find(".")
         run = df[3:dot_loc]
@@ -150,45 +141,57 @@ def get_master_df():
 def get_regfile_run():
     #get regional file for each run
     df_main_region_list =[]
+    id_name = 'county_id'
+    if special:
+        id_name = 'place_id'
     for i in run_id:
+        if not df_main.columns.isin(["year."+i]).any():
+            continue # data not available for this run
         data_frame_name = "df_region_"+i+".pkl"
         df_main_region_list.append(data_frame_name)
         df_main_test = df_main[df_main["year."+i].notnull()]
         df_main_test = df_main_test.dropna(axis = 1, how = 'any')   
         df_main_test = df_main_test.reset_index(drop=True)
         df_main_test = df_main_test.groupby(by=['year.'+i], axis=0).sum().reset_index()
-        df_main_test["county_id."+i] = "region"
+        df_main_test["%s.%s" % (id_name, i)] = "region"
         df_main_test.to_pickle(os.path.join(tmp_dir, data_frame_name))
     
     
 def get_cntyfile_run_year():
     #get file for each run by county by year
+    id_name = 'county_id'
+    if special:
+        id_name = 'place_id'    
     df_main_list =[]
     for i in run_id:
+        if not df_main.columns.isin(["%s.%s" % (id_name, i)]).any():
+            continue # data not available for this run        
         data_frame_name = "df_"+i+".pkl"
         df_main_list.append(data_frame_name)
-        df_main_test = df_main[df_main["county_id."+i].notnull()].dropna(axis = 1, how = 'any')
+        df_main_test = df_main[df_main["%s.%s" % (id_name, i)].notnull()].dropna(axis = 1, how = 'any')
         df_main_test = df_main_test.reset_index(drop=True)
         df_main_test.to_pickle(os.path.join(tmp_dir, data_frame_name))
         
 
-def get_scatter_html():        
+def get_ts_html():
     scatter_list = []
-    for cnty in county_id:
-        
+    for index, geo in geo_ids.iterrows():
+        cnty = geo['id']
         #line_color = ['rgb(49,163,84)', 'rgb(253,141,60)', 'rgb(44,127,184)', 'rgb(117,107,177)' ]
         #line_col_id = 0
         for run in run_id:
             #line_col = line_color[line_col_id]
             #line_col_id = line_col_id +1
-                
-            df_test = pd.read_pickle(os.path.join(tmp_dir, 'df_'+run+'.pkl')).astype('int')
+            filename = os.path.join(tmp_dir, 'df_'+run+'.pkl')
+            if not os.path.isfile(filename):
+                continue
+            df_test = pd.read_pickle(filename).astype('int')
 
-            df_cnty = df_test[df_test["county_id."+run]==cnty].reset_index()
+            df_cnty = df_test[df_test["%s.%s" % (id_name, run)]==cnty].reset_index()
             col = df_cnty.columns.values.tolist()
             
             for c in col:
-                if c == "year."+run or c =="county_id." +run:
+                if c == "year."+run or c == "%s.%s" % (id_name, run):
                     pass
                 else:
                     cnty_scatter = go.Scatter(x=df_cnty["year."+run], 
@@ -204,65 +207,55 @@ def get_scatter_html():
     #get the subplot titles 
     indnum = range(len(scatter_list))
     ind_lab = []
-    for i in indnum:
-        if scatter_list[i].name[3:-1] =="index":
-            pass
-        else:
-            dot_loc = scatter_list[i].name.find(".")
-            ind_lab.append(scatter_list[i].name[3:dot_loc])
+    #for i in indnum:
+        #if scatter_list[i].name.split('_')[1].startswith('index'):
+            #pass
+        #else:
+            #dot_loc = scatter_list[i].name.find(".")
+            #ind_lab.append(scatter_list[i].name[3:dot_loc])
                 
     #subplot_titles = tuple(remove_duplicates(ind_lab))
-    fig = tools.make_subplots(rows=6, cols=4, 
-                                                      subplot_titles=("King County", "Kitsap County", "Pierce County", "Snohomish County"), 
-                                                      
-                                                      vertical_spacing = 0.03)
+    fig = tools.make_subplots(rows=len(geo_ids.index), cols=6, 
+                            subplot_titles=("FIRE_services", "Construction resources", "Education", "Government", "Manuf WTU", "Retail & Food"),
+                            #subplot_titles=("King County", "Kitsap County", "Pierce County", "Snohomish County"), 
+                            vertical_spacing = 0.03)
         
         
-        
-    for cnty in county_id:    
-        indnum = range(len(scatter_list))
-        ind_lab = []
-        for i in indnum:
-            dot_loc = scatter_list[i].name.find(".")
-            if scatter_list[i].name[3:-1] =="index":
-                pass
-            if cnty ==33:
-                col_id = 1
-            if cnty ==35:
-                col_id = 2
-            if cnty ==53:
-                col_id = 3
-            if cnty ==61:
-                col_id = 4
-            ytitle_col  = 1
-            if scatter_list[i].name[3:dot_loc] =="FIRE_services" and scatter_list[i].name[:2]==str(cnty):
-                fig.append_trace(scatter_list[i], 1,col_id)
-                if cnty==33: fig['layout']['yaxis'+str(ytitle_col)].update(title=scatter_list[i].name[3:dot_loc]); pass
-            ytitle_col = ytitle_col+4; 
-            if scatter_list[i].name[3:dot_loc] =="construction_resources"and scatter_list[i].name[:2]==str(cnty):
-                fig.append_trace(scatter_list[i], 2,col_id)
-                if cnty==33: fig['layout']['yaxis'+str(ytitle_col)].update(title=scatter_list[i].name[3:dot_loc]); pass
-            ytitle_col = ytitle_col+4; 
-            if scatter_list[i].name[3:dot_loc] =="edu"and scatter_list[i].name[:2]==str(cnty):
-                fig.append_trace(scatter_list[i], 3,col_id)
-                if cnty==33: fig['layout']['yaxis'+str(ytitle_col)].update(title=scatter_list[i].name[3:dot_loc]); pass
-            ytitle_col = ytitle_col+4;
-            if scatter_list[i].name[3:dot_loc] =="government"and scatter_list[i].name[:2]==str(cnty):
-                fig.append_trace(scatter_list[i], 4,col_id)
-                if cnty==33: fig['layout']['yaxis'+str(ytitle_col)].update(title=scatter_list[i].name[3:dot_loc]); pass
-            ytitle_col = ytitle_col+4;
-            if scatter_list[i].name[3:dot_loc] =="manuf_WTU"and scatter_list[i].name[:2]==str(cnty):
-                fig.append_trace(scatter_list[i], 5,col_id)
-                if cnty==33: fig['layout']['yaxis'+str(ytitle_col)].update(title=scatter_list[i].name[3:dot_loc]); pass
-            ytitle_col = ytitle_col+4;
-            if scatter_list[i].name[3:dot_loc] =="retail_food_services"and scatter_list[i].name[:2]==str(cnty):
-                fig.append_trace(scatter_list[i], 6,col_id)
-                if cnty==33: fig['layout']['yaxis'+str(ytitle_col)].update(title=scatter_list[i].name[3:dot_loc]); pass
+    row=0
+    ytitle_col  = 1
+    for index, geo in geo_ids.iterrows():
+        row=row+1
+        title_updated = False
+        for i in indnum:            
+            if scatter_list[i].name.split('_')[1].startswith('index'):
+                continue            
+            spl = scatter_list[i].name.split('_', 1)
+            dot_loc = spl[1].find(".")
+            sector_name = spl[1][:dot_loc]
+            thisgeo = spl[0]
+            loopgeo = str(geo['id'])
+            if sector_name =="FIRE_services" and thisgeo==loopgeo:
+                fig.append_trace(scatter_list[i], row, 1)
+                if not title_updated:
+                    fig['layout']['yaxis'+str(ytitle_col)].update(title=geo['name'])
+                    ytitle_col = ytitle_col+6
+                    title_updated=True
+            if sector_name =="construction_resources" and thisgeo==loopgeo:
+                fig.append_trace(scatter_list[i], row, 2)
+            if sector_name =="edu" and thisgeo==loopgeo:
+                fig.append_trace(scatter_list[i], row, 3)
+            if sector_name =="government" and thisgeo==loopgeo:
+                fig.append_trace(scatter_list[i], row, 4)
+            if sector_name =="manuf_WTU" and thisgeo==loopgeo:
+                fig.append_trace(scatter_list[i], row, 5)
+            if sector_name == "retail_food_services" and thisgeo==loopgeo:
+                fig.append_trace(scatter_list[i], row, 6)
 
         
-        
-    fig['layout'].update( title='LUV 2 Indicators: Employment: ' +
-                                                      'Aggregate Sectors; Runs: '+ (", ").join(str(x) for x in run_id)+' ('+time.strftime("%m/%d/%Y")+")",  
+    geo_title = 'County'
+    if special:
+        geo_title = 'Special Places'
+    fig['layout'].update( title='Employment: ' + 'Aggregated Sectors by ' + geo_title +' ('+time.strftime("%m/%d/%Y")+")",  
                                                         titlefont = dict(color= "black", size = 25 ), 
                          showlegend = False,
                          height=2400, width=2350,
@@ -284,35 +277,21 @@ def get_scatter_html():
 def remove_tmp_dir():
     shutil.rmtree(tmp_dir)
     
+def get_geo_ids():
+    # get unique geography identifiers
+    idx = np.where(np.array(map(lambda x: x.startswith(id_name),  df_main.columns)))[0]
+    if special:
+        geos = pd.DataFrame({"id":np.unique(df_main[idx])})
+        geos = pd.merge(geos, place_table.drop(['zone_id'], axis=1).drop_duplicates(), right_on="place_id", left_on='id')
+    else:
+        geos = pd.DataFrame({'id':[33,35,53,61], 'name':["King County", "Kitsap County", "Pierce County", "Snohomish County"]})
+    return geos
+    
 if __name__ == "__main__":
-    # import_input_standalone()
-    # from qc_scatterplot_emp_cnty_inputs import* 
-    # import_packages()
-    # import pandas as pd
-    # import os
-    # import time
-    # import plotly
-    # import plotly.plotly as py
-    # from plotly.tools import FigureFactory as FF
-    # from plotly import tools
-    # import plotly.graph_objs as go
-    # print "Import successful!"
-    # print "data points: ", data_year
-    # print "list of runs: ", runs_folder
-    # print "list of county ids: ", county_id
-    # run_id = get_runid()
-    # print run_id
-    # print "Grabed the run numbers..."
-    # init_plk_list = creat_pklfiles()
-    # print "got the temp files..."
-    # df_main = get_master_df()
-    # print "got the temp files..."
-    # df_main_region_list = get_regfile_run()
-    # df_main_list = get_cntyfile_run_year()
-    # get_scatter_html()
 
     import sys
     import pandas as pd
+    import numpy as np
     import os
     import time
     import plotly
@@ -321,14 +300,22 @@ if __name__ == "__main__":
     from plotly import tools
     import plotly.graph_objs as go
     import shutil
-    print "Import successful!"
+    from optparse import OptionParser
+    
+    #print "Import successful!"
     
     # get command line arguments
-    args = sys.argv
-    
+    parser = OptionParser()
+    parser.add_option("-s", "--special", action="store_true", dest="special",
+                      help="special places geography") 
+    parser.add_option("-m", "--make", action="store_true", dest="make",
+                          help="running via a Makefile")
+    (options, args) = parser.parse_args()
+   
     #make = True # Should be set to True if run from Makefile
-    make = len(args) > 1 and args[1]=="make" # pass through command-line argument
-    
+    make = not options.make is None 
+    special = not options.special is None
+    #special = True
     if make:
         base_dir = os.environ['QC_BASE_DIRECTORY']
         wrkdir = os.getcwd()
@@ -340,18 +327,24 @@ if __name__ == "__main__":
         wrkdir = os.getcwd()[:-7]        
         runs_folder = get_input_luv()
         result_dir = os.path.join(wrkdir, "results", get_run_name())
-        plot_val = True
+        
+    plot_val = True
+    data_dir = os.path.join(wrkdir, "data")
     run_dirs = []
     for folder in runs_folder:
         run_dirs = run_dirs + list(set(map(lambda x: x.lstrip().rstrip(), folder.split(',')))) # use set to make the list unique
     runs_folder = run_dirs
         
     data_year = ['2014', '2015','2020','2025','2030','2035','2040' ]
-    county_id = [33,35,53,61]
+    id_name = 'county_id'
+    if special:
+        id_name = 'place_id'
+        place_table = pd.read_table(os.path.join(data_dir, 'SpecialPlaces.csv'), sep=',').drop(['acres'], axis=1)
+        
+    #county_id = [33,35,53,61]
     print "base_dir: ", base_dir
     print "data points: ", data_year
     print "list of runs: ", runs_folder
-    print "list of county ids: ", county_id
     run_id = get_runid()
     print run_id
     print "Grabed the run numbers..."
@@ -360,10 +353,11 @@ if __name__ == "__main__":
     init_plk_list = creat_pklfiles()
     print "got the temp files..."
     df_main = get_master_df()
+    geo_ids = get_geo_ids()
     df_main_region_list = get_regfile_run()
     df_main_list = get_cntyfile_run_year()
-    print "got the data frames for the scatterplot..."
-    get_scatter_html()
+    #print "got the data frames for the time series..."
+    get_ts_html()
     if plot_val == True:
         print "scatterplots saved in the results directory as .html and deployed to the default browser..."
     if plot_val == False:
