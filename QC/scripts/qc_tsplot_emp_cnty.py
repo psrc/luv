@@ -121,8 +121,6 @@ def get_master_df():
             df_work = pd.merge(df_work, place_table, on="zone_id")
             # aggregate from zones to special places 
             df_work = df_work.groupby(by=['place_id'], axis=0).sum().reset_index().astype('int').drop(['zone_id'], axis=1)
-            # add name column
-            #df_work = pd.merge(df_work, place_table.drop(['zone_id'], axis=1).drop_duplicates(), on="place_id")
         else:
             df_work = df_work.groupby(by=['county_id'], axis=0).sum().reset_index().astype('int').drop(['large_area_id'], axis=1)
         df_work['year'] = df[-8:-4]
@@ -173,15 +171,29 @@ def get_cntyfile_run_year():
         df_main_test.to_pickle(os.path.join(tmp_dir, data_frame_name))
         
 
+def _get_colors(col_id):
+    # generate given number of colors
+    num_colors = len(col_id)
+    colors={}
+    j = 0
+    for i in np.arange(0., 360., 360. / num_colors):
+        hue = i/360.
+        lightness = (50 + np.random.rand() * 10)/100.
+        saturation = (90 + np.random.rand() * 10)/100.
+        colors[col_id[j]] = colorsys.hls_to_rgb(hue, lightness, saturation)
+        j = j + 1
+    return colors
+
 def get_ts_html():
+    line_color = _get_colors(run_id)
     scatter_list = []
     for index, geo in geo_ids.iterrows():
         cnty = geo['id']
         #line_color = ['rgb(49,163,84)', 'rgb(253,141,60)', 'rgb(44,127,184)', 'rgb(117,107,177)' ]
         #line_col_id = 0
+        irun=0
         for run in run_id:
-            #line_col = line_color[line_col_id]
-            #line_col_id = line_col_id +1
+            irun = irun+1
             filename = os.path.join(tmp_dir, 'df_'+run+'.pkl')
             if not os.path.isfile(filename):
                 continue
@@ -194,35 +206,29 @@ def get_ts_html():
                 if c == "year."+run or c == "%s.%s" % (id_name, run):
                     pass
                 else:
+                    line_col = "rgb(%s, %s, %s)" % (line_color[run][0], line_color[run][1],line_color[run][2])
+                    #line_col_id = line_col_id +1  
                     cnty_scatter = go.Scatter(x=df_cnty["year."+run], 
                                                   y=df_cnty[c], 
                                                   mode = 'lines+markers',
-                                                  #marker = dict(color = line_col),
+                                                  marker = dict(color = line_col),
+                                                  line= dict(color = line_col),
                                                   name= str(cnty)+'_'+(c)+':',
                                                   text = str(cnty)+"_"+c[:3]+"."+"_"+run+":",
                                                   hoverinfo = "x+text+y")
-                    scatter_list.append(cnty_scatter)
+                    scatter_list.append(cnty_scatter)                    
+                                      
         
         
-    #get the subplot titles 
-    indnum = range(len(scatter_list))
-    ind_lab = []
-    #for i in indnum:
-        #if scatter_list[i].name.split('_')[1].startswith('index'):
-            #pass
-        #else:
-            #dot_loc = scatter_list[i].name.find(".")
-            #ind_lab.append(scatter_list[i].name[3:dot_loc])
-                
-    #subplot_titles = tuple(remove_duplicates(ind_lab))
     fig = tools.make_subplots(rows=len(geo_ids.index), cols=6, 
-                            subplot_titles=("FIRE_services", "Construction resources", "Education", "Government", "Manuf WTU", "Retail & Food"),
-                            #subplot_titles=("King County", "Kitsap County", "Pierce County", "Snohomish County"), 
+                            subplot_titles=("FIRE_services", "Construction resources", "Education", "Government", "Manuf WTU", "Retail & Food"), 
                             vertical_spacing = 0.03)
         
         
     row=0
     ytitle_col  = 1
+    indnum = range(len(scatter_list))
+    
     for index, geo in geo_ids.iterrows():
         row=row+1
         title_updated = False
@@ -300,6 +306,7 @@ if __name__ == "__main__":
     import numpy as np
     import os
     import time
+    import colorsys
     import plotly
     import plotly.plotly as py
     from plotly.tools import FigureFactory as FF
@@ -307,9 +314,7 @@ if __name__ == "__main__":
     import plotly.graph_objs as go
     import shutil
     from optparse import OptionParser
-    
-    #print "Import successful!"
-    
+        
     # get command line arguments
     parser = OptionParser()
     parser.add_option("-s", "--special", action="store_true", dest="special",
@@ -321,7 +326,7 @@ if __name__ == "__main__":
     #make = True # Should be set to True if run from Makefile
     make = not options.make is None 
     special = not options.special is None
-    #special = True
+    #special=True
     if make:
         base_dir = os.environ['QC_BASE_DIRECTORY']
         wrkdir = os.getcwd()
@@ -334,7 +339,7 @@ if __name__ == "__main__":
         runs_folder = get_input_luv()
         result_dir = os.path.join(wrkdir, "results", get_run_name())
         
-    plot_val = True
+    plot_val = not make
     data_dir = os.path.join(wrkdir, "data")
     run_dirs = []
     for folder in runs_folder:

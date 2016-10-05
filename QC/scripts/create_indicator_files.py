@@ -7,6 +7,15 @@ from opus_core.indicator_framework.image_types.table import Table
 from opus_core.indicator_framework.image_types.dataset_table import DatasetTable
 
 
+def jobs_by_sector(geo, package="psrc_parcel"):
+    return [
+               "construction_resources = %s.%s.number_of_jobs_of_sector_1 + %s.%s.number_of_jobs_of_sector_2" % (2*(package, geo)),
+               "manuf_WTU = %s.%s.number_of_jobs_of_sector_3 + %s.%s.number_of_jobs_of_sector_4 + %s.%s.number_of_jobs_of_sector_5 + %s.%s.number_of_jobs_of_sector_6 + %s.%s.number_of_jobs_of_sector_8 + %s.%s.number_of_jobs_of_sector_9" % (6*(package, geo)),
+               "retail_food_services = %s.%s.number_of_jobs_of_sector_7 + %s.%s.number_of_jobs_of_sector_14" % (2*(package, geo)),
+               "FIRE_services = %s.%s.number_of_jobs_of_sector_12 + %s.%s.number_of_jobs_of_sector_10 + %s.%s.number_of_jobs_of_sector_11 + %s.%s.number_of_jobs_of_sector_13 + %s.%s.number_of_jobs_of_sector_15 + %s.%s.number_of_jobs_of_sector_16 + %s.%s.number_of_jobs_of_sector_17" % (7*(package, geo)),
+               "government = %s.%s.number_of_jobs_of_sector_18" % (package, geo),
+               "edu = %s.%s.number_of_jobs_of_sector_19" % (package, geo)
+           ]
 
 def get_indicators(cache_directory, run_description, years = [2014,2015,2020,2025,2030,2035,2040], base_year=2014):
     source_data = SourceData(
@@ -72,6 +81,13 @@ def get_indicators(cache_directory, run_description, years = [2014,2015,2020,202
            dataset_name = 'zone',
            source_data = source_data,
            ),
+       DatasetTable(
+                         source_data = source_data,
+                         dataset_name = 'zone',
+                         name = 'employment_by_aggr_sector',
+                         attributes = jobs_by_sector("zone", "urbansim_parcel"),
+                         output_type = 'tab'
+                             ),
     
     # ## City indicators
     # ==================
@@ -100,7 +116,14 @@ def get_indicators(cache_directory, run_description, years = [2014,2015,2020,202
        #    attribute = 'acres=city.aggregate(parcel.parcel_sqft/43560.)',
        #    dataset_name = 'city',
        #    source_data = source_data,
-       #    ),        
+       #    ),
+       DatasetTable(
+                  source_data = source_data,
+                  dataset_name = 'city',
+                  name = 'employment_by_aggr_sector',
+                  attributes = jobs_by_sector("city"),
+                  output_type = 'tab'
+                      ),         
 
     # ## Tract-City indicators
     # ==================
@@ -168,14 +191,7 @@ def get_indicators(cache_directory, run_description, years = [2014,2015,2020,202
            source_data = source_data,
            dataset_name = 'large_area',
            name = 'employment_by_aggr_sector',
-           attributes = ['large_area.county_id'] + [
-               "construction_resources = psrc_parcel.large_area.number_of_jobs_of_sector_1 + psrc_parcel.large_area.number_of_jobs_of_sector_2",
-               "manuf_WTU = psrc_parcel.large_area.number_of_jobs_of_sector_3 + psrc_parcel.large_area.number_of_jobs_of_sector_4 + psrc_parcel.large_area.number_of_jobs_of_sector_5 + psrc_parcel.large_area.number_of_jobs_of_sector_6 + psrc_parcel.large_area.number_of_jobs_of_sector_8 + psrc_parcel.large_area.number_of_jobs_of_sector_9",
-               "retail_food_services = psrc_parcel.large_area.number_of_jobs_of_sector_7 + psrc_parcel.large_area.number_of_jobs_of_sector_14",
-               "FIRE_services = psrc_parcel.large_area.number_of_jobs_of_sector_12 + psrc_parcel.large_area.number_of_jobs_of_sector_10 + psrc_parcel.large_area.number_of_jobs_of_sector_11 + psrc_parcel.large_area.number_of_jobs_of_sector_13 + psrc_parcel.large_area.number_of_jobs_of_sector_15 + psrc_parcel.large_area.number_of_jobs_of_sector_16 + psrc_parcel.large_area.number_of_jobs_of_sector_17",
-               "government = psrc_parcel.large_area.number_of_jobs_of_sector_18",
-               "edu = psrc_parcel.large_area.number_of_jobs_of_sector_19"
-           ],
+           attributes = ['large_area.county_id'] + jobs_by_sector("large_area"),
            output_type = 'tab'
                ),    
 
