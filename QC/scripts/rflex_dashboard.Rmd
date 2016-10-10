@@ -417,11 +417,11 @@ shinyAppFile(
 =======================================================================
 
 ```{r}
-if(make){
-  htmltools::includeHTML(file.path(result.dir,'index.html'))
-} else {
-  htmltools::includeHTML('C:/Users/Christy/Desktop/luv/QC/results/run81/index.html')
-}
+#if(make){
+#  htmltools::includeHTML(file.path(result.dir,'index.html'))
+#} else {
+#  htmltools::includeHTML('C:/Users/Christy/Desktop/luv/QC/results/run81/index.html')
+#}
 
 
 ```
