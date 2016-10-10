@@ -6,6 +6,9 @@ URBANSIM_VERSION=master
 DB_GOLDEN_URL=
 DB_STAGING_URL=
 
+JURISDICTIONAL_CONTROL_TOTALS= # todo: how do we import these totals? [filename?]
+
+
 # ----------------------------------------------------
 # Install all dependencies: git, python, etc
 pip install -r requirements.txt
