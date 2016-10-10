@@ -19,28 +19,26 @@ if(make) {
   base.dir <- Sys.getenv('QC_BASE_DIRECTORY')
   run1 <- Sys.getenv('QC_RUN1')
   result.dir <- Sys.getenv('QC_RESULT_PATH')
-  faz.lookup <- read.table(file.path("data", "faz_names.txt"), header =TRUE, sep = "\t")
-  zone.lookup <- read.table(file.path("data", "zones.txt"), header =TRUE, sep = "\t")
-  dsn <- file.path("data")
-  layer_faz <- "FAZ_2010_WGS84"
-  layer_taz <- "TAZ_2010_WGS84"
-  layer_centers <- "centers_WGS84"
-  source('templates/create_Rmd_blocks.R')
+  wrkdir <- getwd()
 } else {
-  base.dir <- "//modelsrv3/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
-  run1 <- "run_75.run_2016_06_20_17_26"
+  #base.dir <- "//modelsrv3/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
+  base.dir <- "/Volumes/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
+  run1 <- "run_39.run_2016_10_04_15_55"
   #run2 <-"run_78.run_2016_06_23_09_47"
-  run.name <- 'run75v78_test'
-  result.dir <- file.path("C:/Users/Christy/Desktop/luv/QC/results", run.name)
-  faz.lookup <- read.table("C:/Users/Christy/Desktop/luv/QC/data/faz_names.txt", header =TRUE, sep = "\t")
-  zone.lookup <- read.table("C:/Users/Christy/Desktop/luv/QC/data/zones.txt", header =TRUE, sep = "\t")
-  dsn <- "C:/Users/Christy/Desktop/luv/QC/data"
-  layer_faz <- "FAZ_2010_WGS84"
-  layer_taz <- "TAZ_2010_WGS84"
-  layer_centers <- "centers_WGS84"
-  source('C:/Users/Christy/Desktop/luv/QC/templates/create_Rmd_blocks.R')
+  run.name <- 'run39'
+  wrkdir <- file.path(getwd(), '..')
+  result.dir <- file.path(wrkdir, "results", run.name)
 }
+dsn <- file.path(wrkdir, "data")
 
+faz.lookup <- read.table(file.path(dsn, "faz_names.txt"), header =TRUE, sep = "\t")
+zone.lookup <- read.table(file.path(dsn, "zones.txt"), header =TRUE, sep = "\t")
+  
+layer_faz <- "FAZ_2010_WGS84"
+layer_taz <- "TAZ_2010_WGS84"
+layer_centers <- "centers_WGS84"
+source(file.path(wrkdir, 'templates', 'create_Rmd_blocks.R'))
+  
 centers <- readOGR(dsn=dsn, layer=layer_centers)
 if(!dir.exists(result.dir)) dir.create(result.dir)
 
@@ -109,7 +107,7 @@ for (r in 1:length(runnames)){
       } # end of value.type loop  
       
       # scenarios for mapping
-      if (exists("shp.positive") & exists("shp.negative")){
+      if (exists("shp.positive") && exists("shp.negative")){
         shp.positive <- shp.positive[!is.na(shp.positive@data$diff),]
         shp.negative <- shp.negative[!is.na(shp.negative@data$diff),]
         
@@ -131,10 +129,10 @@ for (r in 1:length(runnames)){
         geo.popup3 <- paste0("<strong>Center: </strong>", centers$name_id) 
         
         colors <- brewer.pal(n=5, name="Reds")
-        pal <- colorBin(colors, bins = 5, domain=shp.positive$diff, pretty = FALSE)
+        pal <- colorBin(colors, bins = 5, domain=range(c(0, shp.positive$diff)), pretty = FALSE)
         
         colors2 <- rev(brewer.pal(n=5, name="Blues"))
-        pal2 <- colorBin(colors2, bins = 5, domain=shp.negative$diff, pretty = FALSE)
+        pal2 <- colorBin(colors2, bins = 5, domain=range(c(0, shp.negative$diff)), pretty = FALSE)
         
         m <- leaflet(data=shp.positive)%>% 
           addProviderTiles("CartoDB.Positron", group = "Street Map")%>%
