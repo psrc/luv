@@ -70,8 +70,9 @@ for (ind in c('households', 'residential_units', 'employment')) {
 							 name = rgc.with.city[['name']])
 	colnames(ind.report)[2:(ncol(ind.report)-1)] <-  c(paste("share", base.year), paste("share", year), paste("share change", base.year, "-", year))
 	ind.report <- ind.report[order(as.character(ind.report$name)), ]
-	detail.report.files[[ind]] <- file.path(result.dir, paste0("qc_rtable_rgc_", ind, ".txt"))
-	write.table(ind.report, detail.report.files[[ind]], row.names=FALSE, sep="\t")
+	#detail.report.files[[ind]] <- file.path(result.dir, paste0("qc_rtable_rgc_", ind, ".txt"))
+	detail.report.files[[ind]] <- paste0("qc_rtable_rgc_", ind, ".txt")
+	write.table(ind.report, file.path(result.dir, detail.report.files[[ind]]), row.names=FALSE, sep="\t")
 }
 res.region$indicator <- as.character(res.region$indicator)
 res.city$indicator <- as.character(res.city$indicator)
@@ -84,7 +85,7 @@ add.table(freport, res.region)
 add.text(freport, "#### Share of cities with RGCs (%):\n")
 add.table(freport, res.city)
 add.text(freport, "More details on share of cities for: ")
-add.text(freport, paste0("[", c('households', 'residential_units', 'employment'), "](file://", unlist(detail.report.files), ")", collapse=', ')) 
+add.text(freport, paste0("[", c('households', 'residential_units', 'employment'), "](", unlist(detail.report.files), ")", collapse=', ')) 
 add.text(freport, "\n")
 	
 # RGC vs the rest of region and city
@@ -156,9 +157,10 @@ outtable <- outtable[,c('growth_center_id', paste('population',base.year,sep='_'
 colnames(outtable)[1] <- 'id'
 colnames(outtable)[seq(2, by=2, length=4)] <-  c(paste0(c('Pop_', 'Emp_'), base.year), paste0(c('Pop_', 'Emp_'), year))
 colnames(outtable)[seq(3, by=2, length=4)] <-  c(paste0(c('Pop/U_', 'Emp/U_'), base.year), paste0(c('Pop/U_', 'Emp/U_'), year))
-au.detail.file <- file.path(result.dir, paste0("qc_rtable_rgc_au_details.txt"))
-write.table(outtable, au.detail.file, row.names=FALSE, sep="\t")
-add.text(freport, paste0("[See more details](file://", au.detail.file, ")\n\n"))
+#au.detail.file <- file.path(result.dir, paste0("qc_rtable_rgc_au_details.txt"))
+au.detail.file <- "qc_rtable_rgc_au_details.txt"
+write.table(outtable, file.path(result.dir, au.detail.file), row.names=FALSE, sep="\t")
+add.text(freport, paste0("[See more details](", au.detail.file, ")\n\n"))
 
 # Job loss in MIC
 mic.jobs <- subset(rgc.values$employment, growth_center_id >= 600)

@@ -46,8 +46,9 @@ for (ind in indicator.names) {
 }
 
 # output result table
-res.file <- file.path(result.dir, 'qc_rtable_CTmatch.txt')
-write.table(result, res.file, sep='\t', row.names=FALSE)
+#res.file <- file.path(result.dir, 'qc_rtable_CTmatch.txt')
+res.file <- 'qc_rtable_CTmatch.txt'
+write.table(result, file.path(result.dir, res.file), sep='\t', row.names=FALSE)
 
 # write report
 source('templates/create_Rmd_blocks.R')
@@ -56,6 +57,6 @@ if(file.exists(freport)) unlink(freport)
 create.section(freport, title='QC Control Total Mismatch')
 report$indicator <- as.character(report$indicator)
 add.table(freport, report)
-add.text(freport, paste0("[See more details](", paste0('file://', res.file), ")"))
+add.text(freport, paste0("[See more details](", res.file, ")"))
 
 
