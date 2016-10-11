@@ -9,6 +9,7 @@ create.header <- function(file, title, author=NULL, date=NULL, output="html_docu
 	cat(" ", output, ":\n", file=file, append=TRUE)
 	cat("    toc: true\n", file=file, append=TRUE)
 	cat("    theme:", theme, "\n", file=file, append=TRUE)
+	cat("    self_contained: false\n", file=file, append=TRUE)
 	cat("    pandoc_args: [\n", file=file, append=TRUE)
 	cat("    	'--columns=500'\n", file=file, append=TRUE)
 	cat("    			]\n", file=file, append=TRUE)
