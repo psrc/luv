@@ -148,15 +148,15 @@ for (a in 1:length(geography)){
   print (p)
   subtitle <- paste(runname1, "vs.", runname2, 'by', geography[a])
   print (paste0("Plotting ", subtitle))
-  html.file <- file.path(result.dir, paste0("rplots_max_dev_", runname2, "_", as.name(geography[a]), "_scatterplot.html"))
-  htmlwidgets::saveWidget(as.widget(p), html.file)
+  html.file <- paste0("rplots_max_dev_", runname2, "_", as.name(geography[a]), "_scatterplot.html")
+  htmlwidgets::saveWidget(as.widget(p), file.path(result.dir, html.file))
   # add text into the index file
-  add.text(index.file, paste0("* **", subtitle, ":**\n    + [scatterplot](", paste0('file://', html.file), ")"))
-  res.file1 <- file.path(result.dir, paste0('qc_rtable_maxcap_', runname1, "_", as.name(geography[a]), '.txt'))
-  write.table(out.table1, res.file1, sep='\t', row.names=FALSE)
-  res.file2 <- file.path(result.dir, paste0('qc_rtable_maxcap_', runname2, "_", as.name(geography[a]), '.txt'))
-  write.table(out.table2, res.file2, sep='\t', row.names=FALSE)
-  add.text(index.file, paste0("    + tables: [", runname1, "](", paste0('file://', res.file1), "), [", runname2, "](", paste0('file://', res.file2), ")"))
+  add.text(index.file, paste0("* **", subtitle, ":**\n    + [scatterplot](", html.file, ")"))
+  res.file1 <- paste0('qc_rtable_maxcap_', runname1, "_", as.name(geography[a]), '.txt')
+  write.table(out.table1, file.path(result.dir, res.file1), sep='\t', row.names=FALSE)
+  res.file2 <- paste0('qc_rtable_maxcap_', runname2, "_", as.name(geography[a]), '.txt')
+  write.table(out.table2, file.path(result.dir, res.file2), sep='\t', row.names=FALSE)
+  add.text(index.file, paste0("    + tables: [", runname1, "](", res.file1, "), [", runname2, "](", res.file2, ")"))
   
 } # end of geography loop
 #add.text(index.file, "\n\n")

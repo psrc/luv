@@ -298,11 +298,11 @@ for (a in 1:length(geography)){
     
     # create html files
     subtitle <- paste0(attribute[i], " by ", as.name(geography[a]))
-    html.file <- file.path(result.dir, paste0('rplots_', runname2, "_",as.name(attribute[i]),"_by_", as.name(geography[a]), "_choroplethmap.html"))
-    saveWidget(m, file=html.file)
+    html.file <- paste0('rplots_', runname2, "_",as.name(attribute[i]),"_by_", as.name(geography[a]), "_choroplethmap.html")
+    saveWidget(m, file=file.path(result.dir, html.file))
  
     # add text into the index file
-    add.text(index.file, paste0("* [", subtitle, "](", paste0('file://', html.file), ")"))
+    add.text(index.file, paste0("* [", subtitle, "](", html.file, ")"))
     
     # clear shapes
     if(exists("shp.positive")) remove(shp.positive)
