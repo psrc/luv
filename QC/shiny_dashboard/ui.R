@@ -35,16 +35,23 @@ navbarPage("LUV QC Dashboard",
                                                        "Employment"=3,
                                                        "Residential Units"=4),
                                            selected = 1),
+                               selectInput(inputId = "compare_select_year",
+                                           label = "Year",
+                                           choices = years,
+                                           selected = tail(years, n=1)), #select the last element of years
                                br(),
                                helpText("Use the 'Box Select' or 'Lasso Select' option in the scatterplot to select 
                                         points and view its location on the map.")
                         ), # end column
-                        column(width = 5, 
+                        # column(width = 9,
+                        #        verbatimTextOutput("compare_table")
+                        # ), # end column
+                        column(width = 5,
                                plotlyOutput("compare_plot", height = "925px")
-                        ), # end column
-                        column(width = 5, 
-                               leafletOutput("compare_map", height = "925px")
-                        ) # end column
+                        )#, # end column
+                        # column(width = 5, 
+                        #        leafletOutput("compare_map", height = "925px")
+                        # ) # end column
                       ) # end fluidRow
                       
                     ) # end fluidPage
@@ -81,18 +88,21 @@ navbarPage("LUV QC Dashboard",
                                            max = years[length(years)],
                                            value = years[length(years)],
                                            step = 5,
-                                           sep = "")
+                                           sep = ""),
+                               br(),
+                               helpText("Use the 'Box Select' or 'Lasso Select' option in the scatterplot to select 
+                                        points and view its location on the map.")
               
                                ), # end column
-                        column(width = 10,
-                               verbatimTextOutput("growth_table")
-                          ) # end column
-                        # column(width = 5, 
-                        #        plotlyOutput("growth_plot", height = "925px")
-                        # ), # end column
-                        # column(width = 10,
-                        #        leafletOutput("growth_map", height = "925px")
-                        # ) # end column
+                        # column(width = 5,
+                        #        verbatimTextOutput("growth_table")
+                        #   ), # end column
+                        column(width = 5,
+                               plotlyOutput("growth_plot", height = "925px")
+                        ), # end column
+                        column(width = 5,
+                               leafletOutput("growth_map", height = "925px")
+                        ) # end column
                         ) # end fluidRow
                       ) # end fluidPage
            ),
