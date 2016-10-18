@@ -51,12 +51,19 @@ faz.lookup <- read.table(file.path(dsn, "faz_names.txt"), header =TRUE, sep = "\
 zone.lookup <- read.table(file.path(dsn, "zones.txt"), header =TRUE, sep = "\t")
 city.lookup <- read.table(file.path(dsn, "cities.csv"), header =TRUE, sep = ",")
 
-layer_faz <- "FAZ_2010_WGS84"
 layer_zone <- "TAZ_2010_WGS84"
+layer_faz <- "FAZ_2010_WGS84"
 layer_city <- "JURIS_2014_WGS84"
 layer_centers <- "centers_WGS84"
 
+zone.shape <- readOGR(dsn=dsn,layer=layer_zone) 
+faz.shape <- readOGR(dsn=dsn,layer=layer_faz) 
+city.shape <- readOGR(dsn=dsn,layer=layer_city) 
 centers <- readOGR(dsn=dsn, layer=layer_centers)
+
+zone.shape$name_id <- zone.shape$TAZ
+faz.shape$name_id <- faz.shape$FAZ10
+city.shape$name_id <- city.shape$city_id
 
 runname1 <- unlist(strsplit(run1,"[.]"))[[1]]
 runnames2 <- sapply(strsplit(run2.all,"[.]"), function(x) x[1]) # can have multiple values
@@ -67,7 +74,7 @@ runnames <- c(run1, run2.all)
 alldata.table <- NULL 
 
 for (r in 1:length(runnames)) {
-  run2 <- run2.all[r] #change?
+  run2 <- run2.all[r] #change
   runname2 <- runnames2[r]
   
   geog.table <- NULL
