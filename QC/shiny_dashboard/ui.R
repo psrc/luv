@@ -1,4 +1,5 @@
-navbarPage("LUV QC Dashboard",
+navbarPage(theme = shinytheme("readable"),
+           "LUV QC Dashboard",
            tabPanel("Index",
                       if(make){
                         includeHTML(file.path(result.dir,'index.html'))
@@ -86,7 +87,6 @@ navbarPage("LUV QC Dashboard",
                                br(),
                                helpText("Use the 'Box Select' or 'Lasso Select' option in the scatterplot to select 
                                         points and view its location on the map.")
-              
                         ), # end column
                         column(width = 5,
                                plotlyOutput("growth_plot", height = "925px")
@@ -94,8 +94,24 @@ navbarPage("LUV QC Dashboard",
                         column(width = 5,
                                leafletOutput("growth_map", height = "925px")
                         ) # end column
-                        ) # end fluidRow
-                      ) # end fluidPage
-           ),
+                      ) # end fluidRow
+                    ) # end fluidPage
+           ),# end tabPanel
+           navbarMenu("Employment by Sector",
+                      tabPanel("County",
+                              if(make){
+                               includeHTML(('www/qc_ts_emp_cnty.html'))
+                              }else {
+                               includeHTML('www/qc_ts_emp_cnty.html')
+                              }
+                      ), # end tabPanel
+                      tabPanel("Special Places",
+                               if(make){
+                                 includeHTML(('www/qc_ts_emp_sp.html'))
+                               }else {
+                                 includeHTML('www/qc_ts_emp_sp.html')
+                               }
+                      ) # end tabPanel
+           ), # end navbarMenu
            fluid = TRUE
 )# end navbarPage
