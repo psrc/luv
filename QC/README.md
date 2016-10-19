@@ -40,7 +40,7 @@ $ pip install plotly
 
 Make sure [R](https://www.r-project.org) is installed. Also, check that R is working from the command line by typing R into the bash terminal. If it is not found, add the location of R.exe into your Path environment (on modelsrv3 it's ``C:\Program Files\R\R-3.3.1\bin``).
 
-While R is open, install the packages ``shinythemes`, `htmltools``, ``flexdashboard``, ``shiny``, ``magrittr``, ``plotly``, ``data.table``, ``leaflet``, ``rgdal``, ``sp`` using
+While R is open, install the packages ``shinythemes``, ``htmltools``, ``flexdashboard``, ``shiny``, ``magrittr``, ``plotly``, ``data.table``, ``leaflet``, ``rgdal``, ``sp`` using
 
 ```
 install.packages(c('shinythemes', 'htmltools', 'flexdashboard', 'shiny', 'magrittr', 'plotly', 'data.table', 'leaflet', 'rgdal', 'sp'), dependencies=TRUE)
