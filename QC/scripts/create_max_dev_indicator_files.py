@@ -74,6 +74,24 @@ def get_indicators(cache_directory, run_description, years = [2015], base_year=2
            dataset_name = 'faz',
            source_data = source_data,
            ),     
+       # ## TAZ indicators                                                                                                                                     
+       # ==================                                                                                                                                    
+
+       Table(
+           attribute = 'max_dev_residential_capacity=zone.aggregate(parcel.aggregate(development_project_proposal.disaggregate(psrc_parcel.parcel.max_developable_residential_capacity), function=maximum))',
+           dataset_name = 'zone',
+           source_data = source_data,
+           ),
+       Table(
+           attribute = 'max_dev_nonresidential_capacity=zone.aggregate(parcel.aggregate(development_project_proposal.disaggregate(psrc_parcel.parcel.max_developable_nonresidential_capacity), function=maximum))',
+           dataset_name = 'zone',
+           source_data = source_data,
+           ),
+       Table(
+           attribute = 'max_dev_capacity=zone.aggregate(parcel.aggregate(development_project_proposal.disaggregate(psrc_parcel.parcel.max_developable_capacity), function=maximum))',
+           dataset_name = 'zone',
+           source_data = source_data,
+           ),
     
     ]
     return indicators

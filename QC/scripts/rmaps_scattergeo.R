@@ -7,9 +7,11 @@ library(sp)
 library(htmlwidgets)
 library(RColorBrewer)
 
+options(pandoc.stack.size="1000m")
+
 # environment inputs
 attribute <- c("max_dev_nonresidential_capacity", "max_dev_residential_capacity", "max_dev_capacity")
-geography <- c("faz")
+geography <- c("faz", "zone")
 year1 <- rep(2015, 3)
 year2 <- year1
 extension <- ".csv"
