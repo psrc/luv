@@ -99,18 +99,10 @@ navbarPage(theme = shinytheme("readable"),
            ),# end tabPanel
            navbarMenu("Employment by Sector",
                       tabPanel("County",
-                              if(make){
-                               includeHTML(('www/qc_ts_emp_cnty.html'))
-                              }else {
-                               includeHTML('www/qc_ts_emp_cnty.html')
-                              }
+                              includeHTML('www/qc_ts_emp_cnty.html')
                       ), # end tabPanel
                       tabPanel("Special Places",
-                               if(make){
-                                 includeHTML(('www/qc_ts_emp_sp.html'))
-                               }else {
-                                 includeHTML('www/qc_ts_emp_sp.html')
-                               }
+                              includeHTML('www/qc_ts_emp_sp.html')
                       ) # end tabPanel
            ), # end navbarMenu
            fluid = TRUE
