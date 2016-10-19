@@ -1,6 +1,7 @@
 function(input, output) {
   #functions------------------------------------------------------------------------------
   
+  # Creates a Plotly scatterplot. Requires reactive table, string source name and string x&y axis titles.
   scatterplot <- function(table, sourcename, xcolumn, ycolumn, xtitle, ytitle) {
     data <- table 
     key <- data$name_id # uniquely identify geo for Plotly
@@ -30,6 +31,7 @@ function(input, output) {
     p
   }
   
+  # Joins reactive tables to respective shapefiles.
   joinShp2Tbl <- function(inputGeog, table){
     if (inputGeog == 1){
       shape.join <- sp::merge(zone.shape, table, by.x = "TAZ", by.y = "name_id")
@@ -42,7 +44,8 @@ function(input, output) {
       return(shape.join)
     }
   }
-
+  
+  # Sets Leaflet color scheme and numeric bins.
   map.colorBins <- function(diffcolumn, inputGeog){
     rng <- range(diffcolumn) 
     if (rng[1] < 0 & rng[2] > 0){
@@ -76,6 +79,7 @@ function(input, output) {
    return(list(color=color, bin=bin))
   }	
   
+  # Writes Leaflet popup text for non-centers shapefiles. Requires reactive shapefile, string x&y axis titles.
   map.shp.popup <- function(shapefile, xcolumn, ycolumn, layerctrl, xtitle, ytitle){
     paste0("<strong>ID: </strong>", shapefile$name_id,
            "<br><strong>", layerctrl, " Name: </strong>", shapefile$Name,
@@ -84,6 +88,7 @@ function(input, output) {
            "<br><strong>Difference: </strong>", shapefile$diff)		
   }		
   
+  # Creates Leaflet baselayers. Requires reactive shapefile, string legend title.
   map.layers <- function(shapefile, layerctrl, legendtitle, popupgeo, popupctr, mappalette){
     map <- leaflet(data=shapefile)%>% 
       addProviderTiles("CartoDB.Positron", group = "Street Map")%>%
@@ -115,6 +120,8 @@ function(input, output) {
     return(map)
   }	
   
+  # Selects IDs of scatterplot points and finds match in respective shapefile. Requires string source name
+  # that matches its respective scatterplot source name. Requires reactive shapefile.
   select.items <- function(sourcename, inputGeog, shapefile){
     eventdata <- event_data(event = "plotly_selected", source = sourcename)
     if(is.null(eventdata)){
@@ -134,6 +141,8 @@ function(input, output) {
     }
   }	
   
+  # Creates new map layer of selected geographies. Requires 2 arguments: reactive drag event (c or g selected_geo()) and
+  # reactive Leaflet layer control
   addSelectedGeo <- function(map, dragevent, layerctrl){
     addPolygons(map, 
                 data = dragevent,
@@ -141,8 +150,10 @@ function(input, output) {
                 color = '#FFFF00',
                 opacity = 1,
                 group = paste0("Selected ", layerctrl))			   
-  }	
+  }
   
+  # Creates new map view and layer control settings when there are selected geographies. 
+  # Requires only 1 argument: reactive Leaflet layer control
   map.settings <-function(map, layerctrl){
     map <- setView(map, lng = -122.008546, lat = 47.549390, zoom = 9)%>%
       addLayersControl(baseGroups = c("Street Map", "Imagery"),
@@ -195,6 +206,7 @@ function(input, output) {
       )
   })
   
+  # shapefile ready for visualization
   gShape <- reactive({
     joinShp2Tbl(input$growth_select_geography, gTable())
   })
@@ -235,7 +247,7 @@ function(input, output) {
     paste0("yr", input$compare_select_year)
   })
   
-  cTable <- reactive({ #need to edit table to select from two runs for only one year
+  cTable <- reactive({
     dt1 <- alldt[run == runname1 & geography == cGeog() & indicator == cIndicator(), 
                  .(name_id, geography, indicator, get(cYear()))]
     setnames(dt1, dt1[,ncol(dt1)], 'estrun1')
@@ -254,6 +266,7 @@ function(input, output) {
     )
   })
 
+  # shapefile ready for visualization
   cShape <- reactive({
     joinShp2Tbl(input$compare_select_geography, cTable())
   })
@@ -270,11 +283,12 @@ function(input, output) {
   
   #Growth rendering------------------------------------------------------------------------------------  
 
-  
+  # Plotly
   output$growth_plot <- renderPlotly({
     scatterplot(gTable(), "growth", gTable()$yr1, gTable()$yr2, as.character(years[[1]]), gYear.label())
   })
   
+  # Leaflet
   output$growth_map <- renderLeaflet({
     # Set up symbology and categorization
     colorBinResult <- map.colorBins(gShape()$diff, input$growth_select_geography)	
@@ -284,6 +298,7 @@ function(input, output) {
     geo.popup1 <- map.shp.popup(gShape(),'yr1','yr2',geo(),years[[1]],gYear.label())	
     geo.popup3 <- paste0("<strong>Center: </strong>", centers$name_id)
     
+    # Draw the map without selected geographies
     map <- map.layers(gShape(), geo(), paste0("2014-", gYear.label(), " growth by ", geo()), geo.popup1, geo.popup3, pal)
     
     # Re-draw the map with selected geographies
@@ -292,8 +307,7 @@ function(input, output) {
       map <- map %>% addSelectedGeo(gSelected_geo(), geo()) %>% map.settings(geo())
 
     map
-
- }) # end renderLeaflet
+ }) 
 
   # Drag event for the scatterplot: will grab ids of selected points
   gSelected_geo <- reactive({
@@ -311,7 +325,7 @@ function(input, output) {
     scatterplot(cTable(), "compare", cTable()$estrun1, cTable()$estrun2, runname1, runname2.trim)
   })
 
-  # Draw the map without selected geographies
+  # Leaflet
   output$compare_map <- renderLeaflet({
     runname2.trim <- sapply(strsplit(cRun(),"[.]"), function(x) x[1])
 
@@ -323,6 +337,7 @@ function(input, output) {
     geo.popup1 <- map.shp.popup(cShape(),'estrun1','estrun2', cGeo(), runname1, runname2.trim)
     geo.popup3 <- paste0("<strong>Center: </strong>", centers$name_id)
     
+    # Draw the map without selected geographies
     map <- map.layers(cShape(), cGeo(), paste0("Run difference by ", cGeo()), geo.popup1, geo.popup3, pal)
 
     # Re-draw the map with selected geographies
@@ -331,7 +346,6 @@ function(input, output) {
       map <- map %>% addSelectedGeo(cSelected_geo(), cGeo()) %>% map.settings(cGeo())
 
     map
-
   })
 
   # Drag event for the scatterplot: will grab ids of selected points
