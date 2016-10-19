@@ -1,6 +1,3 @@
-# This is the UI of the LUV QC dashboard
-# C:/Users/Christy/Desktop/luv/QC/results/run99
-
 navbarPage("LUV QC Dashboard",
            tabPanel("Index",
                       if(make){
@@ -43,15 +40,12 @@ navbarPage("LUV QC Dashboard",
                                helpText("Use the 'Box Select' or 'Lasso Select' option in the scatterplot to select 
                                         points and view its location on the map.")
                         ), # end column
-                        # column(width = 9,
-                        #        verbatimTextOutput("compare_table")
-                        # ), # end column
                         column(width = 5,
                                plotlyOutput("compare_plot", height = "925px")
-                        )#, # end column
-                        # column(width = 5, 
-                        #        leafletOutput("compare_map", height = "925px")
-                        # ) # end column
+                        ), # end column
+                        column(width = 5,
+                               leafletOutput("compare_map", height = "925px")
+                        ) # end column
                       ) # end fluidRow
                       
                     ) # end fluidPage
@@ -93,10 +87,7 @@ navbarPage("LUV QC Dashboard",
                                helpText("Use the 'Box Select' or 'Lasso Select' option in the scatterplot to select 
                                         points and view its location on the map.")
               
-                               ), # end column
-                        # column(width = 5,
-                        #        verbatimTextOutput("growth_table")
-                        #   ), # end column
+                        ), # end column
                         column(width = 5,
                                plotlyOutput("growth_plot", height = "925px")
                         ), # end column
