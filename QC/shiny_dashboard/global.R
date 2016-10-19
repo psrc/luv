@@ -5,6 +5,7 @@ library(rgdal)
 library(sp)
 library(data.table)
 library(magrittr)
+library(shinythemes)
 
 # environment inputs
 attribute <- c("population", "households","employment", "residential_units")
