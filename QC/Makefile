@@ -49,6 +49,10 @@ all: rtables_raw rplots_raw rmaps_raw emplots_raw index
 dash: 
 	R CMD BATCH $(SCRIPT_PATH)/run_dash.R $(SCRIPT_PATH)/run_dash.Rout
 
+.PHONY : shiny
+shiny:
+	R CMD BATCH $(SCRIPT_PATH)/run_shiny.R $(SCRIPT_PATH)/run_shiny.Rout
+
 .PHONY : rtables
 rtables : rtables_raw index
 

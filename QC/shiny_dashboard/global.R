@@ -25,17 +25,16 @@ if(make) {
   result.dir <- Sys.getenv('QC_RESULT_PATH')
   result.name <- Sys.getenv('QC_NAME')
   wrkdir <- file.path(Sys.getenv('QC_SCRIPT_PATH'), "..")
-  dsn <- file.path(wrkdir, "data")
 } else {
   base.dir <- "//modelsrv3/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
   #base.dir <- "/Volumes/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
   run1 <- "run_99.run_2016_08_15_17_11"
   run2.all <- c("run_81.run_2016_07_05_16_00","luv_1.compiled")
   run.name <- 'run99'
-  dsn <- "C:/Users/Christy/Desktop/luv/QC/data"
-  #dsn <- "/Users/hana/ForecastProducts/LUV/QC/data"
-  result.dir <- file.path("C:/Users/Christy/Desktop/luv/QC/results", run.name)
+  wrkdir <- "C:/Users/Christy/Desktop/luv/QC"
+  result.dir <- file.path(wrkdir, "results", run.name)
 }
+dsn <- file.path(wrkdir, "data")
 
 # find text files from results dir and copy to www dir
 flist <- list.files('www', glob2rx('*.txt|*.html'), full.names = TRUE, include.dirs=TRUE, ignore.case=TRUE)

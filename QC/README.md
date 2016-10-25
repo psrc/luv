@@ -90,7 +90,7 @@ To run all the QCs, type
 make all
 ```
 
-For running only a subset of the scripts and other options, see next section.
+For running only a subset of the scripts and other options, see next section. For an interactive visualization, see Section "Viewing Results".
 
 
 ## Extending the Makefile
@@ -117,7 +117,8 @@ Currently, the following phonies are implemented:
    * **index**: run R code in scripts/create\_index\_file.R (see next section for more details)
    * **clean-index**: removes the index output file
    * **all**: run the phonies rtables, rplots, rmaps, emplots and index
-   * **dash**: create a browser-based dashboard 
+   * **shiny**: create a shiny dashboard in a browser
+   * **dash**: create a browser-based dashboard (obsolete; use shiny instead)
    * **rreport-city**: generate R-report on the city level (see Section R-Reports)
    * **rreport-faz**: generate R-report on the faz level (see Section R-Reports)
 
@@ -125,7 +126,7 @@ Currently, the following phonies are implemented:
 
 Each script should write its summary results into an Rmd file (in [R Markdown](http://rmarkdown.rstudio.com)), using a prefix that corresponds to its phonie (e.g. 'rplots\_', 'rtables\_'). The script 'scripts/create\_index\_file.R' (invoked by the index phonie) combines such files into one and translates it into index.html that can be viewed from a browser.  The file is located in the corresponding results directory.
 
-**New:** Typing ''make dash'' (preceeded by ''make all'') will launch a dashboard in your browser allowing you to view the results interactively. To exit the dashboard press Ctrl-C. 
+**New:** Typing ''make shiny'' (preceeded by ''make all'') will launch a dashboard in your browser allowing you to view the results interactively. To exit the dashboard press Ctrl-C. Note that currently only one dashboard per computer can be launched. It is using results from a directory determined by  the QC\_NAME entry in inputs.txt
 
 ## R-Reports
 
