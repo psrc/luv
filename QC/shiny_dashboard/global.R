@@ -40,12 +40,19 @@ if(make) {
 # find text files from results dir and copy to www dir
 flist <- list.files('www', glob2rx('*.txt|*.html'), full.names = TRUE, include.dirs=TRUE, ignore.case=TRUE)
 file.remove(flist)
+unlink(file.path('www/index_files'), recursive = TRUE)
 flist <- list.files(result.dir, glob2rx('*.txt|*.html'), full.names = TRUE, include.dirs=TRUE, ignore.case=TRUE)
 file.copy(flist, 'www')
 
 # remove index.html from www dir
-fn <- list.files('www', glob2rx('index*'), full.names = TRUE, include.dirs=TRUE, ignore.case=TRUE)
+fn <- list.files('www', glob2rx('index.html'), full.names = TRUE, include.dirs=TRUE, ignore.case=TRUE)
 if (file.exists(fn)) file.remove(fn)
+file.copy(file.path(result.dir,"index_files"), 'www', recursive = TRUE)
+indexdirs <- c('bootstrap-3.3.5', 'jquery-1.11.3')
+for (dir in indexdirs){
+  unlink(file.path('www/index_files', indexdirs), recursive = TRUE)
+}
+
 
 # lookup tables and shape names
 faz.lookup <- read.table(file.path(dsn, "faz_names.txt"), header =TRUE, sep = "\t")
