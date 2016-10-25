@@ -27,9 +27,9 @@ if(make) {
   source('templates/create_Rmd_blocks.R')
 } else {
   base.dir <- "/Volumes/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
-  run1 <- "81_plus_r97.compiled"
-  run2.all <- c("luv_1.compiled")
-  run.name <- 'run81_refined'
+  run1 <- "run_32.run_2016_10_17_15_00"
+  run2.all <- c("luv2.1draft", "run_81.run_2016_07_05_16_00", "luv_1.compiled")
+  run.name <- 'run32'
   wrkdir <- '/Users/hana/ForecastProducts/LUV/QC'
   result.dir <- file.path(wrkdir, "results", run.name)
   faz.lookup <- read.table(file.path(wrkdir, "data/faz_names.txt"), header =TRUE, sep = "\t")
