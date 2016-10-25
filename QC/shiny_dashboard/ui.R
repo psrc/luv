@@ -1,11 +1,7 @@
 navbarPage(theme = shinytheme("readable"),
            "LUV QC Dashboard",
            tabPanel("Index",
-                      if(make){
                         includeHTML(file.path(result.dir,'index.html'))
-                      } else {
-                        includeHTML('C:/Users/Christy/Desktop/luv/QC/results/run99/index.html')
-                      }
            ), # end tabPanel
            tabPanel("Run Comparison",
                     fluidPage(
