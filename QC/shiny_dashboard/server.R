@@ -354,4 +354,8 @@ function(input, output) {
     return(sub)
   })
   
+  #Time Series rendering-----------------------------------------------------------------------------
+  tsfilename <- 'qc_ts_nonemp_city.html'
+  output$tsplots <- renderText({paste0('<iframe height=10000 width=1000 seamless="seamless" scrolling="yes" src="',tsfilename,'">')})
+  
 }# end server function
