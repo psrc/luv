@@ -101,5 +101,11 @@ navbarPage(theme = shinytheme("readable"),
                               includeHTML('www/qc_ts_emp_sp.html')
                       ) # end tabPanel
            ), # end navbarMenu
+           navbarMenu("Time Series (test)",
+           tabPanel("County",
+                    htmlOutput('tsplots')
+           ) # end tabPanel
+
+           ), # end navbarMenu
            fluid = TRUE
 )# end navbarPage
