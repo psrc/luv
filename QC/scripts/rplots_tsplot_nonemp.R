@@ -3,7 +3,7 @@ library(data.table)
 library(plotly)
 
 # environment inputs
-attribute <- c("population", "households","residential_units")
+attribute <- c("population", "households","residential_units", "employment")
 geography <- c("city")#, "tractcity") 
 years <- c(2014, 2015, 2020, 2025, 2030, 2035, 2040)
 extension <- ".csv"
@@ -33,6 +33,7 @@ if(make) {
 
 dsn <- file.path(wrkdir, "data")
 city.lookup <- read.table(file.path(dsn, "cities.csv"), header =TRUE, sep = ",")
+faz_lgarea.lookup <- read.table(file.path(dsn, "cities_faz_lgarea.csv"), header =TRUE, sep = ",")
 runname1 <- unlist(strsplit(run1,"[.]"))[[1]]
 runnames2 <- sapply(strsplit(run2.all,"[.]"), function(x) x[1]) # can have multiple values
 runs <- c(runname1, unlist(runnames2))
@@ -66,13 +67,15 @@ for (a in 1:length(geography)){
       table$indicator <- switch(attribute[i],
                                 "population"="Total Population", 
                                 "households"="Households", 
-                                "residential_units"="Residential Units")
+                                "residential_units"="Residential Units",
+                                "employment" = "Employment")
       
       table$run <- runs[r]
       
       if (geography[a] == "city") {
         table <- merge(table, city.lookup, by.x = "name_id", by.y = "city_id")
         table <- table[,c(1, (ncol(table)-4):(ncol(table)-1),2:(ncol(table)-5))]
+        table <- merge(table, faz_lgarea.lookup, by.x = c("name_id", "city_name", "county_id"), by.y = c("city_id","city_name", "county_id"))
       }
       
       ifelse (is.null(indicators.table),
@@ -92,70 +95,79 @@ for (a in 1:length(geography)){
   # transform master table
   ptable <- NULL
   for (y in 1:length(years)){
-    subtable <- subset(alldt, select = c(1:5, grep(years[y], names(alldt))))
+    subtable <- subset(alldt, select = c(1:5,ncol(alldt), grep(years[y], names(alldt))))
     setnames(subtable, names(subtable)[ncol(subtable)], "estimate")
     subtable[, year := years[y]]
     ifelse (is.null(ptable),
             ptable <- subtable,
             ptable <- rbind(ptable, subtable))
   }
-
-  #test using only first 13 city_ids
-  ptable <- subset(ptable, (name_id %in% c(seq(1,6))))
+  
+  #test using ...
+  #ptable <- subset(ptable, (name_id %in% c(seq(1,16))))
+  ptable <- subset(ptable, lgarea_group %in% c('Central, North, and South Kitsap', 'Eastside King (2)'))
   
   #create one plot per city_id & indicator, write it to plot_list, print plots 
-  N <- levels(factor(ptable$name_id))
   indname <- levels(factor(ptable$indicator))
-  xlist <- rep(indname, length(N))
-  plot_list <- vector("list")
+  lgarea <- levels(factor(ptable$lgarea_group))
   
-  plot_list_cnt <- 0
-  
-  for (n in 1:length(N)){ # for each name_id
-    for (ii in 1: length(indname)) { # for each indicator
-      plot_list_cnt <- plot_list_cnt + 1
-      
-      p <- plot_ly(data = subset(ptable, name_id == as.integer(N[n]) & indicator == indname[ii]), 
-                   x = year,
-                   y = estimate,
-                   color = run,
-                   text = paste0("year: ", year, "<br>City: ", city_name,  " ", indicator),
-                   type = 'scatter',
-                   mode = 'lines+markers',
-                   showlegend = FALSE
-                   )%>%
-        layout(autosize=F, 
-               height =2500,
-               width = 1500, 
-               margin(list(b=0)))
-      
-      plot_list[[plot_list_cnt]] <- p
-      
-    } # end indicator loop
-  } # end name_id loop
+  for (l in 1:length(lgarea)){ # for each large area group
+    plot_list_cnt <- 0
+    plot_list <- vector("list")
+    
+    qtable <- NULL
+    qtable <- subset(ptable, lgarea_group == lgarea[l])
+    N <- levels(factor(qtable$name_id))
+    xlist <- rep(indname, length(N))
+    
+    for (n in 1:length(N)){ # for each name_id
+      for (ii in 1: length(indname)) { # for each indicator
+        plot_list_cnt <- plot_list_cnt + 1
+        
+        p <- plot_ly(data = subset(qtable, name_id == as.integer(N[n]) & indicator == indname[ii]), 
+                     x = year,
+                     y = estimate,
+                     color = run,
+                     text = paste0("year: ", year, "<br>City: ", city_name,  " ", indicator),
+                     type = 'scatter',
+                     mode = 'lines+markers',
+                     showlegend = FALSE
+                     )%>%
+          layout(autosize=F, 
+                 height =4000,
+                 width = 1400, 
+                 margin(list(b=0)))
+        
+        plot_list[[plot_list_cnt]] <- p
+        
+      } # end indicator loop
+    } # end name_id loop
+   
 
   q <- subplot(plot_list, nrows = length(N))
   
-  sorted.city <- city.lookup[order(city.lookup$city_id),]
-  titles <- as.list(paste(sorted.city[,'county_id'], as.character(sorted.city[,'city_name'])))
-  ylabels <- lapply(titles, function(x) list(title=x))
-  xlabels <- lapply(xlist, function(x) list(title=x, side='top'))
-  names(ylabels) <- paste0("yaxis", c("", seq(length(attribute)+1, nrow(city.lookup)*length(attribute), by=length(attribute))))
-  names(xlabels) <- paste0("xaxis", c("", seq(2, plot_list_cnt))) 
-  q <- do.call("layout", 
-               c(q,
-                 ylabels[1:length(N)],
-                 xlabels[1:plot_list_cnt], 
-                 list(title = "Non-Employment Time Series", 
-                      font = list(family="Segoe UI", size = 13), 
-                      margin = list(l =100, b=0, t=200, r=50)
-               )))
+  # sorted.city <- city.lookup[order(city.lookup$city_id),]
+  # titles <- as.list(paste(sorted.city[,'county_id'], as.character(sorted.city[,'city_name'])))
+  # ylabels <- lapply(titles, function(x) list(title=x))
+  # xlabels <- lapply(xlist, function(x) list(title=x, side='top'))
+  #names(ylabels) <- paste0("yaxis", c("", seq(length(attribute)+1, length(N)*length(attribute), by=length(attribute)))) #nrow(city.lookup)
+  # names(xlabels) <- paste0("xaxis", c("", seq(2, plot_list_cnt))) 
+  # q <- do.call("layout", 
+  #              c(q,
+  #                ylabels[1:length(N)],
+  #                xlabels[1:plot_list_cnt], 
+  #                list(title = lgarea_group[l], 
+  #                     font = list(family="Segoe UI", size = 13), 
+  #                     margin = list(l =100, b=0, t=200, r=0)
+  # 
+  #              )))
 
   print(q)
   
-  #html.file <- paste0("qc_ts_nonemp_", as.name(geography[a]), ".html")
+  #html.file <- paste0("qc_ts_", as.name(geography[a]), as.name(lgarea_group[l]), ".html")
   #htmlwidgets::saveWidget(as.widget(q), file.path(result.dir, html.file))
-
+  
+  } # end large area loop 
 } # end of geography loop
 
 
