@@ -101,11 +101,41 @@ navbarPage(theme = shinytheme("readable"),
                               includeHTML('www/qc_ts_emp_sp.html')
                       ) # end tabPanel
            ), # end navbarMenu
-           navbarMenu("Time Series (test)",
-           tabPanel("County",
-                    htmlOutput('tsplots')
-           ) # end tabPanel
+           tabPanel("Time Series",
+                      fluidPage(
+                        fluidRow(
+                          column(width = 2,
+                                 h4(class="header", checked=NA,
+                                    tags$b("Select the following to see time series trends by jurisdiction and indicator")
+                                 ),
+                                 br(),
+                                 selectInput(inputId = "select_tsplots",
+                                             label = "FAZ Large Area Groups",
+                                             choices = c("Eastside King (1)"=1,
+                                                         "Eastside King (2)"=2,
+                                                         "Green River"=3,
+                                                         "Seattle and Shoreline"=4,
+                                                         "SE King and King Other"=5,
+                                                         "SW King"=6,
+                                                         "Central, North, and South Kitsap"=7,
+                                                         "Peninsula and Tacoma"=8,
+                                                         "Pierce Other (1)"=9,
+                                                         "Pierce Other (2)"=10,
+                                                         "SW Pierce"=11,
+                                                         "Everett"=12,
+                                                         "NW Snohomish"=13,
+                                                         "Snohomish Other"=14,
+                                                         "SW Snohomish (1)"=15,
+                                                         "SW Snohomish (2)"=16
+                                             ),
+                                             selected = 1)
 
-           ), # end navbarMenu
+                                 ), # end column
+                          column(width = 10,
+                                 htmlOutput("tsplots")
+                          ) # end column
+                        ) # end fluidRow
+              ) # end fluidPage
+           ), # end tabPanel
            fluid = TRUE
 )# end navbarPage
