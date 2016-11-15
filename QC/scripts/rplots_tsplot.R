@@ -1,4 +1,4 @@
-#This script will produce a timeseries plot for households and total population by county and special places
+#This script will produce a timeseries plot for cities by indicator, separated by faz large areas
 library(data.table)
 library(plotly)
 
@@ -9,6 +9,7 @@ years <- c(2014, 2015, 2020, 2025, 2030, 2035, 2040)
 extension <- ".csv"
 
 trim <- function (x) gsub("^\\s+|\\s+$", "", x) # function for triming whitespace 
+remove.spaces <- function(x) gsub(" ", "", x, fixed = TRUE) # remove all whitespaces
 
 make <- nchar(Sys.getenv('QC_NAME')) > 0 
 
@@ -105,26 +106,26 @@ for (a in 1:length(geography)){
   
   #test using ...
   #ptable <- subset(ptable, (name_id %in% c(seq(1,16))))
-  ptable <- subset(ptable, lgarea_group %in% c('Central, North, and South Kitsap', 'Eastside King (2)'))
+  #ptable <- subset(ptable, lgarea_group %in% c('Central, North, and South Kitsap', 'Eastside King (2)'))
   
-  #create one plot per city_id & indicator, write it to plot_list, print plots 
+  # create plots by city and indicator for each faz large area group 
   indname <- levels(factor(ptable$indicator))
   lgarea <- levels(factor(ptable$lgarea_group))
   
-  for (l in 1:length(lgarea)){ # for each large area group
+  for (l in 1:length(lgarea)){ 
     plot_list_cnt <- 0
     plot_list <- vector("list")
     
-    qtable <- NULL
-    qtable <- subset(ptable, lgarea_group == lgarea[l])
-    N <- levels(factor(qtable$name_id))
+    sub.ptable <- NULL
+    sub.ptable <- subset(ptable, lgarea_group == lgarea[l])
+    N <- levels(factor(sub.ptable$name_id))
     xlist <- rep(indname, length(N))
     
-    for (n in 1:length(N)){ # for each name_id
-      for (ii in 1: length(indname)) { # for each indicator
+    for (n in 1:length(N)){ 
+      for (ii in 1: length(indname)) { 
         plot_list_cnt <- plot_list_cnt + 1
         
-        p <- plot_ly(data = subset(qtable, name_id == as.integer(N[n]) & indicator == indname[ii]), 
+        p <- plot_ly(data = subset(sub.ptable, name_id == as.integer(N[n]) & indicator == indname[ii]), 
                      x = year,
                      y = estimate,
                      color = run,
@@ -143,29 +144,32 @@ for (a in 1:length(geography)){
       } # end indicator loop
     } # end name_id loop
    
-
   q <- subplot(plot_list, nrows = length(N))
   
-  # sorted.city <- city.lookup[order(city.lookup$city_id),]
-  # titles <- as.list(paste(sorted.city[,'county_id'], as.character(sorted.city[,'city_name'])))
-  # ylabels <- lapply(titles, function(x) list(title=x))
-  # xlabels <- lapply(xlist, function(x) list(title=x, side='top'))
-  #names(ylabels) <- paste0("yaxis", c("", seq(length(attribute)+1, length(N)*length(attribute), by=length(attribute)))) #nrow(city.lookup)
-  # names(xlabels) <- paste0("xaxis", c("", seq(2, plot_list_cnt))) 
-  # q <- do.call("layout", 
-  #              c(q,
-  #                ylabels[1:length(N)],
-  #                xlabels[1:plot_list_cnt], 
-  #                list(title = lgarea_group[l], 
-  #                     font = list(family="Segoe UI", size = 13), 
-  #                     margin = list(l =100, b=0, t=200, r=0)
-  # 
-  #              )))
+  # Build axis labels
+  cities.list <- as.list(N) %>% lapply(function(x) as.integer(x))
+  city.labels <- NULL
+  city.labels <- subset(city.lookup, city_id %in% cities.list) 
+  
+  titles <- as.list(paste(city.labels[,'county_id'], as.character(city.labels[,'city_name'])))
+  ylabels <- lapply(titles, function(x) list(title=x))
+  xlabels <- lapply(xlist, function(x) list(title=x, side='top'))
+  names(ylabels) <- paste0("yaxis", c("", seq(length(attribute)+1, length(N)*length(attribute), by=length(attribute))))
+  names(xlabels) <- paste0("xaxis", c("", seq(2, plot_list_cnt)))
+  
+  q <- do.call("layout",
+               c(q,
+                 ylabels[1:length(N)],
+                 xlabels[1:plot_list_cnt],
+                 list(title = lgarea[l],
+                      font = list(family="Segoe UI", size = 13),
+                      margin = list(l=100, b=0, t=200, r=0)
+               )))
 
   print(q)
   
-  #html.file <- paste0("qc_ts_", as.name(geography[a]), as.name(lgarea_group[l]), ".html")
-  #htmlwidgets::saveWidget(as.widget(q), file.path(result.dir, html.file))
+  html.file <- paste0("qc_ts_", as.name(geography[a]), "_", remove.spaces(as.name(lgarea[l])), ".html")
+  htmlwidgets::saveWidget(as.widget(q), file.path(result.dir, html.file))
   
   } # end large area loop 
 } # end of geography loop
