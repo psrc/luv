@@ -1,6 +1,9 @@
 function(input, output) {
   #functions------------------------------------------------------------------------------
   
+  # remove all whitespaces
+  remove.spaces <- function(x) gsub(" ", "", x, fixed = TRUE) 
+  
   # Creates a Plotly scatterplot. Requires reactive table, string source name and string x&y axis titles.
   scatterplot <- function(table, sourcename, xcolumn, ycolumn, xtitle, ytitle) {
     data <- table 
@@ -355,7 +358,20 @@ function(input, output) {
   })
   
   #Time Series rendering-----------------------------------------------------------------------------
-  tsfilename <- 'qc_ts_nonemp_city.html'
-  output$tsplots <- renderText({paste0('<iframe height=10000 width=1000 seamless="seamless" scrolling="yes" src="',tsfilename,'">')})
+  
+  lgarea <- list("Eastside King (1)","Eastside King (2)","Green River","Seattle and Shoreline","SE King and King Other",
+                 "SW King","Central, North, and South Kitsap","Peninsula and Tacoma","Pierce Other (1)","Pierce Other (2)",
+                 "SW Pierce","Everett","NW Snohomish","Snohomish Other","SW Snohomish (1)","SW Snohomish (2)")
+  
+  tsSelected_plot <- reactive({
+    plot <- lgarea[[as.integer(input$select_tsplots)]]
+    file <- remove.spaces(paste0('qc_ts_city_', plot,'.html'))
+    return(file)
+  })
+  
+  output$tsplots <- renderText({
+    t <- paste0('<iframe height=5000 width=2000 frameBorder=0 seamless="seamless" scrolling="yes" src="', tsSelected_plot(),'">')
+    return(t)
+    })
   
 }# end server function
