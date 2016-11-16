@@ -106,7 +106,7 @@ for (a in 1:length(geography)){
   
   #test using ...
   #ptable <- subset(ptable, (name_id %in% c(seq(1,16))))
-  #ptable <- subset(ptable, lgarea_group %in% c('Central, North, and South Kitsap', 'Eastside King (2)'))
+  #ptable <- subset(ptable, lgarea_group %in% c('Eastside King (1)'))
   
   # create plots by city and indicator for each faz large area group 
   indname <- levels(factor(ptable$indicator))
@@ -148,8 +148,9 @@ for (a in 1:length(geography)){
   
   # Build axis labels
   cities.list <- as.list(N) %>% lapply(function(x) as.integer(x))
+  sorted.city <- city.lookup[order(city.lookup$city_id),]
   city.labels <- NULL
-  city.labels <- subset(city.lookup, city_id %in% cities.list) 
+  city.labels <- subset(sorted.city, city_id %in% cities.list) 
   
   titles <- as.list(paste(city.labels[,'county_id'], as.character(city.labels[,'city_name'])))
   ylabels <- lapply(titles, function(x) list(title=x))
