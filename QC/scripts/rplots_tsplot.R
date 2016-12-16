@@ -1,10 +1,11 @@
 #This script will produce a timeseries plot for cities by indicator, separated by faz large areas
+
 library(data.table)
-library(plotly)
+library(plotly) # version 4.5.6
 
 # environment inputs
 attribute <- c("population", "households","residential_units", "employment")
-geography <- c("city")#, "tractcity") 
+geography <- c("city")
 years <- c(2014, 2015, 2020, 2025, 2030, 2035, 2040)
 extension <- ".csv"
 
@@ -25,9 +26,9 @@ if(make) {
   base.dir <- "//modelsrv3/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
   #base.dir <- "/Volumes/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
   run1 <- "luv2.1draft"
-  run2.all <- c("run_32.run_2016_10_17_15_00", "run_81.run_2016_07_05_16_00","luv_1.compiled")
-  run.name <- 'luv2.1draft_32_81_luv1'
-  wrkdir <- "C:/Users/Christy/Desktop/luv/QC"
+  run2.all <- c("run_32.run_2016_10_17_15_00")#, "run_81.run_2016_07_05_16_00","luv_1.compiled")
+  run.name <- 'luv21draft_32'
+  wrkdir <- "C:/Users/clam/Desktop/luv/QC"
   #source(file.path(wrkdir,'/templates/create_Rmd_blocks.R'))
   result.dir <- file.path(wrkdir, "results", run.name)
 }
@@ -124,19 +125,21 @@ for (a in 1:length(geography)){
     for (n in 1:length(N)){ 
       for (ii in 1: length(indname)) { 
         plot_list_cnt <- plot_list_cnt + 1
-        
-        p <- plot_ly(data = subset(sub.ptable, name_id == as.integer(N[n]) & indicator == indname[ii]), 
-                     x = year,
-                     y = estimate,
-                     color = run,
-                     text = paste0("year: ", year, "<br>City: ", city_name,  " ", indicator),
+        pdata <- NULL
+        pdata <- data.frame(subset(sub.ptable, name_id == as.integer(N[n]) & indicator == indname[ii]))
+        p <- plot_ly(data = pdata, 
+                     x = ~year,
+                     y = ~estimate,
+                     color = ~run,
+                     colors = "Set1",
+                     text = ~paste0("year: ", year, "<br>City: ", city_name,  " ", indicator),
                      type = 'scatter',
                      mode = 'lines+markers',
-                     showlegend = FALSE
+                     showlegend = FALSE,
+                     height =4000,
+                     width = 1400
                      )%>%
-          layout(autosize=F, 
-                 height =4000,
-                 width = 1400, 
+          layout(autosize=F,
                  margin(list(b=0)))
         
         plot_list[[plot_list_cnt]] <- p
@@ -154,23 +157,24 @@ for (a in 1:length(geography)){
   
   titles <- as.list(paste(city.labels[,'county_id'], as.character(city.labels[,'city_name'])))
   ylabels <- lapply(titles, function(x) list(title=x))
-  xlabels <- lapply(xlist, function(x) list(title=x, side='top'))
+  xlabels <- lapply(xlist, function(x) list(title=x, side="top"))
   names(ylabels) <- paste0("yaxis", c("", seq(length(attribute)+1, length(N)*length(attribute), by=length(attribute))))
   names(xlabels) <- paste0("xaxis", c("", seq(2, plot_list_cnt)))
   
   q <- do.call("layout",
-               c(q,
-                 ylabels[1:length(N)],
-                 xlabels[1:plot_list_cnt],
-                 list(title = lgarea[l],
-                      font = list(family="Segoe UI", size = 13),
-                      margin = list(l=100, b=0, t=200, r=0)
-               )))
+                c(list(q),
+                  ylabels[1:length(N)],
+                  xlabels[1:plot_list_cnt],
+                  list(title = lgarea[l],
+                       font = list(family="Segoe UI", size = 13),
+                       margin = list(l=100, b=0, t=200, r=0))
+                )
+               )
 
   print(q)
   
-  html.file <- paste0("qc_ts_", as.name(geography[a]), "_", remove.spaces(as.name(lgarea[l])), ".html")
-  htmlwidgets::saveWidget(as.widget(q), file.path(result.dir, html.file))
+  html.file <- paste0("qc_ts_", as.name(geography[a]), "_", remove.spaces(as.name(lgarea[l])),  ".html")
+  htmlwidgets::saveWidget(as_widget(q), file.path(result.dir, html.file))
   
   } # end large area loop 
 } # end of geography loop
