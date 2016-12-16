@@ -1,10 +1,10 @@
-#This script will produce scatterplots in html comparing 2040 estimates from runs that are specified in inputs.txt
+# This script will produce scatterplots of max developable capacity in html from runs that are specified in inputs.txt
 
-library(plotly)
+library(plotly) # version 4.5.6
 library(htmlwidgets)
 library(data.table)
 
-#environment inputs
+# environment inputs
 attribute.list <- list(dev_capacity="Total capacity (in thousand sqft)", dev_nonresidential_capacity="Non-residential capacity (in thousand sqft)",
 					dev_residential_capacity="Residential capacity (in DU)")
 attribute <- names(attribute.list)
@@ -26,11 +26,13 @@ if(make) {
   city.lookup <- read.table(file.path("data", 'cities.csv'), header=TRUE, sep=',')
   source('templates/create_Rmd_blocks.R')
 } else {
-  base.dir <- "/Volumes/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
+  #base.dir <- "/Volumes/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
+  base.dir <- "//modelsrv3/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
   run1 <- "run_32.run_2016_10_17_15_00"
-  run2.all <- c("luv2.1draft", "run_81.run_2016_07_05_16_00", "luv_1.compiled")
+  run2.all <- c("luv_1.compiled", "run_81.run_2016_07_05_16_00", "luv2.1draft")
   run.name <- 'run32'
-  wrkdir <- '/Users/hana/ForecastProducts/LUV/QC'
+  #wrkdir <- '/Users/hana/ForecastProducts/LUV/QC'
+  wrkdir <- 'C:/Users/clam/Desktop/luv/QC'
   result.dir <- file.path(wrkdir, "results", run.name)
   faz.lookup <- read.table(file.path(wrkdir, "data/faz_names.txt"), header =TRUE, sep = "\t")
   city.lookup <- read.table(file.path(wrkdir, "data/cities.csv"), header =TRUE, sep = ",")
@@ -112,19 +114,19 @@ for (a in 1:length(geography)){
   
   #plot
   p <- plot_ly(indicators.table,
-               x = estrun1,
-               y = estrun2,
-               text = paste0("ID: ", indicators.table[,1], " Name: ", indicators.table[,grepl("name|Name",names(indicators.table))]),
-               group = indicator,
-               xaxis = paste0("x", id),
+               x = ~estrun1,
+               y = ~estrun2,
+               text = ~paste0("ID: ", indicators.table[,1], " Name: ", indicators.table[,grepl("name|Name",names(indicators.table))]),
+               split = ~indicator,
+               xaxis = ~paste0("x", id),
                type = 'scatter',
                mode = 'markers'               
                )%>%
-      add_trace(x=c(0,max(estrun1)), 
-                y=c(0,max(estrun1)),
-                group = indicator,
-                xaxis = paste0("x", id),
-                marker = list(color="grey", size = 0),
+      add_trace(x=c(0,~max(estrun1)), 
+                y=c(0,~max(estrun1)),
+                split = ~indicator,
+                xaxis = ~paste0("x", id),
+                color = I("grey"),
                 opacity = .6,
                 mode = "lines",
                 showlegend = F)
@@ -149,7 +151,7 @@ for (a in 1:length(geography)){
   subtitle <- paste(runname1, "vs.", runname2, 'by', geography[a])
   print (paste0("Plotting ", subtitle))
   html.file <- paste0("rplots_max_dev_", runname2, "_", as.name(geography[a]), "_scatterplot.html")
-  htmlwidgets::saveWidget(as.widget(p), file.path(result.dir, html.file))
+  htmlwidgets::saveWidget(p, file.path(result.dir, html.file))
   # add text into the index file
   add.text(index.file, paste0("* **", subtitle, ":**\n    + [scatterplot](", html.file, ")"))
   res.file1 <- paste0('qc_rtable_maxcap_', runname1, "_", as.name(geography[a]), '.txt')
