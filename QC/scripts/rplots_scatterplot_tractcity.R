@@ -1,8 +1,9 @@
-#This script will produce scatterplots in html comparing 2040 estimates from runs that are specified in inputs.txt
+# This script will produce scatterplots in html comparing 2040 percent shares from runs that are specified in inputs.txt
 
-library(plotly)
+library(plotly) # version 4.5.6
 library(htmlwidgets)
 library(data.table)
+library(dplyr)
 
 #environment inputs
 attribute <- c("population", "households","employment", "residential_units")
@@ -28,13 +29,13 @@ if(make) {
   base.dir <- "//modelsrv3/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
   run1 <- "run_82.run_2016_07_11_16_07"
   #run1 <- "run_81.run_2016_07_05_16_00"
-  run2.all <- c("run_81.run_2016_07_05_16_00", "luv_1.compiled")
+  run2.all <- c("run_81.run_2016_07_05_16_00")#, "luv_1.compiled")
   run.name <- 'run82'
-  result.dir <- file.path("C:/Users/Christy/Desktop/luv/QC/results", run.name)
-  lookup <- read.table("C:/Users/Christy/Desktop/luv/QC/data/tractcity.csv", header =TRUE, sep = ",")
-  city.lookup <- read.table("C:/Users/Christy/Desktop/luv/QC/data/cities.csv", header =TRUE, sep = ",")
-  source('C:/Users/Christy/Desktop/luv/QC/templates/create_Rmd_blocks.R')
-  luv1.comments <- read.table("C:/Users/Christy/Desktop/luv/QC/data/luv1_comments_tc14_part.csv", header=TRUE, sep=",")
+  result.dir <- file.path("C:/Users/clam/Desktop/luv/QC/results", run.name)
+  lookup <- read.table("C:/Users/clam/Desktop/luv/QC/data/tractcity.csv", header =TRUE, sep = ",")
+  city.lookup <- read.table("C:/Users/clam/Desktop/luv/QC/data/cities.csv", header =TRUE, sep = ",")
+  source('C:/Users/clam/Desktop/luv/QC/templates/create_Rmd_blocks.R')
+  luv1.comments <- read.table("C:/Users/clam/Desktop/luv/QC/data/luv1_comments_tc14_part.csv", header=TRUE, sep=",")
 }
 
 runname1 <- unlist(strsplit(run1,"[.]"))[[1]]
@@ -103,55 +104,63 @@ for (a in 1:length(geography)){
   indicators.table$name <- paste(substr(indicators.table$census_2010_tract_id, 6, 11), indicators.table$city_name)
   #indicators.table$has_comment <- ifelse(!is.na(indicators.table$target_value), 10,3)
   indicators.table$sym <- ifelse(!is.na(indicators.table$target_value), 2, 1)
-  shapes <- c("circle-open","cross")
-  indicators.table$shapes <- shapes[indicators.table$sym]
+  #shapes <- c("circle-open","cross")
+  #indicators.table$shapes <- shapes[indicators.table$sym]
+
+  # plot function
+  one_plot <- function(dat){
+    plot_ly(dat,
+            x = ~estrun1,
+            y = ~estrun2,
+            hoverinfo = "text",
+            text = ~paste0( "Percentage: (", estrun1, ", ", estrun2,")<br>Totals: (", estrun1_raw, ", ", estrun2_raw,"), Target: ", target_value,
+                            "<br>ID: ", tractcity_id, " Name: ", name),
+            type = 'scatter',
+            mode = 'markers',
+            symbol = ~sym,
+            symbols = c("circle-open","cross"),
+            split = ~indicator
+            )%>%
+      add_trace(
+        x = c(0, ~max(estrun1)),
+        y = c(0, ~max(estrun1)),
+        color = I("grey"),
+        marker = list(size = 0),
+        type = 'scatter',
+        mode = 'lines',
+        showlegend = F
+      )
+  }
   
-  #plot
-  p <- plot_ly(indicators.table,
-               x = estrun1,
-               y = estrun2,
-               hoverinfo = "text",
-               text = paste0( "Percentage: (", indicators.table[,'estrun1'], ", ", indicators.table[,'estrun2'],")<br>Totals: (", indicators.table[,'estrun1_raw'], ", ", indicators.table[,'estrun2_raw'],"), Target: ", indicators.table[,'target_value'],
-                              "<br>ID: ", indicators.table[,'tractcity_id'], " Name: ", indicators.table[,'name']),
-               group = indicator,
-               xaxis = paste0("x", id),
-               type = 'scatter',
-               mode = 'markers',
-               marker = list(symbol=shapes)
-               
-               )%>%
-      add_trace(x=c(0,100), 
-                y=c(0,100),
-                group = indicator,
-                xaxis = paste0("x", id),
-                marker = list(color="grey", size = 0),
-                opacity = .6,
-                mode = "lines",
-                showlegend = F)
+  # plot
+  p <- indicators.table %>%
+    group_by(indicator) %>%
+    do(p = one_plot(.)) %>%
+    subplot(nrows = 2) %>%
+    layout(xaxis = list(domain = c(0, .45), showgrid=TRUE),
+           yaxis = list(title = runname2, domain = c(.55, 1)),
+           
+           xaxis2 = list(domain = c(.55, 1), showgrid=TRUE),
+           yaxis2 = list(domain = c(.55, 1)),
+           
+           xaxis3 = list(title = runname1, domain = c(0, .45), showgrid=TRUE),
+           yaxis3 = list(title = runname2, domain = c(0, .45)),
+           
+           xaxis4 = list(title = runname1, domain = c(.55, 1), showgrid=TRUE),
+           yaxis4 = list(domain = c(0, .45)),
+           
+           font = list(family="Segoe UI", size = 13.5),
+           title = paste0(runname1," and ", runname2, " 2040 by ", as.name(geography[a]), ": percent shares within cities"),
+           margin = list(l=100, b=50, t=90, r=100)
+           )
   
-  p <- layout(subplot(p, nrows=2),
-              xaxis = list(title = runname1, domain = c(0, .45), showgrid=TRUE),
-              yaxis = list(title = runname2, domain = c(.55, 1), tickfont=list(family="Segoe UI", size = 13)),
-              
-              xaxis2 = list(title = runname1, domain = c(.55, 1), showgrid=TRUE),
-              yaxis2 = list(title = runname2, domain = c(.55, 1), tickfont=list(family="Segoe UI", size = 13)),
-              
-              xaxis3 = list(title = runname1, domain = c(0, .45), showgrid=TRUE),
-              yaxis3 = list(title = runname2, domain = c(0, .45), tickfont=list(family="Segoe UI", size = 13)),
-              
-              xaxis4 = list(title = runname1, domain = c(.55, 1), showgrid=TRUE),
-              yaxis4 = list(title = runname2, domain = c(0, .45), tickfont=list(family="Segoe UI", size = 13)),
-              
-              font = list(family="Segoe UI", size = 13.5),
-              title = paste0(runname1," and ", runname2, " 2040 by ", as.name(geography[a]), ": percent shares within cities"),
-              margin = list(l=100, b=100, t=90, r=100)
-              )
+  print(p)
   
-  print (p)
   subtitle <- paste(runname1, "vs.", runname2)
   print (paste0("Plotting ", subtitle))
   html.file <- paste0("rplots_", runname2, "_", as.name(geography[a]), "_scatterplot.html")
-  htmlwidgets::saveWidget(as.widget(p), file.path(result.dir, html.file))
+  htmlwidgets::saveWidget(p, file.path(result.dir, html.file))
+
   # add text into the index file
   add.text(index.file, paste0("* [", subtitle, "](", html.file, ")"))
   
