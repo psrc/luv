@@ -125,8 +125,8 @@ for (a in 1:length(geography)){
             split = ~indicator
             )%>%
       add_trace(
-        x = c(0, ~max(estrun1)),
-        y = c(0, ~max(estrun1)),
+        x = c(0, ~max(estrun1, na.rm=TRUE)),
+        y = c(0, ~max(estrun1, na.rm=TRUE)),
         color = I("grey"),
         marker = list(size = 0),
         type = 'scatter',
