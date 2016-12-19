@@ -27,15 +27,18 @@ if(make) {
   luv1.comments <- read.table(file.path("data", "luv1_comments_tc14_part.csv"), header=TRUE, sep=",")
 } else {
   base.dir <- "//modelsrv3/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
+  #base.dir <- "/Volumes/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
   run1 <- "run_82.run_2016_07_11_16_07"
   #run1 <- "run_81.run_2016_07_05_16_00"
   run2.all <- c("run_81.run_2016_07_05_16_00")#, "luv_1.compiled")
   run.name <- 'run82'
-  result.dir <- file.path("C:/Users/clam/Desktop/luv/QC/results", run.name)
-  lookup <- read.table("C:/Users/clam/Desktop/luv/QC/data/tractcity.csv", header =TRUE, sep = ",")
-  city.lookup <- read.table("C:/Users/clam/Desktop/luv/QC/data/cities.csv", header =TRUE, sep = ",")
-  source('C:/Users/clam/Desktop/luv/QC/templates/create_Rmd_blocks.R')
-  luv1.comments <- read.table("C:/Users/clam/Desktop/luv/QC/data/luv1_comments_tc14_part.csv", header=TRUE, sep=",")
+  wrkdir <- "C:/Users/clam/Desktop/luv/QC"
+  #wrkdir <- "/Users/hana/ForecastProducts/LUV/QC"
+  result.dir <- file.path(wrkdir, "results", run.name)
+  lookup <- read.table(file.path(wrkdir, "data/tractcity.csv"), header =TRUE, sep = ",")
+  city.lookup <- read.table(file.path(wrkdir, "data/cities.csv"), header =TRUE, sep = ",")
+  source(file.path(wrkdir, 'templates/create_Rmd_blocks.R'))
+  luv1.comments <- read.table(file.path(wrkdir, "data/luv1_comments_tc14_part.csv"), header=TRUE, sep=",")
 }
 
 runname1 <- unlist(strsplit(run1,"[.]"))[[1]]
