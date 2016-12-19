@@ -11,6 +11,8 @@ extension <- ".csv"
 
 trim <- function (x) gsub("^\\s+|\\s+$", "", x) # function for triming whitespace 
 remove.spaces <- function(x) gsub(" ", "", x, fixed = TRUE) # remove all whitespaces
+replace.parentheses <- function(x) gsub("\\)", "", gsub("\\(", "_", x)) # remove close parenthesis and replace open ones with '_' 
+cleanup.name <- function(x) replace.parentheses(remove.spaces(x))
 
 make <- nchar(Sys.getenv('QC_NAME')) > 0 
 
@@ -29,10 +31,12 @@ if(make) {
   run2.all <- c("run_32.run_2016_10_17_15_00")#, "run_81.run_2016_07_05_16_00","luv_1.compiled")
   run.name <- 'luv21draft_32'
   wrkdir <- "C:/Users/clam/Desktop/luv/QC"
+  #wrkdir <- "/Users/hana/ForecastProducts/LUV/QC"
   #source(file.path(wrkdir,'/templates/create_Rmd_blocks.R'))
   result.dir <- file.path(wrkdir, "results", run.name)
 }
 
+if(!dir.exists(result.dir)) dir.create(result.dir)
 dsn <- file.path(wrkdir, "data")
 city.lookup <- read.table(file.path(dsn, "cities.csv"), header =TRUE, sep = ",")
 faz_lgarea.lookup <- read.table(file.path(dsn, "cities_faz_lgarea.csv"), header =TRUE, sep = ",")
@@ -173,7 +177,7 @@ for (a in 1:length(geography)){
 
   print(q)
   
-  html.file <- paste0("qc_ts_", as.name(geography[a]), "_", remove.spaces(as.name(lgarea[l])),  ".html")
+  html.file <- paste0("qc_ts_", as.name(geography[a]), "_", cleanup.name(as.name(lgarea[l])),  ".html")
   htmlwidgets::saveWidget(as_widget(q), file.path(result.dir, html.file))
   
   } # end large area loop 
