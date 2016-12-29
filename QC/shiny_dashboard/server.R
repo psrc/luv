@@ -10,18 +10,18 @@ function(input, output) {
     key <- data$name_id # uniquely identify geo for Plotly
     p <- plot_ly(data,
                  type = 'scatter',
-                 x = xcolumn,
-                 y = ycolumn, 
+                 x = ~xcolumn,
+                 y = ~ycolumn, 
                  name = "",
                  source = sourcename,
-                 text = paste0("ID: ", name_id,
+                 text = ~paste0("ID: ", name_id,
                                "<br>Name: ", Name), 
                  key = key, # will appear in 'eventdata'
                  mode = 'markers',
                  showlegend = F)%>%
-      add_trace(x=c(0,max(xcolumn)),
-                y=c(0,max(xcolumn)),
-                marker = list(color="grey", size = 0),
+      add_trace(x=c(0,~max(xcolumn)),
+                y=c(0,~max(xcolumn)),
+                color= I("grey"),
                 opacity = .6,
                 mode = "lines",
                 showlegend = F)%>%
@@ -359,9 +359,9 @@ function(input, output) {
   
   #Time Series rendering-----------------------------------------------------------------------------
   
-  lgarea <- list("Eastside King (1)","Eastside King (2)","Green River","Seattle and Shoreline","SE King and King Other",
-                 "SW King","Central, North, and South Kitsap","Peninsula and Tacoma","Pierce Other (1)","Pierce Other (2)",
-                 "SW Pierce","Everett","NW Snohomish","Snohomish Other","SW Snohomish (1)","SW Snohomish (2)")
+  lgarea <- list("Eastside King_1","Eastside King_2","Green River","Seattle and Shoreline","SE King and King Other",
+                 "SW King","Central, North, and South Kitsap","Peninsula and Tacoma","Pierce Other_1","Pierce Other_2",
+                 "SW Pierce","Everett","NW Snohomish","Snohomish Other","SW Snohomish_1","SW Snohomish_2")
   
   tsSelected_plot <- reactive({
     plot <- lgarea[[as.integer(input$select_tsplots)]]
