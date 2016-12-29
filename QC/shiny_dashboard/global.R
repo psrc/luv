@@ -1,5 +1,5 @@
 library(shiny)
-library(plotly)
+library(plotly) # version 4.5.6
 library(leaflet)
 library(rgdal)
 library(sp)
@@ -28,10 +28,10 @@ if(make) {
 } else {
   base.dir <- "//modelsrv3/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
   #base.dir <- "/Volumes/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
-  run1 <- "run_99.run_2016_08_15_17_11"
-  run2.all <- c("run_81.run_2016_07_05_16_00","luv_1.compiled")
-  run.name <- 'run99'
-  wrkdir <- "C:/Users/Christy/Desktop/luv/QC"
+  run1 <- "luv2.1draft"
+  run2.all <- c("run_32.run_2016_10_17_15_00", "run_81.run_2016_07_05_16_00", "luv_1.compiled")
+  run.name <- 'run32ref_test'
+  wrkdir <- "C:/Users/clam/Desktop/luv/QC"
   result.dir <- file.path(wrkdir, "results", run.name)
 }
 dsn <- file.path(wrkdir, "data")
