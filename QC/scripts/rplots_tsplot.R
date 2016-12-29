@@ -28,7 +28,7 @@ if(make) {
   base.dir <- "//modelsrv3/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
   #base.dir <- "/Volumes/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
   run1 <- "luv2.1draft"
-  run2.all <- c("run_32.run_2016_10_17_15_00")#, "run_81.run_2016_07_05_16_00","luv_1.compiled")
+  run2.all <- c("run_32.run_2016_10_17_15_00", "run_81.run_2016_07_05_16_00","luv_1.compiled")
   run.name <- 'luv21draft_32'
   wrkdir <- "C:/Users/clam/Desktop/luv/QC"
   #wrkdir <- "/Users/hana/ForecastProducts/LUV/QC"
@@ -135,7 +135,6 @@ for (a in 1:length(geography)){
                      x = ~year,
                      y = ~estimate,
                      color = ~run,
-                     colors = "Set1",
                      text = ~paste0("year: ", year, "<br>City: ", city_name,  " ", indicator),
                      type = 'scatter',
                      mode = 'lines+markers',
