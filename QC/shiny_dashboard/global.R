@@ -31,7 +31,9 @@ if(make) {
   base.dir <- "//MODELSRV8/d$/opusgit/urbansim_data/data/psrc_parcel/runs"
   #base.dir <- "/Volumes/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
   run1 <- "luv2.1draft"
-  run2.all <- c("run_29.run_2017_01_10_11_25")#, "run_81.run_2016_07_05_16_00", "luv_1.compiled")
+  #run2.all <- c("run_32.run_2016_10_17_15_00", "run_81.run_2016_07_05_16_00", "luv_1.compiled")#"run_29.run_2017_01_10_11_25"
+  run2.all <- c("run_29.run_2017_01_10_11_25")
+  #run.name <- 'run32ref_test'
   run.name <- 'run29ref_test'
   wrkdir <- "C:/Users/Christy/Desktop/luv/QC"
   result.dir <- file.path(wrkdir, "results", run.name)
