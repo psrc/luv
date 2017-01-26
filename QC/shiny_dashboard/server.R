@@ -390,7 +390,10 @@ function(input, output) {
   
   dDemographic <- reactive({
     switch(as.integer(input$demog_select_demographic),
-           "agegroup") 
+           "agegroup",
+           "agegroup_intr",
+           "dollargroup",
+           "incomegroup") 
   })
   
   dTable <- reactive({
@@ -426,7 +429,7 @@ function(input, output) {
                   text = paste("2014 Baseline:", dat2$estimate),
                   type = 'scatter',
                   mode = 'lines',
-                  line = list(color = '#E60000'),
+                  line = list(color = '#ff6500'),
                   showlegend = FALSE
                   )%>%
         layout(xaxis = list(type = "category",
