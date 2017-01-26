@@ -165,7 +165,6 @@ function(input, output) {
     return(map)
   }
 
-    
   #Growth reactions-------------------------------------------------------------------------------
   
   
@@ -359,9 +358,9 @@ function(input, output) {
   
   #Time Series rendering-----------------------------------------------------------------------------
   
-  lgarea <- list("Eastside King_1","Eastside King_2","Green River","Seattle and Shoreline","SE King and King Other",
-                 "SW King","Central, North, and South Kitsap","Peninsula and Tacoma","Pierce Other_1","Pierce Other_2",
-                 "SW Pierce","Everett","NW Snohomish","Snohomish Other","SW Snohomish_1","SW Snohomish_2")
+  lgarea <- list("EastsideKing_1","EastsideKing_2","GreenRiver","SeattleandShoreline","SEKingandKingOther",
+                 "SWKing","Central,North,andSouthKitsap","PeninsulaandTacoma","PierceOther_1","PierceOther_2",
+                 "SWPierce","Everett","NWSnohomish","SnohomishOther","SWSnohomish_1","SWSnohomish_2")
   
   tsSelected_plot <- reactive({
     plot <- lgarea[[as.integer(input$select_tsplots)]]
@@ -373,5 +372,77 @@ function(input, output) {
     t <- paste0('<iframe height=5000 width=2000 frameBorder=0 seamless="seamless" scrolling="yes" src="', tsSelected_plot(),'">')
     return(t)
     })
+  
+  
+  #Demographics Indicator rendering------------------------------------------------------------------
+  
+  output$demog_Runs <- renderUI({
+    select.runs <- list(unique(demogdt[demographic == dDemographic(), run]))
+    selectInput(inputId = "demog_select_run",
+                          label = "Run",
+                          choices = select.runs
+                            )
+  })
+  
+  dRun <- reactive({
+    input$demog_select_run
+  })
+  
+  dDemographic <- reactive({
+    switch(as.integer(input$demog_select_demographic),
+           "agegroup") 
+  })
+  
+  dTable <- reactive({
+    if (input$demog_select_format == 1){
+      demogdt[run == dRun() & demographic == dDemographic(),]
+      
+    } else if (input$demog_select_format == 2){
+      main <- demogdt[run == dRun() & demographic == dDemographic(),]
+      region.totals <- demogdt[run == dRun() & demographic == dDemographic(), .(total = sum(estimate)), by = year] #filter and calc regional sum by year
+      setkey(main, year)[region.totals, percent := round((estimate/total)*100, 2)] #calc percent
+      dt <- main[,.(percent, year, run, groups, demographic)]
+      setnames(dt, "percent", "estimate") #new table with same colnames as demogdt
+      return(dt)
+    }
+  })
+  
+  dBaseline <- reactive({
+    demogdt[run == dRun() & demographic == dDemographic() & year == "2014",]
+  })
+  
+  output$demog_plot <- renderPlotly({
+    one_plot <- function(dat){
+      plot_ly(dat,
+              x = ~groups,
+              y = ~estimate,
+              split = ~year,
+              type = 'bar')%>%
+        add_trace(as.data.frame(dBaseline()),
+                  x = ~groups,
+                  y = ~estimate,
+                  #name = '2014 Trend',
+                  type = 'scatter',
+                  mode = 'lines',
+                  line = list(color = '#E60000'),
+                  showlegend = FALSE)%>%
+        layout(xaxis = list(type = "category",
+                            categoryorder = "array",
+                            categoryarray = unique(dat$groups))
+        )
+    }
+    
+    data <- as.data.frame(dTable())
+
+    p <- data %>%
+      group_by(year) %>%
+      do(p = one_plot(.)) %>%
+      subplot(shareY = TRUE, nrows = 1) %>%
+      layout(yaxis = list(title = " "),
+             font = list(family="Segoe UI", size = 13),
+             margin = list(l=100, b=100, t=50, r=100))
+    
+    p
+  })
   
 }# end server function
