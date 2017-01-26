@@ -137,7 +137,10 @@ for (r in 1:length(runnames)) {
 } # end of runnames loop       
 
 # build demographic indicators source table
-demog.indicators <- list(agegroup = "5year_age_groups__\\d+")
+demog.indicators <- list(agegroup = "5year_age_groups__\\d+", 
+                         agegroup_intr = "age_groups_of_interest__\\d+",
+                         dollargroup = "30_60_90_in_14dollars_groups__\\d+",
+                         incomegroup = "new_14incomegroups__\\d+")
 demog.table <- NULL
 table <- NULL
 
