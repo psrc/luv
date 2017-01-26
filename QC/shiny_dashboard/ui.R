@@ -145,14 +145,13 @@ navbarPage(theme = shinytheme("readable"),
                                   tags$b("Select the following to visualize demographic indicators")
                                ),
                                br(),
-                               # selectInput(inputId = "demog_select_run",
-                               #             label = "Run",
-                               #             choices = runs
-                               #             ),
                                uiOutput("demog_Runs"),
                                selectInput(inputId = "demog_select_demographic",
                                            label = "Demographic",
-                                           choices = c("Persons by 5 year Age Group" = 1),
+                                           choices = c("Persons by 5 year Age Group" = 1,
+                                                       "Persons by Age Groups of Interest" = 2,
+                                                       "Households by 30-60-90k Income Groups" = 3,
+                                                       "Households by New 2014 Income Groups" = 4),
                                            selected = 1),
                                radioButtons(inputId = "demog_select_format", 
                                             label = "Display as",
@@ -161,7 +160,7 @@ navbarPage(theme = shinytheme("readable"),
                                             selected = 1)
                         ), # end column
                         column(width = 10,
-                               plotlyOutput("demog_plot", height = "800px")
+                               plotlyOutput("demog_plot", height = "850px")
                         ) # end column
                       ) # end fluidRow
                     ) # end fluidPage
