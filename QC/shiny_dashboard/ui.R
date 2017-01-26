@@ -137,7 +137,7 @@ navbarPage(theme = shinytheme("readable"),
                         ) # end fluidRow
               ) # end fluidPage
            ), # end tabPanel
-           tabPanel("Demographics", 
+           tabPanel("Demographics",
                     fluidPage(
                       fluidRow(
                         column(width = 2,
@@ -145,7 +145,7 @@ navbarPage(theme = shinytheme("readable"),
                                   tags$b("Select the following to visualize demographic indicators")
                                ),
                                br(),
-                               uiOutput("demog_Runs"),
+                               uiOutput("demog_Runs"), # dynamic, only runs with demographic indicators will be listed
                                selectInput(inputId = "demog_select_demographic",
                                            label = "Demographic",
                                            choices = c("Persons by 5 year Age Group" = 1,
@@ -153,14 +153,14 @@ navbarPage(theme = shinytheme("readable"),
                                                        "Households by 30-60-90k Income Groups" = 3,
                                                        "Households by New 2014 Income Groups" = 4),
                                            selected = 1),
-                               radioButtons(inputId = "demog_select_format", 
+                               radioButtons(inputId = "demog_select_format",
                                             label = "Display as",
-                                            choices = list("Total Number" = 1, 
-                                                           "Percentage of Region" = 2), 
+                                            choices = list("Total Number" = 1,
+                                                           "Percentage of Region" = 2),
                                             selected = 1)
                         ), # end column
                         column(width = 10,
-                               plotlyOutput("demog_plot", height = "850px")
+                               uiOutput("condDemog_Plot") # dynamic, depending on availability of demographic indicators
                         ) # end column
                       ) # end fluidRow
                     ) # end fluidPage
