@@ -137,5 +137,34 @@ navbarPage(theme = shinytheme("readable"),
                         ) # end fluidRow
               ) # end fluidPage
            ), # end tabPanel
+           tabPanel("Demographics", 
+                    fluidPage(
+                      fluidRow(
+                        column(width = 2,
+                               h4(class="header", checked=NA,
+                                  tags$b("Select the following to visualize demographic indicators")
+                               ),
+                               br(),
+                               # selectInput(inputId = "demog_select_run",
+                               #             label = "Run",
+                               #             choices = runs
+                               #             ),
+                               uiOutput("demog_Runs"),
+                               selectInput(inputId = "demog_select_demographic",
+                                           label = "Demographic",
+                                           choices = c("Persons by 5 year Age Group" = 1),
+                                           selected = 1),
+                               radioButtons(inputId = "demog_select_format", 
+                                            label = "Display as",
+                                            choices = list("Total Number" = 1, 
+                                                           "Percentage of Region" = 2), 
+                                            selected = 1)
+                        ), # end column
+                        column(width = 10,
+                               plotlyOutput("demog_plot", height = "800px")
+                        ) # end column
+                      ) # end fluidRow
+                    ) # end fluidPage
+           ), # end tabPanel
            fluid = TRUE
 )# end navbarPage
