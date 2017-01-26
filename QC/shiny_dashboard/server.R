@@ -381,7 +381,7 @@ function(input, output) {
     selectInput(inputId = "demog_select_run",
                           label = "Run",
                           choices = select.runs
-                            )
+               )
   })
   
   dRun <- reactive({
@@ -412,20 +412,23 @@ function(input, output) {
   })
   
   output$demog_plot <- renderPlotly({
+    dat2 <- subset(as.data.frame(dTable()), year == "2014")
+
     one_plot <- function(dat){
       plot_ly(dat,
               x = ~groups,
               y = ~estimate,
               split = ~year,
               type = 'bar')%>%
-        add_trace(as.data.frame(dBaseline()),
-                  x = ~groups,
-                  y = ~estimate,
-                  #name = '2014 Trend',
+        add_trace(x = dat2$groups,
+                  y = dat2$estimate,
+                  hoverinfo = "text",
+                  text = paste("2014 Baseline:", dat2$estimate),
                   type = 'scatter',
                   mode = 'lines',
                   line = list(color = '#E60000'),
-                  showlegend = FALSE)%>%
+                  showlegend = FALSE
+                  )%>%
         layout(xaxis = list(type = "category",
                             categoryorder = "array",
                             categoryarray = unique(dat$groups))
@@ -433,7 +436,7 @@ function(input, output) {
     }
     
     data <- as.data.frame(dTable())
-
+  
     p <- data %>%
       group_by(year) %>%
       do(p = one_plot(.)) %>%
