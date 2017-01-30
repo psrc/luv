@@ -32,13 +32,13 @@ if(make) {
   #base.dir <- "/Volumes/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
   #base.dir <- "/media/modelsrv8d/opusgit/urbansim_data/data/psrc_parcel/runs"
   #base.dir <- "/media/modelsrv3e/opusgit/urbansim_data/data/psrc_parcel/runs"
-  run1 <- "luv2.1draft"
+  run1 <- "run_31.run_2017_01_17_13_57"
   #run2.all <- c("run_32.run_2016_10_17_15_00", "run_81.run_2016_07_05_16_00", "luv_1.compiled")#"run_29.run_2017_01_10_11_25"
-  run2.all <- c("run_29.run_2017_01_10_11_25")
+  run2.all <- c("run_32.run_2016_10_17_15_00", "luv2.1draft")
   #run.name <- 'run32ref_test'
-  run.name <- 'run29ref_test'
+  run.name <- 'run31_xR2__r32_luv2draft'
   wrkdir <- "C:/Users/Christy/Desktop/luv/QC"
-  #wrkdir <- "home/shiny/apps/luv/QC"
+  #wrkdir <- "/home/shiny/apps/luv/QC"
   result.dir <- file.path(wrkdir, "results", run.name)
 }
 dsn <- file.path(wrkdir, "data")
