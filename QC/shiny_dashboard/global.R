@@ -34,9 +34,9 @@ if(make) {
   #base.dir <- "/media/modelsrv3e/opusgit/urbansim_data/data/psrc_parcel/runs"
   run1 <- "run_31.run_2017_01_17_13_57"
   #run2.all <- c("run_32.run_2016_10_17_15_00", "run_81.run_2016_07_05_16_00", "luv_1.compiled")#"run_29.run_2017_01_10_11_25"
-  run2.all <- c("run_32.run_2016_10_17_15_00", "luv2.1draft")
+  run2.all <- c("luv_1.compiled", "luv2.1draft")
   #run.name <- 'run32ref_test'
-  run.name <- 'run31_xR2__r32_luv2draft'
+  run.name <- 'run31_xR2__luv1comp_luv2draft'
   wrkdir <- "C:/Users/Christy/Desktop/luv/QC"
   #wrkdir <- "/home/shiny/apps/luv/QC"
   result.dir <- file.path(wrkdir, "results", run.name)
@@ -145,7 +145,8 @@ for (r in 1:length(runnames)) {
 demog.indicators <- list(agegroup = "5year_age_groups__\\d+", 
                          agegroup_intr = "age_groups_of_interest__\\d+",
                          dollargroup = "30_60_90_in_14dollars_groups__\\d+",
-                         incomegroup = "new_14incomegroups__\\d+")
+                         incomegroup = "new_14incomegroups__\\d+",
+                         persontype = "pptyp__\\d+")
 demog.table <- NULL
 table <- NULL
 
@@ -169,9 +170,7 @@ for (r in 1:length(runnames)){
     } else if (length(demog.files) == 0) {
       break
     } # end conditional
-
   } # end of demog.indicators loop
-  
 } # end of runnames loop
 
 
