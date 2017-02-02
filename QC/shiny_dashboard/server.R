@@ -410,7 +410,8 @@ function(input, output) {
            "agegroup",
            "agegroup_intr",
            "dollargroup",
-           "incomegroup") 
+           "incomegroup",
+           "persontype") 
   })
   
   # Build table for Plotly
@@ -460,7 +461,7 @@ function(input, output) {
       subplot(shareY = TRUE, nrows = 1) %>%
       layout(yaxis = list(title = " "),
              font = list(family="Segoe UI", size = 13),
-             margin = list(l=100, b=100, t=50, r=100))
+             margin = list(l=100, b=195, t=50, r=100))
     
     p
   })
