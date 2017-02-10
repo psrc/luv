@@ -92,6 +92,12 @@ make all
 
 For running only a subset of the scripts and other options, see next section. For an interactive visualization, see Section "Viewing Results".
 
+IF:  you get an error message that says, 
+
+```
+'the requested operation requires elevation'
+```
+try running make in Git Bash (if you were using Console Z or some other program) or run the program as administrator.  Christy & Mark got that error message using Console Z on MODELSRV8 but not in Git Bash - web search indicated it has to do with Admin rights.  
 
 ## Extending the Makefile
 

@@ -6,6 +6,7 @@ library(sp)
 library(data.table)
 library(magrittr)
 library(shinythemes)
+library(stringr)
 
 # environment inputs
 attribute <- c("population", "households","employment", "residential_units")
@@ -26,12 +27,18 @@ if(make) {
   result.name <- Sys.getenv('QC_NAME')
   wrkdir <- file.path(Sys.getenv('QC_SCRIPT_PATH'), "..")
 } else {
-  base.dir <- "//modelsrv3/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
+  #base.dir <- "//modelsrv3/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
+  base.dir <- "//MODELSRV8/d$/opusgit/urbansim_data/data/psrc_parcel/runs"
   #base.dir <- "/Volumes/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
-  run1 <- "luv2.1draft"
-  run2.all <- c("run_32.run_2016_10_17_15_00", "run_81.run_2016_07_05_16_00", "luv_1.compiled")
-  run.name <- 'run32ref_test'
-  wrkdir <- "C:/Users/clam/Desktop/luv/QC"
+  #base.dir <- "/media/modelsrv8d/opusgit/urbansim_data/data/psrc_parcel/runs"
+  #base.dir <- "/media/modelsrv3e/opusgit/urbansim_data/data/psrc_parcel/runs"
+  run1 <- "run_31.run_2017_01_17_13_57"
+  #run2.all <- c("run_32.run_2016_10_17_15_00", "run_81.run_2016_07_05_16_00", "luv_1.compiled")#"run_29.run_2017_01_10_11_25"
+  run2.all <- c("luv_1.compiled", "luv2.1draft")
+  #run.name <- 'run32ref_test'
+  run.name <- 'run31_xR2__luv1comp_luv2draft'
+  wrkdir <- "C:/Users/Christy/Desktop/luv/QC"
+  #wrkdir <- "/home/shiny/apps/luv/QC"
   result.dir <- file.path(wrkdir, "results", run.name)
 }
 dsn <- file.path(wrkdir, "data")
@@ -133,6 +140,38 @@ for (r in 1:length(runnames)) {
   alldt <- as.data.table(alldata.table)
   
 } # end of runnames loop       
+
+# build demographic indicators source table
+demog.indicators <- list(agegroup = "5year_age_groups__\\d+", 
+                         agegroup_intr = "age_groups_of_interest__\\d+",
+                         dollargroup = "30_60_90_in_14dollars_groups__\\d+",
+                         incomegroup = "new_14incomegroups__\\d+",
+                         persontype = "pptyp__\\d+")
+demog.table <- NULL
+table <- NULL
+
+for (r in 1:length(runnames)){
+  for (d in 1:length(demog.indicators)){
+    demog.files <- as.list(list.files(file.path(base.dir, runnames[r], "indicators"), pattern = paste0(demog.indicators[[d]], extension)))
+    if (length(demog.files) > 0){
+      for (f in 1:length(demog.files)){
+        year <- str_match(demog.files[f] , "(\\d+){4}")[,1]
+        datafile <- read.csv(file.path(base.dir, runnames[r], "indicators", demog.files[f]), header = TRUE, sep = ",")
+        table <- transpose(datafile)
+        names(table) <- "estimate"
+        table$year <- year
+        table$run <- runs[r]
+        table$groups <- names(datafile)
+        table$demographic <- names(demog.indicators[d])
+        table <- table[2:nrow(table),]
+        ifelse(is.null(table), demog.table <- table, demog.table <- rbind(demog.table, table))
+        demogdt <- as.data.table(demog.table)
+      } # end of demog.files loop
+    } else if (length(demog.files) == 0) {
+      break
+    } # end conditional
+  } # end of demog.indicators loop
+} # end of runnames loop
 
 
 
