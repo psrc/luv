@@ -53,6 +53,7 @@ function(input, output) {
     rng <- range(diffcolumn) 
     if (rng[1] < 0 & rng[2] > 0){
       diff.range <- "both"
+      bins.from.positive <- abs(rng[2]) > abs(rng[1])
     } else if (rng[1] >=0 & rng[2] > 0){
       diff.range <- "pos"
     } else if (rng[1] < 0 & rng[2] < 0){
@@ -60,21 +61,30 @@ function(input, output) {
     } else {
       diff.range <- "none"
     }
+    max.bin <- max(abs(rng))
+    round.to <- 10^floor(log10(max.bin)) 
+    # round maximum to the nearest 100 or 1000 or whatever is appropriate (determined by the log10)
+    max.bin <- ceiling(max.bin/round.to)*round.to 
+    absbreaks <- (sqrt(max.bin)*c(0.1, 0.2,0.4, 0.6, 0.8, 1))^2 # breaks on sqrt scale
     
     if (diff.range == "both"){
       color <- c("#053061", "#2166ac", "#4393c3", "#92c5de", "#d1e5f0", "#ffffff", "#f7f7f7", 
                  "#fddbc7", "#f4a582", "#d6604d", "#b2182b", "#67001f")
-      if (inputGeog == 1){ # separate bins for TAZ
-        bin <- c(-70000, -3000, -1000, -500,- 250, 0, 1, 250, 500, 1000, 3000, 70000)
-      } else { # for other geographies
-        bin <- c(-170000, -30000, -10000, -5000,- 2500, 0, 1, 2500, 5000, 10000, 30000, 170000)
-      }
+      #if (inputGeog == 1){ # separate bins for TAZ
+      #  bin <- c(-70000, -3000, -1000, -500,- 250, 0, 1, 250, 500, 1000, 3000, 70000)
+      #} else { # for other geographies
+      #  bin <- c(-170000, -30000, -10000, -5000,- 2500, 0, 1, 2500, 5000, 10000, 30000, 170000)
+      #}
+      bin <- c(-rev(absbreaks), absbreaks)
+      
     } else if (diff.range == "pos"){
       color <- "Reds"
-      bin <- c(0, 500, 1000, 2500, 5000, 7000, 10000, 25000, 30000, 70000)
+      #bin <- c(0, 500, 1000, 2500, 5000, 7000, 10000, 25000, 30000, 70000)
+      bin <- c(0, absbreaks)
     } else if (diff.range == "neg"){
       color <- "Blues"
-      bin <- c(-70000, -30000, -10000, -25000, -5000,- 2500, -1000, -500, 0)
+      #bin <- c(-70000, -30000, -10000, -25000, -5000,- 2500, -1000, -500, 0)
+      bin <- c(-rev(absbreaks), 0)
     } else if (diff.range == "none"){
       color <- "transparent"
       bin <- c(0, 1)
