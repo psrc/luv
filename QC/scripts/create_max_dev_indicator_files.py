@@ -6,7 +6,8 @@ from opus_core.indicator_framework.image_types.matplotlib_map import Map
 from opus_core.indicator_framework.image_types.table import Table
 from opus_core.indicator_framework.image_types.dataset_table import DatasetTable
 
-
+# When run for the first year after base year, the indicators based on project proposals
+# capture the available development capacity at the base year.
 
 def get_indicators(cache_directory, run_description, years = [2015], base_year=2014):
     source_data = SourceData(
@@ -40,37 +41,37 @@ def get_indicators(cache_directory, run_description, years = [2015], base_year=2
            #dataset_name = 'city',
            #source_data = source_data,
            #),
-       #Table(
-           #attribute = 'max_dev_residential_capacity=city.aggregate(parcel.aggregate(development_project_proposal.disaggregate(psrc_parcel.parcel.max_developable_residential_capacity), function=maximum))',
-           #dataset_name = 'city',
-           #source_data = source_data,
-           #), 
-       #Table(
-           #attribute = 'max_dev_nonresidential_capacity=city.aggregate(parcel.aggregate(development_project_proposal.disaggregate(psrc_parcel.parcel.max_developable_nonresidential_capacity), function=maximum))',
-           #dataset_name = 'city',
-           #source_data = source_data,
-           #), 
-       #Table(
-           #attribute = 'max_dev_capacity=city.aggregate(parcel.aggregate(development_project_proposal.disaggregate(psrc_parcel.parcel.max_developable_capacity), function=maximum))',
-           #dataset_name = 'city',
-           #source_data = source_data,
-           #),  
+       Table(
+           attribute = 'max_dev_residential_capacity=city.aggregate(parcel.aggregate(development_project_proposal.aggregate(urbansim_parcel.development_project_proposal_component.residential_units), function=maximum))',
+           dataset_name = 'city',
+           source_data = source_data,
+           ), 
+       Table(
+           attribute = 'max_dev_nonresidential_capacity=city.aggregate(parcel.aggregate(urbansim_parcel.development_project_proposal.building_sqft_non_residential, function=maximum))',
+           dataset_name = 'city',
+           source_data = source_data,
+           ), 
+       Table(
+           attribute = 'max_dev_capacity=city.aggregate(parcel.aggregate(urbansim_parcel.development_project_proposal.building_sqft, function=maximum))',
+           dataset_name = 'city',
+           source_data = source_data,
+           ),    
        
        # ## FAZ indicators
        # ==================
     
        Table(
-           attribute = 'max_dev_residential_capacity=faz.aggregate(parcel.aggregate(development_project_proposal.disaggregate(psrc_parcel.parcel.max_developable_residential_capacity), function=maximum), intermediates=[zone])',
+           attribute = 'max_dev_residential_capacity=faz.aggregate(parcel.aggregate(development_project_proposal.aggregate(urbansim_parcel.development_project_proposal_component.residential_units), function=maximum), intermediates=[zone])',
            dataset_name = 'faz',
            source_data = source_data,
            ), 
        Table(
-           attribute = 'max_dev_nonresidential_capacity=faz.aggregate(parcel.aggregate(development_project_proposal.disaggregate(psrc_parcel.parcel.max_developable_nonresidential_capacity), function=maximum), intermediates=[zone])',
+           attribute = 'max_dev_nonresidential_capacity=faz.aggregate(parcel.aggregate(urbansim_parcel.development_project_proposal.building_sqft_non_residential, function=maximum), intermediates=[zone])',
            dataset_name = 'faz',
            source_data = source_data,
            ), 
        Table(
-           attribute = 'max_dev_capacity=faz.aggregate(parcel.aggregate(development_project_proposal.disaggregate(psrc_parcel.parcel.max_developable_capacity), function=maximum), intermediates=[zone])',
+           attribute = 'max_dev_capacity=faz.aggregate(parcel.aggregate(urbansim_parcel.development_project_proposal.building_sqft, function=maximum), intermediates=[zone])',
            dataset_name = 'faz',
            source_data = source_data,
            ),     
@@ -78,20 +79,35 @@ def get_indicators(cache_directory, run_description, years = [2015], base_year=2
        # ==================                                                                                                                                    
 
        Table(
-           attribute = 'max_dev_residential_capacity=zone.aggregate(parcel.aggregate(development_project_proposal.disaggregate(psrc_parcel.parcel.max_developable_residential_capacity), function=maximum))',
+           attribute = 'max_dev_residential_capacity=zone.aggregate(parcel.aggregate(development_project_proposal.aggregate(urbansim_parcel.development_project_proposal_component.residential_units), function=maximum))',
            dataset_name = 'zone',
            source_data = source_data,
            ),
        Table(
-           attribute = 'max_dev_nonresidential_capacity=zone.aggregate(parcel.aggregate(development_project_proposal.disaggregate(psrc_parcel.parcel.max_developable_nonresidential_capacity), function=maximum))',
+           attribute = 'max_dev_nonresidential_capacity=zone.aggregate(parcel.aggregate(urbansim_parcel.development_project_proposal.building_sqft_non_residential, function=maximum))',
            dataset_name = 'zone',
            source_data = source_data,
            ),
        Table(
-           attribute = 'max_dev_capacity=zone.aggregate(parcel.aggregate(development_project_proposal.disaggregate(psrc_parcel.parcel.max_developable_capacity), function=maximum))',
+           attribute = 'max_dev_capacity=zone.aggregate(parcel.aggregate(urbansim_parcel.development_project_proposal.building_sqft, function=maximum))',
            dataset_name = 'zone',
            source_data = source_data,
            ),
+       #Table(
+           #attribute = 'max_dev_residential_capacity_from_constr=zone.aggregate(psrc_parcel.parcel.max_developable_residential_capacity)',
+           #dataset_name = 'zone',
+           #source_data = source_data,
+           #),
+       #Table(
+           #attribute = 'max_dev_nonresidential_capacity_from_constr=zone.aggregate(psrc_parcel.parcel.max_developable_nonresidential_capacity)',
+           #dataset_name = 'zone',
+           #source_data = source_data,
+           #),
+       #Table(
+           #attribute = 'max_dev_capacity_from_constr=zone.aggregate(psrc_parcel.parcel.max_developable_capacity)',
+           #dataset_name = 'zone',
+           #source_data = source_data,
+           #),       
     
     ]
     return indicators

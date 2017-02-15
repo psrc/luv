@@ -49,16 +49,21 @@ def get_indicators(cache_directory, run_description, years = [2014,2015,2020,202
            dataset_name = 'faz',
            source_data = source_data,
            ),
-       # Table(
-           # attribute = 'nonres_sqft=faz.aggregate(urbansim_parcel.building.non_residential_sqft, intermediates=[parcel,zone])',
-           # dataset_name = 'faz',
-           # source_data = source_data,
-           # ),	   
+       Table(
+           attribute = 'nonres_sqft=faz.aggregate(urbansim_parcel.building.non_residential_sqft, intermediates=[parcel,zone])',
+           dataset_name = 'faz',
+           source_data = source_data,
+           ),	   
        Table(
            attribute = 'residential_units=faz.aggregate(urbansim_parcel.building.residential_units, intermediates=[parcel,zone])',
            dataset_name = 'faz',
            source_data = source_data,
            ),
+       Table(
+           attribute = 'building_sqft=faz.aggregate(urbansim_parcel.parcel.building_sqft, intermediates=[zone])',
+           dataset_name = 'faz',
+           source_data = source_data,
+           ),	       
                
     # TAZ indicators 
        Table(
@@ -81,6 +86,17 @@ def get_indicators(cache_directory, run_description, years = [2014,2015,2020,202
            dataset_name = 'zone',
            source_data = source_data,
            ),
+       Table(
+           attribute = 'nonres_sqft=zone.aggregate(urbansim_parcel.building.non_residential_sqft, intermediates=[parcel])',
+           dataset_name = 'zone',
+           source_data = source_data,
+           ),
+       Table(
+           attribute = 'building_sqft=zone.aggregate(urbansim_parcel.parcel.building_sqft)',
+           dataset_name = 'zone',
+           source_data = source_data,
+           ),       
+       
        DatasetTable(
                          source_data = source_data,
                          dataset_name = 'zone',
@@ -112,6 +128,17 @@ def get_indicators(cache_directory, run_description, years = [2014,2015,2020,202
            dataset_name = 'city',
            source_data = source_data,
            ),
+       Table(
+           attribute = 'nonres_sqft=city.aggregate(urbansim_parcel.building.non_residential_sqft, intermediates=[parcel])',
+           dataset_name = 'city',
+           source_data = source_data,
+           ),
+       Table(
+           attribute = 'building_sqft=city.aggregate(urbansim_parcel.parcel.building_sqft)',
+           dataset_name = 'city',
+           source_data = source_data,
+           ),       
+       
        #Table(
        #    attribute = 'acres=city.aggregate(parcel.parcel_sqft/43560.)',
        #    dataset_name = 'city',
@@ -153,7 +180,11 @@ def get_indicators(cache_directory, run_description, years = [2014,2015,2020,202
            dataset_name = 'tractcity',
            source_data = source_data,
            ),
-    
+       Table(
+           attribute = 'building_sqft=tractcity.aggregate(urbansim_parcel.parcel.building_sqft)',
+           dataset_name = 'tractcity',
+           source_data = source_data,
+           ),       
                
     # ## Growth Centers Indicators
     # ============================
@@ -178,6 +209,17 @@ def get_indicators(cache_directory, run_description, years = [2014,2015,2020,202
            dataset_name = 'growth_center',
            source_data = source_data,
            ),
+       Table(
+           attribute = 'nonres_sqft=growth_center.aggregate(urbansim_parcel.building.non_residential_sqft, intermediates=[parcel])',
+           dataset_name = 'growth_center',
+           source_data = source_data,
+           ),
+       Table(
+           attribute = 'building_sqft=growth_center.aggregate(urbansim_parcel.parcel.building_sqft)',
+           dataset_name = 'growth_center',
+           source_data = source_data,
+           ),          
+       
        #Table(
        #    attribute = 'acres=growth_center.aggregate(parcel.parcel_sqft/43560.)',
        #    dataset_name = 'growth_center',
