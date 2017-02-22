@@ -124,7 +124,26 @@ def get_indicators(cache_directory, run_description, years = [2015], base_year=2
            attribute = 'max_dev_capacity=zone.aggregate(psrc_parcel.parcel.max_developable_capacity)',
            dataset_name = 'zone',
            source_data = source_data,
-           ),       
+           ), 
+       
+       # ## Growth centers indicators
+       # ============================
+   
+       Table(
+              attribute = 'max_dev_residential_capacity=growth_center.aggregate(psrc_parcel.parcel.max_developable_residential_capacity)',
+              dataset_name = 'growth_center',
+              source_data = source_data,
+              ), 
+       Table(
+              attribute = 'max_dev_nonresidential_capacity=growth_center.aggregate(psrc_parcel.parcel.max_developable_nonresidential_capacity)',
+              dataset_name = 'growth_center',
+              source_data = source_data,
+              ), 
+       Table(
+              attribute = 'max_dev_capacity=growth_center.aggregate(psrc_parcel.parcel.max_developable_capacity)',
+              dataset_name = 'growth_center',
+              source_data = source_data,
+              ),       
     
     ]
     return indicators
