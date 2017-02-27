@@ -523,51 +523,56 @@ function(input, output) {
   })
   
   dcapTable_total <- reactive({
+    if (is.null(dcapRun()) || is.null(input$dcap_select_geography) || is.null(dcapYear())) return(NULL)
+   
     t1 <- capdt[run == dcapRun() & geography == dcapGeog() & captype == "Total",][,.(name_id, capacity, captype)]
     t2 <- devdt[run == dcapRun() & geography == dcapGeog() & year == dcapYear() & devtype == "Building Sqft",]
     t <- merge(t1, t2, by = c("name_id"))
     t0 <- t[, diff := capacity-estimate]
     
-    switch(as.integer(input$dcap_select_geography),
-           dt <- merge(t0, zone.lookup, by.x = "name_id", by.y = "zone_id") %>% merge(faz.lookup, by = "faz_id"),
-           dt <- merge(t0, faz.lookup, by.x = "name_id", by.y = "faz_id"),
-           dt <- merge(t0, city.lookup, by.x = "name_id", by.y = "city_id") %>% setnames("city_name", "Name"),
-           dt <- t0
-    )
-    return(dt)
+    return(switch(as.integer(input$dcap_select_geography),
+           merge(t0, zone.lookup, by.x = "name_id", by.y = "zone_id") %>% merge(faz.lookup, by = "faz_id"),
+           merge(t0, faz.lookup, by.x = "name_id", by.y = "faz_id"),
+           merge(t0, city.lookup, by.x = "name_id", by.y = "city_id") %>% setnames("city_name", "Name"),
+           t0
+    ))
     
   })
   
   dcapTable_res <- reactive({
+    if (is.null(dcapRun()) || is.null(input$dcap_select_geography) || is.null(dcapYear())) return(NULL)
+    
     t1 <- capdt[run == dcapRun() & geography == dcapGeog() & captype == "Residential",][,.(name_id, capacity, captype)]
     t2 <- devdt[run == dcapRun() & geography == dcapGeog() & year == dcapYear() & devtype == "Residential Units",]
     t <- merge(t1, t2, by = "name_id")
     t0 <- t[, diff := capacity-estimate]
     
-    switch(as.integer(input$dcap_select_geography),
-           dt <- merge(t0, zone.lookup, by.x = "name_id", by.y = "zone_id") %>% merge(faz.lookup, by = "faz_id"),
-           dt <- merge(t0, faz.lookup, by.x = "name_id", by.y = "faz_id"),
-           dt <- merge(t0, city.lookup, by.x = "name_id", by.y = "city_id") %>% setnames("city_name", "Name"),
-           dt <- t0
-    )
+    return(switch(as.integer(input$dcap_select_geography),
+           merge(t0, zone.lookup, by.x = "name_id", by.y = "zone_id") %>% merge(faz.lookup, by = "faz_id"),
+           merge(t0, faz.lookup, by.x = "name_id", by.y = "faz_id"),
+           merge(t0, city.lookup, by.x = "name_id", by.y = "city_id") %>% setnames("city_name", "Name"),
+           t0
+    ))
     
-    return(dt)
+    
   })
   
   dcapTable_nonres <- reactive({
+    if (is.null(dcapRun()) || is.null(input$dcap_select_geography) || is.null(dcapYear())) return(NULL)
+    
     t1 <- capdt[run == dcapRun() & geography == dcapGeog() & captype == "Non-Residential",][,.(name_id, capacity, captype)]
     t2 <- devdt[run == dcapRun() & geography == dcapGeog() & year == dcapYear() & devtype == "Non-Residential Sqft",]
     t <- merge(t1, t2, by = "name_id")
     t0 <- t[, diff := capacity-estimate]
     
-    switch(as.integer(input$dcap_select_geography),
-           dt <- merge(t0, zone.lookup, by.x = "name_id", by.y = "zone_id") %>% merge(faz.lookup, by = "faz_id"),
-           dt <- merge(t0, faz.lookup, by.x = "name_id", by.y = "faz_id"),
-           dt <- merge(t0, city.lookup, by.x = "name_id", by.y = "city_id") %>% setnames("city_name", "Name"),
-           dt <- t0
-    )
+    return(switch(as.integer(input$dcap_select_geography),
+           merge(t0, zone.lookup, by.x = "name_id", by.y = "zone_id") %>% merge(faz.lookup, by = "faz_id"),
+           merge(t0, faz.lookup, by.x = "name_id", by.y = "faz_id"),
+           merge(t0, city.lookup, by.x = "name_id", by.y = "city_id") %>% setnames("city_name", "Name"),
+           t0
+    ))
     
-    return(dt)
+
   })
   
   # Total shapefile ready for visualization
@@ -597,13 +602,9 @@ function(input, output) {
   
   # Total Dev Capacity map
   output$dcap_total_map <- renderLeaflet({
-    if (is.na(dcapShape_total()$diff)){
-      map <- leaflet()%>% 
-        addProviderTiles("CartoDB.Positron", group = "Street Map")%>%
-        setView(lng = -122.008546, lat = 47.549390, zoom = 9)
-      
-      map
-    } else {
+    if (is.null(dcapShape_total()$diff)){
+      return(NULL)
+    } 
       # Set up symbology and categorization
       colorBinResult <- map.colorBins(dcapShape_total()$diff, input$dcap_select_geography)
       pal <- colorBin(palette = colorBinResult$color, bins = colorBinResult$bin, domain=dcapShape_total()$diff, pretty = FALSE)
@@ -619,18 +620,14 @@ function(input, output) {
       }
       
       map
-    } # end else
+    
   })
   
   # Residential Dev Capacity map
   output$dcap_res_map <- renderLeaflet({
-    if (is.na(dcapShape_res()$diff)){
-      map <- leaflet()%>% 
-        addProviderTiles("CartoDB.Positron", group = "Street Map")%>%
-        setView(lng = -122.008546, lat = 47.549390, zoom = 9)
-      
-      map
-    } else {
+    if (is.null(dcapShape_res()$diff)){
+      return(NULL)
+    } 
     # Set up symbology and categorization
       colorBinResult <- map.colorBins(dcapShape_res()$diff, input$dcap_select_geography)
       pal <- colorBin(palette = colorBinResult$color, bins = colorBinResult$bin, domain=dcapShape_res()$diff, pretty = FALSE)
@@ -646,18 +643,14 @@ function(input, output) {
       }
       
       map
-    } # end of else
+   
   }) 
   
   # Non-Residential Dev Capacity map
   output$dcap_nonres_map <- renderLeaflet({
-    if (is.na(dcapShape_nonres()$diff)){
-      map <- leaflet()%>% 
-        addProviderTiles("CartoDB.Positron", group = "Street Map")%>%
-        setView(lng = -122.008546, lat = 47.549390, zoom = 9)
-      
-      map
-    } else {
+    if (is.null(dcapShape_nonres()$diff)){
+      return(NULL)
+    } 
     # Set up symbology and categorization
       colorBinResult <- map.colorBins(dcapShape_nonres()$diff, input$dcap_select_geography)
       pal <- colorBin(palette = colorBinResult$color, bins = colorBinResult$bin, domain=dcapShape_nonres()$diff, pretty = FALSE)
@@ -673,7 +666,7 @@ function(input, output) {
       }
       
       map
-    } # end of else
+
   }) 
 
 }# end server function
