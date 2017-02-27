@@ -36,7 +36,7 @@ if(make) {
   #run2.all <- c("run_32.run_2016_10_17_15_00", "run_81.run_2016_07_05_16_00", "luv_1.compiled")#"run_29.run_2017_01_10_11_25"
   run2.all <- c("luv_1.compiled", "luv2.1draft")
   #run.name <- 'run32ref_test'
-  run.name <- 'run31_xR2__luv1comp_luv2draft'
+  run.name <- 'run31rx2_luv1_luv2draft2'
   wrkdir <- "C:/Users/Christy/Desktop/luv/QC"
   #wrkdir <- "/home/shiny/apps/luv/QC"
   result.dir <- file.path(wrkdir, "results", run.name)
@@ -80,6 +80,7 @@ centers <- readOGR(dsn=dsn, layer=layer_centers)
 zone.shape$name_id <- zone.shape$TAZ
 faz.shape$name_id <- faz.shape$FAZ10
 city.shape$name_id <- city.shape$city_id
+centers$name_id <- centers$ID
 
 runname1 <- unlist(strsplit(run1,"[.]"))[[1]]
 runnames2 <- sapply(strsplit(run2.all,"[.]"), function(x) x[1]) # can have multiple values
@@ -173,5 +174,69 @@ for (r in 1:length(runnames)){
   } # end of demog.indicators loop
 } # end of runnames loop
 
+# build capacity and development source tables
+cap.geography <- c(geography, "growth_center")
+cap.type <- c("max_dev", "max_dev_nonresidential", "max_dev_residential")
+dev.type <- c("residential_units", "building_sqft", "nonres_sqft")
 
+cap.table <- NULL
 
+for (r in 1:length(runnames)){
+  cap.files <- as.list(list.files(file.path(base.dir, runnames[r], "indicators"), pattern = paste0("max_dev(_\\w+)*", extension)))
+  if (length(cap.files) > 6){
+    for (g in 1:length(cap.geography)){
+      
+      for (c in 1:length(cap.type)){
+        cap.tbl <- NULL
+        cap.file <- paste0(cap.geography[g], '__table__', cap.type[c], "_capacity", extension)
+        cap.tbl <- read.csv(file.path(base.dir, runnames[r],"indicators", cap.file), header = TRUE, sep = ",")
+        cap.tbl$captype <- switch(cap.type[c],
+                                  "max_dev"="Total", 
+                                  "max_dev_nonresidential"="Non-Residential", 
+                                  "max_dev_residential"="Residential")
+        cap.tbl$geography <- cap.geography[g]
+        cap.tbl$year <- str_sub(names(cap.tbl)[2], -4)
+        cap.tbl$run <- runs[r]
+        colnames(cap.tbl)[1] <- "name_id"
+        colnames(cap.tbl)[2] <- "capacity"
+        ifelse(is.null(cap.table), 
+               cap.table <- cap.tbl, 
+               cap.table <- rbind(cap.table, cap.tbl))
+      } # end of cap.type loop
+    } # end of cap.geography loop
+  } else if (length(cap.files) < 6){
+    break
+  } # end conditional
+} # end of runnames loop
+
+capdt <- as.data.table(cap.table)
+
+devdt <- NULL
+
+for (r in 1:length(runnames)){
+  dev.files <- as.list(list.files(file.path(base.dir, runnames[r], "indicators"), pattern = paste0("sqft", extension)))
+  if (length(dev.files) > 6){
+    for (g in 1:length(cap.geography)){
+      for (d in 1:length(dev.type)){
+        dev.tbl <- NULL
+        dev.file <- paste0(cap.geography[g], '__table__', dev.type[d], extension)
+        dev.tbl <- fread(file.path(base.dir, runnames[r],"indicators", dev.file), header = TRUE)
+        dev.tbl.m <- melt(dev.tbl, id.vars = c(paste0(cap.geography[g], "_id")), measure.vars = names(dev.tbl)[2:ncol(dev.tbl)])
+        dev.tbl.m[, `:=` (devtype = switch(dev.type[d], 
+                                           "residential_units" = "Residential Units",
+                                           "building_sqft" = "Building Sqft",
+                                           "nonres_sqft" = "Non-Residential Sqft"),
+                          year = str_sub(variable, -4),
+                          geography = cap.geography[g],
+                          run = runs[r])]
+        setnames(dev.tbl.m, paste0(cap.geography[g], "_id"), "name_id")
+        setnames(dev.tbl.m, "value", "estimate")
+        ifelse(is.null(devdt), 
+               devdt <- dev.tbl.m, 
+               devdt <- rbind(devdt, dev.tbl.m))                          
+      } # end of dev.type loop
+    } # end cap.geography loop
+  } else if (length(dev.files) < 6){
+    break
+  } # end conditional
+} # end of runnames loop
