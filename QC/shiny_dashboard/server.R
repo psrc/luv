@@ -42,8 +42,12 @@ function(input, output) {
     } else if (inputGeog == 2){
       shape.join <- sp::merge(faz.shape, table, by.x = "FAZ10", by.y = "name_id")
       return(shape.join)
-    } else {
+    } else if (inputGeog == 3){
       shape.join <- sp::merge(city.shape, table, by.x = "city_id", by.y = "name_id")
+      return(shape.join)
+    } else {
+      centers.shape <- centers[centers$name_id != 0,]
+      shape.join <- sp::merge(centers.shape, table, by.x = "name_id", by.y = "name_id")
       return(shape.join)
     }
   }
@@ -70,20 +74,12 @@ function(input, output) {
     if (diff.range == "both"){
       color <- c("#053061", "#2166ac", "#4393c3", "#92c5de", "#d1e5f0", "#ffffff", "#f7f7f7", 
                  "#fddbc7", "#f4a582", "#d6604d", "#b2182b", "#67001f")
-      #if (inputGeog == 1){ # separate bins for TAZ
-      #  bin <- c(-70000, -3000, -1000, -500,- 250, 0, 1, 250, 500, 1000, 3000, 70000)
-      #} else { # for other geographies
-      #  bin <- c(-170000, -30000, -10000, -5000,- 2500, 0, 1, 2500, 5000, 10000, 30000, 170000)
-      #}
       bin <- c(-rev(absbreaks), absbreaks)
-      
     } else if (diff.range == "pos"){
       color <- "Reds"
-      #bin <- c(0, 500, 1000, 2500, 5000, 7000, 10000, 25000, 30000, 70000)
       bin <- c(0, absbreaks)
     } else if (diff.range == "neg"){
       color <- "Blues"
-      #bin <- c(-70000, -30000, -10000, -25000, -5000,- 2500, -1000, -500, 0)
       bin <- c(-rev(absbreaks), 0)
     } else if (diff.range == "none"){
       color <- "transparent"
@@ -96,9 +92,9 @@ function(input, output) {
   map.shp.popup <- function(shapefile, xcolumn, ycolumn, layerctrl, xtitle, ytitle){
     paste0("<strong>ID: </strong>", shapefile$name_id,
            "<br><strong>", layerctrl, " Name: </strong>", shapefile$Name,
-           "<br><strong>", xtitle," estimate: </strong>", shapefile@data[,xcolumn],
-           "<br><strong>", ytitle," estimate: </strong>", shapefile@data[,ycolumn],
-           "<br><strong>Difference: </strong>", shapefile$diff)		
+           "<br><strong>", xtitle," estimate: </strong>", prettyNum(round(shapefile@data[,xcolumn], 0), big.mark = ","),
+           "<br><strong>", ytitle," estimate: </strong>", prettyNum(round(shapefile@data[,ycolumn], 0), big.mark = ","),
+           "<br><strong>Difference: </strong>", prettyNum(round(shapefile$diff, 0), big.mark = ","))		
   }		
   
   # Creates Leaflet baselayers. Requires reactive shapefile, string legend title.
@@ -132,6 +128,30 @@ function(input, output) {
                        options = layersControlOptions(collapsed = FALSE))
     return(map)
   }	
+  
+  map.layers.basic <- function(shapefile, layerctrl, legendtitle, popupgeo, mappalette){
+    map <- leaflet(data=shapefile)%>% 
+      addProviderTiles("CartoDB.Positron", group = "Street Map")%>%
+      addProviderTiles("Esri.WorldImagery", group = "Imagery")%>%
+      addPolygons(fillColor = ~mappalette(shapefile$diff),
+                  fillOpacity = 0.7,
+                  stroke = TRUE,
+                  color = "#8a8a95",
+                  weight = 1,
+                  group = layerctrl,
+                  popup = popupgeo)%>%
+      addLegend("bottomright",
+                pal = mappalette,
+                values = mappalette(shapefile$diff),
+                title = legendtitle,
+                opacity =1,
+                labFormat = labelFormat(digits = 0, big.mark = ","))%>%
+      setView(lng = -122.008546, lat = 47.549390, zoom = 9)%>%
+      addLayersControl(baseGroups = c("Street Map", "Imagery"),
+                       overlayGroups = c(layerctrl),
+                       options = layersControlOptions(collapsed = FALSE))
+    return(map)
+  }
   
   # Selects IDs of scatterplot points and finds match in respective shapefile. Requires string source name
   # that matches its respective scatterplot source name. Requires reactive shapefile.
@@ -366,7 +386,7 @@ function(input, output) {
     return(sub)
   })
   
-  #Time Series rendering-----------------------------------------------------------------------------
+  #Time Series reactions and rendering--------------------------------------------------------
   
   lgarea <- list("EastsideKing_1","EastsideKing_2","GreenRiver","SeattleandShoreline","SEKingandKingOther",
                  "SWKing","Central,North,andSouthKitsap","PeninsulaandTacoma","PierceOther_1","PierceOther_2",
@@ -384,7 +404,7 @@ function(input, output) {
     })
   
   
-  #Demographic Indicator rendering------------------------------------------------------------------
+  #Demographic Indicator reactions and rendering---------------------------------------------
   
   # Display graphs or text depending if demographic indicators exist
   output$condDemog_Plot <- renderUI({
@@ -476,4 +496,184 @@ function(input, output) {
     p
   })
   
+  #Development Capacity reactions and rendering-----------------------------------------------------
+  
+  # Returning a list of runs with DevCap indicators
+  output$dcap_select_run <- renderUI({
+    select.runs <- unique(devdt[, run]) #currently run is based on Dev source table, not a list?
+    selectInput(inputId = "dcap_select_run",
+                label = "Run",
+                choices = select.runs)
+  })
+  
+  dcapRun <- reactive({
+    input$dcap_select_run
+  })
+  
+  dcapGeog <- reactive({
+    switch(as.integer(input$dcap_select_geography),
+           "zone",
+           "faz",
+           "city",
+           "growth_center") 
+  })
+  
+  dcapYear <- reactive({
+    input$dcap_select_year
+  })
+  
+  dcapTable_total <- reactive({
+    t1 <- capdt[run == dcapRun() & geography == dcapGeog() & captype == "Total",][,.(name_id, capacity, captype)]
+    t2 <- devdt[run == dcapRun() & geography == dcapGeog() & year == dcapYear() & devtype == "Building Sqft",]
+    t <- merge(t1, t2, by = c("name_id"))
+    t0 <- t[, diff := capacity-estimate]
+    
+    switch(as.integer(input$dcap_select_geography),
+           dt <- merge(t0, zone.lookup, by.x = "name_id", by.y = "zone_id") %>% merge(faz.lookup, by = "faz_id"),
+           dt <- merge(t0, faz.lookup, by.x = "name_id", by.y = "faz_id"),
+           dt <- merge(t0, city.lookup, by.x = "name_id", by.y = "city_id") %>% setnames("city_name", "Name"),
+           dt <- t0
+    )
+    return(dt)
+    
+  })
+  
+  dcapTable_res <- reactive({
+    t1 <- capdt[run == dcapRun() & geography == dcapGeog() & captype == "Residential",][,.(name_id, capacity, captype)]
+    t2 <- devdt[run == dcapRun() & geography == dcapGeog() & year == dcapYear() & devtype == "Residential Units",]
+    t <- merge(t1, t2, by = "name_id")
+    t0 <- t[, diff := capacity-estimate]
+    
+    switch(as.integer(input$dcap_select_geography),
+           dt <- merge(t0, zone.lookup, by.x = "name_id", by.y = "zone_id") %>% merge(faz.lookup, by = "faz_id"),
+           dt <- merge(t0, faz.lookup, by.x = "name_id", by.y = "faz_id"),
+           dt <- merge(t0, city.lookup, by.x = "name_id", by.y = "city_id") %>% setnames("city_name", "Name"),
+           dt <- t0
+    )
+    
+    return(dt)
+  })
+  
+  dcapTable_nonres <- reactive({
+    t1 <- capdt[run == dcapRun() & geography == dcapGeog() & captype == "Non-Residential",][,.(name_id, capacity, captype)]
+    t2 <- devdt[run == dcapRun() & geography == dcapGeog() & year == dcapYear() & devtype == "Non-Residential Sqft",]
+    t <- merge(t1, t2, by = "name_id")
+    t0 <- t[, diff := capacity-estimate]
+    
+    switch(as.integer(input$dcap_select_geography),
+           dt <- merge(t0, zone.lookup, by.x = "name_id", by.y = "zone_id") %>% merge(faz.lookup, by = "faz_id"),
+           dt <- merge(t0, faz.lookup, by.x = "name_id", by.y = "faz_id"),
+           dt <- merge(t0, city.lookup, by.x = "name_id", by.y = "city_id") %>% setnames("city_name", "Name"),
+           dt <- t0
+    )
+    
+    return(dt)
+  })
+  
+  # Total shapefile ready for visualization
+  dcapShape_total <- reactive({
+    joinShp2Tbl(input$dcap_select_geography, dcapTable_total()) 
+  })
+  
+  # Residential shapefile ready for visualization
+  dcapShape_res <- reactive({
+    joinShp2Tbl(input$dcap_select_geography, dcapTable_res()) 
+  })
+  
+  # Non-Residential shapefile ready for visualization
+  dcapShape_nonres <- reactive({
+    joinShp2Tbl(input$dcap_select_geography, dcapTable_nonres()) 
+  })
+  
+  # leaflet layer control
+  dcapGeo <- reactive({
+    switch(as.integer(input$dcap_select_geography),
+           geo <- "TAZ",
+           geo <- "FAZ",
+           geo <- "City",
+           geo <- "Growth Center"
+    )
+  })
+  
+  # Total Dev Capacity map
+  output$dcap_total_map <- renderLeaflet({
+    if (is.na(dcapShape_total()$diff)){
+      map <- leaflet()%>% 
+        addProviderTiles("CartoDB.Positron", group = "Street Map")%>%
+        setView(lng = -122.008546, lat = 47.549390, zoom = 9)
+      
+      map
+    } else {
+      # Set up symbology and categorization
+      colorBinResult <- map.colorBins(dcapShape_total()$diff, input$dcap_select_geography)
+      pal <- colorBin(palette = colorBinResult$color, bins = colorBinResult$bin, domain=dcapShape_total()$diff, pretty = FALSE)
+      
+      # popup setup
+      geo.popup1 <- map.shp.popup(dcapShape_total(),'capacity','estimate',dcapGeo(), 'Total Max Development Capacity', 'Building Sqft')
+      geo.popup3 <- paste0("<strong>Center: </strong>", centers$name_id)
+      
+      if (as.integer(input$dcap_select_geography) == 4){
+        map <- map.layers.basic(dcapShape_total(), dcapGeo(), "Total Development Capacity", geo.popup1, pal)
+      } else {
+        map <- map.layers(dcapShape_total(), dcapGeo(), "Total Development Capacity", geo.popup1, geo.popup3, pal)
+      }
+      
+      map
+    } # end else
+  })
+  
+  # Residential Dev Capacity map
+  output$dcap_res_map <- renderLeaflet({
+    if (is.na(dcapShape_res()$diff)){
+      map <- leaflet()%>% 
+        addProviderTiles("CartoDB.Positron", group = "Street Map")%>%
+        setView(lng = -122.008546, lat = 47.549390, zoom = 9)
+      
+      map
+    } else {
+    # Set up symbology and categorization
+      colorBinResult <- map.colorBins(dcapShape_res()$diff, input$dcap_select_geography)
+      pal <- colorBin(palette = colorBinResult$color, bins = colorBinResult$bin, domain=dcapShape_res()$diff, pretty = FALSE)
+      
+      # popup setup
+      geo.popup1 <- map.shp.popup(dcapShape_res(),'capacity','estimate',dcapGeo(), 'Residential Max Development Capacity', 'Residential Units')
+      geo.popup3 <- paste0("<strong>Center: </strong>", centers$name_id)
+      
+      if (as.integer(input$dcap_select_geography) == 4){
+        map <- map.layers.basic(dcapShape_res(), dcapGeo(), "Residential Development Capacity", geo.popup1, pal)
+      } else {
+        map <- map.layers(dcapShape_res(), dcapGeo(), "Residential Development Capacity", geo.popup1, geo.popup3, pal)
+      }
+      
+      map
+    } # end of else
+  }) 
+  
+  # Non-Residential Dev Capacity map
+  output$dcap_nonres_map <- renderLeaflet({
+    if (is.na(dcapShape_nonres()$diff)){
+      map <- leaflet()%>% 
+        addProviderTiles("CartoDB.Positron", group = "Street Map")%>%
+        setView(lng = -122.008546, lat = 47.549390, zoom = 9)
+      
+      map
+    } else {
+    # Set up symbology and categorization
+      colorBinResult <- map.colorBins(dcapShape_nonres()$diff, input$dcap_select_geography)
+      pal <- colorBin(palette = colorBinResult$color, bins = colorBinResult$bin, domain=dcapShape_nonres()$diff, pretty = FALSE)
+      
+      # popup setup
+      geo.popup1 <- map.shp.popup(dcapShape_nonres(),'capacity','estimate',dcapGeo(), 'Non-Residential Max Development Capacity', 'Non-Residential Sqft')
+      geo.popup3 <- paste0("<strong>Center: </strong>", centers$name_id)
+      
+      if (as.integer(input$dcap_select_geography) == 4){
+        map <- map.layers.basic(dcapShape_nonres(), dcapGeo(), "Non-Residential Development Capacity", geo.popup1, pal)
+      } else {
+        map <- map.layers(dcapShape_nonres(), dcapGeo(), "Non-Residential Development Capacity", geo.popup1, geo.popup3, pal)
+      }
+      
+      map
+    } # end of else
+  }) 
+
 }# end server function
