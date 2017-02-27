@@ -21,7 +21,7 @@ navbarPage(theme = shinytheme("readable"),
                                            choices = c("TAZ"=1,
                                                        "FAZ"=2,
                                                        "City"=3),
-                                           selected = 1),
+                                           selected = 2),
                                selectInput(inputId = "compare_select_indicator",
                                            label = "Indicator",
                                            choices = c("Total Population"=1,
@@ -65,7 +65,7 @@ navbarPage(theme = shinytheme("readable"),
                                            choices = c("TAZ"=1,
                                                        "FAZ"=2,
                                                        "City"=3),
-                                           selected = 1),
+                                           selected = 2),
                                selectInput(inputId = "growth_select_indicator",
                                            label = "Indicator",
                                            choices = c("Total Population"=1,
@@ -165,6 +165,44 @@ navbarPage(theme = shinytheme("readable"),
                         ) # end column
                       ) # end fluidRow
                     ) # end fluidPage
+           ), # end tabPanel
+           tabPanel("Development Capacity",
+                    fluidPage(
+                      fluidRow(h4(class="header", checked=NA,
+                                  tags$b("Select the following to view the remaining developable capacity")
+                      )),
+                      fluidRow(
+                        column(width = 1,
+                               uiOutput("dcap_select_run") # dynamic, only runs with demographic indicators will be listed
+                        ), # end column
+                        column(width = 1,
+                               selectInput(inputId = "dcap_select_year",
+                                           label = "Year",
+                                           choices = years,
+                                           selected = tail(years, n=1))#, #select the last element of years
+                        ), # end column
+                        column(width = 2,
+                               selectInput(inputId = "dcap_select_geography",
+                                           label = "Geography",
+                                           choices = c("TAZ"=1,
+                                                       "FAZ"=2,
+                                                       "City"=3,
+                                                       "Growth Center"=4),
+                                           selected = 2)
+                        ) # end column
+                      ), # end fluidRow
+                      fluidRow(
+                        column(width = 4,
+                               leafletOutput("dcap_total_map", height = "800px")
+                        ), # end column
+                        column(width = 4,
+                               leafletOutput("dcap_res_map", height = "800px")
+                        ), # end column
+                        column(width = 4,
+                               leafletOutput("dcap_nonres_map", height = "800px")
+                        ) # end column
+                      ) # end fluidRow
+                   ) # end fluidPage
            ), # end tabPanel
            fluid = TRUE
 )# end navbarPage
