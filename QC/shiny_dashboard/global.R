@@ -28,17 +28,17 @@ if(make) {
   wrkdir <- file.path(Sys.getenv('QC_SCRIPT_PATH'), "..")
 } else {
   #base.dir <- "//modelsrv3/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
-  base.dir <- "//MODELSRV8/d$/opusgit/urbansim_data/data/psrc_parcel/runs"
+  #base.dir <- "//MODELSRV8/d$/opusgit/urbansim_data/data/psrc_parcel/runs"
   #base.dir <- "/Volumes/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
-  #base.dir <- "/media/modelsrv8d/opusgit/urbansim_data/data/psrc_parcel/runs"
+  base.dir <- "/media/modelsrv8d/opusgit/urbansim_data/data/psrc_parcel/runs"
   #base.dir <- "/media/modelsrv3e/opusgit/urbansim_data/data/psrc_parcel/runs"
   run1 <- "run_31.run_2017_01_17_13_57"
   #run2.all <- c("run_32.run_2016_10_17_15_00", "run_81.run_2016_07_05_16_00", "luv_1.compiled")#"run_29.run_2017_01_10_11_25"
   run2.all <- c("luv_1.compiled", "luv2.1draft")
   #run.name <- 'run32ref_test'
-  run.name <- 'run31rx2_luv1_luv2draft2'
-  wrkdir <- "C:/Users/Christy/Desktop/luv/QC"
-  #wrkdir <- "/home/shiny/apps/luv/QC"
+  run.name <- 'run31rx2_luv1_luv2draft'
+  #wrkdir <- "C:/Users/Christy/Desktop/luv/QC"
+  wrkdir <- "/home/shiny/apps/luv/QC"
   result.dir <- file.path(wrkdir, "results", run.name)
 }
 dsn <- file.path(wrkdir, "data")
