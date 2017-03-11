@@ -12,8 +12,7 @@ navbarPage(theme = shinytheme("readable"),
                              br(),
                              selectInput(inputId = "init_select_server",
                                          label = "Server",
-                                         choices = c("modelsrv3" =1,
-                                                     "modelsrv8" =2)
+                                         choices = structure(c(1:length(base.dir)), names=names(base.dir))
                              ),
                              uiOutput("init_select_run1"), # dynamic, lists runs based on selected modelsrv
                              uiOutput("init_select_run2all"), # dynamic, lists runs based on selected modelsrv
@@ -119,14 +118,14 @@ navbarPage(theme = shinytheme("readable"),
                       ) # end fluidRow
                     ) # end fluidPage
            ),# end tabPanel
-           navbarMenu("Employment by Sector",
-                      tabPanel("County",
-                              includeHTML('www/qc_ts_emp_cnty.html')
-                      ), # end tabPanel
-                      tabPanel("Special Places",
-                              includeHTML('www/qc_ts_emp_sp.html')
-                      ) # end tabPanel
-           ), # end navbarMenu
+           # navbarMenu("Employment by Sector",
+           #            tabPanel("County",
+           #                    includeHTML('www/qc_ts_emp_cnty.html')
+           #            ), # end tabPanel
+           #            tabPanel("Special Places",
+           #                    includeHTML('www/qc_ts_emp_sp.html')
+           #            ) # end tabPanel
+           # ), # end navbarMenu
            # tabPanel("Time Series",
            #            fluidPage(
            #              fluidRow(
