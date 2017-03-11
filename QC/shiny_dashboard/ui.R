@@ -12,7 +12,7 @@ navbarPage(theme = shinytheme("readable"),
                              br(),
                              selectInput(inputId = "init_select_server",
                                          label = "Server",
-                                         choices = structure(c(1:length(base.dir)), names=names(base.dir))
+                                         choices = structure(c(1:length(base)), names=names(base))
                              ),
                              uiOutput("init_select_run1"), # dynamic, lists runs based on selected modelsrv
                              uiOutput("init_select_run2all"), # dynamic, lists runs based on selected modelsrv

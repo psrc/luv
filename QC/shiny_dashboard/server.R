@@ -199,9 +199,7 @@ function(input, output) {
   #Initialize Dashboard---------------------------------------------------------------------------
   
   base.dir <- reactive({
-    switch(as.integer(input$init_select_server),
-           "//modelsrv3/e$/opusgit/urbansim_data/data/psrc_parcel/runs",
-           "//MODELSRV8/d$/opusgit/urbansim_data/data/psrc_parcel/runs")
+          base[[as.integer(input$init_select_server)]]
   })
   
   output$init_select_run1 <- renderUI({

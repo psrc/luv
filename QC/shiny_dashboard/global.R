@@ -27,8 +27,8 @@ if(make) {
   result.name <- Sys.getenv('QC_NAME')
   wrkdir <- file.path(Sys.getenv('QC_SCRIPT_PATH'), "..")
 } else {
-  base.dir <- list("Modelsrv3" = "//modelsrv3/e$/opusgit/urbansim_data/data/psrc_parcel/runs",
-                   "Modelsrv8" = "//MODELSRV8/d$/opusgit/urbansim_data/data/psrc_parcel/runs")
+  base <- list(Modelsrv3 = "//modelsrv3/e$/opusgit/urbansim_data/data/psrc_parcel/runs",
+                   Modelsrv8 = "//MODELSRV8/d$/opusgit/urbansim_data/data/psrc_parcel/runs")
                    
   #base.dir <- "//MODELSRV8/d$/opusgit/urbansim_data/data/psrc_parcel/runs"
   #base.dir <- "/Volumes/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
