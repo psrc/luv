@@ -1,4 +1,4 @@
-function(input, output) {
+function(input, output, session) {
   #functions------------------------------------------------------------------------------
   
   # remove all whitespaces
@@ -198,6 +198,8 @@ function(input, output) {
   
   #Initialize Dashboard---------------------------------------------------------------------------
   
+  vars <- reactiveValues(submitted=FALSE)
+                         
   base.dir <- reactive({
           base[[as.integer(input$init_select_server)]]
   })
@@ -210,11 +212,17 @@ function(input, output) {
                 width = "100%")
   })
   
+  selectRun1.exclude <- reactive({
+    input$select_run1
+  })
+  
   output$init_select_run2all <- renderUI({
     select.run2all <- list.files(base.dir())
+    new.select.run2all <- setdiff(select.run2all, selectRun1.exclude())
     selectInput(inputId = "select_run2all",
                 label = "Run 2 (select one or more)",
-                choices = select.run2all,
+                choices = new.select.run2all,
+                selected = new.select.run2all[1],
                 multiple = TRUE,
                 width = "100%")
   })
@@ -222,7 +230,7 @@ function(input, output) {
   output$init_select_resultsdir <- renderUI({
     select.resultsdir <- list.files(file.path(wrkdir, "results"))
     selectInput(inputId = "select_resultsdir",
-                label = "Results Folder",
+                label = "Makefile Results Folder",
                 choices = select.resultsdir,
                 width = "100%")
   })
@@ -232,31 +240,37 @@ function(input, output) {
     
   })
   
-  resultsDir <- reactive({
+  resultsDir <- eventReactive(input$goButton, {
     file.path(wrkdir, "results", selectResultsDir())
   })
   
+  # create sub-directory in 'www'
   # find text files from results dir and copy to www dir
-  updatewwwFolder <- reactive({ #How to make this execute immediately? doesn't react
+  observeEvent(input$goButton, { 
+    if (!(file.exists(subdir))) dir.create(subdir)
+    
     result.dir <- resultsDir()
     
-    flist <- list.files('www', glob2rx('*.txt|*.html'), full.names = TRUE, include.dirs=TRUE, ignore.case=TRUE)
+    flist <- list.files(subdir, glob2rx('*.txt|*.html'), full.names = TRUE, include.dirs=TRUE, ignore.case=TRUE)
     if (length(flist) > 0) file.remove(flist)
-    unlink(file.path('www', 'index_files'), recursive = TRUE)
+    unlink(file.path(subdir, 'index_files'), recursive = TRUE)
     flist <- list.files(result.dir, glob2rx('*.txt|*.html'), full.names = TRUE, include.dirs=TRUE, ignore.case=TRUE)
-    if (length(flist) > 0) file.copy(flist, 'www')
+    if (length(flist) > 0) file.copy(flist, subdir)
 
     # remove index.html from www dir
-    fn <- list.files('www', glob2rx('index.html'), full.names = TRUE, include.dirs=TRUE, ignore.case=TRUE)
-    if (length(fn) > 0 && file.exists(fn)) file.remove(fn)
+    # fn <- list.files('www', glob2rx('index.html'), full.names = TRUE, include.dirs=TRUE, ignore.case=TRUE)
+    # if (length(fn) > 0 && file.exists(fn)) file.remove(fn)
     indexf.dir <- file.path(result.dir,"index_files")
     if(file.exists(indexf.dir)) {
-    	file.copy(indexf.dir, 'www', recursive = TRUE)
-    	indexdirs <- c('bootstrap-3.3.5', 'jquery-1.11.3')
+    	file.copy(indexf.dir, subdir, recursive = TRUE)
+    	indexdirs <- c()#'bootstrap-3.3.5', 'jquery-1.11.3'
     	for (dir in indexdirs)
-      		unlink(file.path('www', 'index_files', dir), recursive = TRUE)
+      		unlink(file.path(subdir, 'index_files', dir), recursive = TRUE)
     }
+    vars$submitted <- TRUE
   })
+  
+  output$link <- renderUI({HTML(paste0("<a href=", "'", file.path(trim.subdir, 'index.html'), "'", "target='blank'>View Index file</a>"))})
   
   selectRun1 <- eventReactive(input$goButton, {
     input$select_run1
@@ -444,23 +458,20 @@ function(input, output) {
     return(devdt)
   })
   
-  #remove when scripting completed...
-  output$out1 <- renderPrint({
-    devdt()
+  # Data ready message
+  index.ready <- reactive({
+    file.path(resultsDir(), 'index.html')
   })
   
-  #Index page reactions--------------------------------------------------------------------------------
-  
-  getIndexPage <- function(){
-    # updatewwwFolder()
-    result.dir <- resultsDir()
-    return(includeHTML(file.path(result.dir, 'index.html')))
-  }
-  
-  output$index <- renderUI({
-    getIndexPage()
+  output$submit_msg <- renderText({
+    if (!is.null(index.ready())) "Data has been loaded, click on Index link or dashboard tabs"
   })
-
+  
+  # Delete temporary sub-directory in 'www' when session ends 
+  session$onSessionEnded(function() {
+    unlink(subdir, recursive=TRUE)
+  })
+  
   #Run Comparison reactions----------------------------------------------------------------------------
   
   output$compare_select_run2_ui <- renderUI({
@@ -535,6 +546,7 @@ function(input, output) {
   
   # Plotly
   output$compare_plot <- renderPlotly({
+    if(!vars$submitted) return(NULL)
     if (is.null(cRun())) return(NULL)
     runname2.trim <- sapply(strsplit(cRun(),"[.]"), function(x) x[1])
     scatterplot(cTable(), "compare", cTable()$estrun1, cTable()$estrun2, runname1(), runname2.trim)
@@ -542,6 +554,7 @@ function(input, output) {
   
   # Leaflet
   output$compare_map <- renderLeaflet({
+    if(!vars$submitted) return(NULL)
     if (is.null(cRun()) | is.null(cShape()$diff)) return(NULL)
     runname2.trim <- sapply(strsplit(cRun(),"[.]"), function(x) x[1])
     
@@ -640,12 +653,14 @@ function(input, output) {
 
   # Plotly
   output$growth_plot <- renderPlotly({
+    if(!vars$submitted) return(NULL)
     if (is.null(gTable())) return(NULL)
     scatterplot(gTable(), "growth", gTable()$yr1, gTable()$yr2, as.character(years[[1]]), gYear.label())
   })
 
   # Leaflet
   output$growth_map <- renderLeaflet({
+    if(!vars$submitted) return(NULL)
     if (is.null(gShape()$diff)) return(NULL)
     # Set up symbology and categorization
     colorBinResult <- map.colorBins(gShape()$diff, input$growth_select_geography)
@@ -671,27 +686,40 @@ function(input, output) {
     sub <- select.items("growth", input$growth_select_geography, gShape())
     return(sub)
   })
+  
+  #Employment by Sector reactions and rendering-----------------------------------------------
+  
+  empGeog <- reactive({
+    switch(as.integer(input$emp_display),
+           file.path(trim.subdir, "qc_ts_emp_cnty.html"),
+           file.path(trim.subdir, "qc_ts_emp_sp.html"))
+  })
+  
+  output$empplots <- renderText({
+    if(!vars$submitted) return(NULL)
+    t <- paste0('<iframe height=2500 width=2500 frameBorder=0 seamless="seamless" scrolling="yes" src="', empGeog(),'">')
+    return(t)
+  })
+
+  #Time Series reactions and rendering--------------------------------------------------------
+
+  lgarea <- list("EastsideKing_1","EastsideKing_2","GreenRiver","SeattleandShoreline","SEKingandKingOther",
+                 "SWKing","Central,North,andSouthKitsap","PeninsulaandTacoma","PierceOther_1","PierceOther_2",
+                 "SWPierce","Everett","NWSnohomish","SnohomishOther","SWSnohomish_1","SWSnohomish_2")
+
+  tsSelected_plot <- reactive({
+    plot <- lgarea[[as.integer(input$select_tsplots)]]
+    file <- remove.spaces(paste0(file.path(trim.subdir, 'qc_ts_city_'), plot,'.html'))
+    return(file)
+  })
+
+  output$tsplots <- renderText({
+    if(!vars$submitted) return(NULL)
+    t <- paste0('<iframe height=5000 width=2000 frameBorder=0 seamless="seamless" scrolling="yes" src="', tsSelected_plot(),'">')
+    return(t)
+    })
 
 
-
- #  #Time Series reactions and rendering--------------------------------------------------------
- #  
- #  lgarea <- list("EastsideKing_1","EastsideKing_2","GreenRiver","SeattleandShoreline","SEKingandKingOther",
- #                 "SWKing","Central,North,andSouthKitsap","PeninsulaandTacoma","PierceOther_1","PierceOther_2",
- #                 "SWPierce","Everett","NWSnohomish","SnohomishOther","SWSnohomish_1","SWSnohomish_2")
- #  
- #  tsSelected_plot <- reactive({
- #    plot <- lgarea[[as.integer(input$select_tsplots)]]
- #    file <- remove.spaces(paste0('qc_ts_city_', plot,'.html'))
- #    return(file)
- #  })
- #  
- #  output$tsplots <- renderText({
- #    t <- paste0('<iframe height=5000 width=2000 frameBorder=0 seamless="seamless" scrolling="yes" src="', tsSelected_plot(),'">')
- #    return(t)
- #    })
- #  
- #  
   #Demographic Indicator reactions and rendering---------------------------------------------
 
   # Display graphs or text depending if demographic indicators exist
@@ -787,7 +815,7 @@ function(input, output) {
     p
   })
 
- #  #Development Capacity reactions and rendering-----------------------------------------------------
+  #Development Capacity reactions and rendering-----------------------------------------------------
 
   # Returning a list of runs with DevCap indicators
   output$dcap_select_run <- renderUI({
