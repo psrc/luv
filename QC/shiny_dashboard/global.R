@@ -37,6 +37,7 @@ if(make) {
   #base.dir <- "/media/modelsrv3e/opusgit/urbansim_data/data/psrc_parcel/runs"
   #wrkdir <- "C:/Users/Christy/Desktop/luv/QC"
   wrkdir <- "/home/shiny/apps/luv/QC"
+  #wrkdir <- "/Users/hana/ForecastProducts/LUV/QC"
 }
 
 subdir <- tempfile(tmpdir='www')

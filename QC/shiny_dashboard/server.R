@@ -198,7 +198,7 @@ function(input, output, session) {
   
   #Initialize Dashboard---------------------------------------------------------------------------
   
-  tmpdir <- tempfile()
+  tmpdir <- tempfile(pattern="sessiondir", tmpdir="")
   vars <- reactiveValues(submitted=FALSE, trim.subdir=tmpdir)
   vars$subdir <- file.path("www", tmpdir)
                          
