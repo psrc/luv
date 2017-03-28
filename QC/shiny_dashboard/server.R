@@ -198,10 +198,10 @@ function(input, output, session) {
   
   #Initialize Dashboard---------------------------------------------------------------------------
   
-  tmpdir <- tempfile(pattern="sessiondir", tmpdir="")
-  vars <- reactiveValues(submitted=FALSE, trim.subdir=tmpdir)
-  vars$subdir <- file.path("www", tmpdir)
-                         
+  trim.subdir <- tempfile(pattern="sessiondir", tmpdir="")
+  subdir <- file.path("www", trim.subdir)
+  vars <- reactiveValues(submitted=FALSE)
+  
   base.dir <- reactive({
           base[[as.integer(input$init_select_server)]]
   })
@@ -249,7 +249,6 @@ function(input, output, session) {
   # create sub-directory in 'www'
   # find text files from results dir and copy to www dir
   observeEvent(input$goButton, {
-  	subdir <- vars$subdir
     if (!(file.exists(subdir))) dir.create(subdir)
     
     result.dir <- resultsDir()
@@ -273,7 +272,7 @@ function(input, output, session) {
     vars$submitted <- TRUE
   })
   
-  output$link <- renderUI({HTML(paste0("<a href=", "'", file.path(vars$trim.subdir, 'index.html'), "'", "target='blank'>View Index file</a>"))})
+  output$link <- renderUI({HTML(paste0("<a href=", "'", file.path(trim.subdir, 'index.html'), "'", "target='blank'>View Index file</a>"))})
   
   selectRun1 <- eventReactive(input$goButton, {
     input$select_run1
@@ -472,7 +471,7 @@ function(input, output, session) {
   
   # Delete temporary sub-directory in 'www' when session ends 
   session$onSessionEnded(function() {
-    unlink(vars$subdir, recursive=TRUE)
+    unlink(subdir, recursive=TRUE)
   })
   
   #Run Comparison reactions----------------------------------------------------------------------------
@@ -694,8 +693,8 @@ function(input, output, session) {
   
   empGeog <- reactive({
     switch(as.integer(input$emp_display),
-           file.path(vars$trim.subdir, "qc_ts_emp_cnty.html"),
-           file.path(vars$trim.subdir, "qc_ts_emp_sp.html"))
+           file.path(trim.subdir, "qc_ts_emp_cnty.html"),
+           file.path(trim.subdir, "qc_ts_emp_sp.html"))
   })
   
   output$empplots <- renderText({
@@ -712,7 +711,7 @@ function(input, output, session) {
 
   tsSelected_plot <- reactive({
     plot <- lgarea[[as.integer(input$select_tsplots)]]
-    file <- remove.spaces(paste0(file.path(vars$trim.subdir, 'qc_ts_city_'), plot,'.html'))
+    file <- remove.spaces(paste0(file.path(trim.subdir, 'qc_ts_city_'), plot,'.html'))
     return(file)
   })
 

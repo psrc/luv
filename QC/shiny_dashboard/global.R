@@ -30,18 +30,15 @@ if(make) {
   base <- list(Modelsrv3 = "/media/modelsrv3e/opusgit/urbansim_data/data/psrc_parcel/runs",
                Modelsrv8 = "/media/modelsrv8d/opusgit/urbansim_data/data/psrc_parcel/runs")
   
-    # list(Modelsrv3 = "//modelsrv3/e$/opusgit/urbansim_data/data/psrc_parcel/runs",
-    #      Modelsrv8 = "//MODELSRV8/d$/opusgit/urbansim_data/data/psrc_parcel/runs")                 
+  # base <- list(Modelsrv3 = "//modelsrv3/e$/opusgit/urbansim_data/data/psrc_parcel/runs",
+  #              Modelsrv8 = "//MODELSRV8/d$/opusgit/urbansim_data/data/psrc_parcel/runs")
   #base.dir <- "/Volumes/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
   #base.dir <- "/media/modelsrv8d/opusgit/urbansim_data/data/psrc_parcel/runs"
   #base.dir <- "/media/modelsrv3e/opusgit/urbansim_data/data/psrc_parcel/runs"
-  #wrkdir <- "C:/Users/Christy/Desktop/luv/QC"
+  # wrkdir <- "C:/Users/Christy/Desktop/luv/QC"
   wrkdir <- "/home/shiny/apps/luv/QC"
   #wrkdir <- "/Users/hana/ForecastProducts/LUV/QC"
 }
-
-subdir <- tempfile(tmpdir='www')
-trim.subdir <- substr(subdir, 5, nchar(subdir))
 
 dsn <- file.path(wrkdir, "data")
 
