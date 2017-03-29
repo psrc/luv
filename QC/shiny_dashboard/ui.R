@@ -225,12 +225,14 @@ navbarPage(theme = shinytheme("readable"),
                                                        "City"=3,
                                                        "Growth Center"=4),
                                            selected = 2)
+                        ), # end column
+                        column(width = 8,
+                               uiOutput("condDcap_msg")
                         ) # end column
                       ), # end fluidRow
                       fluidRow(
                         column(width = 4,
-                               uiOutput("condDcap_map")
-                               #leafletOutput("dcap_total_map", height = "800px")
+                               leafletOutput("dcap_total_map", height = "800px")
                         ), # end column
                         column(width = 4,
                                leafletOutput("dcap_res_map", height = "800px")

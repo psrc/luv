@@ -198,7 +198,7 @@ function(input, output, session) {
   
   #Initialize Dashboard---------------------------------------------------------------------------
   
-  trim.subdir <- tempfile(pattern="sessiondir", tmpdir=".")#tmpdir=""
+  trim.subdir <- tempfile(pattern="sessiondir", tmpdir=".")# tmpdir=""
   subdir <- file.path("www", trim.subdir)
   vars <- reactiveValues(submitted=FALSE)
   
@@ -392,7 +392,6 @@ function(input, output, session) {
       cap.files <- as.list(list.files(file.path(base.dir(), runnames[r], "indicators"), pattern = paste0("max_dev(_\\w+)*", extension)))
       if (length(cap.files) > 6){
         for (g in 1:length(cap.geography)){
-
           for (c in 1:length(cap.type)){
             cap.tbl <- NULL
             cap.file <- paste0(cap.geography[g], '__table__', cap.type[c], "_capacity", extension)
@@ -411,15 +410,14 @@ function(input, output, session) {
                    cap.table <- rbind(cap.table, cap.tbl))
           } # end of cap.type loop
         } # end of cap.geography loop
-      } else if (length(cap.files) < 6){
-        break
+      } else if (length(cap.files) <= 6){
+        next
       } # end conditional
     } # end of runnames loop
 
-    #capdt <- as.data.table(cap.table)
     return(as.data.table(cap.table))
   })
-  
+
   devdt <- eventReactive(input$goButton,{
     runnames <- runnames()
     runs <- runs()
@@ -452,8 +450,8 @@ function(input, output, session) {
                    dev.dt <- rbind(dev.dt, dev.tbl.m))
           } # end of dev.type loop
         } # end cap.geography loop
-      } else if (length(dev.files) < 6){
-        break
+      } else if (length(dev.files) <= 6){
+        next
       } # end conditional
     } # end of runnames loop
     return(dev.dt)
@@ -816,16 +814,16 @@ function(input, output, session) {
 
   #Development Capacity reactions and rendering-----------------------------------------------------
   
-  # Display graphs or text depending if demographic indicators exist
-  output$condDcap_map <- renderUI({
+  # Display graphs or text depending if Development Capacity indicators exist
+  output$condDcap_msg <- renderUI({
     if (is.null(devdt())){
-      verbatimTextOutput("condDcap_map_text")
+      verbatimTextOutput("condDcap_msg_text")
     } else {
-      plotlyOutput("dcap_total_map", height = "800px")
+      return(NULL)
     }
   })
   
-  output$condDcap_map_text <- renderText({
+  output$condDcap_msg_text <- renderText({
     "Development indicators have not yet been generated for any of your selected runs"
   })
   
@@ -856,6 +854,7 @@ function(input, output, session) {
   })
 
   dcapTable_total <- reactive({
+    if (is.null(capdt()) | is.null(devdt())) return(NULL)
     if (is.null(dcapRun()) || is.null(input$dcap_select_geography) || is.null(dcapYear())) return(NULL)
     
     capdt <- capdt()
@@ -872,10 +871,10 @@ function(input, output, session) {
            merge(t0, city.lookup, by.x = "name_id", by.y = "city_id") %>% setnames("city_name", "Name"),
            t0
     ))
-
   })
 
   dcapTable_res <- reactive({
+    if (is.null(capdt()) | is.null(devdt())) return(NULL)
     if (is.null(dcapRun()) || is.null(input$dcap_select_geography) || is.null(dcapYear())) return(NULL)
     
     capdt <- capdt()
@@ -892,11 +891,10 @@ function(input, output, session) {
            merge(t0, city.lookup, by.x = "name_id", by.y = "city_id") %>% setnames("city_name", "Name"),
            t0
     ))
-
-
   })
 
   dcapTable_nonres <- reactive({
+    if (is.null(capdt()) | is.null(devdt())) return(NULL)
     if (is.null(dcapRun()) || is.null(input$dcap_select_geography) || is.null(dcapYear())) return(NULL)
     
     capdt <- capdt()
@@ -913,8 +911,6 @@ function(input, output, session) {
            merge(t0, city.lookup, by.x = "name_id", by.y = "city_id") %>% setnames("city_name", "Name"),
            t0
     ))
-
-
   })
 
   # Total shapefile ready for visualization
