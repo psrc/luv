@@ -30,9 +30,6 @@ navbarPage(theme = shinytheme("readable"),
                       ) # end column
                     ) # end fluidPage
            ), # end tabPanel
-           # tabPanel("Index",
-           #         includeHTML(file.path(result.dir,'index.html')
-           #  ), # end tabPanel
            tabPanel("Run Comparison",
                     fluidPage(
                       fluidRow(
@@ -232,7 +229,8 @@ navbarPage(theme = shinytheme("readable"),
                       ), # end fluidRow
                       fluidRow(
                         column(width = 4,
-                               leafletOutput("dcap_total_map", height = "800px")
+                               uiOutput("condDcap_map")
+                               #leafletOutput("dcap_total_map", height = "800px")
                         ), # end column
                         column(width = 4,
                                leafletOutput("dcap_res_map", height = "800px")

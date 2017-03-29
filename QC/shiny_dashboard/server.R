@@ -198,7 +198,7 @@ function(input, output, session) {
   
   #Initialize Dashboard---------------------------------------------------------------------------
   
-  trim.subdir <- tempfile(pattern="sessiondir", tmpdir=".")
+  trim.subdir <- tempfile(pattern="sessiondir", tmpdir=".")#tmpdir=""
   subdir <- file.path("www", trim.subdir)
   vars <- reactiveValues(submitted=FALSE)
   
@@ -370,13 +370,12 @@ function(input, output, session) {
             table <- table[2:nrow(table),]
             ifelse(is.null(table), demog.table <- table, demog.table <- rbind(demog.table, table))
           } # end of demog.files loop
-          demogdt <- as.data.table(demog.table)
         } else if (length(demog.files) == 0) {
           break
         } # end conditional
       } # end of demog.indicators loop
     } # end of runnames loop
-    ifelse(!is.null(demogdt), return(demogdt), return(NULL))
+    ifelse(!is.null(demog.table), return(as.data.table(demog.table)), return(NULL))
   })
   
   # build max capacity source tables
@@ -417,8 +416,8 @@ function(input, output, session) {
       } # end conditional
     } # end of runnames loop
 
-    capdt <- as.data.table(cap.table)
-    return(capdt)
+    #capdt <- as.data.table(cap.table)
+    return(as.data.table(cap.table))
   })
   
   devdt <- eventReactive(input$goButton,{
@@ -428,7 +427,7 @@ function(input, output, session) {
     cap.geography <- c(geography, "growth_center")
     dev.type <- c("residential_units", "building_sqft", "nonres_sqft")
     
-    devdt <- NULL
+    dev.dt <- NULL
     
     for (r in 1:length(runnames)){
       dev.files <- as.list(list.files(file.path(base.dir(), runnames[r], "indicators"), pattern = paste0("sqft", extension)))
@@ -448,16 +447,16 @@ function(input, output, session) {
                               run = runs[r])]
             setnames(dev.tbl.m, paste0(cap.geography[g], "_id"), "name_id")
             setnames(dev.tbl.m, "value", "estimate")
-            ifelse(is.null(devdt),
-                   devdt <- dev.tbl.m,
-                   devdt <- rbind(devdt, dev.tbl.m))
+            ifelse(is.null(dev.dt),
+                   dev.dt <- dev.tbl.m,
+                   dev.dt <- rbind(dev.dt, dev.tbl.m))
           } # end of dev.type loop
         } # end cap.geography loop
       } else if (length(dev.files) < 6){
         break
       } # end conditional
     } # end of runnames loop
-    return(devdt)
+    return(dev.dt)
   })
   
   # Data ready message
@@ -726,29 +725,25 @@ function(input, output, session) {
 
   # Display graphs or text depending if demographic indicators exist
   output$condDemog_Plot <- renderUI({
-    demogdt <- demogdt()
-    if (!is.null(demogdt)){
-      plotlyOutput("demog_plot", height = "850px")
-    } else if (is.null(demogdt)) {
+    if (is.null(demogdt())){
       verbatimTextOutput("demog_plot_test")
+    } else {
+      plotlyOutput("demog_plot", height = "850px")
     }
   })
 
   output$demog_plot_test <- renderText({
-    "Demographic indicators have not yet been generated for any of your runs"
+    "Demographic indicators have not yet been generated for any of your selected runs"
   })
 
   # Returning a list of runs with demographic indicators or hide if not
   output$demog_Runs <- renderUI({
+    if (is.null(demogdt())) return(NULL)
     demogdt <- demogdt()
-    if (!is.null(demogdt)){
-      select.runs <- (unique(demogdt[demographic == dDemographic(), run]))
-      selectInput(inputId = "demog_select_run",
-                  label = "Run",
-                  choices = select.runs)
-    } else if (is.null(demogdt)) {
-      return()
-    }
+    select.runs <- unique(demogdt[demographic == dDemographic(), run])
+    selectInput(inputId = "demog_select_run",
+                label = "Run",
+                choices = select.runs)
   })
 
   dRun <- reactive({
@@ -767,6 +762,7 @@ function(input, output, session) {
   # Build table for Plotly
   dTable <- reactive({
     demogdt <- demogdt()
+    if (is.null(demogdt()) || is.null(dRun())) return(NULL)
     if (input$demog_select_format == 1){
       demogdt[run == dRun() & demographic == dDemographic(),]
     } else if (input$demog_select_format == 2){
@@ -781,6 +777,7 @@ function(input, output, session) {
 
   # Build bar charts
   output$demog_plot <- renderPlotly({
+    if (is.null(dTable())) return(NULL)
     dat2 <- subset(as.data.frame(dTable()), year == "2014")
 
     one_plot <- function(dat){
@@ -818,11 +815,24 @@ function(input, output, session) {
   })
 
   #Development Capacity reactions and rendering-----------------------------------------------------
-
+  
+  # Display graphs or text depending if demographic indicators exist
+  output$condDcap_map <- renderUI({
+    if (is.null(devdt())){
+      verbatimTextOutput("condDcap_map_text")
+    } else {
+      plotlyOutput("dcap_total_map", height = "800px")
+    }
+  })
+  
+  output$condDcap_map_text <- renderText({
+    "Development indicators have not yet been generated for any of your selected runs"
+  })
+  
   # Returning a list of runs with DevCap indicators
   output$dcap_select_run <- renderUI({
+    if (is.null(devdt())) return(NULL)
     devdt <- devdt()
-    
     select.runs <- unique(devdt[, run]) #currently run is based on Dev source table, not a list?
     selectInput(inputId = "dcap_select_run",
                 label = "Run",
