@@ -241,6 +241,43 @@ def get_indicators(cache_directory, run_description, years = [2014,2015,2020,202
 ## #### ============  Checked pretty regularly 
 ## #### ============  Run for every year in the simulation
 
+    # ## Tract indicators
+    # ============================
+
+Table(
+           attribute = 'households=census_tract.aggregate(urbansim_parcel.building.number_of_households, intermediates=[parcel,census_block_group])',
+           dataset_name = 'census_tract',
+           source_data = source_data,
+           ),
+       Table(
+           attribute = 'population=census_tract.aggregate(urbansim_parcel.building.population, intermediates=[parcel,census_block_group])',
+           dataset_name = 'census_tract',
+           source_data = source_data,
+           ),
+       Table(
+           attribute = 'employment=census_tract.aggregate(urbansim_parcel.building.number_of_jobs, intermediates=[parcel,census_block_group])',
+           dataset_name = 'census_tract',
+           source_data = source_data,
+           ),
+       # Table(
+           # attribute = 'nonres_sqft=fcensus_tract.aggregate(urbansim_parcel.building.non_residential_sqft, intermediates=[parcel,census_block_group])',
+           # dataset_name = 'census_tract',
+           # source_data = source_data,
+           # ),	   
+       Table(
+           attribute = 'residential_units=census_tract.aggregate(urbansim_parcel.building.residential_units, intermediates=[parcel,census_block_group])',
+           dataset_name = 'census_tract',
+           source_data = source_data,
+           ),
+    
+       DatasetTable(
+            source_data = source_data,
+            dataset_name = 'census_tract',
+            name = 'employment_by_aggr_sector',
+            attributes = jobs_by_sector("census_tract"),
+            output_type = 'csv'
+                ),
+
 
 ## ##------Liming's Unplaced Households and Jobs in the Region-----------
 
