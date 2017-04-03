@@ -27,40 +27,20 @@ if(make) {
   result.name <- Sys.getenv('QC_NAME')
   wrkdir <- file.path(Sys.getenv('QC_SCRIPT_PATH'), "..")
 } else {
-  #base.dir <- "//modelsrv3/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
-  base.dir <- "//MODELSRV8/d$/opusgit/urbansim_data/data/psrc_parcel/runs"
+  base <- list(Modelsrv3 = "/media/modelsrv3e/opusgit/urbansim_data/data/psrc_parcel/runs",
+               Modelsrv8 = "/media/modelsrv8d/opusgit/urbansim_data/data/psrc_parcel/runs")
+  
+  # base <- list(Modelsrv3 = "//modelsrv3/e$/opusgit/urbansim_data/data/psrc_parcel/runs",
+  #              Modelsrv8 = "//MODELSRV8/d$/opusgit/urbansim_data/data/psrc_parcel/runs")
   #base.dir <- "/Volumes/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
   #base.dir <- "/media/modelsrv8d/opusgit/urbansim_data/data/psrc_parcel/runs"
   #base.dir <- "/media/modelsrv3e/opusgit/urbansim_data/data/psrc_parcel/runs"
-  run1 <- "run_31.run_2017_01_17_13_57"
-  #run2.all <- c("run_32.run_2016_10_17_15_00", "run_81.run_2016_07_05_16_00", "luv_1.compiled")#"run_29.run_2017_01_10_11_25"
-  run2.all <- c("luv_1.compiled", "luv2.1draft")
-  #run.name <- 'run32ref_test'
-  run.name <- 'run31rx2_luv1_luv2draft2'
-  wrkdir <- "C:/Users/Christy/Desktop/luv/QC"
-  #wrkdir <- "/home/shiny/apps/luv/QC"
-  result.dir <- file.path(wrkdir, "results", run.name)
+  # wrkdir <- "C:/Users/Christy/Desktop/luv/QC"
+  wrkdir <- "/home/shiny/apps/luv/QC"
+  #wrkdir <- "/Users/hana/ForecastProducts/LUV/QC"
 }
+
 dsn <- file.path(wrkdir, "data")
-
-# find text files from results dir and copy to www dir
-flist <- list.files('www', glob2rx('*.txt|*.html'), full.names = TRUE, include.dirs=TRUE, ignore.case=TRUE)
-if (length(flist) > 0) file.remove(flist)
-unlink(file.path('www', 'index_files'), recursive = TRUE)
-flist <- list.files(result.dir, glob2rx('*.txt|*.html'), full.names = TRUE, include.dirs=TRUE, ignore.case=TRUE)
-if (length(flist) > 0) file.copy(flist, 'www')
-
-# remove index.html from www dir
-fn <- list.files('www', glob2rx('index.html'), full.names = TRUE, include.dirs=TRUE, ignore.case=TRUE)
-if (length(fn) > 0 && file.exists(fn)) file.remove(fn)
-indexf.dir <- file.path(result.dir,"index_files")
-if(file.exists(indexf.dir)) {
-	file.copy(indexf.dir, 'www', recursive = TRUE)
-	indexdirs <- c('bootstrap-3.3.5', 'jquery-1.11.3')
-	for (dir in indexdirs)
-  		unlink(file.path('www', 'index_files', dir), recursive = TRUE)
-}
-
 
 # lookup tables and shape names
 faz.lookup <- read.table(file.path(dsn, "faz_names.txt"), header =TRUE, sep = "\t")
@@ -72,171 +52,12 @@ layer_faz <- "FAZ_2010_WGS84"
 layer_city <- "JURIS_2014_WGS84"
 layer_centers <- "centers_WGS84"
 
-zone.shape <- readOGR(dsn=dsn,layer=layer_zone) 
-faz.shape <- readOGR(dsn=dsn,layer=layer_faz) 
-city.shape <- readOGR(dsn=dsn,layer=layer_city) 
+zone.shape <- readOGR(dsn=dsn,layer=layer_zone)
+faz.shape <- readOGR(dsn=dsn,layer=layer_faz)
+city.shape <- readOGR(dsn=dsn,layer=layer_city)
 centers <- readOGR(dsn=dsn, layer=layer_centers)
 
 zone.shape$name_id <- zone.shape$TAZ
 faz.shape$name_id <- faz.shape$FAZ10
 city.shape$name_id <- city.shape$city_id
 centers$name_id <- centers$ID
-
-runname1 <- unlist(strsplit(run1,"[.]"))[[1]]
-runnames2 <- sapply(strsplit(run2.all,"[.]"), function(x) x[1]) # can have multiple values
-runs <- c(runname1, unlist(runnames2))
-runnames <- c(run1, run2.all)
-
-# build source table
-alldata.table <- NULL 
-
-for (r in 1:length(runnames)) {
-  run2 <- run2.all[r] #change
-  runname2 <- runnames2[r]
-  
-  geog.table <- NULL
-  
-  for (a in 1:length(geography)){
-    indicators.table <- NULL
-    
-    for (i in 1:length(attribute)){
-      filename <- paste0(geography[a],'__',"table",'__',attribute[i], extension)
-      datatable <- read.csv(file.path(base.dir, runnames[r],"indicators",filename), header = TRUE, sep = ",")
-      column_id <- colnames(datatable)[grepl("_id",names(datatable))]
-      column_est <- NULL
-      for (y in 1: length(years)){
-        column_est1 <- colnames(datatable)[grepl((years[y]),names(datatable))]
-        ifelse (is.null(column_est1), 
-                column_est <- column_est1,
-                column_est <- cbind(column_est, column_est1))
-      }
-      table <- datatable[,c(column_id,column_est)]
-      colnames(table)[2:ncol(table)] <- paste0("yr", sapply(years, function(x) x[1]))
-      colnames(table)[1] <- "name_id"
-      table$indicator <- switch(attribute[i],
-                                "population"="Total Population", 
-                                "households"="Households", 
-                                "employment"="Employment", 
-                                "residential_units"="Residential Units")
-      
-      ifelse (is.null(indicators.table),
-              indicators.table <- table, 
-              indicators.table <- rbind(indicators.table, table))
-      
-    } # end of attribute loop
-    indicators.table$geography <- geography[a]
-    
-    # append records by geography  
-    ifelse (is.null(geog.table),
-            geog.table <- indicators.table,
-            geog.table <- rbind(geog.table, indicators.table))
-    
-  } # end of geography loop   
-  geog.table$run <- runs[r]
-  
-  ifelse (is.null(alldata.table),
-          alldata.table <- geog.table,
-          alldata.table <- rbind(alldata.table, geog.table))
-  
-  alldt <- as.data.table(alldata.table)
-  
-} # end of runnames loop       
-
-# build demographic indicators source table
-demog.indicators <- list(agegroup = "5year_age_groups__\\d+", 
-                         agegroup_intr = "age_groups_of_interest__\\d+",
-                         dollargroup = "30_60_90_in_14dollars_groups__\\d+",
-                         incomegroup = "new_14incomegroups__\\d+",
-                         persontype = "pptyp__\\d+")
-demog.table <- NULL
-table <- NULL
-
-for (r in 1:length(runnames)){
-  for (d in 1:length(demog.indicators)){
-    demog.files <- as.list(list.files(file.path(base.dir, runnames[r], "indicators"), pattern = paste0(demog.indicators[[d]], extension)))
-    if (length(demog.files) > 0){
-      for (f in 1:length(demog.files)){
-        year <- str_match(demog.files[f] , "(\\d+){4}")[,1]
-        datafile <- read.csv(file.path(base.dir, runnames[r], "indicators", demog.files[f]), header = TRUE, sep = ",")
-        table <- transpose(datafile)
-        names(table) <- "estimate"
-        table$year <- year
-        table$run <- runs[r]
-        table$groups <- names(datafile)
-        table$demographic <- names(demog.indicators[d])
-        table <- table[2:nrow(table),]
-        ifelse(is.null(table), demog.table <- table, demog.table <- rbind(demog.table, table))
-        demogdt <- as.data.table(demog.table)
-      } # end of demog.files loop
-    } else if (length(demog.files) == 0) {
-      break
-    } # end conditional
-  } # end of demog.indicators loop
-} # end of runnames loop
-
-# build capacity and development source tables
-cap.geography <- c(geography, "growth_center")
-cap.type <- c("max_dev", "max_dev_nonresidential", "max_dev_residential")
-dev.type <- c("residential_units", "building_sqft", "nonres_sqft")
-
-cap.table <- NULL
-
-for (r in 1:length(runnames)){
-  cap.files <- as.list(list.files(file.path(base.dir, runnames[r], "indicators"), pattern = paste0("max_dev(_\\w+)*", extension)))
-  if (length(cap.files) > 6){
-    for (g in 1:length(cap.geography)){
-      
-      for (c in 1:length(cap.type)){
-        cap.tbl <- NULL
-        cap.file <- paste0(cap.geography[g], '__table__', cap.type[c], "_capacity", extension)
-        cap.tbl <- read.csv(file.path(base.dir, runnames[r],"indicators", cap.file), header = TRUE, sep = ",")
-        cap.tbl$captype <- switch(cap.type[c],
-                                  "max_dev"="Total", 
-                                  "max_dev_nonresidential"="Non-Residential", 
-                                  "max_dev_residential"="Residential")
-        cap.tbl$geography <- cap.geography[g]
-        cap.tbl$year <- str_sub(names(cap.tbl)[2], -4)
-        cap.tbl$run <- runs[r]
-        colnames(cap.tbl)[1] <- "name_id"
-        colnames(cap.tbl)[2] <- "capacity"
-        ifelse(is.null(cap.table), 
-               cap.table <- cap.tbl, 
-               cap.table <- rbind(cap.table, cap.tbl))
-      } # end of cap.type loop
-    } # end of cap.geography loop
-  } else if (length(cap.files) < 6){
-    break
-  } # end conditional
-} # end of runnames loop
-
-capdt <- as.data.table(cap.table)
-
-devdt <- NULL
-
-for (r in 1:length(runnames)){
-  dev.files <- as.list(list.files(file.path(base.dir, runnames[r], "indicators"), pattern = paste0("sqft", extension)))
-  if (length(dev.files) > 6){
-    for (g in 1:length(cap.geography)){
-      for (d in 1:length(dev.type)){
-        dev.tbl <- NULL
-        dev.file <- paste0(cap.geography[g], '__table__', dev.type[d], extension)
-        dev.tbl <- fread(file.path(base.dir, runnames[r],"indicators", dev.file), header = TRUE)
-        dev.tbl.m <- melt(dev.tbl, id.vars = c(paste0(cap.geography[g], "_id")), measure.vars = names(dev.tbl)[2:ncol(dev.tbl)])
-        dev.tbl.m[, `:=` (devtype = switch(dev.type[d], 
-                                           "residential_units" = "Residential Units",
-                                           "building_sqft" = "Building Sqft",
-                                           "nonres_sqft" = "Non-Residential Sqft"),
-                          year = str_sub(variable, -4),
-                          geography = cap.geography[g],
-                          run = runs[r])]
-        setnames(dev.tbl.m, paste0(cap.geography[g], "_id"), "name_id")
-        setnames(dev.tbl.m, "value", "estimate")
-        ifelse(is.null(devdt), 
-               devdt <- dev.tbl.m, 
-               devdt <- rbind(devdt, dev.tbl.m))                          
-      } # end of dev.type loop
-    } # end cap.geography loop
-  } else if (length(dev.files) < 6){
-    break
-  } # end conditional
-} # end of runnames loop

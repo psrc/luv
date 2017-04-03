@@ -1,7 +1,34 @@
 navbarPage(theme = shinytheme("readable"),
            "LUV QC Dashboard",
-           tabPanel("Index",
-                        includeHTML(file.path(result.dir,'index.html'))
+           tabPanel("Selection",
+                    fluidPage(
+                      column(width = 4
+                        
+                      ), # end column
+                      column(width = 4,
+                             h4(class="header", checked=NA,
+                                tags$b("Select the following to view or update Dashboard content")
+                             ),
+                             br(),
+                             selectInput(inputId = "init_select_server",
+                                         label = "Server",
+                                         choices = structure(c(1:length(base)), names=names(base))
+                             ),
+                             uiOutput("init_select_run1"), # dynamic, lists runs based on selected modelsrv
+                             uiOutput("init_select_run2all"), # dynamic, lists runs based on selected modelsrv
+                             uiOutput("init_select_resultsdir"), # dynamic, lists dirs in QC/results
+                             br(),
+                             actionButton("goButton", "Submit"),
+                             br(),
+                             br(),
+                             br(),
+                             verbatimTextOutput("submit_msg"),
+                             uiOutput('link')
+                      ), # end column
+                      column(width = 4
+ 
+                      ) # end column
+                    ) # end fluidPage
            ), # end tabPanel
            tabPanel("Run Comparison",
                     fluidPage(
@@ -11,10 +38,7 @@ navbarPage(theme = shinytheme("readable"),
                                   tags$b("Select the following to compare runs")
                                ),
                                br(),
-                               selectInput(inputId = "compare_select_run2",
-                                           label = h4(paste0("Compare ",`runname1`," with")),
-                                           choices = runnames2
-                               ),
+                               uiOutput("compare_select_run2_ui"), # dynamic, lists runs based on input from selection page
                                h4("and select the following"),
                                selectInput(inputId = "compare_select_geography",
                                            label = "Geography",
@@ -34,7 +58,7 @@ navbarPage(theme = shinytheme("readable"),
                                            choices = years,
                                            selected = tail(years, n=1)), #select the last element of years
                                br(),
-                               helpText("Use the 'Box Select' or 'Lasso Select' option in the scatterplot to select 
+                               helpText("Use the 'Box Select' or 'Lasso Select' option in the scatterplot to select
                                         points and view its location on the map.")
                         ), # end column
                         column(width = 5,
@@ -44,7 +68,7 @@ navbarPage(theme = shinytheme("readable"),
                                leafletOutput("compare_map", height = "925px")
                         ) # end column
                       ) # end fluidRow
-                      
+
                     ) # end fluidPage
 
            ), # end tabPanel
@@ -56,10 +80,7 @@ navbarPage(theme = shinytheme("readable"),
                                   tags$b("Select the following to see growth since 2014")
                                ),
                                br(),
-                               selectInput(inputId = "growth_select_run",
-                                           label = "Run", 
-                                           choices = runs
-                               ),
+                               uiOutput("growth_select_run_ui"), # dynamic, lists runs based on input from selection page
                                selectInput(inputId = "growth_select_geography",
                                            label = "Geography",
                                            choices = c("TAZ"=1,
@@ -81,7 +102,7 @@ navbarPage(theme = shinytheme("readable"),
                                            step = 5,
                                            sep = ""),
                                br(),
-                               helpText("Use the 'Box Select' or 'Lasso Select' option in the scatterplot to select 
+                               helpText("Use the 'Box Select' or 'Lasso Select' option in the scatterplot to select
                                         points and view its location on the map.")
                         ), # end column
                         column(width = 5,
@@ -93,14 +114,28 @@ navbarPage(theme = shinytheme("readable"),
                       ) # end fluidRow
                     ) # end fluidPage
            ),# end tabPanel
-           navbarMenu("Employment by Sector",
-                      tabPanel("County",
-                              includeHTML('www/qc_ts_emp_cnty.html')
-                      ), # end tabPanel
-                      tabPanel("Special Places",
-                              includeHTML('www/qc_ts_emp_sp.html')
-                      ) # end tabPanel
-           ), # end navbarMenu
+           tabPanel("Employment by Sector",
+                    fluidPage(
+                      fluidRow(h4(class="header", checked=NA,
+                                  tags$b("Select the following")
+                      )),
+                      fluidRow(
+                        column(width = 5,
+                               selectInput(inputId = "emp_display",
+                                           label = "Employment Geography",
+                                           choices = c("County"=1,
+                                                       "Special Places"=2),
+                                           selected = 1)
+                        ) # end column
+                      ), # end fluidRow
+                      fluidRow(
+                        column(width = 12,
+                               htmlOutput("empplots")
+                        ) # end column
+                      ) # end fluidRow
+                    ) # end fluidPage
+       
+           ), # end tabPanel
            tabPanel("Time Series",
                       fluidPage(
                         fluidRow(
@@ -171,9 +206,10 @@ navbarPage(theme = shinytheme("readable"),
                       fluidRow(h4(class="header", checked=NA,
                                   tags$b("Select the following to view the remaining developable capacity")
                       )),
+                      ###check dynamic UI here:
                       fluidRow(
                         column(width = 1,
-                               uiOutput("dcap_select_run") # dynamic, only runs with demographic indicators will be listed
+                               uiOutput("dcap_select_run") # dynamic, only runs with dev cap indicators will be listed
                         ), # end column
                         column(width = 1,
                                selectInput(inputId = "dcap_select_year",
@@ -189,6 +225,9 @@ navbarPage(theme = shinytheme("readable"),
                                                        "City"=3,
                                                        "Growth Center"=4),
                                            selected = 2)
+                        ), # end column
+                        column(width = 8,
+                               uiOutput("condDcap_msg")
                         ) # end column
                       ), # end fluidRow
                       fluidRow(
