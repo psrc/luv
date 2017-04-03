@@ -9,9 +9,9 @@ if(!interactive()) { # running using Makefile
 	base.dir <- Sys.getenv('QC_BASE_DIRECTORY')
 	result.dir <- Sys.getenv('QC_RESULT_PATH')
 } else { # running interactively
-	run1 <- "run_71.run_2016_05_26_12_41"
-	base.dir <- "/Volumes/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
-	run.name <- "run71"
+	run1 <- "run_56.run_2017_03_30_21_43"
+	base.dir <- "/Volumes/d$/opusgit/urbansim_data/data/psrc_parcel/runs"
+	run.name <- "run56"
 	result.dir <- file.path("results", run.name)
 }
 ctyear <- 2040
