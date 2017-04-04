@@ -73,7 +73,7 @@ To delete the created files, type
 make clean
 ```
 
-After an UrbanSim run is finished, indicator files need to be created. Make sure the 'QC\_RUN1' entry in input.txt points to the right run, then type
+After an UrbanSim run is finished, indicator files need to be created. Make sure the 'QC\_RUN1' entry in input.txt points to the right run. Optionally, put a description of the run, possibly restrictions, into 'QC\_RUN1\_DESCR' and 'QC\_RUN1\_RESTR'. Then type
 
 
 ```

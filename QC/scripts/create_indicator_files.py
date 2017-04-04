@@ -320,7 +320,9 @@ Table(
           dataset_name = 'alldata',
           source_data = source_data,
           ),
-         DatasetTable(
+      
+      # Demographic indicators
+      DatasetTable(
              source_data = source_data,
              dataset_name = 'alldata',
              name =  'pptyp',
@@ -340,7 +342,79 @@ Table(
       ##                'age_21_to_25 = alldata.aggregate_all(numpy.logical_and(person.age<26,person.age>=21))',
       ##                'income = households.income',
                 ],
-           ),             
+           ), 
+      DatasetTable(
+          source_data = source_data,
+              dataset_name = 'alldata',
+              name =  'persons_by_age_groups_of_interest',
+              output_type = 'csv',
+              attributes = [
+                  'Under5 = alldata.aggregate_all(person.age<5)',
+                      'Five_18 = alldata.aggregate_all(numpy.logical_and(person.age<19,person.age>=5))',
+                      'Nineteen_24 = alldata.aggregate_all(numpy.logical_and(person.age<25,person.age>=19))',
+                      'Twentyfive_60 = alldata.aggregate_all(numpy.logical_and(person.age<61,person.age>=25))',
+                      'Over_60 = alldata.aggregate_all(person.age>=61)',
+                      ],
+              ),
+      
+          DatasetTable(
+              source_data = source_data,
+              dataset_name = 'alldata',
+              name =  'persons_by_5year_age_groups',
+              output_type = 'csv',
+              attributes = [
+                  'age_0_to_5 = alldata.aggregate_all(person.age<6)',
+                      'age_6_to_10 = alldata.aggregate_all(numpy.logical_and(person.age<11,person.age>=6))',
+                      'age_11_to_15 = alldata.aggregate_all(numpy.logical_and(person.age<16,person.age>=11))',
+                      'age_16_to_20 = alldata.aggregate_all(numpy.logical_and(person.age<21,person.age>=16))',
+                      'age_21_to_25 = alldata.aggregate_all(numpy.logical_and(person.age<26,person.age>=21))',
+                      'age_26_to_30 = alldata.aggregate_all(numpy.logical_and(person.age<31,person.age>=26))',
+                      'age_31_to_35 = alldata.aggregate_all(numpy.logical_and(person.age<36,person.age>=31))',
+                      'age_36_to_40 = alldata.aggregate_all(numpy.logical_and(person.age<41,person.age>=36))',
+                      'age_41_to_45 = alldata.aggregate_all(numpy.logical_and(person.age<46,person.age>=41))',
+                      'age_46_to_50 = alldata.aggregate_all(numpy.logical_and(person.age<51,person.age>=46))',
+                      'age_51_to_55 = alldata.aggregate_all(numpy.logical_and(person.age<56,person.age>=51))',
+                      'age_56_to_60 = alldata.aggregate_all(numpy.logical_and(person.age<61,person.age>=56))',
+                      'age_61_to_65 = alldata.aggregate_all(numpy.logical_and(person.age<66,person.age>=61))',
+                      'age_66_to_70 = alldata.aggregate_all(numpy.logical_and(person.age<71,person.age>=66))',
+                      'age_71_to_75 = alldata.aggregate_all(numpy.logical_and(person.age<76,person.age>=71))',
+                      'age_76_to_80 = alldata.aggregate_all(numpy.logical_and(person.age<81,person.age>=76))',
+                      'age_81_to_85 = alldata.aggregate_all(numpy.logical_and(person.age<86,person.age>=81))',
+                      'age_86_to_90 = alldata.aggregate_all(numpy.logical_and(person.age<91,person.age>=86))',
+                      'age_91_to_95 = alldata.aggregate_all(numpy.logical_and(person.age<96,person.age>=91))',
+                      'age_96_and_up = alldata.aggregate_all(person.age>=96)',
+                      ],
+              ),
+      
+          DatasetTable(
+              source_data = source_data,
+              dataset_name = 'alldata',
+              name =  'regional_total_hhs_by_new_14incomegroups',
+              output_type = 'csv',
+              #output_type = 'sql',
+              #storage_location = database,
+              attributes = [
+                  'Group1_Under50K = alldata.aggregate_all(household.income<50000)',
+                      'Group2_50_75K = alldata.aggregate_all(numpy.logical_and(household.income<75001,household.income>=50000))',
+                      'Group3_75_100K = alldata.aggregate_all(numpy.logical_and(household.income<100001,household.income>=75000))',
+                      'Group4_Over100K = alldata.aggregate_all(household.income>=100001)',
+                      ],
+              ),
+      
+          DatasetTable(
+              source_data = source_data,
+              dataset_name = 'alldata',
+              name =  'regional_total_hhs_by_30_60_90_in_14dollars_groups',
+              output_type = 'csv',
+              #output_type = 'sql',
+              #storage_location = database,
+              attributes = [
+                  'Group1_Under36870K = alldata.aggregate_all(household.income<36870)',
+                      'Group2_UpTo73700 = alldata.aggregate_all(numpy.logical_and(household.income<73700,household.income>=36870))',
+                      'Group3_UpTo110600 = alldata.aggregate_all(numpy.logical_and(household.income<110600,household.income>=73700))',
+                      'Group4_Over110600 = alldata.aggregate_all(household.income>=110600)',
+                      ],
+              ),         
     ]
     return indicators
 
@@ -360,7 +434,8 @@ def write_info(directory, description, restrictions):
     
 if __name__ == '__main__':
     ind_cache = os.path.join(os.environ['QC_BASE_DIRECTORY'], os.environ['QC_RUN1'])
-    indicators = get_indicators(ind_cache, os.getenv('QC_RUN1_DESCR', ''), years = [2014,2015,2020])
+    indicators = get_indicators(ind_cache, os.getenv('QC_RUN1_DESCR', '')#, years = [2014,2015,2020]
+                                )
     IndicatorFactory().create_indicators(
         indicators = indicators,
         display_error_box = False, 
