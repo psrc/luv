@@ -320,17 +320,52 @@ Table(
           dataset_name = 'alldata',
           source_data = source_data,
           ),
-    
+         DatasetTable(
+             source_data = source_data,
+             dataset_name = 'alldata',
+             name =  'pptyp',
+             output_type = 'csv',
+             attributes = [
+                     'full_time_worker = alldata.aggregate_all(person.employment_status==1)',
+                     'part_time_worker = alldata.aggregate_all(numpy.logical_and(person.employment_status==2,person.student==0))',
+                     'non_working_adult_age_65_plus = alldata.aggregate_all(numpy.logical_and(person.employment_status<1,numpy.logical_and(person.student==0,person.age>64)))',
+                     'non_working_adult_age_16_64 = alldata.aggregate_all(numpy.logical_and(person.employment_status<1,numpy.logical_and(person.student==0,numpy.logical_and(person.age<65,person.age>15))))',
+                     'university_student = alldata.aggregate_all(numpy.logical_and(person.employment_status<>1,numpy.logical_and(person.student==1,person.age>18)))',
+                     'hs_student_age_15_up = alldata.aggregate_all(numpy.logical_and(person.employment_status<>1,numpy.logical_and(person.student==1,numpy.logical_and(person.age>15,person.age<19))))',
+                     'child_age_5_15 = alldata.aggregate_all(numpy.logical_and(person.age>4,person.age<16))',
+                     'child_age_0_4 = alldata.aggregate_all(person.age<5)',
+      ##                'age_6_to_10 = alldata.aggregate_all(numpy.logical_and(person.age<11,person.age>=6))',
+      ##                'age_11_to_15 = alldata.aggregate_all(numpy.logical_and(person.age<16,person.age>=11))',
+      ##                'age_16_to_20 = alldata.aggregate_all(numpy.logical_and(person.age<21,person.age>=16))',
+      ##                'age_21_to_25 = alldata.aggregate_all(numpy.logical_and(person.age<26,person.age>=21))',
+      ##                'income = households.income',
+                ],
+           ),             
     ]
     return indicators
 
 import os
 from opus_core.indicator_framework.core.indicator_factory import IndicatorFactory
 
+def write_info(directory, description, restrictions):
+    # Store Description and Restrictions info
+    path = os.path.join(directory, "indicators")
+    descrfile = open(os.path.join(path, "Description.txt"), "w")
+    descrfile.write(description)
+    descrfile.close()
+    restrfile = open(os.path.join(path, "Restrictions.txt"), "w")
+    restrfile.write(restrictions)
+    restrfile.close()        
+    
+    
 if __name__ == '__main__':
-    indicators = get_indicators(os.path.join(os.environ['QC_BASE_DIRECTORY'], os.environ['QC_RUN1']), 
-                                os.getenv('QC_RUN1_DESCR', ''))
+    ind_cache = os.path.join(os.environ['QC_BASE_DIRECTORY'], os.environ['QC_RUN1'])
+    indicators = get_indicators(ind_cache, os.getenv('QC_RUN1_DESCR', ''), years = [2014,2015,2020])
     IndicatorFactory().create_indicators(
         indicators = indicators,
         display_error_box = False, 
         show_results = False)
+
+    write_info(ind_cache, os.getenv('QC_RUN1_DESCR', ''), os.getenv('QC_RUN1_RESTR', ''))
+    
+    
