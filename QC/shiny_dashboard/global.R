@@ -1,5 +1,5 @@
 library(shiny)
-library(plotly) # version 4.5.6
+library(plotly) # version 4.0 and up
 library(leaflet)
 library(rgdal)
 library(sp)
@@ -27,16 +27,16 @@ if(make) {
   result.name <- Sys.getenv('QC_NAME')
   wrkdir <- file.path(Sys.getenv('QC_SCRIPT_PATH'), "..")
 } else {
-  base <- list(Modelsrv3 = "/media/modelsrv3e/opusgit/urbansim_data/data/psrc_parcel/runs",
-               Modelsrv8 = "/media/modelsrv8d/opusgit/urbansim_data/data/psrc_parcel/runs")
+  # base <- list(Modelsrv3 = "/media/modelsrv3e/opusgit/urbansim_data/data/psrc_parcel/runs",
+  #              Modelsrv8 = "/media/modelsrv8d/opusgit/urbansim_data/data/psrc_parcel/runs")
   
-  # base <- list(Modelsrv3 = "//modelsrv3/e$/opusgit/urbansim_data/data/psrc_parcel/runs",
-  #              Modelsrv8 = "//MODELSRV8/d$/opusgit/urbansim_data/data/psrc_parcel/runs")
+  base <- list(Modelsrv3 = "//modelsrv3/e$/opusgit/urbansim_data/data/psrc_parcel/runs",
+               Modelsrv8 = "//MODELSRV8/d$/opusgit/urbansim_data/data/psrc_parcel/runs")
   #base.dir <- "/Volumes/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
   #base.dir <- "/media/modelsrv8d/opusgit/urbansim_data/data/psrc_parcel/runs"
   #base.dir <- "/media/modelsrv3e/opusgit/urbansim_data/data/psrc_parcel/runs"
-  # wrkdir <- "C:/Users/Christy/Desktop/luv/QC"
-  wrkdir <- "/home/shiny/apps/luv/QC"
+  wrkdir <- "C:/Users/CLam/Desktop/luv/QC"
+  # wrkdir <- "/home/shiny/apps/luv/QC"
   #wrkdir <- "/Users/hana/ForecastProducts/LUV/QC"
 }
 
@@ -46,6 +46,9 @@ dsn <- file.path(wrkdir, "data")
 faz.lookup <- read.table(file.path(dsn, "faz_names.txt"), header =TRUE, sep = "\t")
 zone.lookup <- read.table(file.path(dsn, "zones.txt"), header =TRUE, sep = "\t")
 city.lookup <- read.table(file.path(dsn, "cities.csv"), header =TRUE, sep = ",")
+zonecnty.lookup <- read.table(file.path(dsn, "zonecnty.txt"), header =TRUE, sep = "\t")
+rgc.lookup <- read.table(file.path(dsn, "growth_centers.csv"),header=TRUE, sep=',') %>% subset(growth_center_id >= 500)
+splaces.lookup <- read.table(file.path(dsn, 'SpecialPlaces.csv'), header=TRUE, sep=',')
 
 layer_zone <- "TAZ_2010_WGS84"
 layer_faz <- "FAZ_2010_WGS84"

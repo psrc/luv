@@ -30,6 +30,70 @@ navbarPage(theme = shinytheme("readable"),
                       ) # end column
                     ) # end fluidPage
            ), # end tabPanel
+           tabPanel("Topsheet",
+                    fluidPage(
+                      fluidRow(
+                        column(width = 1
+                        
+                        ),
+                        column(width = 10,
+                               htmlOutput('ts_currRun'),
+                               
+                               htmlOutput('ts_desc'),
+                               
+                               htmlOutput('ts_rest'),
+                               br()
+                        ), # end column
+                        column(width = 1
+                          
+                        )
+                      ), # end fluidRow
+                      fluidRow(
+                        column(width = 1
+                               
+                        ), # end column
+                        column(width = 10,
+                               h4(class="header", checked=NA,
+                                  tags$b("Households by County")
+                               ),
+                               tableOutput('tpsht_hh'),
+                               h4(class="header", checked=NA,
+                                  tags$b("Population by County")
+                               ),
+                               tableOutput('tpsht_pop'),
+                               h4(class="header", checked=NA,
+                                  tags$b("Employment by County")
+                               ),
+                               tableOutput('tpsht_emp'),
+                               h4(class="header", checked=NA,
+                                  tags$b("Jobs by Sector")
+                               ),
+                               tableOutput('tpsht_jobs'),
+                               
+                               h4(class="header", checked=NA,
+                                  tags$b("PTYPE Variable")
+                               ),
+                               tableOutput('tpsht_ptype'),
+                               h4(class="header", checked=NA,
+                                  tags$b("Households by Income Group")
+                               ),
+                               tableOutput('tpsht_hhInc'),
+                               h4(class="header", checked=NA,
+                                  tags$b("Largest RGCs")
+                               ),
+                               tableOutput('tpsht_rgc'),
+                               h4(class="header", checked=NA,
+                                  tags$b("Key Locations")
+                               ),
+                               tableOutput('tpsht_splace')
+                        ), # end column
+                        column(width = 1
+                               
+                        ) # end column
+                      ) # end fluidRow
+                      
+                    ) # end fluidPage
+           ), # end tabPanel
            tabPanel("Run Comparison",
                     fluidPage(
                       fluidRow(
