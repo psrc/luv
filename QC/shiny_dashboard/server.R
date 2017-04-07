@@ -555,7 +555,7 @@ function(input, output, session) {
   output$ts_rest <- renderText({
     filename <- "Restrictions.txt"
     desc.file <- readLines(file.path(base.dir(), selectRun1(),"indicators", filename), warn = FALSE)
-    paste("<b>Restriction</b>:", desc.file)
+    paste("<b>Restrictions</b>:", desc.file)
   })
   
   # Filter table and calculate regional totals for general all-data-table
@@ -579,7 +579,7 @@ function(input, output, session) {
     setcolorder(t1, c("County", runs[1], runs[2]))
     t1[, Change := (t1[[ncol(t1)-1]]-t1[[ncol(t1)]])][, Per.Change := (Change/t1[[2]])*100]
     t1[, 2:4 := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = 2:4]
-  }, hover = TRUE, width = '75%')
+  }, hover = TRUE, width = '75%', align = 'lcccr')
   
   # Display population summary table
   output$tpsht_pop <- renderTable({
@@ -591,7 +591,7 @@ function(input, output, session) {
     setcolorder(t1, c("County", runs[1], runs[2]))
     t1[, Change := (t1[[ncol(t1)-1]]-t1[[ncol(t1)]])][, Per.Change := (Change/t1[[2]])*100]
     t1[, 2:4 := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = 2:4]
-  }, hover = TRUE, digits = 1, width = '75%')
+  }, hover = TRUE, digits = 1, width = '75%', align = 'lcccr')
   
   # Display employment summary table
   output$tpsht_emp <- renderTable({
@@ -603,7 +603,7 @@ function(input, output, session) {
     setcolorder(t1, c("County", runs[1], runs[2]))
     t1[, Change := (t1[[ncol(t1)-1]]-t1[[ncol(t1)]])][, Per.Change := (Change/t1[[2]])*100]
     t1[, 2:4 := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = 2:4]
-  }, hover = TRUE, digits = 1, width = '75%')
+  }, hover = TRUE, digits = 1, width = '75%', align = 'lcccr')
   
   # Filter table and calculate totals for PTYPE
   tsPtypeTable <- reactive({
@@ -630,7 +630,7 @@ function(input, output, session) {
     t0 <- pt[with(pt, order(name)),]
     t <- t0[, -"name", with = FALSE]
     t[, 2:4 := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = 2:4]
-  }, hover = TRUE, digits = 1, width = '75%')
+  }, hover = TRUE, digits = 1, width = '75%', align = 'llllr')
   
   # Filter table and calculate totals for Income summary table
   tsIncTable <- reactive({
@@ -652,7 +652,7 @@ function(input, output, session) {
     setcolorder(t, c("Group", runs[1], runs[2]))
     t[, Change := (t[[ncol(t)-1]]-t[[ncol(t)]])][, Per.Change := (Change/t[[2]])*100]
     t[, 2:4 := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = 2:4]
-  }, hover = TRUE, digits = 1, width = '75%')
+  }, hover = TRUE, digits = 1, width = '75%', align = 'lcccr')
   
   # Filter table and calculate totals for Jobs by Sector table
   tsSectorJobs <- reactive({
@@ -674,7 +674,7 @@ function(input, output, session) {
     setcolorder(t, c("Sector", runs[1], runs[2]))
     t[, Change := (t[[ncol(t)-1]]-t[[ncol(t)]])][, Per.Change := (Change/t[[2]])*100]
     t[, 2:4 := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = 2:4]
-  }, hover = TRUE, digits = 1, width = '75%')
+  }, hover = TRUE, digits = 1, width = '75%', align = 'lcccr')
   
   # Filter table and calculate totals for largest RGCs
   tsGrowthCtr <- reactive({
