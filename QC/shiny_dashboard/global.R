@@ -27,16 +27,16 @@ if(make) {
   result.name <- Sys.getenv('QC_NAME')
   wrkdir <- file.path(Sys.getenv('QC_SCRIPT_PATH'), "..")
 } else {
-  # base <- list(Modelsrv3 = "/media/modelsrv3e/opusgit/urbansim_data/data/psrc_parcel/runs",
-  #              Modelsrv8 = "/media/modelsrv8d/opusgit/urbansim_data/data/psrc_parcel/runs")
+  base <- list(Modelsrv3 = "/media/modelsrv3e/opusgit/urbansim_data/data/psrc_parcel/runs",
+               Modelsrv8 = "/media/modelsrv8d/opusgit/urbansim_data/data/psrc_parcel/runs")
   
-  base <- list(Modelsrv3 = "//modelsrv3/e$/opusgit/urbansim_data/data/psrc_parcel/runs",
-               Modelsrv8 = "//MODELSRV8/d$/opusgit/urbansim_data/data/psrc_parcel/runs")
+  # base <- list(Modelsrv3 = "//modelsrv3/e$/opusgit/urbansim_data/data/psrc_parcel/runs",
+  #              Modelsrv8 = "//MODELSRV8/d$/opusgit/urbansim_data/data/psrc_parcel/runs")
   #base.dir <- "/Volumes/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
   #base.dir <- "/media/modelsrv8d/opusgit/urbansim_data/data/psrc_parcel/runs"
   #base.dir <- "/media/modelsrv3e/opusgit/urbansim_data/data/psrc_parcel/runs"
-  wrkdir <- "C:/Users/CLam/Desktop/luv/QC"
-  # wrkdir <- "/home/shiny/apps/luv/QC"
+  # wrkdir <- "C:/Users/CLam/Desktop/luv/QC"
+  wrkdir <- "/home/shiny/apps/luv/QC"
   #wrkdir <- "/Users/hana/ForecastProducts/LUV/QC"
 }
 
