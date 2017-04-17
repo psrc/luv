@@ -1,22 +1,23 @@
 # QC_NAME is obligatory entry; defines subdirectory for the QC results
-QC_NAME=run57_31rx2_29
+QC_NAME=run64_raw
 
 QC_BASE_DIRECTORY=//MODELSRV8/d$$/opusgit/urbansim_data/data/psrc_parcel/runs
 #QC_BASE_DIRECTORY=//modelsrv3/e$$/opusgit/urbansim_data/data/psrc_parcel/runs
 #QC_BASE_DIRECTORY=/Volumes/d$$/opusgit/urbansim_data/data/psrc_parcel/runs
 
-QC_RUN1=run_57.run_2017_04_03_15_51
+QC_RUN1=run_64.run_2017_04_12_10_17
 # Optional description of the run
-QC_RUN1_DESCR=Fill in description of this run
+QC_RUN1_DESCR=synthpop_hh_xtab_distributions
 # Optional info about any restrictions
-QC_RUN1_RESTR=Test run!
+#QC_RUN1_RESTR=Test run!
 
 #QC_RUN2=run_31.run_2017_01_17_13_57, run_29.run_2017_01_10_11_25, luv_1.compiled
-QC_RUN2=run_31.run_2017_01_17_13_57, run_29.run_2017_01_10_11_25
+QC_RUN2=run_57.run_2017_04_03_15_51, run_31.run_2017_01_17_13_57,  run_29.run_2017_01_10_11_25
 
 DECREASE_THRESHOLD=10
 DECREASE_THRESHOLD_PERCENT=1
 #RREPORT_RUNS=run_81.run_2016_07_05_16_00, run_78.run_2016_06_23_09_47, run_170.run_2015_09_15_16_02
 #RREPORT_RUNS=run_140.run_2016_10_04_15_56, run_81.run_2016_07_05_16_00, 81_plus_r97.compiled, luv_1.compiled
-RREPORT_RUNS=run_32.run_2016_10_17_15_00, 81_plus_r97.compiled, luv_1.compiled
-RREPORT_ANNUAL=FALSE
+#RREPORT_RUNS=run_32.run_2016_10_17_15_00, 81_plus_r97.compiled, luv_1.compiled
+RREPORT_RUNS=run_57.run_2017_04_03_15_51, luv2.1draft
+RREPORT_ANNUAL=TRUE
