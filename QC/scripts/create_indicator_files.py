@@ -414,7 +414,21 @@ Table(
                       'Group3_UpTo110600 = alldata.aggregate_all(numpy.logical_and(household.income<110600,household.income>=73700))',
                       'Group4_Over110600 = alldata.aggregate_all(household.income>=110600)',
                       ],
-              ),         
+              ),
+          
+          DatasetTable(
+              source_data = source_data,
+              dataset_name = 'alldata',
+              name =  'pwtyp',
+              output_type = 'csv',
+              attributes = [
+                        'full_time = alldata.aggregate_all((person.employment_status==1)*(urbansim_parcel.person.job_id > 0))',
+                        'part_time = alldata.aggregate_all((person.employment_status==2)*(urbansim_parcel.person.job_id > 0))',
+                        'workers_no_job = alldata.aggregate_all((person.employment_status >0)*(urbansim_parcel.person.job_id < 0))',
+                        'non_workers_no_job = alldata.aggregate_all((person.employment_status <1)*(urbansim_parcel.person.job_id < 0))',
+                      ],
+              ),            
+              
     ]
     return indicators
 
