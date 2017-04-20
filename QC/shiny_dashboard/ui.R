@@ -53,38 +53,31 @@ navbarPage(theme = shinytheme("readable"),
                                
                         ), # end column
                         column(width = 10,
-                               h4(class="header", checked=NA,
-                                  tags$b("Households by County")
-                               ),
+                               h4(class="header", checked=NA, tags$b("Households by County")),
                                tableOutput('tpsht_hh'),
-                               h4(class="header", checked=NA,
-                                  tags$b("Population by County")
-                               ),
+                               
+                               h4(class="header", checked=NA, tags$b("Population by County")),
                                tableOutput('tpsht_pop'),
-                               h4(class="header", checked=NA,
-                                  tags$b("Employment by County")
-                               ),
+                               
+                               h4(class="header", checked=NA, tags$b("Employment by County")),
                                tableOutput('tpsht_emp'),
-                               h4(class="header", checked=NA,
-                                  tags$b("Jobs by Sector")
-                               ),
+                               
+                               h4(class="header", checked=NA, tags$b("Jobs by Sector")),
                                tableOutput('tpsht_jobs'),
                                
-                               h4(class="header", checked=NA,
-                                  tags$b("PTYPE Variable")
-                               ),
+                               h4(class="header", checked=NA, tags$b("Worker Type")),
+                               tableOutput('tpsht_pwtype'),
+                               
+                               h4(class="header", checked=NA, tags$b("Person Type")),
                                tableOutput('tpsht_ptype'),
-                               h4(class="header", checked=NA,
-                                  tags$b("Households by Income Group")
-                               ),
+                               
+                               h4(class="header", checked=NA, tags$b("Households by Income Group")),
                                tableOutput('tpsht_hhInc'),
-                               h4(class="header", checked=NA,
-                                  tags$b("Largest RGCs")
-                               ),
+                               
+                               h4(class="header", checked=NA, tags$b("Largest RGCs")),
                                tableOutput('tpsht_rgc'),
-                               h4(class="header", checked=NA,
-                                  tags$b("Key Locations")
-                               ),
+                               
+                               h4(class="header", checked=NA, tags$b("Key Locations")),
                                tableOutput('tpsht_splace')
                         ), # end column
                         column(width = 1

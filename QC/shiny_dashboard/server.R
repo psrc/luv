@@ -1,5 +1,7 @@
 function(input, output, session) {
-  #functions------------------------------------------------------------------------------
+  
+# functions ---------------------------------------------------------------
+
   
   # remove all whitespaces
   remove.spaces <- function(x) gsub(" ", "", x, fixed = TRUE)
@@ -195,11 +197,74 @@ function(input, output, session) {
     return(map)
   }
   
+  # Prepares generic topsheet table for main indicators (households, population, employment) 
+  create.tsTable <- function(table){
+    runs <- runs()
+    
+    t1 <- dcast.data.table(table, County ~ run, value.var = yr.col)
+    setcolorder(t1, c("County", paste0(yr.col[1],"_",runs[1]), paste0(yr.col[2],"_",runs[1]), paste0(yr.col[2],"_",runs[2]), paste0(yr.col[1],"_",runs[2])))
+    t1[, ncol(t1) := NULL]
+    t1[, Change := (t1[[ncol(t1)-1]]-t1[[ncol(t1)]])][, Per.Change := round((Change/t1[[3]])*100, 2)]
+    setnames(t1, colnames(t1), c("County", 
+                                 paste0(yr.fl[1], "_", runs[1]),
+                                 paste0(yr.fl[2], "_", runs[1]),
+                                 paste0(yr.fl[2], "_", runs[2]),
+                                 "Change",
+                                 "Per.Change"))
+    t1[, 2:5 := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = 2:5]
+  }
   
-  #Initialize Dashboard---------------------------------------------------------------------------
+  # Prepares expanded topsheet table for RGCs & Key Locations
+  create.exp.tsTable <- function(table){
+    runs <- runs()
+    
+    setcolorder(table, 
+                c("Name",
+                  paste0(yr.col[1], "_", "Population","_", runs[1]),
+                  paste0(yr.col[2], "_", "Population","_", runs[1]),
+                  paste0(yr.col[2], "_", "Population","_", runs[2]),
+                  paste0(yr.col[1], "_", "Employment","_", runs[1]),
+                  paste0(yr.col[2], "_", "Employment","_", runs[1]),
+                  paste0(yr.col[2], "_", "Employment","_", runs[2]),
+                  paste0(yr.col[1], "_", "Population","_", runs[2]),
+                  paste0(yr.col[1], "_", "Employment","_", runs[2])))
+    table[, (ncol(table)-1):ncol(table) := NULL] 
+    
+    t1<- table[, Pop.Change := (table[[3]]-table[[4]])
+               ][, Pop.Per.Change := round((Pop.Change/table[[3]])*100, 2)
+                 ][, Emp.Change := (table[[6]]-table[[7]])
+                   ][, Emp.Per.Change := round((Emp.Change/table[[6]])*100, 2)]
+    setcolorder(t1,
+                c("Name",
+                  paste0(yr.col[1], "_", "Population","_", runs[1]),
+                  paste0(yr.col[2], "_", "Population","_", runs[1]),
+                  paste0(yr.col[2], "_", "Population","_", runs[2]),
+                  "Pop.Change",
+                  "Pop.Per.Change",
+                  paste0(yr.col[1], "_", "Employment","_", runs[1]),
+                  paste0(yr.col[2], "_", "Employment","_", runs[1]),
+                  paste0(yr.col[2], "_", "Employment","_", runs[2]),
+                  "Emp.Change",
+                  "Emp.Per.Change"))
+    setnames(t1, colnames(t1), c("Name",
+                                 paste0(yr.fl[1], "_", "Pop","_", runs[1]),
+                                 paste0(yr.fl[2], "_", "Pop","_", runs[1]),
+                                 paste0(yr.fl[2], "_", "Pop","_", runs[2]),
+                                 "Pop.Change",
+                                 "Pop.Per.Change",
+                                 paste0(yr.fl[1], "_", "Emp","_", runs[1]),
+                                 paste0(yr.fl[2], "_", "Emp","_", runs[1]),
+                                 paste0(yr.fl[2], "_", "Emp","_", runs[2]),
+                                 "Emp.Change",
+                                 "Emp.Per.Change"))
+    t1[, c(2:5,7:10) := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = c(2:5,7:10)]
+  }
   
-  trim.subdir <- tempfile(pattern="sessiondir", tmpdir=".")
-  # trim.subdir <- tempfile(pattern="sessiondir", tmpdir="")
+# Initialize Dashboard ----------------------------------------------------
+
+  
+  # trim.subdir <- tempfile(pattern="sessiondir", tmpdir=".")
+  trim.subdir <- tempfile(pattern="sessiondir", tmpdir="")
   subdir <- file.path("www", trim.subdir)
   vars <- reactiveValues(submitted=FALSE)
   
@@ -351,7 +416,8 @@ function(input, output, session) {
                              agegroup_intr = "age_groups_of_interest__\\d+",
                              dollargroup = "30_60_90_in_14dollars_groups__\\d+",
                              incomegroup = "new_14incomegroups__\\d+",
-                             persontype = "pptyp__\\d+")
+                             persontype = "pptyp__\\d+",
+                             workertype = "pwtyp__\\d+")
     demog.table <- NULL
     table <- NULL
 
@@ -458,30 +524,32 @@ function(input, output, session) {
     return(dev.dt)
   })
   
-  # Build 2040 Jobs by Sector table
+  # Build Jobs by Sector table
   jobsectdt <- eventReactive(input$goButton,{
     runnames <- runnames()
     runs <- runs()
     
-    yr <- as.character(years[length(years)])
-    sectorJobs.ind <- paste0("census_tract__dataset_table__employment_by_aggr_sector__", yr)
+    sectorJobs.pat <- "census_tract__dataset_table__employment_by_aggr_sector__\\d+"
     
     sectorJobs.table <- NULL
     for (r in 1:length(runnames)) {
-      table <- NULL
-      sectorJobs.file <- list.files(file.path(base.dir(), runnames[r], "indicators"), pattern = paste0(sectorJobs.ind, extension))
-      table <- read.csv(file.path(base.dir(), runnames[r], "indicators", sectorJobs.file), header = TRUE, sep = ",")
-      col.sum <- apply(table, 2, sum)
-      sectorJobs.df <- transpose(data.frame(col.sum))
-      colnames(sectorJobs.df) <- colnames(table)
-      sectorJobs.df$run <- runs[r]
-      sectorJobs.df$census_tract_id <- NULL
-      ifelse(is.null(sectorJobs.table), sectorJobs.table <- sectorJobs.df, sectorJobs.table  <- rbind(sectorJobs.table, sectorJobs.df))
-    } # end of runnames loop
+      sectorJobs.file <- list.files(file.path(base.dir(), runnames[r], "indicators"), pattern = paste0(sectorJobs.pat, extension))
+      for (f in 1:length(sectorJobs.file)){
+        # table <- NULL
+        table <- read.csv(file.path(base.dir(), runnames[r], "indicators", sectorJobs.file[f]), header = TRUE, sep = ",")
+        col.sum <- apply(table, 2, sum)
+        sectorJobs.df <- transpose(data.frame(col.sum))
+        colnames(sectorJobs.df) <- colnames(table)
+        sectorJobs.df$run <- runs[r]
+        sectorJobs.df$census_tract_id <- NULL
+        sectorJobs.df$year <- str_match(sectorJobs.file[f], "(\\d+){4}")[,1]
+        ifelse(is.null(sectorJobs.table), sectorJobs.table <- sectorJobs.df, sectorJobs.table  <- rbind(sectorJobs.table, sectorJobs.df))
+      } # end sectorJobs.file loop
+    } # end runnames loop
     
     sectorJobs.table <- as.data.table(sectorJobs.table)
-    sj <- melt.data.table(sectorJobs.table, id.vars = c("run"), measure.vars = colnames(sectorJobs.table)[1:(ncol(sectorJobs.table)-1)])
-    setnames(sj, colnames(sj), c("run", "sector", "estimate"))
+    sj <- melt.data.table(sectorJobs.table, id.vars = c("run", "year"), measure.vars = colnames(sectorJobs.table)[1:(ncol(sectorJobs.table)-2)])
+    setnames(sj, colnames(sj), c("run", "year", "sector", "estimate"))
     return(sj)
   })
   
@@ -541,7 +609,10 @@ function(input, output, session) {
     unlink(subdir, recursive=TRUE)
   })
   
-  #Topsheet reactions and rendering--------------------------------------------------------------------
+
+# Topsheet Reactions and Rendering ----------------------------------------
+
+
   output$ts_currRun <- renderText({
     paste("<b>Current Run:</b>", selectRun1())
   })
@@ -562,10 +633,10 @@ function(input, output, session) {
   tsTable <- reactive({
     alldt <- alldt()
     runs <- runs()
-    #remove hardcoding of yr2040
+    
     t <- merge(alldt[geography == 'zone' & (run == runs[1] | run == runs[2])], zonecnty.lookup, by.x = "name_id", by.y = "TAZ")
-    t1 <- t[, lapply(.SD, sum), by = list(County = COUNTY_NM, indicator, run), .SDcols = "yr2040"]
-    t.sum <- t1[, .(yr2040 = sum(yr2040)), by = list(indicator, run)][, County := "Sub-Total: Region"]
+    t1 <- t[, lapply(.SD, sum), by = list(County = COUNTY_NM, indicator, run), .SDcols = yr.col]
+    t.sum <- t1[, .(yr2014 = sum(yr2014), yr2040 = sum(yr2040)), by = list(indicator, run)][, County := "Sub-Total: Region"]
     rbindlist(list(t1, t.sum), use.names = TRUE)
   })
   
@@ -575,11 +646,8 @@ function(input, output, session) {
     runs <- runs()
     
     t <- tsTable[indicator == 'Households']
-    t1 <- dcast.data.table(t, County ~ run, value.var = "yr2040")
-    setcolorder(t1, c("County", runs[1], runs[2]))
-    t1[, Change := (t1[[ncol(t1)-1]]-t1[[ncol(t1)]])][, Per.Change := (Change/t1[[2]])*100]
-    t1[, 2:4 := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = 2:4]
-  }, hover = TRUE, width = '75%', align = 'lcccr')
+    t1 <- create.tsTable(t)
+  }, hover = TRUE, width = '75%', align = 'lrrrrr')
   
   # Display population summary table
   output$tpsht_pop <- renderTable({
@@ -587,11 +655,8 @@ function(input, output, session) {
     runs <- runs()
     
     t <- tsTable[indicator == 'Total Population']
-    t1 <- dcast.data.table(t, County ~ run, value.var = "yr2040")
-    setcolorder(t1, c("County", runs[1], runs[2]))
-    t1[, Change := (t1[[ncol(t1)-1]]-t1[[ncol(t1)]])][, Per.Change := (Change/t1[[2]])*100]
-    t1[, 2:4 := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = 2:4]
-  }, hover = TRUE, digits = 1, width = '75%', align = 'lcccr')
+    t1 <- create.tsTable(t)
+  }, hover = TRUE, digits = 1, width = '75%', align = 'lrrrrr')
   
   # Display employment summary table
   output$tpsht_emp <- renderTable({
@@ -599,22 +664,52 @@ function(input, output, session) {
     runs <- runs()
     
     t <- tsTable[indicator == 'Employment']
-    t1 <- dcast.data.table(t, County ~ run, value.var = "yr2040")
-    setcolorder(t1, c("County", runs[1], runs[2]))
-    t1[, Change := (t1[[ncol(t1)-1]]-t1[[ncol(t1)]])][, Per.Change := (Change/t1[[2]])*100]
-    t1[, 2:4 := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = 2:4]
-  }, hover = TRUE, digits = 1, width = '75%', align = 'lcccr')
+    t1 <- create.tsTable(t)
+  }, hover = TRUE, digits = 1, width = '75%', align = 'lrrrrr')
+  
+  # Filter table and calculate totals for PWTYPE
+  tsPwtypeTable <- reactive({
+    demogdt <- demogdt()
+    runs <- runs()
+    
+    t <- demogdt[demographic == 'workertype' & (run == runs[1] | run == runs[2]) & (year %in% yr.fl)
+                 ][, lapply(.SD, sum), by = list(Group = groups, run, year), .SDcols = "estimate"]
+    t.sum <- t[, .(estimate = sum(estimate)), by = list(run, year)][, Group := "Sub-Total: Persons"]
+    rbindlist(list(t, t.sum), use.names = TRUE)
+  })
+  
+  # Display PWTYPE summary table
+  output$tpsht_pwtype <- renderTable({
+    tsPwtypeTable <- tsPwtypeTable()
+    runs <- runs()
+    newOrder <- c("full_time", "part_time", "non_workers_no_job", "workers_no_job", "Sub-Total: Persons")
+    
+    if (length(unique(tsPwtypeTable$run)) == 2) {
+      pt <- dcast.data.table(tsPwtypeTable, Group ~ year + run, value.var = "estimate")
+      setcolorder(pt, c("Group", paste0(yr.fl[1],"_",runs[1]), paste0(yr.fl[2],"_",runs[1]), paste0(yr.fl[2],"_",runs[2]), paste0(yr.fl[1],"_",runs[2])))
+      pt[, ncol(pt) := NULL]
+      pt[, Change := (pt[[ncol(pt)-1]]-pt[[ncol(pt)]])][, Per.Change := round((Change/pt[[3]])*100, 2)][ , name := factor(Group, levels = newOrder)]
+      t0 <- pt[with(pt, order(name)),]
+      t <- t0[, -"name", with = FALSE]
+      t[, 2:5 := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = 2:5]
+    } else {
+      pt <- dcast.data.table(tsPwtypeTable, Group ~ year + run, value.var = "estimate")
+      pt[ , name := factor(Group, levels = newOrder)]
+      t0 <- pt[with(pt, order(name)),]
+      t <- t0[, -"name", with = FALSE]
+      t[, 2:ncol(t) := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = 2:ncol(t)]
+    }
+  }, hover = TRUE, digits = 1, width = '75%', align = 'lrrrrr')
   
   # Filter table and calculate totals for PTYPE
   tsPtypeTable <- reactive({
     demogdt <- demogdt()
     runs <- runs()
     
-    t <- demogdt[demographic == 'persontype' & (run == runs[1] | run == runs[2]) & year == '2040'
-                 ][, lapply(.SD, sum), by = list(Group = groups, run), .SDcols = "estimate"]
-    t.sum <- t[, .(estimate = sum(estimate)), by = list(run)][, Group := "Sub-Total: Persons"]
+    t <- demogdt[demographic == 'persontype' & (run == runs[1] | run == runs[2]) & (year %in% yr.fl)
+                 ][, lapply(.SD, sum), by = list(Group = groups, run, year), .SDcols = "estimate"]
+    t.sum <- t[, .(estimate = sum(estimate)), by = list(run, year)][, Group := "Sub-Total: Persons"]
     rbindlist(list(t, t.sum), use.names = TRUE)
-    
   })
   
   # Display PTYPE summary table
@@ -624,22 +719,23 @@ function(input, output, session) {
     newOrder <- c("full_time_worker", "part_time_worker", "non_working_adult_age_65_plus", "non_working_adult_age_16_64", 
       "university_student" , "hs_student_age_15_up" , "child_age_5_15" , "child_age_0_4" , "Sub-Total: Persons" )
     
-    pt <- dcast.data.table(tsPtypeTable, Group ~ run, value.var = "estimate")
-    setcolorder(pt, c("Group", runs[1], runs[2]))
-    pt[, Change := (pt[[ncol(pt)-1]]-pt[[ncol(pt)]])][, Per.Change := (Change/pt[[2]])*100][ , name := factor(Group, levels = newOrder)]
+    pt <- dcast.data.table(tsPtypeTable, Group ~ year + run, value.var = "estimate")
+    setcolorder(pt, c("Group", paste0(yr.fl[1],"_",runs[1]), paste0(yr.fl[2],"_",runs[1]), paste0(yr.fl[2],"_",runs[2]), paste0(yr.fl[1],"_",runs[2])))
+    pt[, ncol(pt) := NULL]
+    pt[, Change := (pt[[ncol(pt)-1]]-pt[[ncol(pt)]])][, Per.Change := (Change/pt[[3]])*100][ , name := factor(Group, levels = newOrder)]
     t0 <- pt[with(pt, order(name)),]
     t <- t0[, -"name", with = FALSE]
-    t[, 2:4 := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = 2:4]
-  }, hover = TRUE, digits = 1, width = '75%', align = 'llllr')
+    t[, 2:5 := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = 2:5]
+  }, hover = TRUE, digits = 1, width = '75%', align = 'lrrrrr')
   
   # Filter table and calculate totals for Income summary table
   tsIncTable <- reactive({
     demogdt <- demogdt()
     runs <- runs()
 
-    t <- demogdt[demographic == 'incomegroup' & (run == runs[1] | run == runs[2]) & year == '2040'
-                 ][, lapply(.SD, sum), by = list(Group = groups, run), .SDcols = "estimate"]
-    t.sum <- t[, .(estimate = sum(estimate)), by = list(run)][, Group := "Sub-Total: Households"]
+    t <- demogdt[demographic == 'incomegroup' & (run == runs[1] | run == runs[2]) & (year %in% yr.fl)
+                 ][, lapply(.SD, sum), by = list(Group = groups, run, year), .SDcols = "estimate"]
+    t.sum <- t[, .(estimate = sum(estimate)), by = list(run, year)][, Group := "Sub-Total: Households"]
     rbindlist(list(t, t.sum), use.names = TRUE)
   })
   
@@ -648,19 +744,20 @@ function(input, output, session) {
     tsIncTable <- tsIncTable()
     runs <- runs()
     
-    t <- dcast.data.table(tsIncTable, Group ~ run, value.var = "estimate")
-    setcolorder(t, c("Group", runs[1], runs[2]))
-    t[, Change := (t[[ncol(t)-1]]-t[[ncol(t)]])][, Per.Change := (Change/t[[2]])*100]
-    t[, 2:4 := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = 2:4]
-  }, hover = TRUE, digits = 1, width = '75%', align = 'lcccr')
+    t <- dcast.data.table(tsIncTable, Group ~ year + run, value.var = "estimate")
+    setcolorder(t, c("Group", paste0(yr.fl[1],"_",runs[1]), paste0(yr.fl[2],"_",runs[1]), paste0(yr.fl[2],"_",runs[2]), paste0(yr.fl[1],"_",runs[2])))
+    t[, ncol(t) := NULL]
+    t[, Change := (t[[ncol(t)-1]]-t[[ncol(t)]])][, Per.Change := (Change/t[[3]])*100]
+    t[, 2:5 := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = 2:5]
+  }, hover = TRUE, digits = 1, width = '75%', align = 'lrrrrr')
   
   # Filter table and calculate totals for Jobs by Sector table
   tsSectorJobs <- reactive({
     jobsectdt <- jobsectdt()
     runs <- runs()
     
-    t <- jobsectdt[(run == runs[1] | run == runs[2])]
-    t.sum <- t[, .(estimate = sum(estimate)), by = list(run)][, sector := "Sub-Total: Jobs"]
+    t <- jobsectdt[(run == runs[1] | run == runs[2]) & (year %in% yr.fl)]
+    t.sum <- t[, .(estimate = sum(estimate)), by = list(run, year)][, sector := "Sub-Total: Jobs"]
     rbindlist(list(t, t.sum), use.names = TRUE)
   })
   
@@ -669,12 +766,13 @@ function(input, output, session) {
     tsSectorJobs <- tsSectorJobs()
     runs <- runs()
     
-    t <- dcast.data.table(tsSectorJobs, sector ~ run, value.var = "estimate")
+    t <- dcast.data.table(tsSectorJobs, sector ~ year + run, value.var = "estimate")
     setnames(t, "sector", "Sector")
-    setcolorder(t, c("Sector", runs[1], runs[2]))
-    t[, Change := (t[[ncol(t)-1]]-t[[ncol(t)]])][, Per.Change := (Change/t[[2]])*100]
-    t[, 2:4 := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = 2:4]
-  }, hover = TRUE, digits = 1, width = '75%', align = 'lcccr')
+    setcolorder(t, c("Sector", paste0(yr.fl[1],"_",runs[1]), paste0(yr.fl[2],"_",runs[1]), paste0(yr.fl[2],"_",runs[2]), paste0(yr.fl[1],"_",runs[2])))
+    t[, ncol(t) := NULL]
+    t[, Change := (t[[ncol(t)-1]]-t[[ncol(t)]])][, Per.Change := round((Change/t[[3]])*100, 2)]
+    t[, 2:5 := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = 2:5]
+  }, hover = TRUE, digits = 1, width = '75%', align = 'lrrrrr')
   
   # Filter table and calculate totals for largest RGCs
   tsGrowthCtr <- reactive({
@@ -685,7 +783,7 @@ function(input, output, session) {
                 "Seattle University Community", "Tacoma Downtown")
     t <- growctrdt[(indicator == 'Total Population' | indicator == 'Employment') & (run == runs[1] | run == runs[2])]
     t[indicator == 'Total Population', indicator := 'Population']
-    t1 <- t[, lapply(.SD, sum), by = list(name, indicator, run), .SDcols = "yr2040"]
+    t1 <- t[, lapply(.SD, sum), by = list(name, indicator, run), .SDcols = yr.col]
     t1 <- t1[name %in% lg.rgc, ]
   })
   
@@ -694,27 +792,10 @@ function(input, output, session) {
     tsGrwothCtr <- tsGrowthCtr()
     runs <- runs()
 
-    t <- dcast.data.table(tsGrwothCtr, name ~ indicator + run, value.var = "yr2040")
+    t <- dcast.data.table(tsGrwothCtr, name ~ indicator + run, value.var = yr.col)
     setnames(t, "name", "Name")
-    setcolorder(t, c("Name", grep(paste0("Population_", runs[1]), names(t), value = TRUE), 
-                     grep(paste0("Population_", runs[2]), names(t), value = TRUE),
-                     grep(paste0("Employment_", runs[1]), names(t), value = TRUE),
-                     grep(paste0("Employment_", runs[2]), names(t), value = TRUE)))
-    
-    t1<- t[, Pop.Change := (t[[2]]-t[[3]])
-            ][, Pop.Per.Change := (Pop.Change/t[[2]])*100
-              ][, Emp.Change := (t[[4]]-t[[5]])
-                ][, Emp.Per.Change := (Emp.Change/t[[4]])*100]
-    setcolorder(t1, c("Name", grep(paste0("Population_", runs[1]), names(t), value = TRUE), 
-                      grep(paste0("Population_", runs[2]), names(t), value = TRUE),
-                      "Pop.Change",
-                      "Pop.Per.Change",
-                      grep(paste0("Employment_", runs[1]), names(t), value = TRUE),
-                      grep(paste0("Employment_", runs[2]), names(t), value = TRUE),
-                      "Emp.Change",
-                      "Emp.Per.Change"))
-    t[, c(2:4,6:8) := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = c(2:4,6:8)]
-  }, hover = TRUE, digits = 1, width = '100%')
+    create.exp.tsTable(t)
+  }, hover = TRUE, digits = 1, width = '100%', align = 'lrrrrrrrrrr')
   
   # Filter table and calculate totals for Special Places
   tsSplace <- reactive({
@@ -724,7 +805,7 @@ function(input, output, session) {
     key.loc <- c("UW", "Amazon", "SeaTac Airport", "Microsoft Overlake", "Paine Field", "JBLM", "Bangor")
     t <- merge(alldt[geography == 'zone' & (run == runs[1] | run == runs[2]) & (indicator == 'Total Population' | indicator == 'Employment')], 
                splaces.lookup, by.x = "name_id", by.y = "zone_id")
-    t1 <- t[, lapply(.SD, sum), by = list(Name = name, indicator, run), .SDcols = "yr2040"][Name %in% key.loc, ]
+    t1 <- t[, lapply(.SD, sum), by = list(Name = name, indicator, run), .SDcols = yr.col][Name %in% key.loc, ]
     t1[indicator == "Total Population", indicator := "Population"]
   })
   
@@ -733,28 +814,13 @@ function(input, output, session) {
     tsSplace <- tsSplace()
     runs <- runs()
 
-    t <- dcast.data.table(tsSplace, Name ~ indicator + run, value.var = "yr2040")
-    setcolorder(t, c("Name", grep(paste0("Population_", runs[1]), names(t), value = TRUE), 
-                     grep(paste0("Population_", runs[2]), names(t), value = TRUE),
-                     grep(paste0("Employment_", runs[1]), names(t), value = TRUE),
-                     grep(paste0("Employment_", runs[2]), names(t), value = TRUE)))
-    
-    t1<- t[, Pop.Change := (t[[2]]-t[[3]])
-           ][, Pop.Per.Change := (Pop.Change/t[[2]])*100
-             ][, Emp.Change := (t[[4]]-t[[5]])
-               ][, Emp.Per.Change := (Emp.Change/t[[4]])*100]
-    setcolorder(t1, c("Name", grep(paste0("Population_", runs[1]), names(t), value = TRUE), 
-                      grep(paste0("Population_", runs[2]), names(t), value = TRUE),
-                      "Pop.Change",
-                      "Pop.Per.Change",
-                      grep(paste0("Employment_", runs[1]), names(t), value = TRUE),
-                      grep(paste0("Employment_", runs[2]), names(t), value = TRUE),
-                      "Emp.Change",
-                      "Emp.Per.Change"))
-    t[, c(2:4,6:8) := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = c(2:4,6:8)]
-  }, hover = TRUE, digits = 1, width = '100%')
+    t <- dcast.data.table(tsSplace, Name ~ indicator + run, value.var = yr.col)
+    create.exp.tsTable(t)
+  }, hover = TRUE, digits = 1, width = '100%', align = 'lrrrrrrrrrr')
   
-  #Run Comparison reactions----------------------------------------------------------------------------
+
+# Run Comparison Reactions ------------------------------------------------
+
   
   output$compare_select_run2_ui <- renderUI({
     runname1 <- runname1()
@@ -822,10 +888,10 @@ function(input, output, session) {
     )
   })
 
-  
-  #Run Comparison rendering-----------------------------------------------------------------------------
-  
-  
+
+# Run Comparison Rendering ------------------------------------------------
+
+
   # Plotly
   output$compare_plot <- renderPlotly({
     if(!vars$submitted) return(NULL)
@@ -865,7 +931,9 @@ function(input, output, session) {
     return(sub)
   })
   
-   #Growth reactions-------------------------------------------------------------------------------
+
+# Growth Reactions --------------------------------------------------------
+
 
    output$growth_select_run_ui <- renderUI({
      runs <- runs()
@@ -931,7 +999,9 @@ function(input, output, session) {
      )
    })
   
-  #Growth rendering------------------------------------------------------------------------------------
+
+# Growth Rendering --------------------------------------------------------
+
 
   # Plotly
   output$growth_plot <- renderPlotly({
@@ -969,8 +1039,10 @@ function(input, output, session) {
     return(sub)
   })
   
-  #Employment by Sector reactions and rendering-----------------------------------------------
-  
+
+# Employment by Sector Reactions and Rendering ----------------------------
+
+
   empGeog <- reactive({
     switch(as.integer(input$emp_display),
            file.path(trim.subdir, "qc_ts_emp_cnty.html"),
@@ -983,7 +1055,8 @@ function(input, output, session) {
     return(t)
   })
 
-  #Time Series reactions and rendering--------------------------------------------------------
+
+# Time Series Reactions and Rendering -------------------------------------
 
   lgarea <- list("EastsideKing_1","EastsideKing_2","GreenRiver","SeattleandShoreline","SEKingandKingOther",
                  "SWKing","Central,North,andSouthKitsap","PeninsulaandTacoma","PierceOther_1","PierceOther_2",
@@ -1002,9 +1075,11 @@ function(input, output, session) {
     })
 
 
-  #Demographic Indicator reactions and rendering---------------------------------------------
 
-  # Display graphs or text depending if demographic indicators exist
+# Demographic Indicators Reactions and Rendering --------------------------
+
+
+    # Display graphs or text depending if demographic indicators exist
   output$condDemog_Plot <- renderUI({
     if (is.null(demogdt())){
       verbatimTextOutput("demog_plot_test")
@@ -1095,8 +1170,10 @@ function(input, output, session) {
     p
   })
 
-  #Development Capacity reactions and rendering-----------------------------------------------------
-  
+
+# Development Capacity Reactions and Rendering ----------------------------
+
+
   # Display graphs or text depending if Development Capacity indicators exist
   output$condDcap_msg <- renderUI({
     if (is.null(devdt())){
