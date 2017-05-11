@@ -133,8 +133,16 @@ Currently, the following phonies are implemented:
 
 Each script should write its summary results into an Rmd file (in [R Markdown](http://rmarkdown.rstudio.com)), using a prefix that corresponds to its phonie (e.g. 'rplots\_', 'rtables\_'). The script 'scripts/create\_index\_file.R' (invoked by the index phonie) combines such files into one and translates it into index.html that can be viewed from a browser.  The file is located in the corresponding results directory.
 
-**New:** Typing ''make shiny'' (preceeded by ''make all'') will launch a dashboard in your browser allowing you to view the results interactively. To exit the dashboard press Ctrl-C. Note that currently only one dashboard per computer can be launched. It is using results from a directory determined by  the QC\_NAME entry in inputs.txt
+Typing ''make shiny'' (preceeded by ''make all'') will launch a dashboard in your browser allowing you to view the results interactively. To exit the dashboard press Ctrl-C. Note that currently only one dashboard per computer can be launched. It is using results from a directory determined by  the QC\_NAME entry in inputs.txt
 
+To view the Makefile results on the shiny server, copy the makefile results folder directly onto the server. In Git Bash, navigate to the location of the makefile results folder and type:
+
+```
+scp -r insert-makefile-results-folder-name shiny@dataweb:/home/shiny/apps/luv/QC/results
+```
+
+See Administrators for password.
+ 
 ## R-Reports
 
 One can generate R-reports via the Makefile, using the phonies  
