@@ -211,7 +211,7 @@ function(input, output, session) {
                                  paste0(yr.fl[2], "_", runs[2]),
                                  "Change",
                                  "Per.Change"))
-    t1[, 2:5 := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = 2:5]
+    t1[, 2:4 := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = 2:4]
   }
   
   # Prepares expanded topsheet table for RGCs & Key Locations
@@ -257,10 +257,10 @@ function(input, output, session) {
                                  paste0(yr.fl[2], "_", "Emp","_", runs[2]),
                                  "Emp.Change",
                                  "Emp.Per.Change"))
-    t1[, c(2:5,7:10) := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = c(2:5,7:10)]
+    t1[, c(2:4,7:9) := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = c(2:4,7:9)]
   }
   
-  # Create basic table container 'sketch'
+  # Create basic table container
   sketch.basic <- function(grpcol, year1, year2, run1, run2){
     htmltools::withTags(table(
       class = 'display', 
@@ -277,7 +277,7 @@ function(input, output, session) {
     )) # end withTags/table
   }
   
-  # Create expanded table container 'sketch'
+  # Create expanded table container
   sketch.expanded <- function(grpcol, year1, year2, run1, run2){
     htmltools::withTags(table(
       class = 'display',
@@ -315,7 +315,9 @@ function(input, output, session) {
                   ),
                   container = acontainer, 
                   rownames = FALSE
-    )
+    ) %>% 
+      formatStyle(colnames(table)[(ncol(table)-1):(ncol(table))],
+                  color = styleInterval(c(0), c('red', 'black')))
   }
   
   # Create an expanded DT
@@ -332,7 +334,9 @@ function(input, output, session) {
                   ),
                   container = acontainer, 
                   rownames = FALSE
-    )
+    ) %>% 
+      formatStyle(colnames(table)[c(5:6, (ncol(table)-1):(ncol(table)))],
+                  color = styleInterval(c(0), c('red', 'black')))
   }
   
 # Initialize Dashboard ----------------------------------------------------
@@ -772,7 +776,7 @@ function(input, output, session) {
       pt[, Change := (pt[[ncol(pt)-1]]-pt[[ncol(pt)]])][, Per.Change := round((Change/pt[[3]])*100, 2)][ , name := factor(Group, levels = newOrder)]
       t0 <- pt[with(pt, order(name)),]
       t <- t0[, -"name", with = FALSE]
-      t1 <- t[, 2:5 := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = 2:5]
+      t1 <- t[, 2:4 := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = 2:4]
     } else {
       pt <- dcast.data.table(tsPwtypeTable, Group ~ year + run, value.var = "estimate")
       pt[ , name := factor(Group, levels = newOrder)]
@@ -809,7 +813,7 @@ function(input, output, session) {
     pt[, Change := (pt[[ncol(pt)-1]]-pt[[ncol(pt)]])][, Per.Change := round((Change/pt[[3]])*100, 2)][ , name := factor(Group, levels = newOrder)]
     t0 <- pt[with(pt, order(name)),]
     t <- t0[, -"name", with = FALSE]
-    t1 <- t[, 2:5 := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = 2:5]
+    t1 <- t[, 2:4 := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = 2:4]
     
     sketch <- sketch.basic(colnames(t1)[1], yr.fl[1], yr.fl[2], runs[1], runs[2])
     create.DT.basic(t1, sketch)
@@ -835,7 +839,7 @@ function(input, output, session) {
     setcolorder(t, c("Group", paste0(yr.fl[1],"_",runs[1]), paste0(yr.fl[2],"_",runs[1]), paste0(yr.fl[2],"_",runs[2]), paste0(yr.fl[1],"_",runs[2])))
     t[, ncol(t) := NULL]
     t[, Change := (t[[ncol(t)-1]]-t[[ncol(t)]])][, Per.Change := round((Change/t[[3]])*100, 2)]
-    t1 <- t[, 2:5 := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = 2:5]
+    t1 <- t[, 2:4 := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = 2:4]
     sketch <- sketch.basic(colnames(t1)[1], yr.fl[1], yr.fl[2], runs[1], runs[2])
     create.DT.basic(t1, sketch)
   })
@@ -860,7 +864,7 @@ function(input, output, session) {
     setcolorder(t, c("Sector", paste0(yr.fl[1],"_",runs[1]), paste0(yr.fl[2],"_",runs[1]), paste0(yr.fl[2],"_",runs[2]), paste0(yr.fl[1],"_",runs[2])))
     t[, ncol(t) := NULL]
     t[, Change := (t[[ncol(t)-1]]-t[[ncol(t)]])][, Per.Change := round((Change/t[[3]])*100, 2)]
-    t1 <- t[, 2:5 := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = 2:5]
+    t1 <- t[, 2:4 := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = 2:4]
     
     sketch <- sketch.basic(colnames(t1)[1], yr.fl[1], yr.fl[2], runs[1], runs[2])
     create.DT.basic(t1, sketch)
