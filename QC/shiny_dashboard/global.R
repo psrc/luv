@@ -7,6 +7,7 @@ library(data.table)
 library(magrittr)
 library(shinythemes)
 library(stringr)
+library(DT)
 
 # environment inputs
 attribute <- c("population", "households","employment", "residential_units")

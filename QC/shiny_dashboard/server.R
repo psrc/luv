@@ -260,11 +260,86 @@ function(input, output, session) {
     t1[, c(2:5,7:10) := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = c(2:5,7:10)]
   }
   
+  # Create basic table container 'sketch'
+  sketch.basic <- function(grpcol, year1, year2, run1, run2){
+    htmltools::withTags(table(
+      class = 'display', 
+      thead(
+        tr(
+          th(rowspan = 2, grpcol),
+          th(colspan = 1, year1),
+          th(colspan = 4, year2)
+        ),
+        tr(
+          lapply(c(run1, run1, run2, 'Change', '% Change'), th)
+        )
+      ) # end thead
+    )) # end withTags/table
+  }
+  
+  # Create expanded table container 'sketch'
+  sketch.expanded <- function(grpcol, year1, year2, run1, run2){
+    htmltools::withTags(table(
+      class = 'display',
+      thead(
+        tr(
+          th(rowspan = 3, grpcol),
+          th(colspan = 5, 'Population'),
+          th(colspan = 5, 'Employment')
+        ),
+        tr(
+          th(colspan = 1, year1),
+          th(colspan = 4, year2),
+          th(colspan = 1, year1),
+          th(colspan = 4, year2)
+        ),
+        tr(
+          lapply(rep(c(run1, run1, run2, 'Change', '% Change'), 2), th)
+        )
+      ) # end thead
+    )) # end withTags/table
+  }
+  
+  # Create a basic DT
+  create.DT.basic <- function(table, acontainer){
+    DT::datatable(table,
+                  extensions = 'Buttons',
+                  class = 'cell-border stripe',
+                  options = list(columnDefs = list(list(className = 'dt-center', targets = 1:5), 
+                                                   list(width = '20%', targets = 0)),
+                                 dom = 'Bfrtip',
+                                 buttons = c('copy', 'excel'),
+                                 #autoWidth = TRUE,
+                                 paging = FALSE, 
+                                 searching = FALSE 
+                  ),
+                  container = acontainer, 
+                  rownames = FALSE
+    )
+  }
+  
+  # Create an expanded DT
+  create.DT.expanded <- function(table, acontainer){
+    DT::datatable(table,
+                  extensions = 'Buttons',
+                  class = 'cell-border stripe',
+                  options = list(columnDefs = list(list(className = 'dt-center', targets = 1:10),
+                                                   list(width = '20%', targets = 0)),
+                                 dom = 'Bfrtip',
+                                 buttons = c('copy', 'excel'),
+                                 paging = FALSE, 
+                                 searching = FALSE 
+                  ),
+                  container = acontainer, 
+                  rownames = FALSE
+    )
+  }
+  
 # Initialize Dashboard ----------------------------------------------------
 
   
-  trim.subdir <- tempfile(pattern="sessiondir", tmpdir=".")
-  # trim.subdir <- tempfile(pattern="sessiondir", tmpdir="")
+  # trim.subdir <- tempfile(pattern="sessiondir", tmpdir=".")
+  trim.subdir <- tempfile(pattern="sessiondir", tmpdir="")
   subdir <- file.path("www", trim.subdir)
   vars <- reactiveValues(submitted=FALSE)
   
@@ -298,7 +373,7 @@ function(input, output, session) {
   output$init_select_resultsdir <- renderUI({
     select.resultsdir <- list.files(file.path(wrkdir, "results"))
     selectInput(inputId = "select_resultsdir",
-                label = "Makefile Results Folder",
+                label = "Makefile Results Folder*",
                 choices = select.resultsdir,
                 width = "100%")
   })
@@ -641,31 +716,37 @@ function(input, output, session) {
   })
   
   # Display households summary table
-  output$tpsht_hh <- renderTable({
+  output$tpsht_hh <- DT::renderDataTable({
     tsTable <- tsTable()
     runs <- runs()
     
     t <- tsTable[indicator == 'Households']
     t1 <- create.tsTable(t)
-  }, hover = TRUE, width = '75%', align = 'lrrrrr')
+    sketch <- sketch.basic(colnames(t1)[1], yr.fl[1], yr.fl[2], runs[1], runs[2])
+    create.DT.basic(t1, sketch)
+  })
   
   # Display population summary table
-  output$tpsht_pop <- renderTable({
+  output$tpsht_pop <- DT::renderDataTable({
     tsTable <- tsTable()
     runs <- runs()
     
     t <- tsTable[indicator == 'Total Population']
     t1 <- create.tsTable(t)
-  }, hover = TRUE, digits = 1, width = '75%', align = 'lrrrrr')
+    sketch <- sketch.basic(colnames(t1)[1], yr.fl[1], yr.fl[2], runs[1], runs[2])
+    create.DT.basic(t1, sketch)
+  })
   
   # Display employment summary table
-  output$tpsht_emp <- renderTable({
+  output$tpsht_emp <- DT::renderDataTable({
     tsTable <- tsTable()
     runs <- runs()
     
     t <- tsTable[indicator == 'Employment']
     t1 <- create.tsTable(t)
-  }, hover = TRUE, digits = 1, width = '75%', align = 'lrrrrr')
+    sketch <- sketch.basic(colnames(t1)[1], yr.fl[1], yr.fl[2], runs[1], runs[2])
+    create.DT.basic(t1, sketch)
+  })
   
   # Filter table and calculate totals for PWTYPE
   tsPwtypeTable <- reactive({
@@ -679,7 +760,7 @@ function(input, output, session) {
   })
   
   # Display PWTYPE summary table
-  output$tpsht_pwtype <- renderTable({
+  output$tpsht_pwtype <- DT::renderDataTable({
     tsPwtypeTable <- tsPwtypeTable()
     runs <- runs()
     newOrder <- c("full_time", "part_time", "non_workers_no_job", "workers_no_job", "Sub-Total: Persons")
@@ -691,15 +772,18 @@ function(input, output, session) {
       pt[, Change := (pt[[ncol(pt)-1]]-pt[[ncol(pt)]])][, Per.Change := round((Change/pt[[3]])*100, 2)][ , name := factor(Group, levels = newOrder)]
       t0 <- pt[with(pt, order(name)),]
       t <- t0[, -"name", with = FALSE]
-      t[, 2:5 := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = 2:5]
+      t1 <- t[, 2:5 := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = 2:5]
     } else {
       pt <- dcast.data.table(tsPwtypeTable, Group ~ year + run, value.var = "estimate")
       pt[ , name := factor(Group, levels = newOrder)]
       t0 <- pt[with(pt, order(name)),]
       t <- t0[, -"name", with = FALSE]
-      t[, 2:ncol(t) := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = 2:ncol(t)]
+      t1 <- t[, 2:ncol(t) := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = 2:ncol(t)]
     }
-  }, hover = TRUE, digits = 1, width = '75%', align = 'lrrrrr')
+    
+    sketch <- sketch.basic(colnames(t1)[1], yr.fl[1], yr.fl[2], runs[1], runs[2])
+    create.DT.basic(t1, sketch)
+  })
   
   # Filter table and calculate totals for PTYPE
   tsPtypeTable <- reactive({
@@ -713,7 +797,7 @@ function(input, output, session) {
   })
   
   # Display PTYPE summary table
-  output$tpsht_ptype <- renderTable({
+  output$tpsht_ptype <- DT::renderDataTable({
     tsPtypeTable <- tsPtypeTable()
     runs <- runs()
     newOrder <- c("full_time_worker", "part_time_worker", "non_working_adult_age_65_plus", "non_working_adult_age_16_64", 
@@ -722,11 +806,14 @@ function(input, output, session) {
     pt <- dcast.data.table(tsPtypeTable, Group ~ year + run, value.var = "estimate")
     setcolorder(pt, c("Group", paste0(yr.fl[1],"_",runs[1]), paste0(yr.fl[2],"_",runs[1]), paste0(yr.fl[2],"_",runs[2]), paste0(yr.fl[1],"_",runs[2])))
     pt[, ncol(pt) := NULL]
-    pt[, Change := (pt[[ncol(pt)-1]]-pt[[ncol(pt)]])][, Per.Change := (Change/pt[[3]])*100][ , name := factor(Group, levels = newOrder)]
+    pt[, Change := (pt[[ncol(pt)-1]]-pt[[ncol(pt)]])][, Per.Change := round((Change/pt[[3]])*100, 2)][ , name := factor(Group, levels = newOrder)]
     t0 <- pt[with(pt, order(name)),]
     t <- t0[, -"name", with = FALSE]
-    t[, 2:5 := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = 2:5]
-  }, hover = TRUE, digits = 1, width = '75%', align = 'lrrrrr')
+    t1 <- t[, 2:5 := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = 2:5]
+    
+    sketch <- sketch.basic(colnames(t1)[1], yr.fl[1], yr.fl[2], runs[1], runs[2])
+    create.DT.basic(t1, sketch)
+  })
   
   # Filter table and calculate totals for Income summary table
   tsIncTable <- reactive({
@@ -740,16 +827,18 @@ function(input, output, session) {
   })
   
   # Display Households by Income summary table
-  output$tpsht_hhInc <- renderTable({
+  output$tpsht_hhInc <- DT::renderDataTable({
     tsIncTable <- tsIncTable()
     runs <- runs()
     
     t <- dcast.data.table(tsIncTable, Group ~ year + run, value.var = "estimate")
     setcolorder(t, c("Group", paste0(yr.fl[1],"_",runs[1]), paste0(yr.fl[2],"_",runs[1]), paste0(yr.fl[2],"_",runs[2]), paste0(yr.fl[1],"_",runs[2])))
     t[, ncol(t) := NULL]
-    t[, Change := (t[[ncol(t)-1]]-t[[ncol(t)]])][, Per.Change := (Change/t[[3]])*100]
-    t[, 2:5 := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = 2:5]
-  }, hover = TRUE, digits = 1, width = '75%', align = 'lrrrrr')
+    t[, Change := (t[[ncol(t)-1]]-t[[ncol(t)]])][, Per.Change := round((Change/t[[3]])*100, 2)]
+    t1 <- t[, 2:5 := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = 2:5]
+    sketch <- sketch.basic(colnames(t1)[1], yr.fl[1], yr.fl[2], runs[1], runs[2])
+    create.DT.basic(t1, sketch)
+  })
   
   # Filter table and calculate totals for Jobs by Sector table
   tsSectorJobs <- reactive({
@@ -762,7 +851,7 @@ function(input, output, session) {
   })
   
   # Display Jobs by sector summary table
-  output$tpsht_jobs <- renderTable({
+  output$tpsht_jobs <- DT::renderDataTable({
     tsSectorJobs <- tsSectorJobs()
     runs <- runs()
     
@@ -771,8 +860,11 @@ function(input, output, session) {
     setcolorder(t, c("Sector", paste0(yr.fl[1],"_",runs[1]), paste0(yr.fl[2],"_",runs[1]), paste0(yr.fl[2],"_",runs[2]), paste0(yr.fl[1],"_",runs[2])))
     t[, ncol(t) := NULL]
     t[, Change := (t[[ncol(t)-1]]-t[[ncol(t)]])][, Per.Change := round((Change/t[[3]])*100, 2)]
-    t[, 2:5 := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = 2:5]
-  }, hover = TRUE, digits = 1, width = '75%', align = 'lrrrrr')
+    t1 <- t[, 2:5 := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = 2:5]
+    
+    sketch <- sketch.basic(colnames(t1)[1], yr.fl[1], yr.fl[2], runs[1], runs[2])
+    create.DT.basic(t1, sketch)
+  })
   
   # Filter table and calculate totals for largest RGCs
   tsGrowthCtr <- reactive({
@@ -788,14 +880,17 @@ function(input, output, session) {
   })
   
   # Display largest RGCs summary table
-  output$tpsht_rgc <- renderTable({
+  output$tpsht_rgc <- DT::renderDataTable({
     tsGrwothCtr <- tsGrowthCtr()
     runs <- runs()
 
     t <- dcast.data.table(tsGrwothCtr, name ~ indicator + run, value.var = yr.col)
     setnames(t, "name", "Name")
-    create.exp.tsTable(t)
-  }, hover = TRUE, digits = 1, width = '100%', align = 'lrrrrrrrrrr')
+    t1 <- create.exp.tsTable(t)
+    
+    sketch <- sketch.expanded(colnames(t1)[1], yr.fl[1], yr.fl[2], runs[1], runs[2])
+    create.DT.expanded(t1, sketch)
+  })
   
   # Filter table and calculate totals for Special Places
   tsSplace <- reactive({
@@ -810,13 +905,15 @@ function(input, output, session) {
   })
   
   # Display Special Places summary table
-  output$tpsht_splace <- renderTable({
+  output$tpsht_splace <- DT::renderDataTable({
     tsSplace <- tsSplace()
     runs <- runs()
 
     t <- dcast.data.table(tsSplace, Name ~ indicator + run, value.var = yr.col)
-    create.exp.tsTable(t)
-  }, hover = TRUE, digits = 1, width = '100%', align = 'lrrrrrrrrrr')
+    t1 <- create.exp.tsTable(t)
+    sketch <- sketch.expanded(colnames(t1)[1], yr.fl[1], yr.fl[2], runs[1], runs[2])
+    create.DT.expanded(t1, sketch)
+  })
   
 
 # Run Comparison Reactions ------------------------------------------------

@@ -23,7 +23,8 @@ navbarPage(theme = shinytheme("readable"),
                              br(),
                              br(),
                              verbatimTextOutput("submit_msg"),
-                             uiOutput('link')
+                             uiOutput('link'),
+                             helpText("*affects Index file, and the Employment by Sector and Time Series tabs")
                       ), # end column
                       column(width = 4
  
@@ -53,32 +54,41 @@ navbarPage(theme = shinytheme("readable"),
                                
                         ), # end column
                         column(width = 10,
+                               tags$head(tags$style(type = "text/css", HTML("th { text-align: center; }"))),
                                h4(class="header", checked=NA, tags$b("Households by County")),
-                               tableOutput('tpsht_hh'),
+                               DT::dataTableOutput('tpsht_hh'),
+                               br(),
                                
                                h4(class="header", checked=NA, tags$b("Population by County")),
-                               tableOutput('tpsht_pop'),
+                               DT::dataTableOutput('tpsht_pop'),
+                               br(),
                                
                                h4(class="header", checked=NA, tags$b("Employment by County")),
-                               tableOutput('tpsht_emp'),
+                               DT::dataTableOutput('tpsht_emp'),
+                               br(),
                                
                                h4(class="header", checked=NA, tags$b("Jobs by Sector")),
-                               tableOutput('tpsht_jobs'),
+                               DT::dataTableOutput('tpsht_jobs'),
+                               br(),
                                
                                h4(class="header", checked=NA, tags$b("Worker Type")),
-                               tableOutput('tpsht_pwtype'),
+                               DT::dataTableOutput('tpsht_pwtype'),
+                               br(),
                                
                                h4(class="header", checked=NA, tags$b("Person Type")),
-                               tableOutput('tpsht_ptype'),
+                               DT::dataTableOutput('tpsht_ptype'),
+                               br(),
                                
                                h4(class="header", checked=NA, tags$b("Households by Income Group")),
-                               tableOutput('tpsht_hhInc'),
+                               DT::dataTableOutput('tpsht_hhInc'),
+                               br(),
                                
                                h4(class="header", checked=NA, tags$b("Largest RGCs")),
-                               tableOutput('tpsht_rgc'),
+                               DT::dataTableOutput('tpsht_rgc'),
+                               br(),
                                
                                h4(class="header", checked=NA, tags$b("Key Locations")),
-                               tableOutput('tpsht_splace')
+                               DT::dataTableOutput('tpsht_splace')
                         ), # end column
                         column(width = 1
                                
