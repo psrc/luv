@@ -536,7 +536,7 @@ function(input, output, session) {
 
     for (r in 1:length(runnames)){
       cap.files <- as.list(list.files(file.path(base.dir(), runnames[r], "indicators"), pattern = paste0("max_dev(_\\w+)*", extension)))
-      if (length(cap.files) > 6){
+      if (length(cap.files) >= 1){
         for (g in 1:length(cap.geography)){
           for (c in 1:length(cap.type)){
             cap.tbl <- NULL
@@ -556,7 +556,7 @@ function(input, output, session) {
                    cap.table <- rbind(cap.table, cap.tbl))
           } # end of cap.type loop
         } # end of cap.geography loop
-      } else if (length(cap.files) <= 6){
+      } else if (length(cap.files) < 1){
         next
       } # end conditional
     } # end of runnames loop
@@ -575,7 +575,7 @@ function(input, output, session) {
     
     for (r in 1:length(runnames)){
       dev.files <- as.list(list.files(file.path(base.dir(), runnames[r], "indicators"), pattern = paste0("sqft", extension)))
-      if (length(dev.files) > 6){
+      if (length(dev.files) >= 1){
         for (g in 1:length(cap.geography)){
           for (d in 1:length(dev.type)){
             dev.tbl <- NULL
@@ -596,7 +596,7 @@ function(input, output, session) {
                    dev.dt <- rbind(dev.dt, dev.tbl.m))
           } # end of dev.type loop
         } # end cap.geography loop
-      } else if (length(dev.files) <= 6){
+      } else if (length(dev.files) < 1){
         next
       } # end conditional
     } # end of runnames loop
@@ -1292,7 +1292,7 @@ function(input, output, session) {
   output$dcap_select_run <- renderUI({
     if (is.null(devdt())) return(NULL)
     devdt <- devdt()
-    select.runs <- unique(devdt[, run]) #currently run is based on Dev source table, not a list?
+    select.runs <- unique(devdt[, run])
     selectInput(inputId = "dcap_select_run",
                 label = "Run",
                 choices = select.runs)
@@ -1301,7 +1301,7 @@ function(input, output, session) {
   dcapRun <- reactive({
     input$dcap_select_run
   })
-
+  
   dcapGeog <- reactive({
     switch(as.integer(input$dcap_select_geography),
            "zone",
@@ -1323,15 +1323,22 @@ function(input, output, session) {
 
     t1 <- capdt[run == dcapRun() & geography == dcapGeog() & captype == "Total",][,.(name_id, capacity, captype)]
     t2 <- devdt[run == dcapRun() & geography == dcapGeog() & year == dcapYear() & devtype == "Building Sqft",]
-    t <- merge(t1, t2, by = c("name_id"))
-    t0 <- t[, diff := capacity-estimate]
-
-    return(switch(as.integer(input$dcap_select_geography),
-           merge(t0, zone.lookup, by.x = "name_id", by.y = "zone_id") %>% merge(faz.lookup, by = "faz_id"),
-           merge(t0, faz.lookup, by.x = "name_id", by.y = "faz_id"),
-           merge(t0, city.lookup, by.x = "name_id", by.y = "city_id") %>% setnames("city_name", "Name"),
-           t0
-    ))
+    
+    if (nrow(t1) == 0 | nrow(t2) == 0) {
+      return(NULL)
+    } else if (dcapGeog() == 'zone' & (nrow(t1) < 3700) | dcapGeog() == 'city' & (nrow(t1) < 140)){
+      return(NULL)
+    } else {
+      t <- merge(t1, t2, by = c("name_id"))
+      t0 <- t[, diff := capacity-estimate]
+      return(switch(as.integer(input$dcap_select_geography),
+                    merge(t0, zone.lookup, by.x = "name_id", by.y = "zone_id") %>% merge(faz.lookup, by = "faz_id"),
+                    merge(t0, faz.lookup, by.x = "name_id", by.y = "faz_id"),
+                    merge(t0, city.lookup, by.x = "name_id", by.y = "city_id") %>% setnames("city_name", "Name"),
+                    t0
+      ))
+    }
+   
   })
 
   dcapTable_res <- reactive({
@@ -1343,15 +1350,21 @@ function(input, output, session) {
 
     t1 <- capdt[run == dcapRun() & geography == dcapGeog() & captype == "Residential",][,.(name_id, capacity, captype)]
     t2 <- devdt[run == dcapRun() & geography == dcapGeog() & year == dcapYear() & devtype == "Residential Units",]
-    t <- merge(t1, t2, by = "name_id")
-    t0 <- t[, diff := capacity-estimate]
-
-    return(switch(as.integer(input$dcap_select_geography),
-           merge(t0, zone.lookup, by.x = "name_id", by.y = "zone_id") %>% merge(faz.lookup, by = "faz_id"),
-           merge(t0, faz.lookup, by.x = "name_id", by.y = "faz_id"),
-           merge(t0, city.lookup, by.x = "name_id", by.y = "city_id") %>% setnames("city_name", "Name"),
-           t0
-    ))
+    
+    if (nrow(t1) == 0 | nrow(t2) == 0) {
+      return(NULL)
+    } else if (dcapGeog() == 'zone' & (nrow(t1) < 3700) | dcapGeog() == 'city' & (nrow(t1) < 140)){
+      return(NULL)
+    } else {
+      t <- merge(t1, t2, by = c("name_id"))
+      t0 <- t[, diff := capacity-estimate]
+      return(switch(as.integer(input$dcap_select_geography),
+                    merge(t0, zone.lookup, by.x = "name_id", by.y = "zone_id") %>% merge(faz.lookup, by = "faz_id"),
+                    merge(t0, faz.lookup, by.x = "name_id", by.y = "faz_id"),
+                    merge(t0, city.lookup, by.x = "name_id", by.y = "city_id") %>% setnames("city_name", "Name"),
+                    t0
+      ))
+    }
   })
 
   dcapTable_nonres <- reactive({
@@ -1363,15 +1376,21 @@ function(input, output, session) {
 
     t1 <- capdt[run == dcapRun() & geography == dcapGeog() & captype == "Non-Residential",][,.(name_id, capacity, captype)]
     t2 <- devdt[run == dcapRun() & geography == dcapGeog() & year == dcapYear() & devtype == "Non-Residential Sqft",]
-    t <- merge(t1, t2, by = "name_id")
-    t0 <- t[, diff := capacity-estimate]
-
-    return(switch(as.integer(input$dcap_select_geography),
-           merge(t0, zone.lookup, by.x = "name_id", by.y = "zone_id") %>% merge(faz.lookup, by = "faz_id"),
-           merge(t0, faz.lookup, by.x = "name_id", by.y = "faz_id"),
-           merge(t0, city.lookup, by.x = "name_id", by.y = "city_id") %>% setnames("city_name", "Name"),
-           t0
-    ))
+    
+    if (nrow(t1) == 0 | nrow(t2) == 0) {
+      return(NULL)
+    } else if (dcapGeog() == 'zone' & (nrow(t1) < 3700) | dcapGeog() == 'city' & (nrow(t1) < 140)){
+      return(NULL)
+    } else {
+      t <- merge(t1, t2, by = c("name_id"))
+      t0 <- t[, diff := capacity-estimate]
+      return(switch(as.integer(input$dcap_select_geography),
+                    merge(t0, zone.lookup, by.x = "name_id", by.y = "zone_id") %>% merge(faz.lookup, by = "faz_id"),
+                    merge(t0, faz.lookup, by.x = "name_id", by.y = "faz_id"),
+                    merge(t0, city.lookup, by.x = "name_id", by.y = "city_id") %>% setnames("city_name", "Name"),
+                    t0
+      ))
+    }
   })
 
   # Total shapefile ready for visualization

@@ -285,7 +285,7 @@ navbarPage(theme = shinytheme("readable"),
                                            selected = tail(years, n=1))#, #select the last element of years
                         ), # end column
                         column(width = 2,
-                               selectInput(inputId = "dcap_select_geography",
+                               selectInput(inputId = "dcap_select_geography", 
                                            label = "Geography",
                                            choices = c("TAZ"=1,
                                                        "FAZ"=2,
