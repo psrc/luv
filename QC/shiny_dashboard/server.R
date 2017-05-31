@@ -200,15 +200,18 @@ function(input, output, session) {
   # Prepares generic topsheet table for main indicators (households, population, employment) 
   create.tsTable <- function(table){
     runs <- runs()
+    tsYear <- tsYear()
+    sel.yr.fl <- c(years[1], tsYear)
+    sel.yrs.col <- paste0("yr", sel.yr.fl)
     
-    t1 <- dcast.data.table(table, County ~ run, value.var = yr.col)
-    setcolorder(t1, c("County", paste0(yr.col[1],"_",runs[1]), paste0(yr.col[2],"_",runs[1]), paste0(yr.col[2],"_",runs[2]), paste0(yr.col[1],"_",runs[2])))
+    t1 <- dcast.data.table(table, County ~ run, value.var = sel.yrs.col)
+    setcolorder(t1, c("County", paste0(sel.yrs.col[1],"_",runs[1]), paste0(sel.yrs.col[2],"_",runs[1]), paste0(sel.yrs.col[2],"_",runs[2]), paste0(sel.yrs.col[1],"_",runs[2])))
     t1[, ncol(t1) := NULL]
     t1[, Change := (t1[[ncol(t1)-1]]-t1[[ncol(t1)]])][, Per.Change := round((Change/t1[[3]])*100, 2)]
     setnames(t1, colnames(t1), c("County", 
-                                 paste0(yr.fl[1], "_", runs[1]),
-                                 paste0(yr.fl[2], "_", runs[1]),
-                                 paste0(yr.fl[2], "_", runs[2]),
+                                 paste0(sel.yr.fl[1], "_", runs[1]),
+                                 paste0(sel.yr.fl[2], "_", runs[1]),
+                                 paste0(sel.yr.fl[2], "_", runs[2]),
                                  "Change",
                                  "Per.Change"))
     t1[, 2:4 := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = 2:4]
@@ -217,17 +220,20 @@ function(input, output, session) {
   # Prepares expanded topsheet table for RGCs & Key Locations
   create.exp.tsTable <- function(table){
     runs <- runs()
+    tsYear <- tsYear()
+    sel.yr.fl <- c(years[1], tsYear)
+    sel.yrs.col <- paste0("yr", c(years[1], tsYear))
     
     setcolorder(table, 
                 c("Name",
-                  paste0(yr.col[1], "_", "Population","_", runs[1]),
-                  paste0(yr.col[2], "_", "Population","_", runs[1]),
-                  paste0(yr.col[2], "_", "Population","_", runs[2]),
-                  paste0(yr.col[1], "_", "Employment","_", runs[1]),
-                  paste0(yr.col[2], "_", "Employment","_", runs[1]),
-                  paste0(yr.col[2], "_", "Employment","_", runs[2]),
-                  paste0(yr.col[1], "_", "Population","_", runs[2]),
-                  paste0(yr.col[1], "_", "Employment","_", runs[2])))
+                  paste0(sel.yrs.col[1], "_", "Population","_", runs[1]),
+                  paste0(sel.yrs.col[2], "_", "Population","_", runs[1]),
+                  paste0(sel.yrs.col[2], "_", "Population","_", runs[2]),
+                  paste0(sel.yrs.col[1], "_", "Employment","_", runs[1]),
+                  paste0(sel.yrs.col[2], "_", "Employment","_", runs[1]),
+                  paste0(sel.yrs.col[2], "_", "Employment","_", runs[2]),
+                  paste0(sel.yrs.col[1], "_", "Population","_", runs[2]),
+                  paste0(sel.yrs.col[1], "_", "Employment","_", runs[2])))
     table[, (ncol(table)-1):ncol(table) := NULL] 
     
     t1<- table[, Pop.Change := (table[[3]]-table[[4]])
@@ -236,25 +242,25 @@ function(input, output, session) {
                    ][, Emp.Per.Change := round((Emp.Change/table[[6]])*100, 2)]
     setcolorder(t1,
                 c("Name",
-                  paste0(yr.col[1], "_", "Population","_", runs[1]),
-                  paste0(yr.col[2], "_", "Population","_", runs[1]),
-                  paste0(yr.col[2], "_", "Population","_", runs[2]),
+                  paste0(sel.yrs.col[1], "_", "Population","_", runs[1]),
+                  paste0(sel.yrs.col[2], "_", "Population","_", runs[1]),
+                  paste0(sel.yrs.col[2], "_", "Population","_", runs[2]),
                   "Pop.Change",
                   "Pop.Per.Change",
-                  paste0(yr.col[1], "_", "Employment","_", runs[1]),
-                  paste0(yr.col[2], "_", "Employment","_", runs[1]),
-                  paste0(yr.col[2], "_", "Employment","_", runs[2]),
+                  paste0(sel.yrs.col[1], "_", "Employment","_", runs[1]),
+                  paste0(sel.yrs.col[2], "_", "Employment","_", runs[1]),
+                  paste0(sel.yrs.col[2], "_", "Employment","_", runs[2]),
                   "Emp.Change",
                   "Emp.Per.Change"))
     setnames(t1, colnames(t1), c("Name",
-                                 paste0(yr.fl[1], "_", "Pop","_", runs[1]),
-                                 paste0(yr.fl[2], "_", "Pop","_", runs[1]),
-                                 paste0(yr.fl[2], "_", "Pop","_", runs[2]),
+                                 paste0(sel.yr.fl[1], "_", "Pop","_", runs[1]),
+                                 paste0(sel.yr.fl[2], "_", "Pop","_", runs[1]),
+                                 paste0(sel.yr.fl[2], "_", "Pop","_", runs[2]),
                                  "Pop.Change",
                                  "Pop.Per.Change",
-                                 paste0(yr.fl[1], "_", "Emp","_", runs[1]),
-                                 paste0(yr.fl[2], "_", "Emp","_", runs[1]),
-                                 paste0(yr.fl[2], "_", "Emp","_", runs[2]),
+                                 paste0(sel.yr.fl[1], "_", "Emp","_", runs[1]),
+                                 paste0(sel.yr.fl[2], "_", "Emp","_", runs[1]),
+                                 paste0(sel.yr.fl[2], "_", "Emp","_", runs[2]),
                                  "Emp.Change",
                                  "Emp.Per.Change"))
     t1[, c(2:4,7:9) := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = c(2:4,7:9)]
@@ -267,11 +273,12 @@ function(input, output, session) {
       thead(
         tr(
           th(rowspan = 2, grpcol),
-          th(colspan = 1, year1),
+          th(bgcolor='AliceBlue', colspan = 1, year1),
           th(colspan = 4, year2)
         ),
         tr(
-          lapply(c(run1, run1, run2, 'Change', '% Change'), th)
+          th(bgcolor='AliceBlue', run1),
+          lapply(c(run1, run2, 'Change', '% Change'), th)
         )
       ) # end thead
     )) # end withTags/table
@@ -288,13 +295,16 @@ function(input, output, session) {
           th(colspan = 5, 'Employment')
         ),
         tr(
-          th(colspan = 1, year1),
+          th(bgcolor='AliceBlue', colspan = 1, year1),
           th(colspan = 4, year2),
-          th(colspan = 1, year1),
+          th(bgcolor='AliceBlue', colspan = 1, year1),
           th(colspan = 4, year2)
         ),
         tr(
-          lapply(rep(c(run1, run1, run2, 'Change', '% Change'), 2), th)
+          th(bgcolor='AliceBlue', run1),
+          lapply(c(run1, run2, 'Change', '% Change'), th),
+          th(bgcolor='AliceBlue', run1),
+          lapply(c(run1, run2, 'Change', '% Change'), th)
         )
       ) # end thead
     )) # end withTags/table
@@ -317,7 +327,9 @@ function(input, output, session) {
                   rownames = FALSE
     ) %>% 
       formatStyle(colnames(table)[(ncol(table)-1):(ncol(table))],
-                  color = styleInterval(c(0), c('red', 'black')))
+                  color = styleInterval(c(0), c('red', 'black'))) %>%
+      formatStyle(colnames(table)[2],
+                  backgroundColor = 'AliceBlue')
   }
   
   # Create an expanded DT
@@ -336,7 +348,9 @@ function(input, output, session) {
                   rownames = FALSE
     ) %>% 
       formatStyle(colnames(table)[c(5:6, (ncol(table)-1):(ncol(table)))],
-                  color = styleInterval(c(0), c('red', 'black')))
+                  color = styleInterval(c(0), c('red', 'black'))) %>%
+      formatStyle(colnames(table)[c(2,7)],
+                  backgroundColor = 'AliceBlue')
   }
   
 # Initialize Dashboard ----------------------------------------------------
@@ -708,14 +722,20 @@ function(input, output, session) {
     paste("<b>Restrictions</b>:", desc.file)
   })
   
+  tsYear <- reactive({
+    input$ts_select_year
+  })
+  
   # Filter table and calculate regional totals for general all-data-table
   tsTable <- reactive({
     alldt <- alldt()
     runs <- runs()
+    tsYear <- tsYear()
+    sel.yrs.col <- paste0("yr", c(years[1], tsYear))
     
     t <- merge(alldt[geography == 'zone' & (run == runs[1] | run == runs[2])], zonecnty.lookup, by.x = "name_id", by.y = "TAZ")
-    t1 <- t[, lapply(.SD, sum), by = list(County = COUNTY_NM, indicator, run), .SDcols = yr.col]
-    t.sum <- t1[, .(yr2014 = sum(yr2014), yr2040 = sum(yr2040)), by = list(indicator, run)][, County := "Sub-Total: Region"]
+    t1 <- t[, lapply(.SD, sum), by = list(County = COUNTY_NM, indicator, run), .SDcols = sel.yrs.col]
+    t.sum <- t1[, lapply(.SD, sum), by = list(indicator, run), .SDcols = sel.yrs.col][, County := "Sub-Total: Region"]
     rbindlist(list(t1, t.sum), use.names = TRUE)
   })
   
@@ -723,10 +743,13 @@ function(input, output, session) {
   output$tpsht_hh <- DT::renderDataTable({
     tsTable <- tsTable()
     runs <- runs()
+    tsYear <- tsYear()
+    sel.yr.fl <- c(years[1], tsYear)
     
     t <- tsTable[indicator == 'Households']
     t1 <- create.tsTable(t)
-    sketch <- sketch.basic(colnames(t1)[1], yr.fl[1], yr.fl[2], runs[1], runs[2])
+    sketch <- sketch.basic(colnames(t1)[1],  sel.yr.fl[1],  sel.yr.fl[2], runs[1], runs[2])
+    # browser()
     create.DT.basic(t1, sketch)
   })
   
@@ -734,10 +757,12 @@ function(input, output, session) {
   output$tpsht_pop <- DT::renderDataTable({
     tsTable <- tsTable()
     runs <- runs()
+    tsYear <- tsYear()
+    sel.yr.fl <- c(years[1], tsYear)
     
     t <- tsTable[indicator == 'Total Population']
     t1 <- create.tsTable(t)
-    sketch <- sketch.basic(colnames(t1)[1], yr.fl[1], yr.fl[2], runs[1], runs[2])
+    sketch <- sketch.basic(colnames(t1)[1], sel.yr.fl[1], sel.yr.fl[2], runs[1], runs[2])
     create.DT.basic(t1, sketch)
   })
   
@@ -745,10 +770,12 @@ function(input, output, session) {
   output$tpsht_emp <- DT::renderDataTable({
     tsTable <- tsTable()
     runs <- runs()
+    tsYear <- tsYear()
+    sel.yr.fl <- c(years[1], tsYear)
     
     t <- tsTable[indicator == 'Employment']
     t1 <- create.tsTable(t)
-    sketch <- sketch.basic(colnames(t1)[1], yr.fl[1], yr.fl[2], runs[1], runs[2])
+    sketch <- sketch.basic(colnames(t1)[1], sel.yr.fl[1], sel.yr.fl[2], runs[1], runs[2])
     create.DT.basic(t1, sketch)
   })
   
@@ -756,8 +783,10 @@ function(input, output, session) {
   tsPwtypeTable <- reactive({
     demogdt <- demogdt()
     runs <- runs()
+    tsYear <- tsYear()
+    sel.yr.fl <- c(years[1], tsYear)
     
-    t <- demogdt[demographic == 'workertype' & (run == runs[1] | run == runs[2]) & (year %in% yr.fl)
+    t <- demogdt[demographic == 'workertype' & (run == runs[1] | run == runs[2]) & (year %in% sel.yr.fl)
                  ][, lapply(.SD, sum), by = list(Group = groups, run, year), .SDcols = "estimate"]
     t.sum <- t[, .(estimate = sum(estimate)), by = list(run, year)][, Group := "Sub-Total: Persons"]
     rbindlist(list(t, t.sum), use.names = TRUE)
@@ -767,11 +796,13 @@ function(input, output, session) {
   output$tpsht_pwtype <- DT::renderDataTable({
     tsPwtypeTable <- tsPwtypeTable()
     runs <- runs()
+    tsYear <- tsYear()
+    sel.yr.fl <- c(years[1], tsYear)
     newOrder <- c("full_time", "part_time", "non_workers_no_job", "workers_no_job", "Sub-Total: Persons")
     
     if (length(unique(tsPwtypeTable$run)) == 2) {
       pt <- dcast.data.table(tsPwtypeTable, Group ~ year + run, value.var = "estimate")
-      setcolorder(pt, c("Group", paste0(yr.fl[1],"_",runs[1]), paste0(yr.fl[2],"_",runs[1]), paste0(yr.fl[2],"_",runs[2]), paste0(yr.fl[1],"_",runs[2])))
+      setcolorder(pt, c("Group", paste0(sel.yr.fl[1],"_",runs[1]), paste0(sel.yr.fl[2],"_",runs[1]), paste0(sel.yr.fl[2],"_",runs[2]), paste0(sel.yr.fl[1],"_",runs[2])))
       pt[, ncol(pt) := NULL]
       pt[, Change := (pt[[ncol(pt)-1]]-pt[[ncol(pt)]])][, Per.Change := round((Change/pt[[3]])*100, 2)][ , name := factor(Group, levels = newOrder)]
       t0 <- pt[with(pt, order(name)),]
@@ -785,7 +816,7 @@ function(input, output, session) {
       t1 <- t[, 2:ncol(t) := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = 2:ncol(t)]
     }
     
-    sketch <- sketch.basic(colnames(t1)[1], yr.fl[1], yr.fl[2], runs[1], runs[2])
+    sketch <- sketch.basic(colnames(t1)[1], sel.yr.fl[1], sel.yr.fl[2], runs[1], runs[2])
     create.DT.basic(t1, sketch)
   })
   
@@ -793,8 +824,10 @@ function(input, output, session) {
   tsPtypeTable <- reactive({
     demogdt <- demogdt()
     runs <- runs()
+    tsYear <- tsYear()
+    sel.yr.fl <- c(years[1], tsYear)
     
-    t <- demogdt[demographic == 'persontype' & (run == runs[1] | run == runs[2]) & (year %in% yr.fl)
+    t <- demogdt[demographic == 'persontype' & (run == runs[1] | run == runs[2]) & (year %in% sel.yr.fl)
                  ][, lapply(.SD, sum), by = list(Group = groups, run, year), .SDcols = "estimate"]
     t.sum <- t[, .(estimate = sum(estimate)), by = list(run, year)][, Group := "Sub-Total: Persons"]
     rbindlist(list(t, t.sum), use.names = TRUE)
@@ -804,18 +837,20 @@ function(input, output, session) {
   output$tpsht_ptype <- DT::renderDataTable({
     tsPtypeTable <- tsPtypeTable()
     runs <- runs()
+    tsYear <- tsYear()
+    sel.yr.fl <- c(years[1], tsYear)
     newOrder <- c("full_time_worker", "part_time_worker", "non_working_adult_age_65_plus", "non_working_adult_age_16_64", 
       "university_student" , "hs_student_age_15_up" , "child_age_5_15" , "child_age_0_4" , "Sub-Total: Persons" )
     
     pt <- dcast.data.table(tsPtypeTable, Group ~ year + run, value.var = "estimate")
-    setcolorder(pt, c("Group", paste0(yr.fl[1],"_",runs[1]), paste0(yr.fl[2],"_",runs[1]), paste0(yr.fl[2],"_",runs[2]), paste0(yr.fl[1],"_",runs[2])))
+    setcolorder(pt, c("Group", paste0(sel.yr.fl[1],"_",runs[1]), paste0(sel.yr.fl[2],"_",runs[1]), paste0(sel.yr.fl[2],"_",runs[2]), paste0(sel.yr.fl[1],"_",runs[2])))
     pt[, ncol(pt) := NULL]
     pt[, Change := (pt[[ncol(pt)-1]]-pt[[ncol(pt)]])][, Per.Change := round((Change/pt[[3]])*100, 2)][ , name := factor(Group, levels = newOrder)]
     t0 <- pt[with(pt, order(name)),]
     t <- t0[, -"name", with = FALSE]
     t1 <- t[, 2:4 := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = 2:4]
     
-    sketch <- sketch.basic(colnames(t1)[1], yr.fl[1], yr.fl[2], runs[1], runs[2])
+    sketch <- sketch.basic(colnames(t1)[1], sel.yr.fl[1], sel.yr.fl[2], runs[1], runs[2])
     create.DT.basic(t1, sketch)
   })
   
@@ -823,8 +858,10 @@ function(input, output, session) {
   tsIncTable <- reactive({
     demogdt <- demogdt()
     runs <- runs()
+    tsYear <- tsYear()
+    sel.yr.fl <- c(years[1], tsYear)
 
-    t <- demogdt[demographic == 'incomegroup' & (run == runs[1] | run == runs[2]) & (year %in% yr.fl)
+    t <- demogdt[demographic == 'incomegroup' & (run == runs[1] | run == runs[2]) & (year %in% sel.yr.fl)
                  ][, lapply(.SD, sum), by = list(Group = groups, run, year), .SDcols = "estimate"]
     t.sum <- t[, .(estimate = sum(estimate)), by = list(run, year)][, Group := "Sub-Total: Households"]
     rbindlist(list(t, t.sum), use.names = TRUE)
@@ -834,13 +871,15 @@ function(input, output, session) {
   output$tpsht_hhInc <- DT::renderDataTable({
     tsIncTable <- tsIncTable()
     runs <- runs()
+    tsYear <- tsYear()
+    sel.yr.fl <- c(years[1], tsYear)
     
     t <- dcast.data.table(tsIncTable, Group ~ year + run, value.var = "estimate")
-    setcolorder(t, c("Group", paste0(yr.fl[1],"_",runs[1]), paste0(yr.fl[2],"_",runs[1]), paste0(yr.fl[2],"_",runs[2]), paste0(yr.fl[1],"_",runs[2])))
+    setcolorder(t, c("Group", paste0(sel.yr.fl[1],"_",runs[1]), paste0(sel.yr.fl[2],"_",runs[1]), paste0(sel.yr.fl[2],"_",runs[2]), paste0(sel.yr.fl[1],"_",runs[2])))
     t[, ncol(t) := NULL]
     t[, Change := (t[[ncol(t)-1]]-t[[ncol(t)]])][, Per.Change := round((Change/t[[3]])*100, 2)]
     t1 <- t[, 2:4 := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = 2:4]
-    sketch <- sketch.basic(colnames(t1)[1], yr.fl[1], yr.fl[2], runs[1], runs[2])
+    sketch <- sketch.basic(colnames(t1)[1], sel.yr.fl[1], sel.yr.fl[2], runs[1], runs[2])
     create.DT.basic(t1, sketch)
   })
   
@@ -848,8 +887,10 @@ function(input, output, session) {
   tsSectorJobs <- reactive({
     jobsectdt <- jobsectdt()
     runs <- runs()
+    tsYear <- tsYear()
+    sel.yr.fl <- c(years[1], tsYear)
     
-    t <- jobsectdt[(run == runs[1] | run == runs[2]) & (year %in% yr.fl)]
+    t <- jobsectdt[(run == runs[1] | run == runs[2]) & (year %in% sel.yr.fl)]
     t.sum <- t[, .(estimate = sum(estimate)), by = list(run, year)][, sector := "Sub-Total: Jobs"]
     rbindlist(list(t, t.sum), use.names = TRUE)
   })
@@ -858,15 +899,17 @@ function(input, output, session) {
   output$tpsht_jobs <- DT::renderDataTable({
     tsSectorJobs <- tsSectorJobs()
     runs <- runs()
+    tsYear <- tsYear()
+    sel.yr.fl <- c(years[1], tsYear)
     
     t <- dcast.data.table(tsSectorJobs, sector ~ year + run, value.var = "estimate")
     setnames(t, "sector", "Sector")
-    setcolorder(t, c("Sector", paste0(yr.fl[1],"_",runs[1]), paste0(yr.fl[2],"_",runs[1]), paste0(yr.fl[2],"_",runs[2]), paste0(yr.fl[1],"_",runs[2])))
+    setcolorder(t, c("Sector", paste0(sel.yr.fl[1],"_",runs[1]), paste0(sel.yr.fl[2],"_",runs[1]), paste0(sel.yr.fl[2],"_",runs[2]), paste0(sel.yr.fl[1],"_",runs[2])))
     t[, ncol(t) := NULL]
     t[, Change := (t[[ncol(t)-1]]-t[[ncol(t)]])][, Per.Change := round((Change/t[[3]])*100, 2)]
     t1 <- t[, 2:4 := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = 2:4]
     
-    sketch <- sketch.basic(colnames(t1)[1], yr.fl[1], yr.fl[2], runs[1], runs[2])
+    sketch <- sketch.basic(colnames(t1)[1], sel.yr.fl[1], sel.yr.fl[2], runs[1], runs[2])
     create.DT.basic(t1, sketch)
   })
   
@@ -874,12 +917,14 @@ function(input, output, session) {
   tsGrowthCtr <- reactive({
     growctrdt <- growctrdt()
     runs <- runs()
+    tsYear <- tsYear()
+    sel.yrs.col <- paste0("yr", c(years[1], tsYear))
     
     lg.rgc <- c("Bellevue", "Everett", "SeaTac", "Seattle Downtown", "Seattle First Hill/Capitol Hill", "Seattle South Lake Union", 
                 "Seattle University Community", "Tacoma Downtown")
     t <- growctrdt[(indicator == 'Total Population' | indicator == 'Employment') & (run == runs[1] | run == runs[2])]
     t[indicator == 'Total Population', indicator := 'Population']
-    t1 <- t[, lapply(.SD, sum), by = list(name, indicator, run), .SDcols = yr.col]
+    t1 <- t[, lapply(.SD, sum), by = list(name, indicator, run), .SDcols = sel.yrs.col]
     t1 <- t1[name %in% lg.rgc, ]
   })
   
@@ -887,12 +932,15 @@ function(input, output, session) {
   output$tpsht_rgc <- DT::renderDataTable({
     tsGrwothCtr <- tsGrowthCtr()
     runs <- runs()
+    tsYear <- tsYear()
+    sel.yr.fl <- c(years[1], tsYear)
+    sel.yrs.col <- paste0("yr", c(years[1], tsYear))
 
-    t <- dcast.data.table(tsGrwothCtr, name ~ indicator + run, value.var = yr.col)
+    t <- dcast.data.table(tsGrwothCtr, name ~ indicator + run, value.var = sel.yrs.col)
     setnames(t, "name", "Name")
     t1 <- create.exp.tsTable(t)
     
-    sketch <- sketch.expanded(colnames(t1)[1], yr.fl[1], yr.fl[2], runs[1], runs[2])
+    sketch <- sketch.expanded(colnames(t1)[1], sel.yr.fl[1], sel.yr.fl[2], runs[1], runs[2])
     create.DT.expanded(t1, sketch)
   })
   
@@ -900,11 +948,13 @@ function(input, output, session) {
   tsSplace <- reactive({
     alldt <- alldt()
     runs <- runs()
+    tsYear <- tsYear()
+    sel.yrs.col <- paste0("yr", c(years[1], tsYear))
     
     key.loc <- c("UW", "Amazon", "SeaTac Airport", "Microsoft Overlake", "Paine Field", "JBLM", "Bangor")
     t <- merge(alldt[geography == 'zone' & (run == runs[1] | run == runs[2]) & (indicator == 'Total Population' | indicator == 'Employment')], 
                splaces.lookup, by.x = "name_id", by.y = "zone_id")
-    t1 <- t[, lapply(.SD, sum), by = list(Name = name, indicator, run), .SDcols = yr.col][Name %in% key.loc, ]
+    t1 <- t[, lapply(.SD, sum), by = list(Name = name, indicator, run), .SDcols = sel.yrs.col][Name %in% key.loc, ]
     t1[indicator == "Total Population", indicator := "Population"]
   })
   
@@ -912,10 +962,13 @@ function(input, output, session) {
   output$tpsht_splace <- DT::renderDataTable({
     tsSplace <- tsSplace()
     runs <- runs()
+    tsYear <- tsYear()
+    sel.yr.fl <- c(years[1], tsYear)
+    sel.yrs.col <- paste0("yr", c(years[1], tsYear))
 
-    t <- dcast.data.table(tsSplace, Name ~ indicator + run, value.var = yr.col)
+    t <- dcast.data.table(tsSplace, Name ~ indicator + run, value.var = sel.yrs.col)
     t1 <- create.exp.tsTable(t)
-    sketch <- sketch.expanded(colnames(t1)[1], yr.fl[1], yr.fl[2], runs[1], runs[2])
+    sketch <- sketch.expanded(colnames(t1)[1], sel.yr.fl[1], sel.yr.fl[2], runs[1], runs[2])
     create.DT.expanded(t1, sketch)
   })
   

@@ -43,6 +43,11 @@ navbarPage(theme = shinytheme("readable"),
                                htmlOutput('ts_desc'),
                                
                                htmlOutput('ts_rest'),
+                               br(),
+                               selectInput(inputId = "ts_select_year",
+                                           label = "Select Comparison Year",
+                                           choices = years[2:length(years)],
+                                           selected = years[length(years)]),
                                br()
                         ), # end column
                         column(width = 1

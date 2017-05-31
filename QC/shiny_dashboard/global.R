@@ -33,8 +33,6 @@ if(make) {
   # base <- list(Modelsrv3 = "//modelsrv3/e$/opusgit/urbansim_data/data/psrc_parcel/runs",
   #              Modelsrv8 = "//MODELSRV8/d$/opusgit/urbansim_data/data/psrc_parcel/runs")
   #base.dir <- "/Volumes/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
-  #base.dir <- "/media/modelsrv8d/opusgit/urbansim_data/data/psrc_parcel/runs"
-  #base.dir <- "/media/modelsrv3e/opusgit/urbansim_data/data/psrc_parcel/runs"
   # wrkdir <- "C:/Users/CLam/Desktop/luv/QC"
   wrkdir <- "/home/shiny/apps/luv/QC"
   #wrkdir <- "/Users/hana/ForecastProducts/LUV/QC"
@@ -43,8 +41,8 @@ if(make) {
 dsn <- file.path(wrkdir, "data")
 
 # select beginning and end years
-yr.fl <- c(years[1], years[length(years)])
-yr.col <- paste0("yr", c(years[1], years[length(years)]))
+# yr.fl <- c(years[1], years[length(years)])
+# yr.col <- paste0("yr", c(years[1], years[length(years)]))
 
 # lookup tables and shape names
 faz.lookup <- read.table(file.path(dsn, "faz_names.txt"), header =TRUE, sep = "\t")
