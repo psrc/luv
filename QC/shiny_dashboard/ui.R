@@ -23,7 +23,8 @@ navbarPage(theme = shinytheme("readable"),
                              br(),
                              br(),
                              verbatimTextOutput("submit_msg"),
-                             uiOutput('link')
+                             uiOutput('link'),
+                             helpText("*affects Index file, and the Employment by Sector and Time Series tabs")
                       ), # end column
                       column(width = 4
  
@@ -42,6 +43,11 @@ navbarPage(theme = shinytheme("readable"),
                                htmlOutput('ts_desc'),
                                
                                htmlOutput('ts_rest'),
+                               br(),
+                               selectInput(inputId = "ts_select_year",
+                                           label = "Select Comparison Year",
+                                           choices = years[2:length(years)],
+                                           selected = years[length(years)]),
                                br()
                         ), # end column
                         column(width = 1
@@ -53,39 +59,41 @@ navbarPage(theme = shinytheme("readable"),
                                
                         ), # end column
                         column(width = 10,
-                               h4(class="header", checked=NA,
-                                  tags$b("Households by County")
-                               ),
-                               tableOutput('tpsht_hh'),
-                               h4(class="header", checked=NA,
-                                  tags$b("Population by County")
-                               ),
-                               tableOutput('tpsht_pop'),
-                               h4(class="header", checked=NA,
-                                  tags$b("Employment by County")
-                               ),
-                               tableOutput('tpsht_emp'),
-                               h4(class="header", checked=NA,
-                                  tags$b("Jobs by Sector")
-                               ),
-                               tableOutput('tpsht_jobs'),
+                               tags$head(tags$style(type = "text/css", HTML("th { text-align: center; }"))),
+                               h4(class="header", checked=NA, tags$b("Households by County")),
+                               DT::dataTableOutput('tpsht_hh'),
+                               br(),
                                
-                               h4(class="header", checked=NA,
-                                  tags$b("PTYPE Variable")
-                               ),
-                               tableOutput('tpsht_ptype'),
-                               h4(class="header", checked=NA,
-                                  tags$b("Households by Income Group")
-                               ),
-                               tableOutput('tpsht_hhInc'),
-                               h4(class="header", checked=NA,
-                                  tags$b("Largest RGCs")
-                               ),
-                               tableOutput('tpsht_rgc'),
-                               h4(class="header", checked=NA,
-                                  tags$b("Key Locations")
-                               ),
-                               tableOutput('tpsht_splace')
+                               h4(class="header", checked=NA, tags$b("Population by County")),
+                               DT::dataTableOutput('tpsht_pop'),
+                               br(),
+                               
+                               h4(class="header", checked=NA, tags$b("Employment by County")),
+                               DT::dataTableOutput('tpsht_emp'),
+                               br(),
+                               
+                               h4(class="header", checked=NA, tags$b("Jobs by Sector")),
+                               DT::dataTableOutput('tpsht_jobs'),
+                               br(),
+                               
+                               h4(class="header", checked=NA, tags$b("Worker Type")),
+                               DT::dataTableOutput('tpsht_pwtype'),
+                               br(),
+                               
+                               h4(class="header", checked=NA, tags$b("Person Type")),
+                               DT::dataTableOutput('tpsht_ptype'),
+                               br(),
+                               
+                               h4(class="header", checked=NA, tags$b("Households by Income Group")),
+                               DT::dataTableOutput('tpsht_hhInc'),
+                               br(),
+                               
+                               h4(class="header", checked=NA, tags$b("Largest RGCs")),
+                               DT::dataTableOutput('tpsht_rgc'),
+                               br(),
+                               
+                               h4(class="header", checked=NA, tags$b("Key Locations")),
+                               DT::dataTableOutput('tpsht_splace')
                         ), # end column
                         column(width = 1
                                
@@ -282,7 +290,7 @@ navbarPage(theme = shinytheme("readable"),
                                            selected = tail(years, n=1))#, #select the last element of years
                         ), # end column
                         column(width = 2,
-                               selectInput(inputId = "dcap_select_geography",
+                               selectInput(inputId = "dcap_select_geography", 
                                            label = "Geography",
                                            choices = c("TAZ"=1,
                                                        "FAZ"=2,
