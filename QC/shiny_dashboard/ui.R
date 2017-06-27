@@ -1,5 +1,7 @@
-navbarPage(theme = shinytheme("readable"),
-           "LUV QC Dashboard",
+ui <- function(request) {
+  fluidPage(title="", windowTitle="LUV QC Dashboard",
+  navbarPage(theme = shinytheme("readable"),
+           title = div("LUV QC Dashboard", HTML("&nbsp;"), bookmarkButton(label = "", id = "bookmark1")), 
            tabPanel("Selection",
                     fluidPage(
                       column(width = 4
@@ -38,6 +40,9 @@ navbarPage(theme = shinytheme("readable"),
                         
                         ),
                         column(width = 10,
+                               # bookmarkButton(id = "bookmark1"),
+                               # br(),
+                               # br(),
                                htmlOutput('ts_currRun'),
                                
                                htmlOutput('ts_desc'),
@@ -106,6 +111,9 @@ navbarPage(theme = shinytheme("readable"),
                     fluidPage(
                       fluidRow(
                         column(width = 2,
+                               # bookmarkButton(id = "bookmark2"),
+                               # br(),
+                               # br(),
                                h4(class="header", checked=NA,
                                   tags$b("Select the following to compare runs")
                                ),
@@ -317,3 +325,7 @@ navbarPage(theme = shinytheme("readable"),
            ), # end tabPanel
            fluid = TRUE
 )# end navbarPage
+)# end fluidPage
+}
+
+ 

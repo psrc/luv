@@ -1,4 +1,4 @@
-function(input, output, session) {
+server <- function(input, output, session) {
   
 # functions ---------------------------------------------------------------
 
@@ -352,14 +352,61 @@ function(input, output, session) {
       formatStyle(colnames(table)[c(2,7)],
                   backgroundColor = 'AliceBlue')
   }
+
+
+# Bookmarking State -------------------------------------------------------
+
+  setBookmarkExclude(c("bookmark1"))
   
+  # Trigger bookmarking with either button
+  observeEvent(input$bookmark1, {
+    session$doBookmark()
+  })
+  
+  # observeEvent(input$bookmark2, {
+  #   session$doBookmark()
+  # })
+  
+  onBookmark(function(state) {
+    state$values$submitted <- vars$submitted
+    state$values$dir <- vars$result.dir
+    state$values$select_run1 <- vars$select_run1
+    state$values$select_run2all <- vars$select_run2all
+    state$values$runnames <- vars$runnames
+    state$values$runname1 <- vars$runname1
+    state$values$runnames2 <- vars$runnames2
+    state$values$runs <- vars$runs
+  })
+  
+  onRestore(function(state) {
+    vars$submitted <- state$values$submitted
+    vars$result.dir <- state$values$dir
+    vars$select_run1 <-state$values$select_run1 
+    vars$select_run2all<-state$values$select_run2all
+    vars$runnames<-state$values$runnames
+    vars$runname1<-state$values$runname1
+    vars$runnames2<-state$values$runnames2 
+    vars$runs<- state$values$runs 
+    #print(values)
+    # browser()
+  })
+
+      
 # Initialize Dashboard ----------------------------------------------------
 
   
   trim.subdir <- tempfile(pattern="sessiondir", tmpdir=".")
   # trim.subdir <- tempfile(pattern="sessiondir", tmpdir="")
   subdir <- file.path("www", trim.subdir)
-  vars <- reactiveValues(submitted=FALSE)
+  vars <- reactiveValues(submitted = FALSE, 
+                         result.dir = NULL,
+                         select_run1 = NULL,
+                         select_run2all = NULL,
+                         runnames = NULL,
+                         runname1 = NULL,
+                         runnames2 = NULL,
+                         runs = NULL
+                         )
   
   base.dir <- reactive({
           base[[as.integer(input$init_select_server)]]
@@ -373,17 +420,13 @@ function(input, output, session) {
                 width = "100%")
   })
   
-  selectRun1.exclude <- reactive({
-    input$select_run1
-  })
-  
   output$init_select_run2all <- renderUI({
     select.run2all <- list.files(base.dir())
-    new.select.run2all <- setdiff(select.run2all, selectRun1.exclude())
+    # new.select.run2all <- setdiff(select.run2all, selectRun1())
     selectInput(inputId = "select_run2all",
                 label = "Run 2 (select one or more)",
-                choices = new.select.run2all,
-                selected = new.select.run2all[1],
+                choices = select.run2all,
+                #selected = new.select.run2all[1],
                 multiple = TRUE,
                 width = "100%")
   })
@@ -396,19 +439,48 @@ function(input, output, session) {
                 width = "100%")
   })
   
-  selectResultsDir <- eventReactive(input$goButton, {
-    input$select_resultsdir
-    
+
+  resultsDir <- reactive({
+    vars$result.dir
   })
   
-  resultsDir <- eventReactive(input$goButton, {
-    file.path(wrkdir, "results", selectResultsDir())
+  selectRun1 <- reactive({
+    vars$select_run1
+  })
+
+  selectRun2 <- reactive({
+    vars$select_run2all
+  })
+
+  runnames <- reactive({
+    vars$runnames
+  })
+
+  runname1 <- reactive({
+    vars$runname1
+  })
+
+  runnames2 <- reactive({
+    vars$runnames2
+  })
+
+  runs <- reactive({
+    vars$runs
   })
   
   # create sub-directory in 'www'
   # find text files from results dir and copy to www dir
   observeEvent(input$goButton, {
+    if(length(input$select_resultsdir) == 0) return()
     if (!(file.exists(subdir))) dir.create(subdir)
+ 
+    vars$result.dir <- file.path(wrkdir, "results", input$select_resultsdir)
+    vars$select_run1 <- input$select_run1
+    vars$select_run2all <- input$select_run2all
+    vars$runnames <-  c(input$select_run1, input$select_run2all)
+    vars$runname1 <- unlist(strsplit(input$select_run1,"[.]"))[[1]]
+    vars$runnames2 <- sapply(strsplit(input$select_run2all,"[.]"), function(x) x[1])  
+    vars$runs <- c(vars$runname1, unlist(vars$runnames2))
     
     result.dir <- resultsDir()
     
@@ -422,6 +494,7 @@ function(input, output, session) {
     # fn <- list.files('www', glob2rx('index.html'), full.names = TRUE, include.dirs=TRUE, ignore.case=TRUE)
     # if (length(fn) > 0 && file.exists(fn)) file.remove(fn)
     indexf.dir <- file.path(result.dir,"index_files")
+     if (length(indexf.dir) == 0) browser()
     if(file.exists(indexf.dir)) {
     	file.copy(indexf.dir, subdir, recursive = TRUE)
     	indexdirs <- c()#'bootstrap-3.3.5', 'jquery-1.11.3'
@@ -432,30 +505,6 @@ function(input, output, session) {
   })
   
   output$link <- renderUI({HTML(paste0("<a href=", "'", file.path(trim.subdir, 'index.html'), "'", "target='blank'>View Index file</a>"))})
-  
-  selectRun1 <- eventReactive(input$goButton, {
-    input$select_run1
-  })
-  
-  selectRun2 <- eventReactive(input$goButton, {
-    input$select_run2all
-  })
-  
-  runnames <- eventReactive(input$goButton, {
-    c(selectRun1(), selectRun2())
-  })
-  
-  runname1 <- eventReactive(input$goButton, {
-    unlist(strsplit(selectRun1(),"[.]"))[[1]]
-  })
-  
-  runnames2 <- eventReactive(input$goButton, {
-    sapply(strsplit(selectRun2(),"[.]"), function(x) x[1])
-  })
-  
-  runs <- eventReactive(input$goButton, {
-    c(runname1(), unlist(runnames2()))
-  })
   
   # build general attributes source table
   alldt <- eventReactive(input$goButton,{
@@ -689,12 +738,12 @@ function(input, output, session) {
   })
   
   # Data ready message
-  index.ready <- reactive({
-    file.path(resultsDir(), 'index.html')
-  })
-  
   output$submit_msg <- renderText({
-    if (!is.null(index.ready())) "Data has been loaded, click on Index link or dashboard tabs"
+    if (vars$submitted == TRUE) {
+      "Data has been loaded, click on Index link or dashboard tabs"
+    } else {
+      return(NULL)
+    }
   })
   
   # Delete temporary sub-directory in 'www' when session ends 

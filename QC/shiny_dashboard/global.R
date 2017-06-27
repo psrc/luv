@@ -9,6 +9,8 @@ library(shinythemes)
 library(stringr)
 library(DT)
 
+enableBookmarking(store = "server")
+
 # environment inputs
 attribute <- c("population", "households","employment", "residential_units")
 geography <- c( "zone", "faz", "city")
