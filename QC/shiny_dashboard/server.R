@@ -207,7 +207,7 @@ server <- function(input, output, session) {
     t1 <- dcast.data.table(table, County ~ run, value.var = sel.yrs.col)
     setcolorder(t1, c("County", paste0(sel.yrs.col[1],"_",runs[1]), paste0(sel.yrs.col[2],"_",runs[1]), paste0(sel.yrs.col[2],"_",runs[2]), paste0(sel.yrs.col[1],"_",runs[2])))
     t1[, ncol(t1) := NULL]
-    t1[, Change := (t1[[ncol(t1)-1]]-t1[[ncol(t1)]])][, Per.Change := round((Change/t1[[3]])*100, 2)]
+    t1[, Change := (t1[[ncol(t1)-1]]-t1[[ncol(t1)]])][, Per.Change := round((Change/t1[[4]])*100, 2)]
     setnames(t1, colnames(t1), c("County", 
                                  paste0(sel.yr.fl[1], "_", runs[1]),
                                  paste0(sel.yr.fl[2], "_", runs[1]),
@@ -237,9 +237,9 @@ server <- function(input, output, session) {
     table[, (ncol(table)-1):ncol(table) := NULL] 
     
     t1<- table[, Pop.Change := (table[[3]]-table[[4]])
-               ][, Pop.Per.Change := round((Pop.Change/table[[3]])*100, 2)
+               ][, Pop.Per.Change := round((Pop.Change/table[[4]])*100, 2)
                  ][, Emp.Change := (table[[6]]-table[[7]])
-                   ][, Emp.Per.Change := round((Emp.Change/table[[6]])*100, 2)]
+                   ][, Emp.Per.Change := round((Emp.Change/table[[7]])*100, 2)]
     setcolorder(t1,
                 c("Name",
                   paste0(sel.yrs.col[1], "_", "Population","_", runs[1]),
@@ -272,9 +272,13 @@ server <- function(input, output, session) {
       class = 'display', 
       thead(
         tr(
-          th(rowspan = 2, grpcol),
+          th(rowspan = 3, grpcol),
           th(bgcolor='AliceBlue', colspan = 1, year1),
           th(colspan = 4, year2)
+        ),
+        tr(
+          th(style="font-size:12px; font-style:italic; font-weight:normal;", bgcolor='AliceBlue', 'A'),
+          lapply(list('B', 'C', 'D = B-C', 'D/C'), function(x) th(style="font-size:12px; font-style:italic; font-weight:normal;", x))
         ),
         tr(
           th(bgcolor='AliceBlue', run1),
@@ -290,21 +294,21 @@ server <- function(input, output, session) {
       class = 'display',
       thead(
         tr(
-          th(rowspan = 3, grpcol),
+          th(rowspan = 4, grpcol),
           th(colspan = 5, 'Population'),
           th(colspan = 5, 'Employment')
         ),
         tr(
-          th(bgcolor='AliceBlue', colspan = 1, year1),
-          th(colspan = 4, year2),
-          th(bgcolor='AliceBlue', colspan = 1, year1),
-          th(colspan = 4, year2)
+          rep(list(th(bgcolor='AliceBlue', colspan = 1, year1), th(colspan = 4, year2)), 2)
         ),
         tr(
-          th(bgcolor='AliceBlue', run1),
-          lapply(c(run1, run2, 'Change', '% Change'), th),
-          th(bgcolor='AliceBlue', run1),
-          lapply(c(run1, run2, 'Change', '% Change'), th)
+          rep(
+            list(th(style="font-size:12px; font-style:italic; font-weight:normal;", bgcolor='AliceBlue', 'A'),
+                 lapply(list('B', 'C', 'D = B-C', 'D/C'), function(x) th(style="font-size:12px; font-style:italic; font-weight:normal;", x))),
+            2)
+        ),
+        tr(
+          rep(list(th(bgcolor='AliceBlue', run1), lapply(c(run1, run2, 'Change', '% Change'), th)), 2)
         )
       ) # end thead
     )) # end withTags/table
@@ -318,7 +322,10 @@ server <- function(input, output, session) {
                   options = list(columnDefs = list(list(className = 'dt-center', targets = 1:5), 
                                                    list(width = '20%', targets = 0)),
                                  dom = 'Bfrtip',
-                                 buttons = c('copy', 'excel'),
+                                 buttons = list('copy',
+                                                list(extend = 'excel',
+                                                     buttons = 'excel',
+                                                     filename = 'LUVQCDashboard')),
                                  #autoWidth = TRUE,
                                  paging = FALSE, 
                                  searching = FALSE 
@@ -340,7 +347,10 @@ server <- function(input, output, session) {
                   options = list(columnDefs = list(list(className = 'dt-center', targets = 1:10),
                                                    list(width = '20%', targets = 0)),
                                  dom = 'Bfrtip',
-                                 buttons = c('copy', 'excel'),
+                                 buttons = list('copy',
+                                                list(extend = 'excel',
+                                                     buttons = 'excel',
+                                                     filename = 'LUVQCDashboard')),
                                  paging = FALSE, 
                                  searching = FALSE 
                   ),
@@ -505,7 +515,9 @@ server <- function(input, output, session) {
   })
   
   output$link <- renderUI({HTML(paste0("<a href=", "'", file.path(trim.subdir, 'index.html'), "'", "target='blank'>View Index file</a>"))})
-  
+
+  # Compile source tables ---------------------------------------------------  
+    
   # build general attributes source table
   alldt <- eventReactive(input$goButton,{
     runnames <- runnames()
@@ -736,8 +748,11 @@ server <- function(input, output, session) {
     
     return(as.data.table(gc.table))
   })
+
+
+# Data ready message ------------------------------------------------------
+
   
-  # Data ready message
   output$submit_msg <- renderText({
     if (vars$submitted == TRUE) {
       "Data has been loaded, click on Index link or dashboard tabs"
@@ -828,6 +843,40 @@ server <- function(input, output, session) {
     create.DT.basic(t1, sketch)
   })
   
+  # Filter table and calculate totals for Jobs by Sector table
+  tsSectorJobs <- reactive({
+    jobsectdt <- jobsectdt()
+    # browser()
+    runs <- runs()
+    tsYear <- tsYear()
+    sel.yr.fl <- c(years[1], tsYear)
+
+    t <- jobsectdt[(run == runs[1] | run == runs[2]) & (year %in% sel.yr.fl)]
+    t.sum <- t[, .(estimate = sum(estimate)), by = list(run, year)][, sector := "Sub-Total: Jobs"]
+    rbindlist(list(t, t.sum), use.names = TRUE)
+  })
+
+  # Display Jobs by sector summary table
+  output$tpsht_jobs <- DT::renderDataTable({
+    tsSectorJobs <- tsSectorJobs()
+    # browser()
+    runs <- runs()
+    tsYear <- tsYear()
+    sel.yr.fl <- c(years[1], tsYear)
+
+    t <- dcast.data.table(tsSectorJobs, sector ~ year + run, value.var = "estimate")
+    setnames(t, "sector", "Sector")
+    # browser()
+    setcolorder(t, c("Sector", paste0(sel.yr.fl[1],"_",runs[1]), paste0(sel.yr.fl[2],"_",runs[1]), paste0(sel.yr.fl[2],"_",runs[2]), paste0(sel.yr.fl[1],"_",runs[2])))
+    t[, ncol(t) := NULL]
+    t[, Change := (t[[ncol(t)-1]]-t[[ncol(t)]])][, Per.Change := round((Change/t[[4]])*100, 2)]
+    # browser()
+    t1 <- t[, 2:4 := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = 2:4]
+
+    sketch <- sketch.basic(colnames(t1)[1], sel.yr.fl[1], sel.yr.fl[2], runs[1], runs[2])
+    create.DT.basic(t1, sketch)
+  })
+  
   # Filter table and calculate totals for PWTYPE
   tsPwtypeTable <- reactive({
     demogdt <- demogdt()
@@ -853,7 +902,8 @@ server <- function(input, output, session) {
       pt <- dcast.data.table(tsPwtypeTable, Group ~ year + run, value.var = "estimate")
       setcolorder(pt, c("Group", paste0(sel.yr.fl[1],"_",runs[1]), paste0(sel.yr.fl[2],"_",runs[1]), paste0(sel.yr.fl[2],"_",runs[2]), paste0(sel.yr.fl[1],"_",runs[2])))
       pt[, ncol(pt) := NULL]
-      pt[, Change := (pt[[ncol(pt)-1]]-pt[[ncol(pt)]])][, Per.Change := round((Change/pt[[3]])*100, 2)][ , name := factor(Group, levels = newOrder)]
+      pt[, Change := (pt[[ncol(pt)-1]]-pt[[ncol(pt)]])][, Per.Change := round((Change/pt[[4]])*100, 2)][ , name := factor(Group, levels = newOrder)]
+      # browser()
       t0 <- pt[with(pt, order(name)),]
       t <- t0[, -"name", with = FALSE]
       t1 <- t[, 2:4 := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = 2:4]
@@ -894,7 +944,8 @@ server <- function(input, output, session) {
     pt <- dcast.data.table(tsPtypeTable, Group ~ year + run, value.var = "estimate")
     setcolorder(pt, c("Group", paste0(sel.yr.fl[1],"_",runs[1]), paste0(sel.yr.fl[2],"_",runs[1]), paste0(sel.yr.fl[2],"_",runs[2]), paste0(sel.yr.fl[1],"_",runs[2])))
     pt[, ncol(pt) := NULL]
-    pt[, Change := (pt[[ncol(pt)-1]]-pt[[ncol(pt)]])][, Per.Change := round((Change/pt[[3]])*100, 2)][ , name := factor(Group, levels = newOrder)]
+    pt[, Change := (pt[[ncol(pt)-1]]-pt[[ncol(pt)]])][, Per.Change := round((Change/pt[[4]])*100, 2)][ , name := factor(Group, levels = newOrder)]
+    # browser()
     t0 <- pt[with(pt, order(name)),]
     t <- t0[, -"name", with = FALSE]
     t1 <- t[, 2:4 := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = 2:4]
@@ -926,38 +977,8 @@ server <- function(input, output, session) {
     t <- dcast.data.table(tsIncTable, Group ~ year + run, value.var = "estimate")
     setcolorder(t, c("Group", paste0(sel.yr.fl[1],"_",runs[1]), paste0(sel.yr.fl[2],"_",runs[1]), paste0(sel.yr.fl[2],"_",runs[2]), paste0(sel.yr.fl[1],"_",runs[2])))
     t[, ncol(t) := NULL]
-    t[, Change := (t[[ncol(t)-1]]-t[[ncol(t)]])][, Per.Change := round((Change/t[[3]])*100, 2)]
+    t[, Change := (t[[ncol(t)-1]]-t[[ncol(t)]])][, Per.Change := round((Change/t[[4]])*100, 2)]
     t1 <- t[, 2:4 := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = 2:4]
-    sketch <- sketch.basic(colnames(t1)[1], sel.yr.fl[1], sel.yr.fl[2], runs[1], runs[2])
-    create.DT.basic(t1, sketch)
-  })
-  
-  # Filter table and calculate totals for Jobs by Sector table
-  tsSectorJobs <- reactive({
-    jobsectdt <- jobsectdt()
-    runs <- runs()
-    tsYear <- tsYear()
-    sel.yr.fl <- c(years[1], tsYear)
-    
-    t <- jobsectdt[(run == runs[1] | run == runs[2]) & (year %in% sel.yr.fl)]
-    t.sum <- t[, .(estimate = sum(estimate)), by = list(run, year)][, sector := "Sub-Total: Jobs"]
-    rbindlist(list(t, t.sum), use.names = TRUE)
-  })
-  
-  # Display Jobs by sector summary table
-  output$tpsht_jobs <- DT::renderDataTable({
-    tsSectorJobs <- tsSectorJobs()
-    runs <- runs()
-    tsYear <- tsYear()
-    sel.yr.fl <- c(years[1], tsYear)
-    
-    t <- dcast.data.table(tsSectorJobs, sector ~ year + run, value.var = "estimate")
-    setnames(t, "sector", "Sector")
-    setcolorder(t, c("Sector", paste0(sel.yr.fl[1],"_",runs[1]), paste0(sel.yr.fl[2],"_",runs[1]), paste0(sel.yr.fl[2],"_",runs[2]), paste0(sel.yr.fl[1],"_",runs[2])))
-    t[, ncol(t) := NULL]
-    t[, Change := (t[[ncol(t)-1]]-t[[ncol(t)]])][, Per.Change := round((Change/t[[3]])*100, 2)]
-    t1 <- t[, 2:4 := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = 2:4]
-    
     sketch <- sketch.basic(colnames(t1)[1], sel.yr.fl[1], sel.yr.fl[2], runs[1], runs[2])
     create.DT.basic(t1, sketch)
   })
@@ -987,6 +1008,7 @@ server <- function(input, output, session) {
 
     t <- dcast.data.table(tsGrwothCtr, name ~ indicator + run, value.var = sel.yrs.col)
     setnames(t, "name", "Name")
+    # browser()
     t1 <- create.exp.tsTable(t)
     
     sketch <- sketch.expanded(colnames(t1)[1], sel.yr.fl[1], sel.yr.fl[2], runs[1], runs[2])

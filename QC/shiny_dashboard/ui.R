@@ -40,13 +40,8 @@ ui <- function(request) {
                         
                         ),
                         column(width = 10,
-                               # bookmarkButton(id = "bookmark1"),
-                               # br(),
-                               # br(),
                                htmlOutput('ts_currRun'),
-                               
                                htmlOutput('ts_desc'),
-                               
                                htmlOutput('ts_rest'),
                                br(),
                                selectInput(inputId = "ts_select_year",
