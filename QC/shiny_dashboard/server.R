@@ -197,25 +197,82 @@ server <- function(input, output, session) {
     return(map)
   }
   
-  # Prepares generic topsheet table for main indicators (households, population, employment) 
-  create.tsTable <- function(table){
+  # Prepares generic topsheet table for main indicators (households, population, employment)
+  create.tsTable <- function(table, idname){ #idname aka 'County' or 'Name'
     runs <- runs()
     tsYear <- tsYear()
     sel.yr.fl <- c(years[1], tsYear)
     sel.yrs.col <- paste0("yr", sel.yr.fl)
-    
-    t1 <- dcast.data.table(table, County ~ run, value.var = sel.yrs.col)
-    setcolorder(t1, c("County", paste0(sel.yrs.col[1],"_",runs[1]), paste0(sel.yrs.col[2],"_",runs[1]), paste0(sel.yrs.col[2],"_",runs[2]), paste0(sel.yrs.col[1],"_",runs[2])))
+
+    t1 <- dcast.data.table(table, paste(idname, "~ run"), value.var = sel.yrs.col)
+    setcolorder(t1, c(idname, paste0(sel.yrs.col[1],"_",runs[1]), paste0(sel.yrs.col[2],"_",runs[1]), paste0(sel.yrs.col[2],"_",runs[2]), paste0(sel.yrs.col[1],"_",runs[2])))
     t1[, ncol(t1) := NULL]
-    t1[, Change := (t1[[ncol(t1)-1]]-t1[[ncol(t1)]])][, Per.Change := round((Change/t1[[4]])*100, 2)]
-    setnames(t1, colnames(t1), c("County", 
+    t1[, Change := (t1[[ncol(t1)-1]]-t1[[ncol(t1)]])
+       ][, Per.Change := round((Change/t1[[4]])*100, 2)
+         ][, Per.Growth := round(Change/(t1[[4]]-t1[[2]])*100, 2)
+           ][, r1.baseyr := (t1[[3]]-t1[[2]])
+             ][, r2.baseyr := (t1[[4]]-t1[[2]])]
+    setnames(t1, colnames(t1), c(idname,
                                  paste0(sel.yr.fl[1], "_", runs[1]),
                                  paste0(sel.yr.fl[2], "_", runs[1]),
                                  paste0(sel.yr.fl[2], "_", runs[2]),
                                  "Change",
-                                 "Per.Change"))
+                                 "Per.Change",
+                                 "Per.Growth",
+                                 "r1.baseyr",
+                                 "r2.baseyr"))
+    # t1[, `:=` (r1dist = round(r1.baseyr/(unlist(t1[.N, .(r1.baseyr)])[[1]])*100, 2), r2dist = round(r2.baseyr/(unlist(t1[.N, .(r2.baseyr)])[[1]])*100, 2))]
+    t1[, `:=` (r1dist = round(r1.baseyr/(unlist(t1[like(get(eval(idname)), "Sub-Total"), .(r1.baseyr)])[[1]])*100, 2), r2dist = round(r2.baseyr/(unlist(t1[like(get(eval(idname)), "Sub-Total"), .(r2.baseyr)])[[1]])*100, 2))]
+    t1[, r1.baseyr := NULL][, r2.baseyr := NULL]
+    setcolorder(t1, c(idname,
+                      paste0(sel.yr.fl[1], "_", runs[1]),
+                      paste0(sel.yr.fl[2], "_", runs[1]),
+                      paste0(sel.yr.fl[2], "_", runs[2]),
+                      "Change",
+                      "Per.Change",
+                      "r1dist",
+                      "r2dist",
+                      "Per.Growth"))
+
     t1[, 2:4 := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = 2:4]
   }
+  # create.tsTable <- function(table){
+  #   runs <- runs()
+  #   tsYear <- tsYear()
+  #   sel.yr.fl <- c(years[1], tsYear)
+  #   sel.yrs.col <- paste0("yr", sel.yr.fl)
+  #   
+  #   t1 <- dcast.data.table(table, County ~ run, value.var = sel.yrs.col)
+  #   setcolorder(t1, c("County", paste0(sel.yrs.col[1],"_",runs[1]), paste0(sel.yrs.col[2],"_",runs[1]), paste0(sel.yrs.col[2],"_",runs[2]), paste0(sel.yrs.col[1],"_",runs[2])))
+  #   t1[, ncol(t1) := NULL]
+  #   t1[, Change := (t1[[ncol(t1)-1]]-t1[[ncol(t1)]])
+  #      ][, Per.Change := round((Change/t1[[4]])*100, 2)
+  #        ][, Per.Growth := round(Change/(t1[[4]]-t1[[2]])*100, 2)
+  #          ][, r1.baseyr := (t1[[3]]-t1[[2]])
+  #            ][, r2.baseyr := (t1[[4]]-t1[[2]])]
+  #   setnames(t1, colnames(t1), c("County", 
+  #                                paste0(sel.yr.fl[1], "_", runs[1]),
+  #                                paste0(sel.yr.fl[2], "_", runs[1]),
+  #                                paste0(sel.yr.fl[2], "_", runs[2]),
+  #                                "Change",
+  #                                "Per.Change",
+  #                                "Per.Growth",
+  #                                "r1.baseyr",
+  #                                "r2.baseyr"))
+  #   t1[, `:=` (r1dist = round(r1.baseyr/(unlist(t1[.N, .(r1.baseyr)])[[1]])*100, 2), r2dist = round(r2.baseyr/(unlist(t1[.N, .(r2.baseyr)])[[1]])*100, 2))]
+  #   t1[, r1.baseyr := NULL][, r2.baseyr := NULL]
+  #   setcolorder(t1, c("County", 
+  #                     paste0(sel.yr.fl[1], "_", runs[1]),
+  #                     paste0(sel.yr.fl[2], "_", runs[1]),
+  #                     paste0(sel.yr.fl[2], "_", runs[2]),
+  #                     "Change",
+  #                     "Per.Change",
+  #                     "r1dist",
+  #                     "r2dist",
+  #                     "Per.Growth"))
+  #   
+  #   t1[, 2:4 := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = 2:4]
+  # }
   
   # Prepares expanded topsheet table for RGCs & Key Locations
   create.exp.tsTable <- function(table){
@@ -288,6 +345,31 @@ server <- function(input, output, session) {
     )) # end withTags/table
   }
   
+  sketch.basic.growth <- function(grpcol, year1, year2, run1, run2){
+    htmltools::withTags(table(
+      class = 'display', 
+      thead(
+        tr(
+          th(rowspan = 3, grpcol),
+          th(bgcolor='AliceBlue', colspan = 1, year1),
+          th(colspan = 7, year2)
+        ),
+        tr(
+          th(style="font-size:12px; font-style:italic; font-weight:normal;", bgcolor='AliceBlue', 'A'),
+          lapply(c('B', '(B-A)/(subtotal[B-A])'), function(x) th(style="font-size:12px; font-style:italic; font-weight:normal;", bgcolor='MintCream', x)), 
+          lapply(c('C', '(C-A)/(subtotal[C-A])'), function(x) th(style="font-size:12px; font-style:italic; font-weight:normal;", bgcolor='Ivory', x)),
+          lapply(c('D = B-C', 'D/C', 'D/(C-A)'), function(x) th(style="font-size:12px; font-style:italic; font-weight:normal;", x))
+        ),
+        tr(
+          th(style="font-size:13px;", bgcolor='AliceBlue', run1),
+          lapply(c(run1, paste('%', run1, "Growth Distribution")), function(x) th(style="font-size:13px;", bgcolor='MintCream', x)),
+          lapply(c(run2 , paste('%', run2, "Growth Distribution")), function(x) th(style="font-size:13px;", bgcolor='Ivory', x)),
+          lapply(c('Change', '% Change', '% Growth from Base Year'), function(x) th(style="font-size:13px;", x))
+        )
+      ) # end thead
+    )) # end withTags/table
+  }
+  
   # Create expanded table container
   sketch.expanded <- function(grpcol, year1, year2, run1, run2){
     htmltools::withTags(table(
@@ -336,7 +418,39 @@ server <- function(input, output, session) {
       formatStyle(colnames(table)[(ncol(table)-1):(ncol(table))],
                   color = styleInterval(c(0), c('red', 'black'))) %>%
       formatStyle(colnames(table)[2],
-                  backgroundColor = 'AliceBlue')
+                  backgroundColor = 'AliceBlue') 
+  }
+  
+  # Create a basic DT for Growth Topsheet
+  create.DT.basic.growth <- function(table, acontainer){
+    DT::datatable(table,
+                  extensions = 'Buttons',
+                  class = 'cell-border stripe',
+                  options = list(columnDefs = list(list(className = 'dt-center', targets = 1:8), 
+                                                   list(width = '15%', targets = 0)),
+                                 dom = 'Bfrtip',
+                                 buttons = list('copy',
+                                                list(extend = 'excel',
+                                                     buttons = 'excel',
+                                                     filename = 'LUVQCDashboard')),
+                                 #autoWidth = TRUE,
+                                 paging = FALSE, 
+                                 searching = TRUE
+                  ),
+                  container = acontainer, 
+                  rownames = FALSE
+    ) %>% 
+      formatStyle(colnames(table)[c(4, (ncol(table)-3):(ncol(table)))], color = styleInterval(c(0), c('red', 'black'))
+                  ) %>%
+      formatStyle(colnames(table)[2], backgroundColor = 'AliceBlue'
+                  ) %>%
+      formatStyle(colnames(table)[3:4], backgroundColor = 'MintCream'
+                  ) %>%
+      formatStyle(colnames(table)[5:6], backgroundColor = 'Ivory'
+                  ) #%>%
+      # formatStyle(colnames(table)[(ncol(table)-2):(ncol(table))], backgroundColor = 'Snow'
+      #             )
+
   }
   
   # Create an expanded DT
@@ -373,10 +487,6 @@ server <- function(input, output, session) {
     session$doBookmark()
   })
   
-  # observeEvent(input$bookmark2, {
-  #   session$doBookmark()
-  # })
-  
   onBookmark(function(state) {
     state$values$submitted <- vars$submitted
     state$values$dir <- vars$result.dir
@@ -397,8 +507,6 @@ server <- function(input, output, session) {
     vars$runname1<-state$values$runname1
     vars$runnames2<-state$values$runnames2 
     vars$runs<- state$values$runs 
-    #print(values)
-    # browser()
   })
 
       
@@ -516,7 +624,7 @@ server <- function(input, output, session) {
   
   output$link <- renderUI({HTML(paste0("<a href=", "'", file.path(trim.subdir, 'index.html'), "'", "target='blank'>View Index file</a>"))})
 
-  # Compile source tables ---------------------------------------------------  
+  # Compile Source Tables ---------------------------------------------------  
     
   # build general attributes source table
   alldt <- eventReactive(input$goButton,{
@@ -750,7 +858,7 @@ server <- function(input, output, session) {
   })
 
 
-# Data ready message ------------------------------------------------------
+# Data Ready Message ------------------------------------------------------
 
   
   output$submit_msg <- renderText({
@@ -806,12 +914,14 @@ server <- function(input, output, session) {
   # Display households summary table
   output$tpsht_hh <- DT::renderDataTable({
     tsTable <- tsTable()
+    # browser()
     runs <- runs()
     tsYear <- tsYear()
     sel.yr.fl <- c(years[1], tsYear)
     
     t <- tsTable[indicator == 'Households']
-    t1 <- create.tsTable(t)
+    # browser()
+    t1 <- create.tsTable(t, "County") %>% select(1:6)#### make sure exclude three new columns
     sketch <- sketch.basic(colnames(t1)[1],  sel.yr.fl[1],  sel.yr.fl[2], runs[1], runs[2])
     # browser()
     create.DT.basic(t1, sketch)
@@ -825,7 +935,7 @@ server <- function(input, output, session) {
     sel.yr.fl <- c(years[1], tsYear)
     
     t <- tsTable[indicator == 'Total Population']
-    t1 <- create.tsTable(t)
+    t1 <- create.tsTable(t, "County") %>% select(1:6)
     sketch <- sketch.basic(colnames(t1)[1], sel.yr.fl[1], sel.yr.fl[2], runs[1], runs[2])
     create.DT.basic(t1, sketch)
   })
@@ -838,7 +948,7 @@ server <- function(input, output, session) {
     sel.yr.fl <- c(years[1], tsYear)
     
     t <- tsTable[indicator == 'Employment']
-    t1 <- create.tsTable(t)
+    t1 <- create.tsTable(t, "County") %>% select(1:6)
     sketch <- sketch.basic(colnames(t1)[1], sel.yr.fl[1], sel.yr.fl[2], runs[1], runs[2])
     create.DT.basic(t1, sketch)
   })
@@ -990,25 +1100,24 @@ server <- function(input, output, session) {
     tsYear <- tsYear()
     sel.yrs.col <- paste0("yr", c(years[1], tsYear))
     
-    lg.rgc <- c("Bellevue", "Everett", "SeaTac", "Seattle Downtown", "Seattle First Hill/Capitol Hill", "Seattle South Lake Union", 
-                "Seattle University Community", "Tacoma Downtown")
     t <- growctrdt[(indicator == 'Total Population' | indicator == 'Employment') & (run == runs[1] | run == runs[2])]
     t[indicator == 'Total Population', indicator := 'Population']
     t1 <- t[, lapply(.SD, sum), by = list(name, indicator, run), .SDcols = sel.yrs.col]
-    t1 <- t1[name %in% lg.rgc, ]
   })
   
   # Display largest RGCs summary table
   output$tpsht_rgc <- DT::renderDataTable({
-    tsGrwothCtr <- tsGrowthCtr()
+    tsGrowthCtr <- tsGrowthCtr()
     runs <- runs()
     tsYear <- tsYear()
     sel.yr.fl <- c(years[1], tsYear)
     sel.yrs.col <- paste0("yr", c(years[1], tsYear))
+    lg.rgc <- c("Bellevue", "Everett", "SeaTac", "Seattle Downtown", "Seattle First Hill/Capitol Hill", "Seattle South Lake Union",
+                "Seattle University Community", "Tacoma Downtown")
 
-    t <- dcast.data.table(tsGrwothCtr, name ~ indicator + run, value.var = sel.yrs.col)
+    t0 <- dcast.data.table(tsGrowthCtr, name ~ indicator + run, value.var = sel.yrs.col)
+    t <- t0[name %in% lg.rgc,]
     setnames(t, "name", "Name")
-    # browser()
     t1 <- create.exp.tsTable(t)
     
     sketch <- sketch.expanded(colnames(t1)[1], sel.yr.fl[1], sel.yr.fl[2], runs[1], runs[2])
@@ -1044,6 +1153,117 @@ server <- function(input, output, session) {
   })
   
 
+
+# Growth Topsheet Reactions and Rendering ---------------------------------
+  
+  
+  # Display households summary table
+  output$g_tpsht_hh <- DT::renderDataTable({
+    tsTable <- tsTable()
+    runs <- runs()
+    tsYear <- tsYear()
+    sel.yr.fl <- c(years[1], tsYear)
+    
+    t <- tsTable[indicator == 'Households']
+    t1 <- create.tsTable(t, "County") %>% select(1:3, 7, 4, 8, 5:6, 9)
+    sketch <- sketch.basic.growth(colnames(t1)[1],  sel.yr.fl[1],  sel.yr.fl[2], runs[1], runs[2])
+    create.DT.basic.growth(t1, sketch) 
+
+  })
+
+  # Display population summary table
+  output$g_tpsht_pop <- DT::renderDataTable({
+    tsTable <- tsTable()
+    runs <- runs()
+    tsYear <- tsYear()
+    sel.yr.fl <- c(years[1], tsYear)
+    
+    t <- tsTable[indicator == 'Total Population']
+    t1 <- create.tsTable(t, "County") %>% select(1:3, 7, 4, 8, 5:6, 9) 
+    sketch <- sketch.basic.growth(colnames(t1)[1], sel.yr.fl[1], sel.yr.fl[2], runs[1], runs[2])
+    create.DT.basic.growth(t1, sketch) 
+  })
+  
+  # Display employment summary table
+  output$g_tpsht_emp <- DT::renderDataTable({
+    tsTable <- tsTable()
+    runs <- runs()
+    tsYear <- tsYear()
+    sel.yr.fl <- c(years[1], tsYear)
+    
+    t <- tsTable[indicator == 'Employment']
+    t1 <- create.tsTable(t, "County") %>% select(1:3, 7, 4, 8, 5:6, 9)
+    sketch <- sketch.basic.growth(colnames(t1)[1], sel.yr.fl[1], sel.yr.fl[2], runs[1], runs[2])
+    create.DT.basic.growth(t1, sketch)
+  })
+  
+  # Display population by RGC summary table
+  output$g_tpsht_rgc_pop <- DT::renderDataTable({
+    tsGrowthCtr <- tsGrowthCtr()
+    runs <- runs()
+    tsYear <- tsYear()
+    sel.yr.fl <- c(years[1], tsYear)
+    sel.yrs.col <- paste0("yr", c(years[1], tsYear))
+    
+    t0 <- tsGrowthCtr[indicator == 'Population']
+    t.sum <- t0[, lapply(.SD, sum), by = list(indicator, run), .SDcols = sel.yrs.col][, name := "Sub-Total: All RGCs"]
+    t <- rbindlist(list(t0, t.sum), use.names = TRUE)
+    t1 <- create.tsTable(t, "name") %>% select(1:3, 7, 4, 8, 5:6, 9)
+    setnames(t1, "name", "Name")
+    sketch <- sketch.basic.growth(colnames(t1)[1], sel.yr.fl[1], sel.yr.fl[2], runs[1], runs[2])
+    create.DT.basic.growth(t1, sketch)
+  })
+  
+  # Display employment by RGC summary table
+  output$g_tpsht_rgc_emp <- DT::renderDataTable({
+    tsGrowthCtr <- tsGrowthCtr()
+    runs <- runs()
+    tsYear <- tsYear()
+    sel.yr.fl <- c(years[1], tsYear)
+    sel.yrs.col <- paste0("yr", c(years[1], tsYear))
+    
+    t0 <- tsGrowthCtr[indicator == 'Employment']
+    t.sum <- t0[, lapply(.SD, sum), by = list(indicator, run), .SDcols = sel.yrs.col][, name := "Sub-Total: All RGCs"]
+    t <- rbindlist(list(t0, t.sum), use.names = TRUE)
+    t1 <- create.tsTable(t, "name") %>% select(1:3, 7, 4, 8, 5:6, 9)
+    setnames(t1, "name", "Name")
+    sketch <- sketch.basic.growth(colnames(t1)[1], sel.yr.fl[1], sel.yr.fl[2], runs[1], runs[2])
+    create.DT.basic.growth(t1, sketch)
+  })  
+  
+  # Display Population by Special Places summary table
+  output$g_tpsht_splace_pop <- DT::renderDataTable({
+    tsSplace <- tsSplace()
+    # browser()
+    runs <- runs()
+    tsYear <- tsYear()
+    sel.yr.fl <- c(years[1], tsYear)
+    sel.yrs.col <- paste0("yr", c(years[1], tsYear))
+    
+    t0 <- tsSplace[indicator == 'Population']
+    t.sum <- t0[, lapply(.SD, sum), by = list(indicator, run), .SDcols = sel.yrs.col][, Name := "Sub-Total: Key Locations"]
+    t <- rbindlist(list(t0, t.sum), use.names = TRUE)
+    t1 <- create.tsTable(t, "Name") %>% select(1:3, 7, 4, 8, 5:6, 9)
+    sketch <- sketch.basic.growth(colnames(t1)[1], sel.yr.fl[1], sel.yr.fl[2], runs[1], runs[2])
+    create.DT.basic.growth(t1, sketch)
+  })
+  
+  # Display Employment by Special Places summary table
+  output$g_tpsht_splace_emp <- DT::renderDataTable({
+    tsSplace <- tsSplace()
+    runs <- runs()
+    tsYear <- tsYear()
+    sel.yr.fl <- c(years[1], tsYear)
+    sel.yrs.col <- paste0("yr", c(years[1], tsYear))
+    
+    t0 <- tsSplace[indicator == 'Employment']
+    t.sum <- t0[, lapply(.SD, sum), by = list(indicator, run), .SDcols = sel.yrs.col][, Name := "Sub-Total: Key Locations"]
+    t <- rbindlist(list(t0, t.sum), use.names = TRUE)
+    t1 <- create.tsTable(t, "Name") %>% select(1:3, 7, 4, 8, 5:6, 9)
+    sketch <- sketch.basic.growth(colnames(t1)[1], sel.yr.fl[1], sel.yr.fl[2], runs[1], runs[2])
+    create.DT.basic.growth(t1, sketch)
+  })
+  
 # Run Comparison Reactions ------------------------------------------------
 
   
