@@ -53,19 +53,6 @@ ui <- function(request) {
                                          br(),
                                          br(),
                                         fluidPage(
-                                          # fluidRow(
-                                          #   column(width = 1
-                                          #   ),
-                                          #   column(width = 10,
-                                          #          selectInput(inputId = "ts_select_year",
-                                          #                      label = "Select Comparison Year",
-                                          #                      choices = years[2:length(years)],
-                                          #                      selected = years[length(years)]),
-                                          #          br()
-                                          #   ), # end column
-                                          #   column(width = 1
-                                          #   )
-                                          # ), # end fluidRow
                                           fluidRow(
                                             column(width = 1
                                             ), # end column
@@ -117,19 +104,6 @@ ui <- function(request) {
                                          fluidPage(
                                            fluidRow(
                                              # column(width = 1
-                                             # ),
-                                             # column(width = 12,
-                                             #        selectInput(inputId = "gts_select_year",
-                                             #                    label = "Select Comparison Year",
-                                             #                    choices = years[2:length(years)],
-                                             #                    selected = years[length(years)]),
-                                             #        br()
-                                             # )#, # end column
-                                             # column(width = 1
-                                             # )
-                                           ), # end fluidRow
-                                           fluidRow(
-                                             # column(width = 1
                                              # ), # end column
                                              column(width = 12,
                                                     tags$head(tags$style(type = "text/css", HTML("th { text-align: center; }"))),
@@ -159,9 +133,7 @@ ui <- function(request) {
                                                     
                                                     h4(class="header", checked=NA, tags$b("Employment by Key Locations")),
                                                     DT::dataTableOutput('g_tpsht_splace_emp')
-                                             )#, # end column
-                                             # column(width = 1
-                                             # ) # end column
+                                             ) # end column
                                            ) # end fluidRow
                                          ) # end fluidPage
                                   
@@ -192,6 +164,12 @@ ui <- function(request) {
                                                        "Employment"=3,
                                                        "Residential Units"=4),
                                            selected = 1),
+                               # conditionalPanel(condition = "input.compare_select_indicator == 4",
+                               #                  radioButtons("radio", 
+                               #                  label = h4("Categories"),
+                               #                  choices = list("All" = 1, "Single Family" = 2, "Multi-Family" = 3), 
+                               #                  selected = 1)
+                               #                  ),
                                selectInput(inputId = "compare_select_year",
                                            label = "Year",
                                            choices = years,

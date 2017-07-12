@@ -91,14 +91,23 @@ server <- function(input, output, session) {
   }
 
   # Writes Leaflet popup text for non-centers shapefiles. Requires reactive shapefile, string x&y axis titles.
-  map.shp.popup <- function(shapefile, xcolumn, ycolumn, layerctrl, xtitle, ytitle){
+  c.map.shp.popup <- function(shapefile, baseyear, xcolumn, ycolumn, layerctrl, xtitle, ytitle){
+    paste0("<strong>ID: </strong>", shapefile$name_id,
+           "<br><strong>", layerctrl, " Name: </strong>", shapefile$Name,
+           "<br><strong>", years[1]," estimate: </strong>", prettyNum(round(shapefile@data[,baseyear], 0), big.mark = ","),
+           "<br><strong>", xtitle," estimate: </strong>", prettyNum(round(shapefile@data[,xcolumn], 0), big.mark = ","),
+           "<br><strong>", ytitle," estimate: </strong>", prettyNum(round(shapefile@data[,ycolumn], 0), big.mark = ","),
+           "<br><strong>Difference: </strong>", prettyNum(round(shapefile$diff, 0), big.mark = ","))
+  }
+ 
+   map.shp.popup <- function(shapefile, xcolumn, ycolumn, layerctrl, xtitle, ytitle){
     paste0("<strong>ID: </strong>", shapefile$name_id,
            "<br><strong>", layerctrl, " Name: </strong>", shapefile$Name,
            "<br><strong>", xtitle," estimate: </strong>", prettyNum(round(shapefile@data[,xcolumn], 0), big.mark = ","),
            "<br><strong>", ytitle," estimate: </strong>", prettyNum(round(shapefile@data[,ycolumn], 0), big.mark = ","),
            "<br><strong>Difference: </strong>", prettyNum(round(shapefile$diff, 0), big.mark = ","))
   }
-
+  
   # Creates Leaflet baselayers. Requires reactive shapefile, string legend title.
   map.layers <- function(shapefile, layerctrl, legendtitle, popupgeo, popupctr, mappalette){
     map <- leaflet(data=shapefile)%>%
@@ -125,6 +134,13 @@ server <- function(input, output, session) {
                 opacity =1,
                 labFormat = labelFormat(digits = 0, big.mark = ","))%>%
       setView(lng = -122.008546, lat = 47.549390, zoom = 9)%>%
+      addEasyButton(
+        easyButton(
+          icon="fa-globe", 
+          title="Zoom to Region",
+          onClick=JS("function(btn, map){ 
+                     map.setView([47.549390, -122.008546],9);}"))
+          )%>%
       addLayersControl(baseGroups = c("Street Map", "Imagery"),
                        overlayGroups = c("Centers",layerctrl),
                        options = layersControlOptions(collapsed = FALSE))
@@ -1265,27 +1281,31 @@ server <- function(input, output, session) {
   cYear <- reactive({
     paste0("yr", input$compare_select_year)
   })
-
+  
+  cBaseYear <- reactive({
+    paste0("yr", years[1])
+  })
+  
   cTable <- reactive({
     alldt <- alldt()
     dt1 <- alldt[run == runname1() & geography == cGeog() & indicator == cIndicator(),
-                 .(name_id, geography, indicator, get(cYear()))]
-    setnames(dt1, dt1[,ncol(dt1)], 'estrun1')
-
+                 .(name_id, geography, indicator, get(cBaseYear()), get(cYear()))]
+    setnames(dt1, dt1[,c((ncol(dt1)-1), ncol(dt1))], c('baseyr', 'estrun1'))
+    
     dt2 <- alldt[run == cRun() & geography == cGeog() & indicator == cIndicator(),
                  .(name_id, get(cYear()))]
     setnames(dt2, dt2[,ncol(dt2)], 'estrun2')
-
+    
     dt <- merge(dt1, dt2, by = 'name_id')
     dt[,"diff" := (estrun1-estrun2)]
-
+    
     switch(as.integer(input$compare_select_geography),
            dt <- merge(dt, zone.lookup, by.x = "name_id", by.y = "zone_id") %>% merge(faz.lookup, by = "faz_id"),
            dt <- merge(dt, faz.lookup, by.x = "name_id", by.y = "faz_id"),
            dt <- merge(dt, city.lookup, by.x = "name_id", by.y = "city_id") %>% setnames("city_name", "Name")
     )
   })
-
+  
   # shapefile ready for visualization
   cShape <- reactive({
     joinShp2Tbl(input$compare_select_geography, cTable())
@@ -1323,7 +1343,7 @@ server <- function(input, output, session) {
     pal <- colorBin(palette = colorBinResult$color, bins = colorBinResult$bin, domain=cShape()$diff, pretty = FALSE)
     
     # popup setup
-    geo.popup1 <- map.shp.popup(cShape(),'estrun1','estrun2', cGeo(), runname1(), runname2.trim)
+    geo.popup1 <- c.map.shp.popup(cShape(), 'baseyr', 'estrun1','estrun2', cGeo(), runname1(), runname2.trim)
     geo.popup3 <- paste0("<strong>Center: </strong>", centers$name_id)
     
     # Draw the map without selected geographies
