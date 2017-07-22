@@ -164,12 +164,13 @@ ui <- function(request) {
                                                        "Employment"=3,
                                                        "Residential Units"=4),
                                            selected = 1),
-                               # conditionalPanel(condition = "input.compare_select_indicator == 4",
-                               #                  radioButtons("radio", 
-                               #                  label = h4("Categories"),
-                               #                  choices = list("All" = 1, "Single Family" = 2, "Multi-Family" = 3), 
-                               #                  selected = 1)
-                               #                  ),
+                               # uiOutput("compare_structure_type_ui"), # dynamic
+                               conditionalPanel(condition = "input.compare_select_indicator == 4 | input.compare_select_indicator == 2",
+                                                radioButtons("compare_structure_type",
+                                                label = h5("Categories"),
+                                                choices = list("All" = 1, "Single Family" = 2, "Multi-Family" = 3),
+                                                selected = 1)
+                                                ),
                                selectInput(inputId = "compare_select_year",
                                            label = "Year",
                                            choices = years,

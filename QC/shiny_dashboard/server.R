@@ -491,8 +491,8 @@ server <- function(input, output, session) {
 # Initialize Dashboard ----------------------------------------------------
 
   
-  trim.subdir <- tempfile(pattern="sessiondir", tmpdir=".")
-  # trim.subdir <- tempfile(pattern="sessiondir", tmpdir="")
+  # trim.subdir <- tempfile(pattern="sessiondir", tmpdir=".")
+  trim.subdir <- tempfile(pattern="sessiondir", tmpdir="")
   subdir <- file.path("www", trim.subdir)
   vars <- reactiveValues(submitted = FALSE, 
                          result.dir = NULL,
@@ -645,6 +645,38 @@ server <- function(input, output, session) {
     } # end of runnames loop
     
     return(as.data.table(alldata.table))
+  })
+  
+  # build structure type (sf/mf) indicators source table
+  strdt <- eventReactive(input$goButton,{
+    runnames <- runnames()
+    runs <- runs()
+    
+    stypedt <- NULL
+    for (r in 1:length(runnames)){
+      structure.files <- as.list(list.files(file.path(base.dir(), runnames[r], "indicators"), 
+                                            pattern = 'dataset_table__DU_and_HH_by_bld_type_by(_)*(\\w+)*(_)*(\\d+)*\\.tab'))
+      if (length(structure.files) > 0){
+        for (f in 1:length(structure.files)){
+          geo <- str_extract(structure.files[f], "^(\\w+)__dataset") %>% strsplit("__") %>% unlist()
+          yr <- str_extract(structure.files[f], "(\\d+)")  
+          dt0 <- read.table(file.path(base.dir(), runnames[r], 'indicators', structure.files[f]), header = T, sep = "\t", fill = TRUE) %>% as.data.table()
+          setnames(dt0, colnames(dt0), str_match(colnames(dt0), "(\\w+_\\w+)[^_^\\d+]")[,1])
+          setnames(dt0, colnames(dt0)[1], "name_id")
+          dt <- melt.data.table(dt0, id.vars = colnames(dt0)[1], measure.vars = colnames(dt0)[2:ncol(dt0)], variable.name = "description", value.name = "estimate")
+          dt[, `:=` (run = runs[r], geography = geo[1], year = yr, indicator = str_extract(description, "^\\w{2}"), type = str_match(description, "\\w+_(\\w+$)")[,2])]
+          t0 <- dcast.data.table(dt, name_id + run + geography + year + indicator ~ type, value.var = 'estimate')
+          ifelse(is.null(stypedt), stypedt <- t0, stypedt <- rbind(stypedt, t0))
+        } # end structure.files loop
+      } else if (length(structure.files) == 0) {
+        next
+      } # end conditional
+    } # end runnames loop
+    dt1 <- stypedt[, multifamily := MF + CO][, singlefamily := Total - multifamily]
+    dt2 <- melt.data.table(dt1, id.vars = colnames(dt1)[1:5], measure.vars = colnames(dt1)[(ncol(dt1)-1):ncol(dt1)], variable.name = 'strtype', value.name = "estimate")
+    ind.name <- c("HH" = "Households", "DU" = "Residential Units")
+    dt2$indicator <- ind.name[dt2$indicator]
+    return(dt2)
   })
   
   # build demographics indicators source table
@@ -1286,19 +1318,48 @@ server <- function(input, output, session) {
     paste0("yr", years[1])
   })
   
+  cStructureType <- reactive({
+    switch(as.integer(input$compare_structure_type),
+           "All",
+           "singlefamily",
+           "multifamily")
+  })
+  
   cTable <- reactive({
+    strdt <- strdt()
+    browser()
     alldt <- alldt()
-    dt1 <- alldt[run == runname1() & geography == cGeog() & indicator == cIndicator(),
-                 .(name_id, geography, indicator, get(cBaseYear()), get(cYear()))]
-    setnames(dt1, dt1[,c((ncol(dt1)-1), ncol(dt1))], c('baseyr', 'estrun1'))
-    
-    dt2 <- alldt[run == cRun() & geography == cGeog() & indicator == cIndicator(),
-                 .(name_id, get(cYear()))]
-    setnames(dt2, dt2[,ncol(dt2)], 'estrun2')
-    
-    dt <- merge(dt1, dt2, by = 'name_id')
+    #run3R does not have city indicators--what if one of the runnames not in strdt
+    if (is.null(cStructureType()) | cStructureType() == "All" | (cIndicator() %in% c("Total Population", "Employment"))){
+      dt1 <- alldt[run == runname1() & geography == cGeog() & indicator == cIndicator(),
+                   .(name_id, geography, indicator, get(cBaseYear()), get(cYear()))]
+      setnames(dt1, dt1[,c((ncol(dt1)-1), ncol(dt1))], c('baseyr', 'estrun1'))
+      dt2 <- alldt[run == cRun() & geography == cGeog() & indicator == cIndicator(),
+                   .(name_id, get(cYear()))]
+      setnames(dt2, dt2[,ncol(dt2)], 'estrun2')
+      dt <- merge(dt1, dt2, by = 'name_id')
+      # dt[,"diff" := (estrun1-estrun2)]
+      # switch(as.integer(input$compare_select_geography),
+      #        dt <- merge(dt, zone.lookup, by.x = "name_id", by.y = "zone_id") %>% merge(faz.lookup, by = "faz_id"),
+      #        dt <- merge(dt, faz.lookup, by.x = "name_id", by.y = "faz_id"),
+      #        dt <- merge(dt, city.lookup, by.x = "name_id", by.y = "city_id") %>% setnames("city_name", "Name")
+      # )
+    } else {
+      dt1 <- strdt[run == runname1() & geography == cGeog() & (year == year[1] | year == input$compare_select_year) & indicator == cIndicator() & strtype == cStructureType()]
+      dt1.cast <- dcast.data.table(dt1, name_id ~ year, value.var = "estimate")
+      setnames(dt1.cast, colnames(dt1.cast)[2:3], c('baseyr', 'estrun1'))
+      dt2 <- strdt[run == cRun() & geography == cGeog() & year == input$compare_select_year & indicator == cIndicator() & strtype == cStructureType()]
+      dt2.cast <- dcast.data.table(dt2, name_id ~ year, value.var = "estimate")
+      setnames(dt2.cast, colnames(dt2.cast)[2], 'estrun2')
+      dt <- merge(dt1.cast, dt2.cast, by = 'name_id')
+      # dt[,"diff" := (estrun1-estrun2)]
+      # switch(as.integer(input$compare_select_geography),
+      #        dt <- merge(dt, zone.lookup, by.x = "name_id", by.y = "zone_id") %>% merge(faz.lookup, by = "faz_id"),
+      #        dt <- merge(dt, faz.lookup, by.x = "name_id", by.y = "faz_id"),
+      #        dt <- merge(dt, city.lookup, by.x = "name_id", by.y = "city_id") %>% setnames("city_name", "Name")
+      # )       
+    }
     dt[,"diff" := (estrun1-estrun2)]
-    
     switch(as.integer(input$compare_select_geography),
            dt <- merge(dt, zone.lookup, by.x = "name_id", by.y = "zone_id") %>% merge(faz.lookup, by = "faz_id"),
            dt <- merge(dt, faz.lookup, by.x = "name_id", by.y = "faz_id"),
@@ -1328,6 +1389,8 @@ server <- function(input, output, session) {
   output$compare_plot <- renderPlotly({
     if(!vars$submitted) return(NULL)
     if (is.null(cRun())) return(NULL)
+    # cTable <- cTable()
+    # browser()
     runname2.trim <- sapply(strsplit(cRun(),"[.]"), function(x) x[1])
     scatterplot(cTable(), "compare", cTable()$estrun1, cTable()$estrun2, runname1(), runname2.trim)
   })
