@@ -31,6 +31,24 @@ def get_indicators(cache_directory, run_description, years = [2014,2015,2020,202
     
     indicators=[
     
+		   DatasetTable(
+       source_data = source_data,
+       dataset_name = 'faz',
+       name =  'DU_and_HH_by_bld_type_by_faz_by_year',
+       attributes = [
+           'DU_SF_19=faz.aggregate(urbansim_parcel.building.residential_units * (building.building_type_id==19), intermediates=[parcel])',
+           'DU_MF_12=faz.aggregate(urbansim_parcel.building.residential_units * (building.building_type_id==12), intermediates=[parcel])',
+           'DU_CO_4=faz.aggregate(urbansim_parcel.building.residential_units * (building.building_type_id==4), intermediates=[parcel])',
+           'DU_MH_11=faz.aggregate(urbansim_parcel.building.residential_units * (building.building_type_id==11), intermediates=[parcel])',
+           'DU_Total=faz.aggregate(urbansim_parcel.building.residential_units, intermediates=[parcel])',
+           'HH_SF_19=faz.aggregate(urbansim_parcel.building.number_of_households * (building.building_type_id==19), intermediates=[parcel])',
+           'HH_MF_12=faz.aggregate(urbansim_parcel.building.number_of_households * (building.building_type_id==12), intermediates=[parcel])',
+           'HH_CO_4=faz.aggregate(urbansim_parcel.building.number_of_households * (building.building_type_id==4), intermediates=[parcel])',
+           'HH_MH_11=faz.aggregate(urbansim_parcel.building.number_of_households * (building.building_type_id==11), intermediates=[parcel])',
+           'HH_Total=faz.aggregate(urbansim_parcel.building.number_of_households, intermediates=[parcel])',
+       ],
+  ),
+	
     # FAZ indicators 
     # =====================
     
@@ -414,7 +432,21 @@ Table(
                       'Group3_UpTo110600 = alldata.aggregate_all(numpy.logical_and(household.income<110600,household.income>=73700))',
                       'Group4_Over110600 = alldata.aggregate_all(household.income>=110600)',
                       ],
-              ),         
+              ), 
+              
+          DatasetTable(
+              source_data = source_data,
+              dataset_name = 'alldata',
+              name =  'pwtyp',
+              output_type = 'csv',
+              attributes = [
+                        'full_time = alldata.aggregate_all((person.employment_status==1)*(urbansim_parcel.person.job_id > 0))',
+                        'part_time = alldata.aggregate_all((person.employment_status==2)*(urbansim_parcel.person.job_id > 0))',
+                        'workers_no_job = alldata.aggregate_all((person.employment_status >0)*(urbansim_parcel.person.job_id < 0))',
+                        'non_workers_no_job = alldata.aggregate_all((person.employment_status <1)*(urbansim_parcel.person.job_id < 0))',
+                      ],
+              ),            
+ 
     ]
     return indicators
 
