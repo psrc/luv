@@ -1,4 +1,4 @@
-function(input, output, session) {
+server <- function(input, output, session) {
   
 # functions ---------------------------------------------------------------
 
@@ -91,14 +91,23 @@ function(input, output, session) {
   }
 
   # Writes Leaflet popup text for non-centers shapefiles. Requires reactive shapefile, string x&y axis titles.
-  map.shp.popup <- function(shapefile, xcolumn, ycolumn, layerctrl, xtitle, ytitle){
+  c.map.shp.popup <- function(shapefile, baseyear, xcolumn, ycolumn, layerctrl, xtitle, ytitle){
+    paste0("<strong>ID: </strong>", shapefile$name_id,
+           "<br><strong>", layerctrl, " Name: </strong>", shapefile$Name,
+           "<br><strong>", years[1]," estimate: </strong>", prettyNum(round(shapefile@data[,baseyear], 0), big.mark = ","),
+           "<br><strong>", xtitle," estimate: </strong>", prettyNum(round(shapefile@data[,xcolumn], 0), big.mark = ","),
+           "<br><strong>", ytitle," estimate: </strong>", prettyNum(round(shapefile@data[,ycolumn], 0), big.mark = ","),
+           "<br><strong>Difference: </strong>", prettyNum(round(shapefile$diff, 0), big.mark = ","))
+  }
+ 
+   map.shp.popup <- function(shapefile, xcolumn, ycolumn, layerctrl, xtitle, ytitle){
     paste0("<strong>ID: </strong>", shapefile$name_id,
            "<br><strong>", layerctrl, " Name: </strong>", shapefile$Name,
            "<br><strong>", xtitle," estimate: </strong>", prettyNum(round(shapefile@data[,xcolumn], 0), big.mark = ","),
            "<br><strong>", ytitle," estimate: </strong>", prettyNum(round(shapefile@data[,ycolumn], 0), big.mark = ","),
            "<br><strong>Difference: </strong>", prettyNum(round(shapefile$diff, 0), big.mark = ","))
   }
-
+  
   # Creates Leaflet baselayers. Requires reactive shapefile, string legend title.
   map.layers <- function(shapefile, layerctrl, legendtitle, popupgeo, popupctr, mappalette){
     map <- leaflet(data=shapefile)%>%
@@ -125,6 +134,13 @@ function(input, output, session) {
                 opacity =1,
                 labFormat = labelFormat(digits = 0, big.mark = ","))%>%
       setView(lng = -122.008546, lat = 47.549390, zoom = 9)%>%
+      addEasyButton(
+        easyButton(
+          icon="fa-globe", 
+          title="Zoom to Region",
+          onClick=JS("function(btn, map){ 
+                     map.setView([47.549390, -122.008546],9);}"))
+          )%>%
       addLayersControl(baseGroups = c("Street Map", "Imagery"),
                        overlayGroups = c("Centers",layerctrl),
                        options = layersControlOptions(collapsed = FALSE))
@@ -197,26 +213,45 @@ function(input, output, session) {
     return(map)
   }
   
-  # Prepares generic topsheet table for main indicators (households, population, employment) 
-  create.tsTable <- function(table){
+  # Prepares generic topsheet table for main indicators (households, population, employment)
+  create.tsTable <- function(table, idname){ #idname aka 'County' or 'Name'
     runs <- runs()
     tsYear <- tsYear()
     sel.yr.fl <- c(years[1], tsYear)
     sel.yrs.col <- paste0("yr", sel.yr.fl)
-    
-    t1 <- dcast.data.table(table, County ~ run, value.var = sel.yrs.col)
-    setcolorder(t1, c("County", paste0(sel.yrs.col[1],"_",runs[1]), paste0(sel.yrs.col[2],"_",runs[1]), paste0(sel.yrs.col[2],"_",runs[2]), paste0(sel.yrs.col[1],"_",runs[2])))
+
+    t1 <- dcast.data.table(table, paste(idname, "~ run"), value.var = sel.yrs.col)
+    setcolorder(t1, c(idname, paste0(sel.yrs.col[1],"_",runs[1]), paste0(sel.yrs.col[2],"_",runs[1]), paste0(sel.yrs.col[2],"_",runs[2]), paste0(sel.yrs.col[1],"_",runs[2])))
     t1[, ncol(t1) := NULL]
-    t1[, Change := (t1[[ncol(t1)-1]]-t1[[ncol(t1)]])][, Per.Change := round((Change/t1[[3]])*100, 2)]
-    setnames(t1, colnames(t1), c("County", 
+    t1[, Change := (t1[[ncol(t1)-1]]-t1[[ncol(t1)]])
+       ][, Per.Change := round((Change/t1[[4]])*100, 2)
+         ][, Per.Growth := round(Change/(t1[[4]]-t1[[2]])*100, 2)
+           ][, r1.baseyr := (t1[[3]]-t1[[2]])
+             ][, r2.baseyr := (t1[[4]]-t1[[2]])]
+    setnames(t1, colnames(t1), c(idname,
                                  paste0(sel.yr.fl[1], "_", runs[1]),
                                  paste0(sel.yr.fl[2], "_", runs[1]),
                                  paste0(sel.yr.fl[2], "_", runs[2]),
                                  "Change",
-                                 "Per.Change"))
+                                 "Per.Change",
+                                 "Per.Growth",
+                                 "r1.baseyr",
+                                 "r2.baseyr"))
+    t1[, `:=` (r1dist = round(r1.baseyr/(unlist(t1[like(get(eval(idname)), "Sub-Total"), .(r1.baseyr)])[[1]])*100, 2), r2dist = round(r2.baseyr/(unlist(t1[like(get(eval(idname)), "Sub-Total"), .(r2.baseyr)])[[1]])*100, 2))]
+    t1[, r1.baseyr := NULL][, r2.baseyr := NULL]
+    setcolorder(t1, c(idname,
+                      paste0(sel.yr.fl[1], "_", runs[1]),
+                      paste0(sel.yr.fl[2], "_", runs[1]),
+                      paste0(sel.yr.fl[2], "_", runs[2]),
+                      "Change",
+                      "Per.Change",
+                      "r1dist",
+                      "r2dist",
+                      "Per.Growth"))
+
     t1[, 2:4 := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = 2:4]
   }
-  
+
   # Prepares expanded topsheet table for RGCs & Key Locations
   create.exp.tsTable <- function(table){
     runs <- runs()
@@ -237,9 +272,9 @@ function(input, output, session) {
     table[, (ncol(table)-1):ncol(table) := NULL] 
     
     t1<- table[, Pop.Change := (table[[3]]-table[[4]])
-               ][, Pop.Per.Change := round((Pop.Change/table[[3]])*100, 2)
+               ][, Pop.Per.Change := round((Pop.Change/table[[4]])*100, 2)
                  ][, Emp.Change := (table[[6]]-table[[7]])
-                   ][, Emp.Per.Change := round((Emp.Change/table[[6]])*100, 2)]
+                   ][, Emp.Per.Change := round((Emp.Change/table[[7]])*100, 2)]
     setcolorder(t1,
                 c("Name",
                   paste0(sel.yrs.col[1], "_", "Population","_", runs[1]),
@@ -272,13 +307,42 @@ function(input, output, session) {
       class = 'display', 
       thead(
         tr(
-          th(rowspan = 2, grpcol),
+          th(rowspan = 3, grpcol),
           th(bgcolor='AliceBlue', colspan = 1, year1),
           th(colspan = 4, year2)
         ),
         tr(
+          th(style="font-size:12px; font-style:italic; font-weight:normal;", bgcolor='AliceBlue', 'A'),
+          lapply(list('B', 'C', 'D = B-C', 'D/C'), function(x) th(style="font-size:12px; font-style:italic; font-weight:normal;", x))
+        ),
+        tr(
           th(bgcolor='AliceBlue', run1),
           lapply(c(run1, run2, 'Change', '% Change'), th)
+        )
+      ) # end thead
+    )) # end withTags/table
+  }
+  
+  sketch.basic.growth <- function(grpcol, year1, year2, run1, run2){
+    htmltools::withTags(table(
+      class = 'display', 
+      thead(
+        tr(
+          th(rowspan = 3, grpcol),
+          th(bgcolor='AliceBlue', colspan = 1, year1),
+          th(colspan = 7, year2)
+        ),
+        tr(
+          th(style="font-size:12px; font-style:italic; font-weight:normal;", bgcolor='AliceBlue', 'A'),
+          lapply(c('B', '(B-A)/(subtotal[B-A])'), function(x) th(style="font-size:12px; font-style:italic; font-weight:normal;", bgcolor='MintCream', x)), 
+          lapply(c('C', '(C-A)/(subtotal[C-A])'), function(x) th(style="font-size:12px; font-style:italic; font-weight:normal;", bgcolor='Ivory', x)),
+          lapply(c('D = B-C', 'D/C', 'D/(C-A)'), function(x) th(style="font-size:12px; font-style:italic; font-weight:normal;", x))
+        ),
+        tr(
+          th(style="font-size:13px;", bgcolor='AliceBlue', run1),
+          lapply(c(run1, paste('%', run1, "Growth Distribution")), function(x) th(style="font-size:13px;", bgcolor='MintCream', x)),
+          lapply(c(run2 , paste('%', run2, "Growth Distribution")), function(x) th(style="font-size:13px;", bgcolor='Ivory', x)),
+          lapply(c('Change', '% Change', '% Growth from Base Year'), function(x) th(style="font-size:13px;", x))
         )
       ) # end thead
     )) # end withTags/table
@@ -290,21 +354,21 @@ function(input, output, session) {
       class = 'display',
       thead(
         tr(
-          th(rowspan = 3, grpcol),
+          th(rowspan = 4, grpcol),
           th(colspan = 5, 'Population'),
           th(colspan = 5, 'Employment')
         ),
         tr(
-          th(bgcolor='AliceBlue', colspan = 1, year1),
-          th(colspan = 4, year2),
-          th(bgcolor='AliceBlue', colspan = 1, year1),
-          th(colspan = 4, year2)
+          rep(list(th(bgcolor='AliceBlue', colspan = 1, year1), th(colspan = 4, year2)), 2)
         ),
         tr(
-          th(bgcolor='AliceBlue', run1),
-          lapply(c(run1, run2, 'Change', '% Change'), th),
-          th(bgcolor='AliceBlue', run1),
-          lapply(c(run1, run2, 'Change', '% Change'), th)
+          rep(
+            list(th(style="font-size:12px; font-style:italic; font-weight:normal;", bgcolor='AliceBlue', 'A'),
+                 lapply(list('B', 'C', 'D = B-C', 'D/C'), function(x) th(style="font-size:12px; font-style:italic; font-weight:normal;", x))),
+            2)
+        ),
+        tr(
+          rep(list(th(bgcolor='AliceBlue', run1), lapply(c(run1, run2, 'Change', '% Change'), th)), 2)
         )
       ) # end thead
     )) # end withTags/table
@@ -318,7 +382,10 @@ function(input, output, session) {
                   options = list(columnDefs = list(list(className = 'dt-center', targets = 1:5), 
                                                    list(width = '20%', targets = 0)),
                                  dom = 'Bfrtip',
-                                 buttons = c('copy', 'excel'),
+                                 buttons = list('copy',
+                                                list(extend = 'excel',
+                                                     buttons = 'excel',
+                                                     filename = 'LUVQCDashboard')),
                                  #autoWidth = TRUE,
                                  paging = FALSE, 
                                  searching = FALSE 
@@ -329,7 +396,39 @@ function(input, output, session) {
       formatStyle(colnames(table)[(ncol(table)-1):(ncol(table))],
                   color = styleInterval(c(0), c('red', 'black'))) %>%
       formatStyle(colnames(table)[2],
-                  backgroundColor = 'AliceBlue')
+                  backgroundColor = 'AliceBlue') 
+  }
+  
+  # Create a basic DT for Growth Topsheet
+  create.DT.basic.growth <- function(table, acontainer){
+    DT::datatable(table,
+                  extensions = 'Buttons',
+                  class = 'cell-border stripe',
+                  options = list(columnDefs = list(list(className = 'dt-center', targets = 1:8), 
+                                                   list(width = '15%', targets = 0)),
+                                 dom = 'Bfrtip',
+                                 buttons = list('copy',
+                                                list(extend = 'excel',
+                                                     buttons = 'excel',
+                                                     filename = 'LUVQCDashboard')),
+                                 #autoWidth = TRUE,
+                                 paging = FALSE, 
+                                 searching = TRUE
+                  ),
+                  container = acontainer, 
+                  rownames = FALSE
+    ) %>% 
+      formatStyle(colnames(table)[c(4, (ncol(table)-3):(ncol(table)))], color = styleInterval(c(0), c('red', 'black'))
+                  ) %>%
+      formatStyle(colnames(table)[2], backgroundColor = 'AliceBlue'
+                  ) %>%
+      formatStyle(colnames(table)[3:4], backgroundColor = 'MintCream'
+                  ) %>%
+      formatStyle(colnames(table)[5:6], backgroundColor = 'Ivory'
+                  ) #%>%
+      # formatStyle(colnames(table)[(ncol(table)-2):(ncol(table))], backgroundColor = 'Snow'
+      #             )
+
   }
   
   # Create an expanded DT
@@ -340,7 +439,10 @@ function(input, output, session) {
                   options = list(columnDefs = list(list(className = 'dt-center', targets = 1:10),
                                                    list(width = '20%', targets = 0)),
                                  dom = 'Bfrtip',
-                                 buttons = c('copy', 'excel'),
+                                 buttons = list('copy',
+                                                list(extend = 'excel',
+                                                     buttons = 'excel',
+                                                     filename = 'LUVQCDashboard')),
                                  paging = FALSE, 
                                  searching = FALSE 
                   ),
@@ -352,14 +454,55 @@ function(input, output, session) {
       formatStyle(colnames(table)[c(2,7)],
                   backgroundColor = 'AliceBlue')
   }
+
+
+# Bookmarking State -------------------------------------------------------
+
+  setBookmarkExclude(c("bookmark1"))
   
+  # Trigger bookmarking with either button
+  observeEvent(input$bookmark1, {
+    session$doBookmark()
+  })
+  
+  onBookmark(function(state) {
+    state$values$submitted <- vars$submitted
+    state$values$dir <- vars$result.dir
+    state$values$select_run1 <- vars$select_run1
+    state$values$select_run2all <- vars$select_run2all
+    state$values$runnames <- vars$runnames
+    state$values$runname1 <- vars$runname1
+    state$values$runnames2 <- vars$runnames2
+    state$values$runs <- vars$runs
+  })
+  
+  onRestore(function(state) {
+    vars$submitted <- state$values$submitted
+    vars$result.dir <- state$values$dir
+    vars$select_run1 <-state$values$select_run1 
+    vars$select_run2all<-state$values$select_run2all
+    vars$runnames<-state$values$runnames
+    vars$runname1<-state$values$runname1
+    vars$runnames2<-state$values$runnames2 
+    vars$runs<- state$values$runs 
+  })
+
+      
 # Initialize Dashboard ----------------------------------------------------
 
   
   trim.subdir <- tempfile(pattern="sessiondir", tmpdir=".")
   # trim.subdir <- tempfile(pattern="sessiondir", tmpdir="")
   subdir <- file.path("www", trim.subdir)
-  vars <- reactiveValues(submitted=FALSE)
+  vars <- reactiveValues(submitted = FALSE, 
+                         result.dir = NULL,
+                         select_run1 = NULL,
+                         select_run2all = NULL,
+                         runnames = NULL,
+                         runname1 = NULL,
+                         runnames2 = NULL,
+                         runs = NULL
+                         )
   
   base.dir <- reactive({
           base[[as.integer(input$init_select_server)]]
@@ -373,17 +516,13 @@ function(input, output, session) {
                 width = "100%")
   })
   
-  selectRun1.exclude <- reactive({
-    input$select_run1
-  })
-  
   output$init_select_run2all <- renderUI({
     select.run2all <- list.files(base.dir())
-    new.select.run2all <- setdiff(select.run2all, selectRun1.exclude())
+    # new.select.run2all <- setdiff(select.run2all, selectRun1())
     selectInput(inputId = "select_run2all",
                 label = "Run 2 (select one or more)",
-                choices = new.select.run2all,
-                selected = new.select.run2all[1],
+                choices = select.run2all,
+                #selected = new.select.run2all[1],
                 multiple = TRUE,
                 width = "100%")
   })
@@ -396,19 +535,48 @@ function(input, output, session) {
                 width = "100%")
   })
   
-  selectResultsDir <- eventReactive(input$goButton, {
-    input$select_resultsdir
-    
+
+  resultsDir <- reactive({
+    vars$result.dir
   })
   
-  resultsDir <- eventReactive(input$goButton, {
-    file.path(wrkdir, "results", selectResultsDir())
+  selectRun1 <- reactive({
+    vars$select_run1
+  })
+
+  selectRun2 <- reactive({
+    vars$select_run2all
+  })
+
+  runnames <- reactive({
+    vars$runnames
+  })
+
+  runname1 <- reactive({
+    vars$runname1
+  })
+
+  runnames2 <- reactive({
+    vars$runnames2
+  })
+
+  runs <- reactive({
+    vars$runs
   })
   
   # create sub-directory in 'www'
   # find text files from results dir and copy to www dir
   observeEvent(input$goButton, {
+    if(length(input$select_resultsdir) == 0) return()
     if (!(file.exists(subdir))) dir.create(subdir)
+ 
+    vars$result.dir <- file.path(wrkdir, "results", input$select_resultsdir)
+    vars$select_run1 <- input$select_run1
+    vars$select_run2all <- input$select_run2all
+    vars$runnames <-  c(input$select_run1, input$select_run2all)
+    vars$runname1 <- unlist(strsplit(input$select_run1,"[.]"))[[1]]
+    vars$runnames2 <- sapply(strsplit(input$select_run2all,"[.]"), function(x) x[1])  
+    vars$runs <- c(vars$runname1, unlist(vars$runnames2))
     
     result.dir <- resultsDir()
     
@@ -422,6 +590,7 @@ function(input, output, session) {
     # fn <- list.files('www', glob2rx('index.html'), full.names = TRUE, include.dirs=TRUE, ignore.case=TRUE)
     # if (length(fn) > 0 && file.exists(fn)) file.remove(fn)
     indexf.dir <- file.path(result.dir,"index_files")
+     if (length(indexf.dir) == 0) browser()
     if(file.exists(indexf.dir)) {
     	file.copy(indexf.dir, subdir, recursive = TRUE)
     	indexdirs <- c()#'bootstrap-3.3.5', 'jquery-1.11.3'
@@ -432,31 +601,9 @@ function(input, output, session) {
   })
   
   output$link <- renderUI({HTML(paste0("<a href=", "'", file.path(trim.subdir, 'index.html'), "'", "target='blank'>View Index file</a>"))})
-  
-  selectRun1 <- eventReactive(input$goButton, {
-    input$select_run1
-  })
-  
-  selectRun2 <- eventReactive(input$goButton, {
-    input$select_run2all
-  })
-  
-  runnames <- eventReactive(input$goButton, {
-    c(selectRun1(), selectRun2())
-  })
-  
-  runname1 <- eventReactive(input$goButton, {
-    unlist(strsplit(selectRun1(),"[.]"))[[1]]
-  })
-  
-  runnames2 <- eventReactive(input$goButton, {
-    sapply(strsplit(selectRun2(),"[.]"), function(x) x[1])
-  })
-  
-  runs <- eventReactive(input$goButton, {
-    c(runname1(), unlist(runnames2()))
-  })
-  
+
+  # Compile Source Tables ---------------------------------------------------  
+    
   # build general attributes source table
   alldt <- eventReactive(input$goButton,{
     runnames <- runnames()
@@ -687,14 +834,17 @@ function(input, output, session) {
     
     return(as.data.table(gc.table))
   })
-  
-  # Data ready message
-  index.ready <- reactive({
-    file.path(resultsDir(), 'index.html')
-  })
+
+
+# Data Ready Message ------------------------------------------------------
+
   
   output$submit_msg <- renderText({
-    if (!is.null(index.ready())) "Data has been loaded, click on Index link or dashboard tabs"
+    if (vars$submitted == TRUE) {
+      "Data has been loaded, click on Index link or dashboard tabs"
+    } else {
+      return(NULL)
+    }
   })
   
   # Delete temporary sub-directory in 'www' when session ends 
@@ -742,12 +892,14 @@ function(input, output, session) {
   # Display households summary table
   output$tpsht_hh <- DT::renderDataTable({
     tsTable <- tsTable()
+    # browser()
     runs <- runs()
     tsYear <- tsYear()
     sel.yr.fl <- c(years[1], tsYear)
     
     t <- tsTable[indicator == 'Households']
-    t1 <- create.tsTable(t)
+    # browser()
+    t1 <- create.tsTable(t, "County") %>% select(1:6)#### make sure exclude three new columns
     sketch <- sketch.basic(colnames(t1)[1],  sel.yr.fl[1],  sel.yr.fl[2], runs[1], runs[2])
     # browser()
     create.DT.basic(t1, sketch)
@@ -761,7 +913,7 @@ function(input, output, session) {
     sel.yr.fl <- c(years[1], tsYear)
     
     t <- tsTable[indicator == 'Total Population']
-    t1 <- create.tsTable(t)
+    t1 <- create.tsTable(t, "County") %>% select(1:6)
     sketch <- sketch.basic(colnames(t1)[1], sel.yr.fl[1], sel.yr.fl[2], runs[1], runs[2])
     create.DT.basic(t1, sketch)
   })
@@ -774,7 +926,41 @@ function(input, output, session) {
     sel.yr.fl <- c(years[1], tsYear)
     
     t <- tsTable[indicator == 'Employment']
-    t1 <- create.tsTable(t)
+    t1 <- create.tsTable(t, "County") %>% select(1:6)
+    sketch <- sketch.basic(colnames(t1)[1], sel.yr.fl[1], sel.yr.fl[2], runs[1], runs[2])
+    create.DT.basic(t1, sketch)
+  })
+  
+  # Filter table and calculate totals for Jobs by Sector table
+  tsSectorJobs <- reactive({
+    jobsectdt <- jobsectdt()
+    # browser()
+    runs <- runs()
+    tsYear <- tsYear()
+    sel.yr.fl <- c(years[1], tsYear)
+
+    t <- jobsectdt[(run == runs[1] | run == runs[2]) & (year %in% sel.yr.fl)]
+    t.sum <- t[, .(estimate = sum(estimate)), by = list(run, year)][, sector := "Sub-Total: Jobs"]
+    rbindlist(list(t, t.sum), use.names = TRUE)
+  })
+
+  # Display Jobs by sector summary table
+  output$tpsht_jobs <- DT::renderDataTable({
+    tsSectorJobs <- tsSectorJobs()
+    # browser()
+    runs <- runs()
+    tsYear <- tsYear()
+    sel.yr.fl <- c(years[1], tsYear)
+
+    t <- dcast.data.table(tsSectorJobs, sector ~ year + run, value.var = "estimate")
+    setnames(t, "sector", "Sector")
+    # browser()
+    setcolorder(t, c("Sector", paste0(sel.yr.fl[1],"_",runs[1]), paste0(sel.yr.fl[2],"_",runs[1]), paste0(sel.yr.fl[2],"_",runs[2]), paste0(sel.yr.fl[1],"_",runs[2])))
+    t[, ncol(t) := NULL]
+    t[, Change := (t[[ncol(t)-1]]-t[[ncol(t)]])][, Per.Change := round((Change/t[[4]])*100, 2)]
+    # browser()
+    t1 <- t[, 2:4 := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = 2:4]
+
     sketch <- sketch.basic(colnames(t1)[1], sel.yr.fl[1], sel.yr.fl[2], runs[1], runs[2])
     create.DT.basic(t1, sketch)
   })
@@ -804,7 +990,8 @@ function(input, output, session) {
       pt <- dcast.data.table(tsPwtypeTable, Group ~ year + run, value.var = "estimate")
       setcolorder(pt, c("Group", paste0(sel.yr.fl[1],"_",runs[1]), paste0(sel.yr.fl[2],"_",runs[1]), paste0(sel.yr.fl[2],"_",runs[2]), paste0(sel.yr.fl[1],"_",runs[2])))
       pt[, ncol(pt) := NULL]
-      pt[, Change := (pt[[ncol(pt)-1]]-pt[[ncol(pt)]])][, Per.Change := round((Change/pt[[3]])*100, 2)][ , name := factor(Group, levels = newOrder)]
+      pt[, Change := (pt[[ncol(pt)-1]]-pt[[ncol(pt)]])][, Per.Change := round((Change/pt[[4]])*100, 2)][ , name := factor(Group, levels = newOrder)]
+      # browser()
       t0 <- pt[with(pt, order(name)),]
       t <- t0[, -"name", with = FALSE]
       t1 <- t[, 2:4 := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = 2:4]
@@ -845,7 +1032,8 @@ function(input, output, session) {
     pt <- dcast.data.table(tsPtypeTable, Group ~ year + run, value.var = "estimate")
     setcolorder(pt, c("Group", paste0(sel.yr.fl[1],"_",runs[1]), paste0(sel.yr.fl[2],"_",runs[1]), paste0(sel.yr.fl[2],"_",runs[2]), paste0(sel.yr.fl[1],"_",runs[2])))
     pt[, ncol(pt) := NULL]
-    pt[, Change := (pt[[ncol(pt)-1]]-pt[[ncol(pt)]])][, Per.Change := round((Change/pt[[3]])*100, 2)][ , name := factor(Group, levels = newOrder)]
+    pt[, Change := (pt[[ncol(pt)-1]]-pt[[ncol(pt)]])][, Per.Change := round((Change/pt[[4]])*100, 2)][ , name := factor(Group, levels = newOrder)]
+    # browser()
     t0 <- pt[with(pt, order(name)),]
     t <- t0[, -"name", with = FALSE]
     t1 <- t[, 2:4 := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = 2:4]
@@ -877,38 +1065,8 @@ function(input, output, session) {
     t <- dcast.data.table(tsIncTable, Group ~ year + run, value.var = "estimate")
     setcolorder(t, c("Group", paste0(sel.yr.fl[1],"_",runs[1]), paste0(sel.yr.fl[2],"_",runs[1]), paste0(sel.yr.fl[2],"_",runs[2]), paste0(sel.yr.fl[1],"_",runs[2])))
     t[, ncol(t) := NULL]
-    t[, Change := (t[[ncol(t)-1]]-t[[ncol(t)]])][, Per.Change := round((Change/t[[3]])*100, 2)]
+    t[, Change := (t[[ncol(t)-1]]-t[[ncol(t)]])][, Per.Change := round((Change/t[[4]])*100, 2)]
     t1 <- t[, 2:4 := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = 2:4]
-    sketch <- sketch.basic(colnames(t1)[1], sel.yr.fl[1], sel.yr.fl[2], runs[1], runs[2])
-    create.DT.basic(t1, sketch)
-  })
-  
-  # Filter table and calculate totals for Jobs by Sector table
-  tsSectorJobs <- reactive({
-    jobsectdt <- jobsectdt()
-    runs <- runs()
-    tsYear <- tsYear()
-    sel.yr.fl <- c(years[1], tsYear)
-    
-    t <- jobsectdt[(run == runs[1] | run == runs[2]) & (year %in% sel.yr.fl)]
-    t.sum <- t[, .(estimate = sum(estimate)), by = list(run, year)][, sector := "Sub-Total: Jobs"]
-    rbindlist(list(t, t.sum), use.names = TRUE)
-  })
-  
-  # Display Jobs by sector summary table
-  output$tpsht_jobs <- DT::renderDataTable({
-    tsSectorJobs <- tsSectorJobs()
-    runs <- runs()
-    tsYear <- tsYear()
-    sel.yr.fl <- c(years[1], tsYear)
-    
-    t <- dcast.data.table(tsSectorJobs, sector ~ year + run, value.var = "estimate")
-    setnames(t, "sector", "Sector")
-    setcolorder(t, c("Sector", paste0(sel.yr.fl[1],"_",runs[1]), paste0(sel.yr.fl[2],"_",runs[1]), paste0(sel.yr.fl[2],"_",runs[2]), paste0(sel.yr.fl[1],"_",runs[2])))
-    t[, ncol(t) := NULL]
-    t[, Change := (t[[ncol(t)-1]]-t[[ncol(t)]])][, Per.Change := round((Change/t[[3]])*100, 2)]
-    t1 <- t[, 2:4 := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = 2:4]
-    
     sketch <- sketch.basic(colnames(t1)[1], sel.yr.fl[1], sel.yr.fl[2], runs[1], runs[2])
     create.DT.basic(t1, sketch)
   })
@@ -920,23 +1078,23 @@ function(input, output, session) {
     tsYear <- tsYear()
     sel.yrs.col <- paste0("yr", c(years[1], tsYear))
     
-    lg.rgc <- c("Bellevue", "Everett", "SeaTac", "Seattle Downtown", "Seattle First Hill/Capitol Hill", "Seattle South Lake Union", 
-                "Seattle University Community", "Tacoma Downtown")
     t <- growctrdt[(indicator == 'Total Population' | indicator == 'Employment') & (run == runs[1] | run == runs[2])]
     t[indicator == 'Total Population', indicator := 'Population']
     t1 <- t[, lapply(.SD, sum), by = list(name, indicator, run), .SDcols = sel.yrs.col]
-    t1 <- t1[name %in% lg.rgc, ]
   })
   
   # Display largest RGCs summary table
   output$tpsht_rgc <- DT::renderDataTable({
-    tsGrwothCtr <- tsGrowthCtr()
+    tsGrowthCtr <- tsGrowthCtr()
     runs <- runs()
     tsYear <- tsYear()
     sel.yr.fl <- c(years[1], tsYear)
     sel.yrs.col <- paste0("yr", c(years[1], tsYear))
+    lg.rgc <- c("Bellevue", "Everett", "SeaTac", "Seattle Downtown", "Seattle First Hill/Capitol Hill", "Seattle South Lake Union",
+                "Seattle University Community", "Tacoma Downtown")
 
-    t <- dcast.data.table(tsGrwothCtr, name ~ indicator + run, value.var = sel.yrs.col)
+    t0 <- dcast.data.table(tsGrowthCtr, name ~ indicator + run, value.var = sel.yrs.col)
+    t <- t0[name %in% lg.rgc,]
     setnames(t, "name", "Name")
     t1 <- create.exp.tsTable(t)
     
@@ -973,6 +1131,122 @@ function(input, output, session) {
   })
   
 
+
+# Growth Topsheet Reactions and Rendering ---------------------------------
+  
+  
+  # Display households summary table
+  output$g_tpsht_hh <- DT::renderDataTable({
+    tsTable <- tsTable()
+    runs <- runs()
+    tsYear <- tsYear()
+    sel.yr.fl <- c(years[1], tsYear)
+    
+    t <- tsTable[indicator == 'Households']
+    t1 <- create.tsTable(t, "County") %>% select(1:3, 7, 4, 8, 5:6, 9)
+    sketch <- sketch.basic.growth(colnames(t1)[1],  sel.yr.fl[1],  sel.yr.fl[2], runs[1], runs[2])
+    create.DT.basic.growth(t1, sketch) 
+
+  })
+
+  # Display population summary table
+  output$g_tpsht_pop <- DT::renderDataTable({
+    tsTable <- tsTable()
+    runs <- runs()
+    tsYear <- tsYear()
+    sel.yr.fl <- c(years[1], tsYear)
+    
+    t <- tsTable[indicator == 'Total Population']
+    t1 <- create.tsTable(t, "County") %>% select(1:3, 7, 4, 8, 5:6, 9) 
+    sketch <- sketch.basic.growth(colnames(t1)[1], sel.yr.fl[1], sel.yr.fl[2], runs[1], runs[2])
+    create.DT.basic.growth(t1, sketch) 
+  })
+  
+  # Display employment summary table
+  output$g_tpsht_emp <- DT::renderDataTable({
+    tsTable <- tsTable()
+    runs <- runs()
+    tsYear <- tsYear()
+    sel.yr.fl <- c(years[1], tsYear)
+    
+    t <- tsTable[indicator == 'Employment']
+    t1 <- create.tsTable(t, "County") %>% select(1:3, 7, 4, 8, 5:6, 9)
+    sketch <- sketch.basic.growth(colnames(t1)[1], sel.yr.fl[1], sel.yr.fl[2], runs[1], runs[2])
+    create.DT.basic.growth(t1, sketch)
+  })
+  
+  # Display population by RGC summary table
+  output$g_tpsht_rgc_pop <- DT::renderDataTable({
+    tsGrowthCtr <- tsGrowthCtr()
+    runs <- runs()
+    tsYear <- tsYear()
+    sel.yr.fl <- c(years[1], tsYear)
+    sel.yrs.col <- paste0("yr", c(years[1], tsYear))
+    
+    mics <- rgc.lookup %>% filter(growth_center_id >= 600) %>% select(name) %>% as.data.table()
+    
+    t0 <- tsGrowthCtr[indicator == 'Population']
+    t0 <- setDT(t0)[!mics, on = "name"]
+    t.sum <- t0[, lapply(.SD, sum), by = list(indicator, run), .SDcols = sel.yrs.col][, name := "Sub-Total: All RGCs"]
+    t <- rbindlist(list(t0, t.sum), use.names = TRUE)
+    t1 <- create.tsTable(t, "name") %>% select(1:3, 7, 4, 8, 5:6, 9)
+    setnames(t1, "name", "Name")
+    sketch <- sketch.basic.growth(colnames(t1)[1], sel.yr.fl[1], sel.yr.fl[2], runs[1], runs[2])
+    create.DT.basic.growth(t1, sketch)
+  })
+  
+  # Display employment by RGC summary table
+  output$g_tpsht_rgc_emp <- DT::renderDataTable({
+    tsGrowthCtr <- tsGrowthCtr()
+    runs <- runs()
+    tsYear <- tsYear()
+    sel.yr.fl <- c(years[1], tsYear)
+    sel.yrs.col <- paste0("yr", c(years[1], tsYear))
+    
+    mics <- rgc.lookup %>% filter(growth_center_id >= 600) %>% select(name) %>% as.data.table()
+    
+    t0 <- tsGrowthCtr[indicator == 'Employment']
+    t0 <- setDT(t0)[!mics, on = "name"]
+    t.sum <- t0[, lapply(.SD, sum), by = list(indicator, run), .SDcols = sel.yrs.col][, name := "Sub-Total: All RGCs"]
+    t <- rbindlist(list(t0, t.sum), use.names = TRUE)
+    t1 <- create.tsTable(t, "name") %>% select(1:3, 7, 4, 8, 5:6, 9)
+    setnames(t1, "name", "Name")
+    sketch <- sketch.basic.growth(colnames(t1)[1], sel.yr.fl[1], sel.yr.fl[2], runs[1], runs[2])
+    create.DT.basic.growth(t1, sketch)
+  })  
+  
+  # Display Population by Special Places summary table
+  output$g_tpsht_splace_pop <- DT::renderDataTable({
+    tsSplace <- tsSplace()
+    runs <- runs()
+    tsYear <- tsYear()
+    sel.yr.fl <- c(years[1], tsYear)
+    sel.yrs.col <- paste0("yr", c(years[1], tsYear))
+    
+    t0 <- tsSplace[indicator == 'Population']
+    t.sum <- t0[, lapply(.SD, sum), by = list(indicator, run), .SDcols = sel.yrs.col][, Name := "Sub-Total: Key Locations"]
+    t <- rbindlist(list(t0, t.sum), use.names = TRUE)
+    t1 <- create.tsTable(t, "Name") %>% select(1:3, 7, 4, 8, 5:6, 9)
+    sketch <- sketch.basic.growth(colnames(t1)[1], sel.yr.fl[1], sel.yr.fl[2], runs[1], runs[2])
+    create.DT.basic.growth(t1, sketch)
+  })
+  
+  # Display Employment by Special Places summary table
+  output$g_tpsht_splace_emp <- DT::renderDataTable({
+    tsSplace <- tsSplace()
+    runs <- runs()
+    tsYear <- tsYear()
+    sel.yr.fl <- c(years[1], tsYear)
+    sel.yrs.col <- paste0("yr", c(years[1], tsYear))
+    
+    t0 <- tsSplace[indicator == 'Employment']
+    t.sum <- t0[, lapply(.SD, sum), by = list(indicator, run), .SDcols = sel.yrs.col][, Name := "Sub-Total: Key Locations"]
+    t <- rbindlist(list(t0, t.sum), use.names = TRUE)
+    t1 <- create.tsTable(t, "Name") %>% select(1:3, 7, 4, 8, 5:6, 9)
+    sketch <- sketch.basic.growth(colnames(t1)[1], sel.yr.fl[1], sel.yr.fl[2], runs[1], runs[2])
+    create.DT.basic.growth(t1, sketch)
+  })
+  
 # Run Comparison Reactions ------------------------------------------------
 
   
@@ -1007,27 +1281,31 @@ function(input, output, session) {
   cYear <- reactive({
     paste0("yr", input$compare_select_year)
   })
-
+  
+  cBaseYear <- reactive({
+    paste0("yr", years[1])
+  })
+  
   cTable <- reactive({
     alldt <- alldt()
     dt1 <- alldt[run == runname1() & geography == cGeog() & indicator == cIndicator(),
-                 .(name_id, geography, indicator, get(cYear()))]
-    setnames(dt1, dt1[,ncol(dt1)], 'estrun1')
-
+                 .(name_id, geography, indicator, get(cBaseYear()), get(cYear()))]
+    setnames(dt1, dt1[,c((ncol(dt1)-1), ncol(dt1))], c('baseyr', 'estrun1'))
+    
     dt2 <- alldt[run == cRun() & geography == cGeog() & indicator == cIndicator(),
                  .(name_id, get(cYear()))]
     setnames(dt2, dt2[,ncol(dt2)], 'estrun2')
-
+    
     dt <- merge(dt1, dt2, by = 'name_id')
     dt[,"diff" := (estrun1-estrun2)]
-
+    
     switch(as.integer(input$compare_select_geography),
            dt <- merge(dt, zone.lookup, by.x = "name_id", by.y = "zone_id") %>% merge(faz.lookup, by = "faz_id"),
            dt <- merge(dt, faz.lookup, by.x = "name_id", by.y = "faz_id"),
            dt <- merge(dt, city.lookup, by.x = "name_id", by.y = "city_id") %>% setnames("city_name", "Name")
     )
   })
-
+  
   # shapefile ready for visualization
   cShape <- reactive({
     joinShp2Tbl(input$compare_select_geography, cTable())
@@ -1065,7 +1343,7 @@ function(input, output, session) {
     pal <- colorBin(palette = colorBinResult$color, bins = colorBinResult$bin, domain=cShape()$diff, pretty = FALSE)
     
     # popup setup
-    geo.popup1 <- map.shp.popup(cShape(),'estrun1','estrun2', cGeo(), runname1(), runname2.trim)
+    geo.popup1 <- c.map.shp.popup(cShape(), 'baseyr', 'estrun1','estrun2', cGeo(), runname1(), runname2.trim)
     geo.popup3 <- paste0("<strong>Center: </strong>", centers$name_id)
     
     # Draw the map without selected geographies

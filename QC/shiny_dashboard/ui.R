@@ -1,5 +1,7 @@
-navbarPage(theme = shinytheme("readable"),
-           "LUV QC Dashboard",
+ui <- function(request) {
+  fluidPage(title="", windowTitle="LUV QC Dashboard",
+  navbarPage(theme = shinytheme("readable"),
+           title = div("LUV QC Dashboard", HTML("&nbsp;"), bookmarkButton(label = "", id = "bookmark1")), 
            tabPanel("Selection",
                     fluidPage(
                       column(width = 4
@@ -34,14 +36,9 @@ navbarPage(theme = shinytheme("readable"),
            tabPanel("Topsheet",
                     fluidPage(
                       fluidRow(
-                        column(width = 1
-                        
-                        ),
-                        column(width = 10,
+                        column(width = 12,
                                htmlOutput('ts_currRun'),
-                               
                                htmlOutput('ts_desc'),
-                               
                                htmlOutput('ts_rest'),
                                br(),
                                selectInput(inputId = "ts_select_year",
@@ -49,58 +46,100 @@ navbarPage(theme = shinytheme("readable"),
                                            choices = years[2:length(years)],
                                            selected = years[length(years)]),
                                br()
-                        ), # end column
-                        column(width = 1
-                          
-                        )
+                        )# end column
                       ), # end fluidRow
-                      fluidRow(
-                        column(width = 1
-                               
-                        ), # end column
-                        column(width = 10,
-                               tags$head(tags$style(type = "text/css", HTML("th { text-align: center; }"))),
-                               h4(class="header", checked=NA, tags$b("Households by County")),
-                               DT::dataTableOutput('tpsht_hh'),
-                               br(),
-                               
-                               h4(class="header", checked=NA, tags$b("Population by County")),
-                               DT::dataTableOutput('tpsht_pop'),
-                               br(),
-                               
-                               h4(class="header", checked=NA, tags$b("Employment by County")),
-                               DT::dataTableOutput('tpsht_emp'),
-                               br(),
-                               
-                               h4(class="header", checked=NA, tags$b("Jobs by Sector")),
-                               DT::dataTableOutput('tpsht_jobs'),
-                               br(),
-                               
-                               h4(class="header", checked=NA, tags$b("Worker Type")),
-                               DT::dataTableOutput('tpsht_pwtype'),
-                               br(),
-                               
-                               h4(class="header", checked=NA, tags$b("Person Type")),
-                               DT::dataTableOutput('tpsht_ptype'),
-                               br(),
-                               
-                               h4(class="header", checked=NA, tags$b("Households by Income Group")),
-                               DT::dataTableOutput('tpsht_hhInc'),
-                               br(),
-                               
-                               h4(class="header", checked=NA, tags$b("Largest RGCs")),
-                               DT::dataTableOutput('tpsht_rgc'),
-                               br(),
-                               
-                               h4(class="header", checked=NA, tags$b("Key Locations")),
-                               DT::dataTableOutput('tpsht_splace')
-                        ), # end column
-                        column(width = 1
-                               
-                        ) # end column
-                      ) # end fluidRow
-                      
-                    ) # end fluidPage
+                    tabsetPanel(type = "tabs",
+                                tabPanel(title = "Group: Modellers",
+                                         br(),
+                                         br(),
+                                        fluidPage(
+                                          fluidRow(
+                                            column(width = 1
+                                            ), # end column
+                                            column(width = 10,
+                                                   tags$head(tags$style(type = "text/css", HTML("th { text-align: center; }"))),
+                                                   h4(class="header", checked=NA, tags$b("Households by County")),
+                                                   DT::dataTableOutput('tpsht_hh'),
+                                                   br(),
+                                                   
+                                                   h4(class="header", checked=NA, tags$b("Population by County")),
+                                                   DT::dataTableOutput('tpsht_pop'),
+                                                   br(),
+                                                   
+                                                   h4(class="header", checked=NA, tags$b("Employment by County")),
+                                                   DT::dataTableOutput('tpsht_emp'),
+                                                   br(),
+                                                   
+                                                   h4(class="header", checked=NA, tags$b("Jobs by Sector")),
+                                                   DT::dataTableOutput('tpsht_jobs'),
+                                                   br(),
+                                                   
+                                                   h4(class="header", checked=NA, tags$b("Worker Type")),
+                                                   DT::dataTableOutput('tpsht_pwtype'),
+                                                   br(),
+                                                   
+                                                   h4(class="header", checked=NA, tags$b("Person Type")),
+                                                   DT::dataTableOutput('tpsht_ptype'),
+                                                   br(),
+                                                   
+                                                   h4(class="header", checked=NA, tags$b("Households by Income Group")),
+                                                   DT::dataTableOutput('tpsht_hhInc'),
+                                                   br(),
+                                                   
+                                                   h4(class="header", checked=NA, tags$b("Largest RGCs")),
+                                                   DT::dataTableOutput('tpsht_rgc'),
+                                                   br(),
+                                                   
+                                                   h4(class="header", checked=NA, tags$b("Key Locations")),
+                                                   DT::dataTableOutput('tpsht_splace')
+                                            ), # end column
+                                            column(width = 1
+                                            ) # end column
+                                          ) # end fluidRow
+                                        ) # end fluidPage
+                                ), ### end tabPanel
+                                tabPanel(title = "Group: Growth",
+                                         br(),
+                                         br(),
+                                         fluidPage(
+                                           fluidRow(
+                                             # column(width = 1
+                                             # ), # end column
+                                             column(width = 12,
+                                                    tags$head(tags$style(type = "text/css", HTML("th { text-align: center; }"))),
+                                                    h4(class="header", checked=NA, tags$b("Households by County")),
+                                                    DT::dataTableOutput('g_tpsht_hh'),
+                                                    br(),
+                                                    
+                                                    h4(class="header", checked=NA, tags$b("Population by County")),
+                                                    DT::dataTableOutput('g_tpsht_pop'),
+                                                    br(),
+                                                    
+                                                    h4(class="header", checked=NA, tags$b("Employment by County")),
+                                                    DT::dataTableOutput('g_tpsht_emp'),
+                                                    br(),
+                                                  
+                                                    h4(class="header", checked=NA, tags$b("Population by RGCs")),
+                                                    DT::dataTableOutput('g_tpsht_rgc_pop'),
+                                                    br(),
+                                                    
+                                                    h4(class="header", checked=NA, tags$b("Employment by RGCs")),
+                                                    DT::dataTableOutput('g_tpsht_rgc_emp'),
+                                                    br(),
+                                                    
+                                                    h4(class="header", checked=NA, tags$b("Population by Key Locations")),
+                                                    DT::dataTableOutput('g_tpsht_splace_pop'),
+                                                    br(),
+                                                    
+                                                    h4(class="header", checked=NA, tags$b("Employment by Key Locations")),
+                                                    DT::dataTableOutput('g_tpsht_splace_emp')
+                                             ) # end column
+                                           ) # end fluidRow
+                                         ) # end fluidPage
+                                  
+                                ) ### end tabPanel
+                    ) ### end tabSetPanel
+                    ) ### end fluidPage
            ), # end tabPanel
            tabPanel("Run Comparison",
                     fluidPage(
@@ -125,6 +164,12 @@ navbarPage(theme = shinytheme("readable"),
                                                        "Employment"=3,
                                                        "Residential Units"=4),
                                            selected = 1),
+                               # conditionalPanel(condition = "input.compare_select_indicator == 4",
+                               #                  radioButtons("radio", 
+                               #                  label = h4("Categories"),
+                               #                  choices = list("All" = 1, "Single Family" = 2, "Multi-Family" = 3), 
+                               #                  selected = 1)
+                               #                  ),
                                selectInput(inputId = "compare_select_year",
                                            label = "Year",
                                            choices = years,
@@ -317,3 +362,7 @@ navbarPage(theme = shinytheme("readable"),
            ), # end tabPanel
            fluid = TRUE
 )# end navbarPage
+)# end fluidPage
+}
+
+ 
