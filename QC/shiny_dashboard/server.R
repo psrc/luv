@@ -491,8 +491,8 @@ server <- function(input, output, session) {
 # Initialize Dashboard ----------------------------------------------------
 
   
-  # trim.subdir <- tempfile(pattern="sessiondir", tmpdir=".")
-  trim.subdir <- tempfile(pattern="sessiondir", tmpdir="")
+  trim.subdir <- tempfile(pattern="sessiondir", tmpdir=".")
+  # trim.subdir <- tempfile(pattern="sessiondir", tmpdir="")
   subdir <- file.path("www", trim.subdir)
   vars <- reactiveValues(submitted = FALSE, 
                          result.dir = NULL,
@@ -509,7 +509,7 @@ server <- function(input, output, session) {
   })
   
   output$init_select_run1 <- renderUI({
-    select.run1 <- list.files(base.dir())
+    select.run1 <- list.dirs(base.dir(), full.names = FALSE, recursive = FALSE)
     selectInput(inputId = "select_run1",
                 label = "Run 1",
                 choices = select.run1,
@@ -517,7 +517,7 @@ server <- function(input, output, session) {
   })
   
   output$init_select_run2all <- renderUI({
-    select.run2all <- list.files(base.dir())
+    select.run2all <- list.dirs(base.dir(), full.names = FALSE, recursive = FALSE)
     # new.select.run2all <- setdiff(select.run2all, selectRun1())
     selectInput(inputId = "select_run2all",
                 label = "Run 2 (select one or more)",
@@ -1294,7 +1294,17 @@ server <- function(input, output, session) {
   cRun <- reactive({
     input$compare_select_run2
   })
-
+  
+  # Check if runs 1 & 2 exist in strdt(), if not conditional panel disabled
+  output$strdtavail <- reactive({
+    strdt <- strdt()
+    c1 <- runname1() %in% strdt[, run]
+    c2 <- cRun() %in% strdt[, run]
+    v <- c1 == c2
+    return(v)
+    
+  })
+  
   cGeog <- reactive({
     switch(as.integer(input$compare_select_geography),
            "zone",
@@ -1327,9 +1337,8 @@ server <- function(input, output, session) {
   
   cTable <- reactive({
     strdt <- strdt()
-    browser()
     alldt <- alldt()
-    #run3R does not have city indicators--what if one of the runnames not in strdt
+
     if (is.null(cStructureType()) | cStructureType() == "All" | (cIndicator() %in% c("Total Population", "Employment"))){
       dt1 <- alldt[run == runname1() & geography == cGeog() & indicator == cIndicator(),
                    .(name_id, geography, indicator, get(cBaseYear()), get(cYear()))]
@@ -1338,12 +1347,6 @@ server <- function(input, output, session) {
                    .(name_id, get(cYear()))]
       setnames(dt2, dt2[,ncol(dt2)], 'estrun2')
       dt <- merge(dt1, dt2, by = 'name_id')
-      # dt[,"diff" := (estrun1-estrun2)]
-      # switch(as.integer(input$compare_select_geography),
-      #        dt <- merge(dt, zone.lookup, by.x = "name_id", by.y = "zone_id") %>% merge(faz.lookup, by = "faz_id"),
-      #        dt <- merge(dt, faz.lookup, by.x = "name_id", by.y = "faz_id"),
-      #        dt <- merge(dt, city.lookup, by.x = "name_id", by.y = "city_id") %>% setnames("city_name", "Name")
-      # )
     } else {
       dt1 <- strdt[run == runname1() & geography == cGeog() & (year == year[1] | year == input$compare_select_year) & indicator == cIndicator() & strtype == cStructureType()]
       dt1.cast <- dcast.data.table(dt1, name_id ~ year, value.var = "estimate")
@@ -1352,12 +1355,6 @@ server <- function(input, output, session) {
       dt2.cast <- dcast.data.table(dt2, name_id ~ year, value.var = "estimate")
       setnames(dt2.cast, colnames(dt2.cast)[2], 'estrun2')
       dt <- merge(dt1.cast, dt2.cast, by = 'name_id')
-      # dt[,"diff" := (estrun1-estrun2)]
-      # switch(as.integer(input$compare_select_geography),
-      #        dt <- merge(dt, zone.lookup, by.x = "name_id", by.y = "zone_id") %>% merge(faz.lookup, by = "faz_id"),
-      #        dt <- merge(dt, faz.lookup, by.x = "name_id", by.y = "faz_id"),
-      #        dt <- merge(dt, city.lookup, by.x = "name_id", by.y = "city_id") %>% setnames("city_name", "Name")
-      # )       
     }
     dt[,"diff" := (estrun1-estrun2)]
     switch(as.integer(input$compare_select_geography),
@@ -1390,6 +1387,7 @@ server <- function(input, output, session) {
     if(!vars$submitted) return(NULL)
     if (is.null(cRun())) return(NULL)
     # cTable <- cTable()
+    # strdt <- strdt()
     # browser()
     runname2.trim <- sapply(strsplit(cRun(),"[.]"), function(x) x[1])
     scatterplot(cTable(), "compare", cTable()$estrun1, cTable()$estrun2, runname1(), runname2.trim)
@@ -1878,4 +1876,6 @@ server <- function(input, output, session) {
 
   })
 
+  outputOptions(output, 'strdtavail', suspendWhenHidden = FALSE)
+  
 }# end server function
