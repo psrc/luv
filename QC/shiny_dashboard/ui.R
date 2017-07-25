@@ -211,6 +211,12 @@ ui <- function(request) {
                                                        "Employment"=3,
                                                        "Residential Units"=4),
                                            selected = 1),
+                               conditionalPanel(condition = "(input.growth_select_indicator == 4 | input.growth_select_indicator == 2) && output.gstrdtavail",
+                                                radioButtons("growth_structure_type",
+                                                             label = h5("Categories"),
+                                                             choices = list("All" = 1, "Single Family" = 2, "Multi-Family" = 3),
+                                                             selected = 1)
+                                               ),
                                sliderInput(inputId = "growth_select_year",
                                            label = "End Year",
                                            min = years[2],

@@ -1386,9 +1386,7 @@ server <- function(input, output, session) {
   output$compare_plot <- renderPlotly({
     if(!vars$submitted) return(NULL)
     if (is.null(cRun())) return(NULL)
-    # cTable <- cTable()
-    # strdt <- strdt()
-    # browser()
+
     runname2.trim <- sapply(strsplit(cRun(),"[.]"), function(x) x[1])
     scatterplot(cTable(), "compare", cTable()$estrun1, cTable()$estrun2, runname1(), runname2.trim)
   })
@@ -1439,7 +1437,22 @@ server <- function(input, output, session) {
    gRun <- reactive({
      input$growth_select_run
    })
-
+   
+   # Check if selected run exist in strdt()
+   gRunInStrdt <- reactive({
+     strdt <- strdt()
+     v <- input$growth_select_run %in% strdt[, run]
+     return(v)
+   })
+   
+   # Check if selected run exist in strdt(), if not conditional panel disabled
+   output$gstrdtavail <- reactive({
+     strdt <- strdt()
+     v <- input$growth_select_run %in% strdt[, run]
+     return(v)
+   })
+   
+   
    gGeog <- reactive({
      switch(as.integer(input$growth_select_geography),
             "zone",
@@ -1454,7 +1467,11 @@ server <- function(input, output, session) {
             "Employment",
             "Residential Units")
    })
-
+   
+   gYear0 <- reactive({
+     input$growth_select_year
+   })
+  
    gYear <- reactive({
      paste0("yr", input$growth_select_year)
    })
@@ -1462,15 +1479,30 @@ server <- function(input, output, session) {
    gYear.label <- reactive({
      unlist(strsplit(gYear(),"r"))[[2]]
    })
-
+   
+   gStructureType <- reactive({
+     switch(as.integer(input$growth_structure_type),
+            "All",
+            "singlefamily",
+            "multifamily")
+   })
+   
    gTable <- reactive({
      if (is.null(gRun()) || is.null(input$growth_select_geography) || is.null(gYear())) return(NULL)
+     strdt <- strdt()
      alldt <- alldt()
-     dt <- alldt[run == gRun() & geography == gGeog() & indicator == gIndicator(),
-                 .(name_id, geography, run, indicator, yr2014, get(gYear()))]
-     setnames(dt, c(dt[,ncol(dt)-1], dt[,ncol(dt)]), c('yr1', 'yr2'))
+     
+     if (is.null(gStructureType()) | gStructureType() == "All" | gRunInStrdt() == FALSE | (gIndicator() %in% c("Total Population", "Employment"))){
+       dt <- alldt[run == gRun() & geography == gGeog() & indicator == gIndicator(),
+                   .(name_id, geography, run, indicator, yr2014, get(gYear()))]
+       setnames(dt, c(dt[,ncol(dt)-1], dt[,ncol(dt)]), c('yr1', 'yr2'))
+     } else {
+       dt1 <- strdt[run == gRun() & geography == gGeog() & indicator == gIndicator() & strtype == gStructureType() & (year == years[1] | year == gYear0()),
+                   .(name_id, geography, run, indicator, strtype, year, estimate)]
+       dt <- dcast.data.table(dt1, name_id + geography + run + indicator ~ year, value.var = "estimate")
+       setnames(dt, colnames(dt)[(ncol(dt)-1):ncol(dt)], c('yr1', 'yr2'))
+     }  
      dt[,"diff" := (yr2-yr1)]
-
      switch(as.integer(input$growth_select_geography),
        dt <- merge(dt, zone.lookup, by.x = "name_id", by.y = "zone_id") %>% merge(faz.lookup, by = "faz_id"),
        dt <- merge(dt, faz.lookup, by.x = "name_id", by.y = "faz_id"),
@@ -1877,5 +1909,5 @@ server <- function(input, output, session) {
   })
 
   outputOptions(output, 'strdtavail', suspendWhenHidden = FALSE)
-  
+  outputOptions(output, 'gstrdtavail', suspendWhenHidden = FALSE)
 }# end server function
