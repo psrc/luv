@@ -38,20 +38,13 @@ server <- function(input, output, session) {
 
   # Joins reactive tables to respective shapefiles.
   joinShp2Tbl <- function(inputGeog, table){
-    if (inputGeog == 1){
-      shape.join <- sp::merge(zone.shape, table, by.x = "TAZ", by.y = "name_id")
-      return(shape.join)
-    } else if (inputGeog == 2){
-      shape.join <- sp::merge(faz.shape, table, by.x = "FAZ10", by.y = "name_id")
-      return(shape.join)
-    } else if (inputGeog == 3){
-      shape.join <- sp::merge(city.shape, table, by.x = "city_id", by.y = "name_id")
-      return(shape.join)
-    } else {
-      centers.shape <- centers[centers$name_id != 0,]
-      shape.join <- sp::merge(centers.shape, table, by.x = "name_id", by.y = "name_id")
-      return(shape.join)
-    }
+    switch(as.integer(inputGeog), 
+      sp::merge(zone.shape, table, by.x = "TAZ", by.y = "name_id"),
+      sp::merge(faz.shape, table, by.x = "FAZ10", by.y = "name_id"),
+      sp::merge(city.shape, table, by.x = "city_id", by.y = "name_id"),
+      {centers.shape <- centers[centers$name_id != 0,];
+      sp::merge(centers.shape, table, by.x = "name_id", by.y = "name_id")}
+    )
   }
 
   # Sets Leaflet color scheme and numeric bins.
@@ -173,22 +166,12 @@ server <- function(input, output, session) {
 
   # Selects IDs of scatterplot points and finds match in respective shapefile. Requires string source name
   # that matches its respective scatterplot source name. Requires reactive shapefile.
-  select.items <- function(sourcename, inputGeog, shapefile){
+  select.items <- function(sourcename, shapefile){
     eventdata <- event_data(event = "plotly_selected", source = sourcename)
-    if(is.null(eventdata)){
-      return(NULL) # do nothing
-    } else {
+    if(is.null(eventdata)) return(NULL) # do nothing
+    else {
       geoid <- eventdata[['key']]
-      if (inputGeog == 1){
-        sub <- shapefile[shapefile$name_id %in% geoid, ] # Give back a sp data frame of the selected ids
-        return(sub)
-      } else if (inputGeog == 2){
-        sub <- shapefile[shapefile$name_id %in% geoid, ]
-        return(sub)
-      } else {
-        sub <- shapefile[shapefile$name_id %in% geoid, ]
-        return(sub)
-      }
+      return(shapefile[shapefile$name_id %in% geoid, ])
     }
   }
 
@@ -636,7 +619,7 @@ server <- function(input, output, session) {
           table$geography <- geography[a]
           table$run <- runs[r]
           
-          ifelse (is.null(alldata.table), alldata.table <- table, alldata.table <- rbind(alldata.table, table))
+          alldata.table <- if(is.null(alldata.table)) table else rbind(alldata.table, table)
 
         } # end of attribute loop
       } # end of geography loop
@@ -1358,9 +1341,9 @@ server <- function(input, output, session) {
     }
     dt[,"diff" := (estrun1-estrun2)]
     switch(as.integer(input$compare_select_geography),
-           dt <- merge(dt, zone.lookup, by.x = "name_id", by.y = "zone_id") %>% merge(faz.lookup, by = "faz_id"),
-           dt <- merge(dt, faz.lookup, by.x = "name_id", by.y = "faz_id"),
-           dt <- merge(dt, city.lookup, by.x = "name_id", by.y = "city_id") %>% setnames("city_name", "Name")
+           merge(dt, zone.lookup, by.x = "name_id", by.y = "zone_id") %>% merge(faz.lookup, by = "faz_id"),
+           merge(dt, faz.lookup, by.x = "name_id", by.y = "faz_id"),
+           merge(dt, city.lookup, by.x = "name_id", by.y = "city_id") %>% setnames("city_name", "Name")
     )
   })
   
@@ -1372,9 +1355,9 @@ server <- function(input, output, session) {
   # leaflet layer control
   cGeo <- reactive({
     switch(as.integer(input$compare_select_geography),
-           geo <- "TAZ",
-           geo <- "FAZ",
-           geo <- "City"
+           "TAZ",
+           "FAZ",
+           "City"
     )
   })
 
@@ -1386,40 +1369,37 @@ server <- function(input, output, session) {
   output$compare_plot <- renderPlotly({
     if(!vars$submitted) return(NULL)
     if (is.null(cRun())) return(NULL)
-
     runname2.trim <- sapply(strsplit(cRun(),"[.]"), function(x) x[1])
-    scatterplot(cTable(), "compare", cTable()$estrun1, cTable()$estrun2, runname1(), runname2.trim)
+    ctable <- cTable()
+    scatterplot(ctable, "compare", ctable$estrun1, ctable$estrun2, runname1(), runname2.trim)
   })
   
   # Leaflet
   output$compare_map <- renderLeaflet({
     if(!vars$submitted) return(NULL)
-    if (is.null(cRun()) | is.null(cShape()$diff)) return(NULL)
+    cshape <- cShape()
+    if (is.null(cRun()) || is.null(cshape$diff)) return(NULL)
     runname2.trim <- sapply(strsplit(cRun(),"[.]"), function(x) x[1])
     
     # Set up symbology and categorization
-    colorBinResult <- map.colorBins(cShape()$diff, input$compare_select_geography)
-    pal <- colorBin(palette = colorBinResult$color, bins = colorBinResult$bin, domain=cShape()$diff, pretty = FALSE)
+    colorBinResult <- map.colorBins(cshape$diff, input$compare_select_geography)
+    pal <- colorBin(palette = colorBinResult$color, bins = colorBinResult$bin, domain=cshape$diff, pretty = FALSE)
     
     # popup setup
-    geo.popup1 <- c.map.shp.popup(cShape(), 'baseyr', 'estrun1','estrun2', cGeo(), runname1(), runname2.trim)
+    cgeo <- cGeo()
+    geo.popup1 <- c.map.shp.popup(cshape, 'baseyr', 'estrun1','estrun2', cgeo, runname1(), runname2.trim)
     geo.popup3 <- paste0("<strong>Center: </strong>", centers$name_id)
     
     # Draw the map without selected geographies
-    map <- map.layers(cShape(), cGeo(), paste0("Run difference by ", cGeo()), geo.popup1, geo.popup3, pal)
+    map <- map.layers(cshape, cgeo, paste0("Run difference by ", cgeo), geo.popup1, geo.popup3, pal)
     
     # Re-draw the map with selected geographies
-    subdata <- cSelected_geo()
+    # Drag event for the scatterplot: will grab ids of selected points
+    subdata <- select.items("compare", cshape)
     if(length(subdata) > 0)
-      map <- map %>% addSelectedGeo(cSelected_geo(), cGeo()) %>% map.settings(cGeo())
+      map <- map %>% addSelectedGeo(subdata, cgeo) %>% map.settings(cgeo)
     
     map
-  })
-  
-  # Drag event for the scatterplot: will grab ids of selected points
-  cSelected_geo <- reactive({
-    sub <- select.items("compare", input$compare_select_geography, cShape())
-    return(sub)
   })
   
 
@@ -1492,7 +1472,7 @@ server <- function(input, output, session) {
      strdt <- strdt()
      alldt <- alldt()
      
-     if (is.null(gStructureType()) | gStructureType() == "All" | gRunInStrdt() == FALSE | (gIndicator() %in% c("Total Population", "Employment"))){
+     if (is.null(gStructureType()) || gStructureType() == "All" || gRunInStrdt() == FALSE || (gIndicator() %in% c("Total Population", "Employment"))){
        dt <- alldt[run == gRun() & geography == gGeog() & indicator == gIndicator(),
                    .(name_id, geography, run, indicator, yr2014, get(gYear()))]
        setnames(dt, c(dt[,ncol(dt)-1], dt[,ncol(dt)]), c('yr1', 'yr2'))
@@ -1504,9 +1484,9 @@ server <- function(input, output, session) {
      }  
      dt[,"diff" := (yr2-yr1)]
      switch(as.integer(input$growth_select_geography),
-       dt <- merge(dt, zone.lookup, by.x = "name_id", by.y = "zone_id") %>% merge(faz.lookup, by = "faz_id"),
-       dt <- merge(dt, faz.lookup, by.x = "name_id", by.y = "faz_id"),
-       dt <- merge(dt, city.lookup, by.x = "name_id", by.y = "city_id") %>% setnames("city_name", "Name")
+       merge(dt, zone.lookup, by.x = "name_id", by.y = "zone_id") %>% merge(faz.lookup, by = "faz_id"),
+       merge(dt, faz.lookup, by.x = "name_id", by.y = "faz_id"),
+       merge(dt, city.lookup, by.x = "name_id", by.y = "city_id") %>% setnames("city_name", "Name")
        )
    })
 
@@ -1518,9 +1498,9 @@ server <- function(input, output, session) {
    # leaflet layer control
    geo <- reactive({
      switch(as.integer(input$growth_select_geography),
-            geo <- "TAZ",
-            geo <- "FAZ",
-            geo <- "City"
+            "TAZ",
+            "FAZ",
+            "City"
      )
    })
   
@@ -1531,39 +1511,37 @@ server <- function(input, output, session) {
   # Plotly
   output$growth_plot <- renderPlotly({
     if(!vars$submitted) return(NULL)
-    if (is.null(gTable())) return(NULL)
-    scatterplot(gTable(), "growth", gTable()$yr1, gTable()$yr2, as.character(years[[1]]), gYear.label())
+    gtable <- gTable()
+    if (is.null(gtable)) return(NULL)
+    scatterplot(gtable, "growth", gtable$yr1, gtable$yr2, as.character(years[[1]]), gYear.label())
   })
 
   # Leaflet
   output$growth_map <- renderLeaflet({
     if(!vars$submitted) return(NULL)
-    if (is.null(gShape()$diff)) return(NULL)
+    gshape <- gShape()
+    if (is.null(gshape$diff)) return(NULL)
     # Set up symbology and categorization
-    colorBinResult <- map.colorBins(gShape()$diff, input$growth_select_geography)
-    pal <- colorBin(palette = colorBinResult$color, bins = colorBinResult$bin, domain=gShape()$diff, pretty = FALSE)
+    colorBinResult <- map.colorBins(gshape$diff, input$growth_select_geography)
+    pal <- colorBin(palette = colorBinResult$color, bins = colorBinResult$bin, domain=gshape$diff, pretty = FALSE)
 
     # popup setup
-    geo.popup1 <- map.shp.popup(gShape(),'yr1','yr2',geo(),years[[1]],gYear.label())
+    geo.popup1 <- map.shp.popup(gshape,'yr1','yr2',geo(),years[[1]],gYear.label())
     geo.popup3 <- paste0("<strong>Center: </strong>", centers$name_id)
 
     # Draw the map without selected geographies
-    map <- map.layers(gShape(), geo(), paste0("2014-", gYear.label(), " growth by ", geo()), geo.popup1, geo.popup3, pal)
+    geo <- geo()
+    map <- map.layers(gshape, geo, paste0("2014-", gYear.label(), " growth by ", geo), geo.popup1, geo.popup3, pal)
 
     # Re-draw the map with selected geographies
-    subdata <- gSelected_geo()
+    # Drag event for the scatterplot: will grab ids of selected points
+    subdata <- select.items("growth", gshape)
     if(length(subdata) > 0)
-      map <- map %>% addSelectedGeo(gSelected_geo(), geo()) %>% map.settings(geo())
+      map <- map %>% addSelectedGeo(subdata, geo) %>% map.settings(geo)
 
     map
  })
 
-  # Drag event for the scatterplot: will grab ids of selected points
-  gSelected_geo <- reactive({
-    sub <- select.items("growth", input$growth_select_geography, gShape())
-    return(sub)
-  })
-  
 
 # Employment by Sector Reactions and Rendering ----------------------------
 
@@ -1643,12 +1621,14 @@ server <- function(input, output, session) {
   # Build table for Plotly
   dTable <- reactive({
     demogdt <- demogdt()
-    if (is.null(demogdt()) || is.null(dRun())) return(NULL)
+    drun <- dRun()
+    if (is.null(demogdt) || is.null(drun)) return(NULL)
+    ddemog <- dDemographic()
     if (input$demog_select_format == 1){
-      demogdt[run == dRun() & demographic == dDemographic(),]
+      demogdt[run == drun & demographic == ddemog,]
     } else if (input$demog_select_format == 2){
-      main <- demogdt[run == dRun() & demographic == dDemographic(),]
-      region.totals <- demogdt[run == dRun() & demographic == dDemographic(), .(total = sum(estimate)), by = year]
+      main <- demogdt[run == drun & demographic == ddemog,]
+      region.totals <- demogdt[run == drun & demographic == ddemog, .(total = sum(estimate)), by = year]
       setkey(main, year)[region.totals, percent := round((estimate/total)*100, 2)]
       dt <- main[,.(percent, year, run, groups, demographic)]
       setnames(dt, "percent", "estimate")
@@ -1658,8 +1638,9 @@ server <- function(input, output, session) {
 
   # Build bar charts
   output$demog_plot <- renderPlotly({
-    if (is.null(dTable())) return(NULL)
-    dat2 <- subset(as.data.frame(dTable()), year == "2014")
+    dtable <- dTable()
+    if (is.null(dtable)) return(NULL)
+    dat2 <- subset(as.data.frame(dtable), year == "2014")
 
     one_plot <- function(dat){
       plot_ly(dat,
@@ -1682,7 +1663,7 @@ server <- function(input, output, session) {
         )
     }
 
-    data <- as.data.frame(dTable())
+    data <- as.data.frame(dtable)
 
     p <- data %>%
       group_by(year) %>%
@@ -1739,12 +1720,11 @@ server <- function(input, output, session) {
   })
 
   dcapTable_total <- reactive({
-    if (is.null(capdt()) | is.null(devdt())) return(NULL)
-    if (is.null(dcapRun()) || is.null(input$dcap_select_geography) || is.null(dcapYear())) return(NULL)
-    
     capdt <- capdt()
     devdt <- devdt()
-
+    if (is.null(capdt) || is.null(devdt)) return(NULL)
+    if (is.null(dcapRun()) || is.null(input$dcap_select_geography) || is.null(dcapYear())) return(NULL)
+    
     t1 <- capdt[run == dcapRun() & geography == dcapGeog() & captype == "Total",][,.(name_id, capacity, captype)]
     t2 <- devdt[run == dcapRun() & geography == dcapGeog() & year == dcapYear() & devtype == "Building Sqft",]
     
@@ -1766,12 +1746,12 @@ server <- function(input, output, session) {
   })
 
   dcapTable_res <- reactive({
-    if (is.null(capdt()) | is.null(devdt())) return(NULL)
-    if (is.null(dcapRun()) || is.null(input$dcap_select_geography) || is.null(dcapYear())) return(NULL)
-    
     capdt <- capdt()
     devdt <- devdt()
-
+    
+    if (is.null(capdt) || is.null(devdt)) return(NULL)
+    if (is.null(dcapRun()) || is.null(input$dcap_select_geography) || is.null(dcapYear())) return(NULL)
+    
     t1 <- capdt[run == dcapRun() & geography == dcapGeog() & captype == "Residential",][,.(name_id, capacity, captype)]
     t2 <- devdt[run == dcapRun() & geography == dcapGeog() & year == dcapYear() & devtype == "Residential Units",]
     
@@ -1792,12 +1772,12 @@ server <- function(input, output, session) {
   })
 
   dcapTable_nonres <- reactive({
-    if (is.null(capdt()) | is.null(devdt())) return(NULL)
-    if (is.null(dcapRun()) || is.null(input$dcap_select_geography) || is.null(dcapYear())) return(NULL)
-    
     capdt <- capdt()
     devdt <- devdt()
-
+    
+    if (is.null(capdt) | is.null(devdt)) return(NULL)
+    if (is.null(dcapRun()) || is.null(input$dcap_select_geography) || is.null(dcapYear())) return(NULL)
+    
     t1 <- capdt[run == dcapRun() & geography == dcapGeog() & captype == "Non-Residential",][,.(name_id, capacity, captype)]
     t2 <- devdt[run == dcapRun() & geography == dcapGeog() & year == dcapYear() & devtype == "Non-Residential Sqft",]
     
@@ -1835,29 +1815,30 @@ server <- function(input, output, session) {
   # leaflet layer control
   dcapGeo <- reactive({
     switch(as.integer(input$dcap_select_geography),
-           geo <- "TAZ",
-           geo <- "FAZ",
-           geo <- "City",
-           geo <- "Growth Center"
+           "TAZ",
+           "FAZ",
+           "City",
+           "Growth Center"
     )
   })
 
   # Total Dev Capacity map
   output$dcap_total_map <- renderLeaflet({
-    if (is.null(dcapShape_total()$diff)) return(NULL)
+    dcapshapetot <- dcapShape_total()
+    if (is.null(dcapshapetot$diff)) return(NULL)
       
       # Set up symbology and categorization
-      colorBinResult <- map.colorBins(dcapShape_total()$diff, input$dcap_select_geography)
-      pal <- colorBin(palette = colorBinResult$color, bins = colorBinResult$bin, domain=dcapShape_total()$diff, pretty = FALSE)
+      colorBinResult <- map.colorBins(dcapshapetot$diff, input$dcap_select_geography)
+      pal <- colorBin(palette = colorBinResult$color, bins = colorBinResult$bin, domain=dcapshapetot$diff, pretty = FALSE)
 
       # popup setup
-      geo.popup1 <- map.shp.popup(dcapShape_total(),'capacity','estimate',dcapGeo(), 'Total Max Development Capacity', 'Building Sqft')
+      geo.popup1 <- map.shp.popup(dcapshapetot,'capacity','estimate',dcapGeo(), 'Total Max Development Capacity', 'Building Sqft')
       geo.popup3 <- paste0("<strong>Center: </strong>", centers$name_id)
 
       if (as.integer(input$dcap_select_geography) == 4){
-        map <- map.layers.basic(dcapShape_total(), dcapGeo(), "Total Development Capacity", geo.popup1, pal)
+        map <- map.layers.basic(dcapshapetot, dcapGeo(), "Total Development Capacity", geo.popup1, pal)
       } else {
-        map <- map.layers(dcapShape_total(), dcapGeo(), "Total Development Capacity", geo.popup1, geo.popup3, pal)
+        map <- map.layers(dcapshapetot, dcapGeo(), "Total Development Capacity", geo.popup1, geo.popup3, pal)
       }
 
       map
@@ -1866,20 +1847,21 @@ server <- function(input, output, session) {
 
   # Residential Dev Capacity map
   output$dcap_res_map <- renderLeaflet({
-    if (is.null(dcapShape_res()$diff)) return(NULL)
+    dcapshaperes <- dcapShape_res()
+    if (is.null(dcapshaperes$diff)) return(NULL)
     
     # Set up symbology and categorization
-      colorBinResult <- map.colorBins(dcapShape_res()$diff, input$dcap_select_geography)
-      pal <- colorBin(palette = colorBinResult$color, bins = colorBinResult$bin, domain=dcapShape_res()$diff, pretty = FALSE)
+      colorBinResult <- map.colorBins(dcapshaperes$diff, input$dcap_select_geography)
+      pal <- colorBin(palette = colorBinResult$color, bins = colorBinResult$bin, domain=dcapshaperes$diff, pretty = FALSE)
 
       # popup setup
-      geo.popup1 <- map.shp.popup(dcapShape_res(),'capacity','estimate',dcapGeo(), 'Residential Max Development Capacity', 'Residential Units')
+      geo.popup1 <- map.shp.popup(dcapshaperes,'capacity','estimate', dcapGeo(), 'Residential Max Development Capacity', 'Residential Units')
       geo.popup3 <- paste0("<strong>Center: </strong>", centers$name_id)
 
       if (as.integer(input$dcap_select_geography) == 4){
-        map <- map.layers.basic(dcapShape_res(), dcapGeo(), "Residential Development Capacity", geo.popup1, pal)
+        map <- map.layers.basic(dcapshaperes, dcapGeo(), "Residential Development Capacity", geo.popup1, pal)
       } else {
-        map <- map.layers(dcapShape_res(), dcapGeo(), "Residential Development Capacity", geo.popup1, geo.popup3, pal)
+        map <- map.layers(dcapshaperes, dcapGeo(), "Residential Development Capacity", geo.popup1, geo.popup3, pal)
       }
 
       map
@@ -1888,20 +1870,21 @@ server <- function(input, output, session) {
 
   # Non-Residential Dev Capacity map
   output$dcap_nonres_map <- renderLeaflet({
-    if (is.null(dcapShape_nonres()$diff)) return(NULL)
+    dcapshapenonres <- dcapShape_nonres()
+    if (is.null(dcapshapenonres$diff)) return(NULL)
     
     # Set up symbology and categorization
-      colorBinResult <- map.colorBins(dcapShape_nonres()$diff, input$dcap_select_geography)
-      pal <- colorBin(palette = colorBinResult$color, bins = colorBinResult$bin, domain=dcapShape_nonres()$diff, pretty = FALSE)
+      colorBinResult <- map.colorBins(dcapshapenonres$diff, input$dcap_select_geography)
+      pal <- colorBin(palette = colorBinResult$color, bins = colorBinResult$bin, domain=dcapshapenonres$diff, pretty = FALSE)
 
       # popup setup
-      geo.popup1 <- map.shp.popup(dcapShape_nonres(),'capacity','estimate',dcapGeo(), 'Non-Residential Max Development Capacity', 'Non-Residential Sqft')
+      geo.popup1 <- map.shp.popup(dcapshapenonres,'capacity','estimate',dcapGeo(), 'Non-Residential Max Development Capacity', 'Non-Residential Sqft')
       geo.popup3 <- paste0("<strong>Center: </strong>", centers$name_id)
 
       if (as.integer(input$dcap_select_geography) == 4){
-        map <- map.layers.basic(dcapShape_nonres(), dcapGeo(), "Non-Residential Development Capacity", geo.popup1, pal)
+        map <- map.layers.basic(dcapshapenonres, dcapGeo(), "Non-Residential Development Capacity", geo.popup1, pal)
       } else {
-        map <- map.layers(dcapShape_nonres(), dcapGeo(), "Non-Residential Development Capacity", geo.popup1, geo.popup3, pal)
+        map <- map.layers(dcapshapenonres, dcapGeo(), "Non-Residential Development Capacity", geo.popup1, geo.popup3, pal)
       }
 
       map
