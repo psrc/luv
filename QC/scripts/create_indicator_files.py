@@ -450,6 +450,37 @@ Table(
     ]
     return indicators
 
+def get_end_year_indicators(cache_directory, run_description, years = [2040], base_year=2014):
+    source_data = SourceData(
+        cache_directory = cache_directory,
+        run_description = run_description,
+        years = years,
+        base_year = base_year,
+        dataset_pool_configuration = DatasetPoolConfiguration(
+            package_order=['psrc_parcel','urbansim_parcel','psrc', 'urbansim','opus_core'],
+            package_order_exceptions={},
+            ),       
+    )
+    
+    indicators=[
+        DatasetTable(
+            source_data = source_data,
+            dataset_name = 'building',
+            name =  'new_buildings',
+            attributes = [
+                'building.building_type_id',
+                'building.parcel_id',
+                'urbansim_parcel.building.unit_price',
+                'urbansim_parcel.building.residential_units',
+                'urbansim_parcel.building.non_residential_sqft',
+                'urbansim_parcel.building.year_built',
+            ],
+            exclude_condition = 'building.year_built<2015',
+            ),
+        ]
+    return indicators
+
+
 import os
 from opus_core.indicator_framework.core.indicator_factory import IndicatorFactory
 
@@ -472,6 +503,12 @@ if __name__ == '__main__':
         indicators = indicators,
         display_error_box = False, 
         show_results = False)
+    
+    # runs buildings indicator only for the simulation end year
+    IndicatorFactory().create_indicators(
+        indicators = get_end_year_indicators(ind_cache, os.getenv('QC_RUN1_DESCR', '')),
+        display_error_box = False, 
+        show_results = False)    
 
     write_info(ind_cache, os.getenv('QC_RUN1_DESCR', ''), os.getenv('QC_RUN1_RESTR', ''))
     
