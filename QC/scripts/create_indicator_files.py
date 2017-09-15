@@ -17,7 +17,8 @@ def jobs_by_sector(geo, package="psrc_parcel"):
                "edu = %s.%s.number_of_jobs_of_sector_19" % (package, geo)
            ]
 
-def get_indicators(cache_directory, run_description, years = [2014,2015,2020,2025,2030,2035,2040], base_year=2014):
+#def get_indicators(cache_directory, run_description, years = [2014,2015,2020,2025,2030,2035,2040], base_year=2014):
+def get_indicators(cache_directory, run_description, years = range(2014,2041), base_year=2014):
     source_data = SourceData(
         cache_directory = cache_directory,
         run_description = run_description,
