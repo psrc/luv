@@ -14,7 +14,8 @@ enableBookmarking(store = "server")
 # environment inputs
 attribute <- c("population", "households","employment", "residential_units")
 geography <- c( "zone", "faz", "city")
-years <- c(2014, 2015, 2020, 2025, 2030, 2035, 2040)
+# years <- c(2014, 2015, 2020, 2025, 2030, 2035, 2040)
+years <- seq(2014, 2040)
 extension <- ".csv"
 
 trim <- function (x) gsub("^\\s+|\\s+$", "", x) # function for triming whitespace 
@@ -43,10 +44,6 @@ if(make) {
 
 dsn <- file.path(wrkdir, "data")
 
-# select beginning and end years
-# yr.fl <- c(years[1], years[length(years)])
-# yr.col <- paste0("yr", c(years[1], years[length(years)]))
-
 # lookup tables and shape names
 faz.lookup <- read.table(file.path(dsn, "faz_names.txt"), header =TRUE, sep = "\t")
 zone.lookup <- read.table(file.path(dsn, "zones.txt"), header =TRUE, sep = "\t")
@@ -54,6 +51,7 @@ city.lookup <- read.table(file.path(dsn, "cities.csv"), header =TRUE, sep = ",")
 zonecnty.lookup <- read.table(file.path(dsn, "zonecnty.txt"), header =TRUE, sep = "\t")
 rgc.lookup <- read.table(file.path(dsn, "growth_centers.csv"),header=TRUE, sep=',') %>% subset(growth_center_id >= 500)
 splaces.lookup <- read.table(file.path(dsn, 'SpecialPlaces.csv'), header=TRUE, sep=',')
+demog.lookup <- read.csv(file.path(dsn, "demographic_groups.csv"))
 
 layer_zone <- "TAZ_2010_WGS84"
 layer_faz <- "FAZ_2010_WGS84"
