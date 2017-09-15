@@ -222,7 +222,7 @@ ui <- function(request) {
                                            min = years[2],
                                            max = years[length(years)],
                                            value = years[length(years)],
-                                           step = 5,
+                                           step = 1,
                                            sep = ""),
                                br(),
                                helpText("Use the 'Box Select' or 'Lasso Select' option in the scatterplot to select

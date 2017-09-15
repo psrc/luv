@@ -591,43 +591,79 @@ server <- function(input, output, session) {
   alldt <- eventReactive(input$goButton,{
     runnames <- runnames()
     runs <- runs()
+    # browser()
+    base.dir <- base.dir()
     
-    alldata.table <- NULL
+    # ititialize alldata.table
+    alldata.table <- data.frame(matrix(ncol = 31, nrow = 0))
+    new.alldata.table.colnames <- c("name_id", paste0("yr", seq(2014, 2040)), "indicator", "geography", "run")
+    colnames(alldata.table) <- new.alldata.table.colnames
+    alldata.table <- alldata.table %>% as.data.table()
+    
     for (r in 1:length(runnames)) {
       for (a in 1:length(geography)){
         for (i in 1:length(attribute)){
-          table <- NULL
           filename <- paste0(geography[a],'__',"table",'__',attribute[i], extension)
-          datatable <- read.csv(file.path(base.dir(), runnames[r],"indicators",filename), header = TRUE, sep = ",")
-          column_id <- colnames(datatable)[grepl("_id",names(datatable))]
-          column_est <- NULL
-          for (y in 1: length(years)){
-            column_est1 <- colnames(datatable)[grepl((years[y]),names(datatable))]
-            ifelse (is.null(column_est1),
-                    column_est <- column_est1,
-                    column_est <- cbind(column_est, column_est1))
-          }
-          table <- datatable[,c(column_id,column_est)]
-          colnames(table)[2:ncol(table)] <- paste0("yr", sapply(years, function(x) x[1]))
-          colnames(table)[1] <- "name_id"
-          table$indicator <- switch(attribute[i],
-                                    "population"="Total Population",
-                                    "households"="Households",
-                                    "employment"="Employment",
-                                    "residential_units"="Residential Units")
+          datatable <- read.csv(file.path(base.dir, runnames[r],"indicators",filename), header = TRUE, sep = ",")
+          colnames(datatable)[2: ncol(datatable)] <- str_replace(colnames(datatable)[2: ncol(datatable)], '\\w+_', 'yr') # rename columns
+          colnames(datatable)[1] <- str_replace(colnames(datatable)[1], '\\w+_', 'name_')
+          datatable$indicator <- switch(attribute[i],
+                                        "population"="Total Population",
+                                        "households"="Households",
+                                        "employment"="Employment",
+                                        "residential_units"="Residential Units")
           
-          table$geography <- geography[a]
-          table$run <- runs[r]
-          
-          alldata.table <- if(is.null(alldata.table)) table else rbind(alldata.table, table)
-
+          datatable$geography <- geography[a]
+          datatable$run <- runs[r]
+          datatable <- datatable %>% as.data.table()
+          alldata.table <- rbindlist(list(alldata.table, datatable), use.names = TRUE, fill = TRUE)
         } # end of attribute loop
       } # end of geography loop
-      
-      # alldt <- as.data.table(alldata.table)
     } # end of runnames loop
     
-    return(as.data.table(alldata.table))
+    # where na in alldata.table fill with 0
+    for(j in seq_along(alldata.table)){
+      set(alldata.table, i = which(is.na(alldata.table[[j]]) & is.numeric(alldata.table[[j]])), j = j, value = 0)
+    }
+    
+    return(alldata.table)
+    
+    # alldata.table <- NULL
+    # for (r in 1:length(runnames)) {
+    #   for (a in 1:length(geography)){
+    #     for (i in 1:length(attribute)){
+    #       table <- NULL
+    #       filename <- paste0(geography[a],'__',"table",'__',attribute[i], extension)
+    #       datatable <- read.csv(file.path(base.dir(), runnames[r],"indicators",filename), header = TRUE, sep = ",")
+    #       column_id <- colnames(datatable)[grepl("_id",names(datatable))]
+    #       column_est <- NULL
+    #       for (y in 1: length(years)){
+    #         column_est1 <- colnames(datatable)[grepl((years[y]),names(datatable))]
+    #         ifelse (is.null(column_est1),
+    #                 column_est <- column_est1,
+    #                 column_est <- cbind(column_est, column_est1))
+    #       }
+    #       table <- datatable[,c(column_id,column_est)]
+    #       colnames(table)[2:ncol(table)] <- paste0("yr", sapply(years, function(x) x[1]))
+    #       colnames(table)[1] <- "name_id"
+    #       table$indicator <- switch(attribute[i],
+    #                                 "population"="Total Population",
+    #                                 "households"="Households",
+    #                                 "employment"="Employment",
+    #                                 "residential_units"="Residential Units")
+    #       
+    #       table$geography <- geography[a]
+    #       table$run <- runs[r]
+    #       
+    #       alldata.table <- if(is.null(alldata.table)) table else rbind(alldata.table, table)
+    # 
+    #     } # end of attribute loop
+    #   } # end of geography loop
+    #   
+    #   # alldt <- as.data.table(alldata.table)
+    # } # end of runnames loop
+    # 
+    # return(as.data.table(alldata.table))
   })
   
   # build structure type (sf/mf) indicators source table
@@ -697,7 +733,36 @@ server <- function(input, output, session) {
         } # end conditional
       } # end of demog.indicators loop
     } # end of runnames loop
+    
+    demog.table <- demog.table %>% as.data.table()
+    
+    my.dt <-NULL
+    # loop through runs
+    for (rn in runs){
+      missing.yrs <- setdiff(years, demog.table[run == rn, year]) %>% as.vector
+      if (length(missing.yrs) == 0) {
+        next
+      } else {
+        for (y in 1:length(missing.yrs)){
+          missyr.df <- demog.lookup
+          missyr.df$year <- missing.yrs[y]
+          missyr.df$run <- rn
+          ifelse(is.null(my.dt), my.dt <- missyr.df, my.dt <- rbind(my.dt, missyr.df))
+        }
+      }
+    }
+    
+    my.dt <- my.dt %>% as.data.table()
+    
+    #rbind tables
+    demog.table <- rbindlist(list(demog.table, my.dt), use.names = TRUE, fill = TRUE)
+    
+    for(j in seq_along(demog.table)){
+      set(demog.table, i = which(is.na(demog.table[[j]]) & is.numeric(demog.table[[j]])), j = j, value = 0)
+    }
+    
     ifelse(!is.null(demog.table), return(as.data.table(demog.table)), return(NULL))
+    
   })
   
   # build max capacity source tables
@@ -783,15 +848,16 @@ server <- function(input, output, session) {
   jobsectdt <- eventReactive(input$goButton,{
     runnames <- runnames()
     runs <- runs()
+    base.dir <- base.dir()
     
     sectorJobs.pat <- "census_tract__dataset_table__employment_by_aggr_sector__\\d+"
     
     sectorJobs.table <- NULL
     for (r in 1:length(runnames)) {
-      sectorJobs.file <- list.files(file.path(base.dir(), runnames[r], "indicators"), pattern = paste0(sectorJobs.pat, extension))
+      sectorJobs.file <- list.files(file.path(base.dir, runnames[r], "indicators"), pattern = paste0(sectorJobs.pat, extension))
       for (f in 1:length(sectorJobs.file)){
         # table <- NULL
-        table <- read.csv(file.path(base.dir(), runnames[r], "indicators", sectorJobs.file[f]), header = TRUE, sep = ",")
+        table <- read.csv(file.path(base.dir, runnames[r], "indicators", sectorJobs.file[f]), header = TRUE, sep = ",")
         col.sum <- apply(table, 2, sum)
         sectorJobs.df <- transpose(data.frame(col.sum))
         colnames(sectorJobs.df) <- colnames(table)
@@ -803,6 +869,45 @@ server <- function(input, output, session) {
     } # end runnames loop
     
     sectorJobs.table <- as.data.table(sectorJobs.table)
+    
+    my.dt <-NULL
+    # create separate table for non-luv years
+    for (rn in runs){
+      missing.yrs <- setdiff(years, sectorJobs.table[run == rn, year]) %>% as.vector
+      if (length(missing.yrs) == 0) {
+        next
+      } else {
+        missyr.df <- data.frame(matrix(ncol = 2, nrow=length(missing.yrs)))
+        colnames(missyr.df) <- c("run", "year")
+        missyr.df$year <- missing.yrs
+        missyr.df$run <- rn
+        ifelse(is.null(my.dt), my.dt <- missyr.df, my.dt <- rbind(my.dt, missyr.df))
+      }
+    }
+    
+    my.dt[colnames(sectorJobs.table)[1:(ncol(sectorJobs.table)-2)]] <- 0
+    my.dt <- my.dt %>% as.data.table()
+    
+    sectorJobs.table <- rbindlist(list(sectorJobs.table, my.dt), use.names = TRUE, fill = TRUE)
+    # sectorJobs.pat <- "census_tract__dataset_table__employment_by_aggr_sector__\\d+"
+    # 
+    # sectorJobs.table <- NULL
+    # for (r in 1:length(runnames)) {
+    #   sectorJobs.file <- list.files(file.path(base.dir(), runnames[r], "indicators"), pattern = paste0(sectorJobs.pat, extension))
+    #   for (f in 1:length(sectorJobs.file)){
+    #     # table <- NULL
+    #     table <- read.csv(file.path(base.dir(), runnames[r], "indicators", sectorJobs.file[f]), header = TRUE, sep = ",")
+    #     col.sum <- apply(table, 2, sum)
+    #     sectorJobs.df <- transpose(data.frame(col.sum))
+    #     colnames(sectorJobs.df) <- colnames(table)
+    #     sectorJobs.df$run <- runs[r]
+    #     sectorJobs.df$census_tract_id <- NULL
+    #     sectorJobs.df$year <- str_match(sectorJobs.file[f], "(\\d+){4}")[,1]
+    #     ifelse(is.null(sectorJobs.table), sectorJobs.table <- sectorJobs.df, sectorJobs.table  <- rbind(sectorJobs.table, sectorJobs.df))
+    #   } # end sectorJobs.file loop
+    # } # end runnames loop
+    # 
+    # sectorJobs.table <- as.data.table(sectorJobs.table)
     sj <- melt.data.table(sectorJobs.table, id.vars = c("run", "year"), measure.vars = colnames(sectorJobs.table)[1:(ncol(sectorJobs.table)-2)])
     setnames(sj, colnames(sj), c("run", "year", "sector", "estimate"))
     return(sj)
@@ -812,42 +917,76 @@ server <- function(input, output, session) {
   growctrdt <- eventReactive(input$goButton,{
     runnames <- runnames()
     runs <- runs()
+    base.dir <- base.dir()
     
-    growctr.table <- NULL
+    # initialize growctr.table
+    growctr.table <- data.frame(matrix(ncol = 30, nrow = 0))
+    new.growctr.table.colnames <- c("name_id", paste0("yr", seq(2014, 2040)), "indicator", "run")
+    colnames(growctr.table) <- new.growctr.table.colnames
+    growctr.table <- growctr.table %>% as.data.table()
+    
     for (r in 1:length(runnames)) {
-        for (i in 1:length(attribute)){
-          table <- NULL
-          filename <- paste0('growth_center__table','__',attribute[i], extension)
-          datatable <- read.csv(file.path(base.dir(), runnames[r],"indicators",filename), header = TRUE, sep = ",")
-          column_id <- colnames(datatable)[grepl("_id",names(datatable))]
-          column_est <- NULL
-          for (y in 1: length(years)){
-            column_est1 <- colnames(datatable)[grepl((years[y]),names(datatable))]
-            ifelse (is.null(column_est1),
-                    column_est <- column_est1,
-                    column_est <- cbind(column_est, column_est1))
-          }
-          table <- datatable[,c(column_id,column_est)]
-          colnames(table)[2:ncol(table)] <- paste0("yr", sapply(years, function(x) x[1]))
-          colnames(table)[1] <- "name_id"
-          table$indicator <- switch(attribute[i],
-                                    "population"="Total Population",
-                                    "households"="Households",
-                                    "employment"="Employment",
-                                    "residential_units"="Residential Units")
-          
-          
-          table$run <- runs[r]
-          
-          ifelse (is.null(growctr.table), growctr.table <- table, growctr.table <- rbind(growctr.table, table))
-          
-        } # end of attribute loop
+      for (i in 1:length(attribute)){
+        filename <- paste0('growth_center__table','__',attribute[i], extension)
+        datatable <- read.csv(file.path(base.dir, runnames[r],"indicators",filename), header = TRUE, sep = ",")
+        colnames(datatable)[2:ncol(datatable)] <- str_replace(colnames(datatable)[2: ncol(datatable)], '\\w+_', 'yr') # rename columns
+        colnames(datatable)[1] <- str_replace(colnames(datatable)[1], '\\w+_', 'name_')
+        datatable$indicator <- switch(attribute[i],
+                                      "population"="Total Population",
+                                      "households"="Households",
+                                      "employment"="Employment",
+                                      "residential_units"="Residential Units")
+        
+        
+        datatable$run <- runs[r]
+        datatable <- datatable %>% as.data.table()
+        growctr.table <- rbindlist(list(growctr.table, datatable), use.names = TRUE, fill = TRUE)
+      } # end of attribute loop
     } # end of runnames loop
     
     rgc.lookup1 <- rgc.lookup[,c("growth_center_id", "name")]
     gc.table <- merge(growctr.table, rgc.lookup1, by.x = "name_id", by.y = "growth_center_id")
     
-    return(as.data.table(gc.table))
+    for(j in seq_along(gc.table)){
+      set(gc.table, i = which(is.na(gc.table[[j]]) & is.numeric(gc.table[[j]])), j = j, value = 0)
+    }
+    
+    return(gc.table)
+    # growctr.table <- NULL
+    # for (r in 1:length(runnames)) {
+    #     for (i in 1:length(attribute)){
+    #       table <- NULL
+    #       filename <- paste0('growth_center__table','__',attribute[i], extension)
+    #       datatable <- read.csv(file.path(base.dir(), runnames[r],"indicators",filename), header = TRUE, sep = ",")
+    #       column_id <- colnames(datatable)[grepl("_id",names(datatable))]
+    #       column_est <- NULL
+    #       for (y in 1: length(years)){
+    #         column_est1 <- colnames(datatable)[grepl((years[y]),names(datatable))]
+    #         ifelse (is.null(column_est1),
+    #                 column_est <- column_est1,
+    #                 column_est <- cbind(column_est, column_est1))
+    #       }
+    #       table <- datatable[,c(column_id,column_est)]
+    #       colnames(table)[2:ncol(table)] <- paste0("yr", sapply(years, function(x) x[1]))
+    #       colnames(table)[1] <- "name_id"
+    #       table$indicator <- switch(attribute[i],
+    #                                 "population"="Total Population",
+    #                                 "households"="Households",
+    #                                 "employment"="Employment",
+    #                                 "residential_units"="Residential Units")
+    #       
+    #       
+    #       table$run <- runs[r]
+    #       
+    #       ifelse (is.null(growctr.table), growctr.table <- table, growctr.table <- rbind(growctr.table, table))
+    #       
+    #     } # end of attribute loop
+    # } # end of runnames loop
+    # 
+    # rgc.lookup1 <- rgc.lookup[,c("growth_center_id", "name")]
+    # gc.table <- merge(growctr.table, rgc.lookup1, by.x = "name_id", by.y = "growth_center_id")
+    # 
+    # return(as.data.table(gc.table))
   })
 
 
@@ -894,6 +1033,7 @@ server <- function(input, output, session) {
   # Filter table and calculate regional totals for general all-data-table
   tsTable <- reactive({
     alldt <- alldt()
+    # browser()
     runs <- runs()
     tsYear <- tsYear()
     sel.yrs.col <- paste0("yr", c(years[1], tsYear))
@@ -1281,6 +1421,7 @@ server <- function(input, output, session) {
   # Check if runs 1 & 2 exist in strdt(), if not conditional panel disabled
   output$strdtavail <- reactive({
     strdt <- strdt()
+    # browser()
     c1 <- runname1() %in% strdt[, run]
     c2 <- cRun() %in% strdt[, run]
     v <- c1 == c2
@@ -1640,6 +1781,7 @@ server <- function(input, output, session) {
   output$demog_plot <- renderPlotly({
     dtable <- dTable()
     if (is.null(dtable)) return(NULL)
+    
     dat2 <- subset(as.data.frame(dtable), year == "2014")
 
     one_plot <- function(dat){
@@ -1647,6 +1789,7 @@ server <- function(input, output, session) {
               x = ~groups,
               y = ~estimate,
               split = ~year,
+              #add color/colors
               type = 'bar')%>%
         add_trace(x = dat2$groups,
                   y = dat2$estimate,
@@ -1668,10 +1811,11 @@ server <- function(input, output, session) {
     p <- data %>%
       group_by(year) %>%
       do(p = one_plot(.)) %>%
-      subplot(shareY = TRUE, nrows = 1) %>%
+      subplot(shareX = TRUE, titleX = FALSE, nrows = 6) %>%
       layout(yaxis = list(title = " "),
              font = list(family="Segoe UI", size = 13),
-             margin = list(l=100, b=195, t=50, r=100))
+             margin = list(l=100, b=100, t=50, r=0)  
+             )
 
     p
   })
