@@ -627,43 +627,6 @@ server <- function(input, output, session) {
     }
     
     return(alldata.table)
-    
-    # alldata.table <- NULL
-    # for (r in 1:length(runnames)) {
-    #   for (a in 1:length(geography)){
-    #     for (i in 1:length(attribute)){
-    #       table <- NULL
-    #       filename <- paste0(geography[a],'__',"table",'__',attribute[i], extension)
-    #       datatable <- read.csv(file.path(base.dir(), runnames[r],"indicators",filename), header = TRUE, sep = ",")
-    #       column_id <- colnames(datatable)[grepl("_id",names(datatable))]
-    #       column_est <- NULL
-    #       for (y in 1: length(years)){
-    #         column_est1 <- colnames(datatable)[grepl((years[y]),names(datatable))]
-    #         ifelse (is.null(column_est1),
-    #                 column_est <- column_est1,
-    #                 column_est <- cbind(column_est, column_est1))
-    #       }
-    #       table <- datatable[,c(column_id,column_est)]
-    #       colnames(table)[2:ncol(table)] <- paste0("yr", sapply(years, function(x) x[1]))
-    #       colnames(table)[1] <- "name_id"
-    #       table$indicator <- switch(attribute[i],
-    #                                 "population"="Total Population",
-    #                                 "households"="Households",
-    #                                 "employment"="Employment",
-    #                                 "residential_units"="Residential Units")
-    #       
-    #       table$geography <- geography[a]
-    #       table$run <- runs[r]
-    #       
-    #       alldata.table <- if(is.null(alldata.table)) table else rbind(alldata.table, table)
-    # 
-    #     } # end of attribute loop
-    #   } # end of geography loop
-    #   
-    #   # alldt <- as.data.table(alldata.table)
-    # } # end of runnames loop
-    # 
-    # return(as.data.table(alldata.table))
   })
   
   # build structure type (sf/mf) indicators source table
@@ -889,25 +852,7 @@ server <- function(input, output, session) {
     my.dt <- my.dt %>% as.data.table()
     
     sectorJobs.table <- rbindlist(list(sectorJobs.table, my.dt), use.names = TRUE, fill = TRUE)
-    # sectorJobs.pat <- "census_tract__dataset_table__employment_by_aggr_sector__\\d+"
-    # 
-    # sectorJobs.table <- NULL
-    # for (r in 1:length(runnames)) {
-    #   sectorJobs.file <- list.files(file.path(base.dir(), runnames[r], "indicators"), pattern = paste0(sectorJobs.pat, extension))
-    #   for (f in 1:length(sectorJobs.file)){
-    #     # table <- NULL
-    #     table <- read.csv(file.path(base.dir(), runnames[r], "indicators", sectorJobs.file[f]), header = TRUE, sep = ",")
-    #     col.sum <- apply(table, 2, sum)
-    #     sectorJobs.df <- transpose(data.frame(col.sum))
-    #     colnames(sectorJobs.df) <- colnames(table)
-    #     sectorJobs.df$run <- runs[r]
-    #     sectorJobs.df$census_tract_id <- NULL
-    #     sectorJobs.df$year <- str_match(sectorJobs.file[f], "(\\d+){4}")[,1]
-    #     ifelse(is.null(sectorJobs.table), sectorJobs.table <- sectorJobs.df, sectorJobs.table  <- rbind(sectorJobs.table, sectorJobs.df))
-    #   } # end sectorJobs.file loop
-    # } # end runnames loop
-    # 
-    # sectorJobs.table <- as.data.table(sectorJobs.table)
+
     sj <- melt.data.table(sectorJobs.table, id.vars = c("run", "year"), measure.vars = colnames(sectorJobs.table)[1:(ncol(sectorJobs.table)-2)])
     setnames(sj, colnames(sj), c("run", "year", "sector", "estimate"))
     return(sj)
@@ -952,41 +897,7 @@ server <- function(input, output, session) {
     }
     
     return(gc.table)
-    # growctr.table <- NULL
-    # for (r in 1:length(runnames)) {
-    #     for (i in 1:length(attribute)){
-    #       table <- NULL
-    #       filename <- paste0('growth_center__table','__',attribute[i], extension)
-    #       datatable <- read.csv(file.path(base.dir(), runnames[r],"indicators",filename), header = TRUE, sep = ",")
-    #       column_id <- colnames(datatable)[grepl("_id",names(datatable))]
-    #       column_est <- NULL
-    #       for (y in 1: length(years)){
-    #         column_est1 <- colnames(datatable)[grepl((years[y]),names(datatable))]
-    #         ifelse (is.null(column_est1),
-    #                 column_est <- column_est1,
-    #                 column_est <- cbind(column_est, column_est1))
-    #       }
-    #       table <- datatable[,c(column_id,column_est)]
-    #       colnames(table)[2:ncol(table)] <- paste0("yr", sapply(years, function(x) x[1]))
-    #       colnames(table)[1] <- "name_id"
-    #       table$indicator <- switch(attribute[i],
-    #                                 "population"="Total Population",
-    #                                 "households"="Households",
-    #                                 "employment"="Employment",
-    #                                 "residential_units"="Residential Units")
-    #       
-    #       
-    #       table$run <- runs[r]
-    #       
-    #       ifelse (is.null(growctr.table), growctr.table <- table, growctr.table <- rbind(growctr.table, table))
-    #       
-    #     } # end of attribute loop
-    # } # end of runnames loop
-    # 
-    # rgc.lookup1 <- rgc.lookup[,c("growth_center_id", "name")]
-    # gc.table <- merge(growctr.table, rgc.lookup1, by.x = "name_id", by.y = "growth_center_id")
-    # 
-    # return(as.data.table(gc.table))
+
   })
 
 
@@ -1404,6 +1315,22 @@ server <- function(input, output, session) {
   
 # Run Comparison Reactions ------------------------------------------------
 
+  output$compare_select_year_ui <- renderUI({
+    alldt <- alldt()
+    nacols <- colnames(alldt)[colSums(is.na(alldt)) > 0]
+    if (length(nacols) == 0) {
+      selectInput(inputId = "compare_select_year",
+                  label = "Year",
+                  choices = years,
+                  selected = tail(years, n=1)) #select the last element of years
+    } else {
+      selectInput(inputId = "compare_select_year",
+                  label = "Year",
+                  choices = c(2014, 2015, 2020, 2025, 2030, 2035, 2040),
+                  selected = tail(years, n=1)) #select the last element of years
+    }
+
+  })
   
   output$compare_select_run2_ui <- renderUI({
     runname1 <- runname1()
@@ -1421,7 +1348,6 @@ server <- function(input, output, session) {
   # Check if runs 1 & 2 exist in strdt(), if not conditional panel disabled
   output$strdtavail <- reactive({
     strdt <- strdt()
-    # browser()
     c1 <- runname1() %in% strdt[, run]
     c2 <- cRun() %in% strdt[, run]
     v <- c1 == c2
@@ -1546,7 +1472,29 @@ server <- function(input, output, session) {
 
 # Growth Reactions --------------------------------------------------------
 
-
+  
+   # output$growth_select_year_ui <- renderUI({
+   #   alldt <- alldt()
+   #   nacols <- colnames(alldt)[colSums(is.na(alldt)) > 0]
+   #   if (length(nacols) == 0) {
+   #     sliderInput(inputId = "growth_select_year",
+   #                 label = "Time Period",
+   #                 min = years[1],
+   #                 max = years[length(years)],
+   #                 value = c(years[1], years[length(years)]),
+   #                 step = 1,
+   #                 sep = "")
+   #   } else {
+   #     sliderInput(inputId = "growth_select_year",
+   #                 label = "Time Period",
+   #                 min = years[1],
+   #                 max = years[length(years)],
+   #                 value = c(2014,2040),
+   #                 step = 2,
+   #                 sep = "")
+   #   }
+   # })
+  
    output$growth_select_run_ui <- renderUI({
      runs <- runs()
      selectInput(inputId = "growth_select_run",
@@ -1589,16 +1537,22 @@ server <- function(input, output, session) {
             "Residential Units")
    })
    
-   gYear0 <- reactive({
+   gYear0 <- reactive({ # vector of two numbers, to query strdt() and for labeling
      input$growth_select_year
    })
   
-   gYear <- reactive({
+   gYear <- reactive({ # vector of two numbers, to query alldt()
      paste0("yr", input$growth_select_year)
    })
 
-   gYear.label <- reactive({
-     unlist(strsplit(gYear(),"r"))[[2]]
+   gYear.label1 <- reactive({
+     gYear0 <- gYear0()
+     gYear0[1]
+   })
+
+   gYear.label2 <- reactive({
+     gYear0 <- gYear0()
+     gYear0[2]
    })
    
    gStructureType <- reactive({
@@ -1612,13 +1566,15 @@ server <- function(input, output, session) {
      if (is.null(gRun()) || is.null(input$growth_select_geography) || is.null(gYear())) return(NULL)
      strdt <- strdt()
      alldt <- alldt()
+     gYear <- gYear()
+     gYear0 <- gYear0()
      
      if (is.null(gStructureType()) || gStructureType() == "All" || gRunInStrdt() == FALSE || (gIndicator() %in% c("Total Population", "Employment"))){
        dt <- alldt[run == gRun() & geography == gGeog() & indicator == gIndicator(),
-                   .(name_id, geography, run, indicator, yr2014, get(gYear()))]
+                   .(name_id, geography, run, indicator, get(gYear[1]), get(gYear[2]))]
        setnames(dt, c(dt[,ncol(dt)-1], dt[,ncol(dt)]), c('yr1', 'yr2'))
      } else {
-       dt1 <- strdt[run == gRun() & geography == gGeog() & indicator == gIndicator() & strtype == gStructureType() & (year == years[1] | year == gYear0()),
+       dt1 <- strdt[run == gRun() & geography == gGeog() & indicator == gIndicator() & strtype == gStructureType() & (year == get(gYear0[1]) | year == get(gYear0[2])),
                    .(name_id, geography, run, indicator, strtype, year, estimate)]
        dt <- dcast.data.table(dt1, name_id + geography + run + indicator ~ year, value.var = "estimate")
        setnames(dt, colnames(dt)[(ncol(dt)-1):ncol(dt)], c('yr1', 'yr2'))
@@ -1654,7 +1610,7 @@ server <- function(input, output, session) {
     if(!vars$submitted) return(NULL)
     gtable <- gTable()
     if (is.null(gtable)) return(NULL)
-    scatterplot(gtable, "growth", gtable$yr1, gtable$yr2, as.character(years[[1]]), gYear.label())
+    scatterplot(gtable, "growth", gtable$yr1, gtable$yr2, gYear.label1(), gYear.label2())
   })
 
   # Leaflet
@@ -1667,12 +1623,12 @@ server <- function(input, output, session) {
     pal <- colorBin(palette = colorBinResult$color, bins = colorBinResult$bin, domain=gshape$diff, pretty = FALSE)
 
     # popup setup
-    geo.popup1 <- map.shp.popup(gshape,'yr1','yr2',geo(),years[[1]],gYear.label())
+    geo.popup1 <- map.shp.popup(gshape,'yr1','yr2', geo(), gYear.label1(), gYear.label2())
     geo.popup3 <- paste0("<strong>Center: </strong>", centers$name_id)
 
     # Draw the map without selected geographies
     geo <- geo()
-    map <- map.layers(gshape, geo, paste0("2014-", gYear.label(), " growth by ", geo), geo.popup1, geo.popup3, pal)
+    map <- map.layers(gshape, geo, paste0(gYear.label1(), "-", gYear.label2(), " growth by ", geo), geo.popup1, geo.popup3, pal)
 
     # Re-draw the map with selected geographies
     # Drag event for the scatterplot: will grab ids of selected points
@@ -1789,7 +1745,6 @@ server <- function(input, output, session) {
               x = ~groups,
               y = ~estimate,
               split = ~year,
-              #add color/colors
               type = 'bar')%>%
         add_trace(x = dat2$groups,
                   y = dat2$estimate,
