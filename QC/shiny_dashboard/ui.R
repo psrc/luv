@@ -170,10 +170,11 @@ ui <- function(request) {
                                                             choices = list("All" = 1, "Single Family" = 2, "Multi-Family" = 3),
                                                             selected = 1)
                                                 ),
-                               selectInput(inputId = "compare_select_year",
-                                           label = "Year",
-                                           choices = years,
-                                           selected = tail(years, n=1)), #select the last element of years
+                               # selectInput(inputId = "compare_select_year",
+                               #             label = "Year",
+                               #             choices = years,
+                               #             selected = tail(years, n=1)), #select the last element of years
+                               uiOutput("compare_select_year_ui"), # dynamic, lists years based on available years in alldt()
                                br(),
                                helpText("Use the 'Box Select' or 'Lasso Select' option in the scatterplot to select
                                         points and view its location on the map.")
@@ -194,7 +195,7 @@ ui <- function(request) {
                       fluidRow(
                         column(width = 2,
                                h4(class="header", checked=NA,
-                                  tags$b("Select the following to see growth since 2014")
+                                  tags$b("Select the following to see growth for a selected time period")
                                ),
                                br(),
                                uiOutput("growth_select_run_ui"), # dynamic, lists runs based on input from selection page
@@ -217,11 +218,12 @@ ui <- function(request) {
                                                              choices = list("All" = 1, "Single Family" = 2, "Multi-Family" = 3),
                                                              selected = 1)
                                                ),
+                               # uiOutput("growth_select_year_ui"),
                                sliderInput(inputId = "growth_select_year",
-                                           label = "End Year",
-                                           min = years[2],
+                                           label = "Time Period",
+                                           min = years[1],
                                            max = years[length(years)],
-                                           value = years[length(years)],
+                                           value = c(years[1], years[length(years)]),
                                            step = 1,
                                            sep = ""),
                                br(),
