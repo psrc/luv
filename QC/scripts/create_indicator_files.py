@@ -474,6 +474,8 @@ def get_end_year_indicators(cache_directory, run_description, years = [2040], ba
                 'urbansim_parcel.building.residential_units',
                 'urbansim_parcel.building.non_residential_sqft',
                 'urbansim_parcel.building.year_built',
+                'building.template_id',
+                'urbansim_parcel.building.building_sqft'
             ],
             exclude_condition = 'building.year_built<2015',
             ),
