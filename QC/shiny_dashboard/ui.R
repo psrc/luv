@@ -170,11 +170,11 @@ ui <- function(request) {
                                                             choices = list("All" = 1, "Single Family" = 2, "Multi-Family" = 3),
                                                             selected = 1)
                                                 ),
-                               # selectInput(inputId = "compare_select_year",
-                               #             label = "Year",
-                               #             choices = years,
-                               #             selected = tail(years, n=1)), #select the last element of years
-                               uiOutput("compare_select_year_ui"), # dynamic, lists years based on available years in alldt()
+                               selectInput(inputId = "compare_select_year",
+                                           label = "Year",
+                                           choices = years,
+                                           selected = tail(years, n=1)
+                                           ), 
                                br(),
                                helpText("Use the 'Box Select' or 'Lasso Select' option in the scatterplot to select
                                         points and view its location on the map.")
