@@ -16,6 +16,7 @@ attribute <- c("population", "households","employment", "residential_units")
 geography <- c( "zone", "faz", "city")
 # years <- c(2014, 2015, 2020, 2025, 2030, 2035, 2040)
 years <- seq(2014, 2040)
+luv.years <- c(2014, 2015, 2020, 2025, 2030, 2035, 2040)
 extension <- ".csv"
 
 trim <- function (x) gsub("^\\s+|\\s+$", "", x) # function for triming whitespace 
@@ -35,8 +36,8 @@ if(make) {
                Modelsrv8 = "/media/modelsrv8d/opusgit/urbansim_data/data/psrc_parcel/runs")
   # base <- list(Modelsrv3 = "//modelsrv3/e$/opusgit/urbansim_data/data/psrc_parcel/runs",
   #              Modelsrv8 = "//MODELSRV8/d$/opusgit/urbansim_data/data/psrc_parcel/runs")
-  # base <- list(Modelsrv3 = "/Volumes/e$/opusgit/urbansim_data/data/psrc_parcel/runs",
-  #             Modelsrv8 = "/Volumes/d$/opusgit/urbansim_data/data/psrc_parcel/runs")
+  base <- list(Modelsrv3 = "/Volumes/e$/opusgit/urbansim_data/data/psrc_parcel/runs",
+              Modelsrv8 = "/Volumes/d$/opusgit/urbansim_data/data/psrc_parcel/runs")
   # wrkdir <- "C:/Users/CLam/Desktop/luv/QC"
   wrkdir <- "/home/shiny/apps/luv/QC"
   #wrkdir <- "/Users/hana/ForecastProducts/LUV/QC"

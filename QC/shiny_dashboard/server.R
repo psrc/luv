@@ -621,9 +621,13 @@ server <- function(input, output, session) {
       } # end of geography loop
     } # end of runnames loop
     
+    # convert class of selected columns
+    logical.cols <- setdiff(years, luv.years) %>% paste0("yr", .) 
+    for (col in logical.cols) set(alldata.table, j = col, value = as.numeric(alldata.table[[col]]))
+    
     # where na in alldata.table fill with 0
     for(j in seq_along(alldata.table)){
-      set(alldata.table, i = which(is.na(alldata.table[[j]]) & is.numeric(alldata.table[[j]])), j = j, value = 0)
+      set(alldata.table, which(is.na(alldata.table[[j]])), j, 0)
     }
     
     return(alldata.table)
@@ -1315,21 +1319,23 @@ server <- function(input, output, session) {
   
 # Run Comparison Reactions ------------------------------------------------
 
-  output$compare_select_year_ui <- renderUI({
+  
+  # determine if all years available, and update available years in Run Comparison UI
+  observe({
     alldt <- alldt()
-    nacols <- colnames(alldt)[colSums(is.na(alldt)) > 0]
-    if (length(nacols) == 0) {
-      selectInput(inputId = "compare_select_year",
-                  label = "Year",
-                  choices = years,
-                  selected = tail(years, n=1)) #select the last element of years
-    } else {
-      selectInput(inputId = "compare_select_year",
-                  label = "Year",
-                  choices = c(2014, 2015, 2020, 2025, 2030, 2035, 2040),
-                  selected = tail(years, n=1)) #select the last element of years
+    
+    addn.yrs <- setdiff(years, luv.years) %>% paste0("yr", .)
+    dt1 <- alldt[(run == runname1() | run == cRun()), c("run", addn.yrs), with = FALSE]
+    dt2 <- dt1[, lapply(.SD, sum), by=run, .SDcols= addn.yrs]
+    dt3 <- dt2[, sumdt := rowSums(.SD), .SDcols = 2:ncol(dt2)][, .(run, sumdt)]
+    luv.yr.only <- nrow(dt3[dt3$sumdt == 0])
+    
+    if (luv.yr.only > 0) {
+      updateSelectInput(session,
+                        "compare_select_year",
+                        choices = luv.years,
+                        selected = tail(luv.years, 1))
     }
-
   })
   
   output$compare_select_run2_ui <- renderUI({
@@ -1384,11 +1390,11 @@ server <- function(input, output, session) {
            "singlefamily",
            "multifamily")
   })
-  
+
   cTable <- reactive({
     strdt <- strdt()
     alldt <- alldt()
-
+    
     if (is.null(cStructureType()) | cStructureType() == "All" | (cIndicator() %in% c("Total Population", "Employment"))){
       dt1 <- alldt[run == runname1() & geography == cGeog() & indicator == cIndicator(),
                    .(name_id, geography, indicator, get(cBaseYear()), get(cYear()))]
@@ -1472,28 +1478,6 @@ server <- function(input, output, session) {
 
 # Growth Reactions --------------------------------------------------------
 
-  
-   # output$growth_select_year_ui <- renderUI({
-   #   alldt <- alldt()
-   #   nacols <- colnames(alldt)[colSums(is.na(alldt)) > 0]
-   #   if (length(nacols) == 0) {
-   #     sliderInput(inputId = "growth_select_year",
-   #                 label = "Time Period",
-   #                 min = years[1],
-   #                 max = years[length(years)],
-   #                 value = c(years[1], years[length(years)]),
-   #                 step = 1,
-   #                 sep = "")
-   #   } else {
-   #     sliderInput(inputId = "growth_select_year",
-   #                 label = "Time Period",
-   #                 min = years[1],
-   #                 max = years[length(years)],
-   #                 value = c(2014,2040),
-   #                 step = 2,
-   #                 sep = "")
-   #   }
-   # })
   
    output$growth_select_run_ui <- renderUI({
      runs <- runs()
