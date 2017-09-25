@@ -1479,6 +1479,27 @@ server <- function(input, output, session) {
 # Growth Reactions --------------------------------------------------------
 
   
+  # determine if all years available, and update available years in Run Comparison UI
+  observe({
+    alldt <- alldt()
+    
+    addn.yrs <- setdiff(years, luv.years) %>% paste0("yr", .)
+    gdt1 <- alldt[run == gRun(), c("run", addn.yrs), with = FALSE]
+    gdt2 <- gdt1[, lapply(.SD, sum), by=run, .SDcols= addn.yrs]
+    gdt3 <- gdt2[, gsumdt := rowSums(.SD), .SDcols = 2:ncol(gdt2)][, .(run, gsumdt)]
+    gluv.yr.only <- nrow(gdt3[gdt3$gsumdt == 0])
+    
+    l <- floor(as.numeric(isolate(input$growth_select_year[1]))/5)*5
+    if (l == 2010) l <- 2014
+    h <- ceiling(as.numeric(isolate(input$growth_select_year[2]))/5)*5
+    
+    if (gluv.yr.only != 0){
+      updateSliderInput(session,
+                        "growth_select_year",
+                        value = c(l, h))
+    }
+  })
+  
    output$growth_select_run_ui <- renderUI({
      runs <- runs()
      selectInput(inputId = "growth_select_run",

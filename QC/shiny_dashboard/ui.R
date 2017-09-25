@@ -218,7 +218,6 @@ ui <- function(request) {
                                                              choices = list("All" = 1, "Single Family" = 2, "Multi-Family" = 3),
                                                              selected = 1)
                                                ),
-                               # uiOutput("growth_select_year_ui"),
                                sliderInput(inputId = "growth_select_year",
                                            label = "Time Period",
                                            min = years[1],
