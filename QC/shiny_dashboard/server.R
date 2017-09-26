@@ -1324,7 +1324,6 @@ server <- function(input, output, session) {
   observe({
     alldt <- alldt()
     
-    addn.yrs <- setdiff(years, luv.years) %>% paste0("yr", .)
     dt1 <- alldt[(run == runname1() | run == cRun()), c("run", addn.yrs), with = FALSE]
     dt2 <- dt1[, lapply(.SD, sum), by=run, .SDcols= addn.yrs]
     dt3 <- dt2[, sumdt := rowSums(.SD), .SDcols = 2:ncol(dt2)][, .(run, sumdt)]
@@ -1479,25 +1478,26 @@ server <- function(input, output, session) {
 # Growth Reactions --------------------------------------------------------
 
   
-  # determine if all years available, and update available years in Run Comparison UI
+  # determine if all years available, and update available years in Years Slider
   observe({
+    input$growth_select_year
     alldt <- alldt()
     
-    addn.yrs <- setdiff(years, luv.years) %>% paste0("yr", .)
     gdt1 <- alldt[run == gRun(), c("run", addn.yrs), with = FALSE]
     gdt2 <- gdt1[, lapply(.SD, sum), by=run, .SDcols= addn.yrs]
     gdt3 <- gdt2[, gsumdt := rowSums(.SD), .SDcols = 2:ncol(gdt2)][, .(run, gsumdt)]
     gluv.yr.only <- nrow(gdt3[gdt3$gsumdt == 0])
     
-    l <- floor(as.numeric(isolate(input$growth_select_year[1]))/5)*5
-    if (l == 2010) l <- 2014
-    h <- ceiling(as.numeric(isolate(input$growth_select_year[2]))/5)*5
-    
-    if (gluv.yr.only != 0){
-      updateSliderInput(session,
-                        "growth_select_year",
-                        value = c(l, h))
-    }
+    isolate({
+      if (gluv.yr.only != 0){
+        l <- floor(as.numeric(input$growth_select_year[1])/5)*5
+        if (l == 2010) l <- 2014
+        h <- ceiling(as.numeric(input$growth_select_year[2])/5)*5
+        updateSliderInput(session,
+                          "growth_select_year",
+                          value = c(l, h))
+      }
+    })
   })
   
    output$growth_select_run_ui <- renderUI({
@@ -1614,7 +1614,7 @@ server <- function(input, output, session) {
   output$growth_plot <- renderPlotly({
     if(!vars$submitted) return(NULL)
     gtable <- gTable()
-    if (is.null(gtable)) return(NULL)
+    if (is.null(gtable)| all(gtable$yr1 == 0) | all(gtable$yr2 == 0)) return(NULL)
     scatterplot(gtable, "growth", gtable$yr1, gtable$yr2, gYear.label1(), gYear.label2())
   })
 
@@ -1622,7 +1622,7 @@ server <- function(input, output, session) {
   output$growth_map <- renderLeaflet({
     if(!vars$submitted) return(NULL)
     gshape <- gShape()
-    if (is.null(gshape$diff)) return(NULL)
+    if (is.null(gshape$diff) | all(gshape$yr1 == 0) | all(gshape$yr2 == 0)) return(NULL)
     # Set up symbology and categorization
     colorBinResult <- map.colorBins(gshape$diff, input$growth_select_geography)
     pal <- colorBin(palette = colorBinResult$color, bins = colorBinResult$bin, domain=gshape$diff, pretty = FALSE)
