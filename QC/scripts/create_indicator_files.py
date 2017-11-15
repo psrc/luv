@@ -49,7 +49,47 @@ def get_indicators(cache_directory, run_description, years = range(2014,2041), b
            'HH_Total=faz.aggregate(urbansim_parcel.building.number_of_households, intermediates=[parcel])',
        ],
   ),
-	
+
+# # County MHS vacancy indicators - added 11.1.2017
+     DatasetTable (
+         source_data = source_data,
+         dataset_name = 'county',
+         name = 'eoy_vacancy_by_building_type',
+		 output_type = 'csv',
+         attributes = [
+			 'res_4_VR=numpy.true_divide(county.aggregate(urbansim_parcel.building.vacant_residential_units*(building.building_type_id==4)),county.aggregate(urbansim_parcel.building.residential_units*(building.building_type_id==4)))',
+			 'res_12_VR=numpy.true_divide(county.aggregate(urbansim_parcel.building.vacant_residential_units*(building.building_type_id==12)),county.aggregate(urbansim_parcel.building.residential_units*(building.building_type_id==12)))',
+			 'res_19_VR=numpy.true_divide(county.aggregate(urbansim_parcel.building.vacant_residential_units*(building.building_type_id==19)),county.aggregate(urbansim_parcel.building.residential_units*(building.building_type_id==19)))',
+			 'nonres_3_VR=numpy.true_divide(county.aggregate(psrc_parcel.building.vacant_non_home_based_job_space*(psrc_parcel.building.building_type_id==3)),county.aggregate(psrc_parcel.building.total_non_home_based_job_space*(psrc_parcel.building.building_type_id==3)))',
+			 'nonres_8_VR=numpy.true_divide(county.aggregate(psrc_parcel.building.vacant_non_home_based_job_space*(psrc_parcel.building.building_type_id==8)),county.aggregate(psrc_parcel.building.total_non_home_based_job_space*(psrc_parcel.building.building_type_id==8)))',
+			 'nonres_13_VR=numpy.true_divide(county.aggregate(psrc_parcel.building.vacant_non_home_based_job_space*(psrc_parcel.building.building_type_id==13)),county.aggregate(psrc_parcel.building.total_non_home_based_job_space*(psrc_parcel.building.building_type_id==13)))',
+			 'nonres_20_VR=numpy.true_divide(county.aggregate(psrc_parcel.building.vacant_non_home_based_job_space*(psrc_parcel.building.building_type_id==20)),county.aggregate(psrc_parcel.building.total_non_home_based_job_space*(psrc_parcel.building.building_type_id==20)))',
+			 'nonres_21_VR=numpy.true_divide(county.aggregate(psrc_parcel.building.vacant_non_home_based_job_space*(psrc_parcel.building.building_type_id==21)),county.aggregate(psrc_parcel.building.total_non_home_based_job_space*(psrc_parcel.building.building_type_id==21)))',
+		    ],
+         ),
+
+    DatasetTable (
+         source_data = source_data,
+         dataset_name = 'county',
+         name = 'units_and_nonres_sqft_by_building_type',
+		 output_type = 'csv',
+         attributes = [
+			 'res_4_units=county.aggregate(urbansim_parcel.building.residential_units*(building.building_type_id==4))',
+			 'res_12_units=county.aggregate(urbansim_parcel.building.residential_units*(building.building_type_id==12))',
+			 'res_19_units=county.aggregate(urbansim_parcel.building.residential_units*(building.building_type_id==19))',
+			 'nonres_3_spaces=county.aggregate(psrc_parcel.building.total_non_home_based_job_space*(psrc_parcel.building.building_type_id==3))',
+			 'nonres_8_spaces=county.aggregate(psrc_parcel.building.total_non_home_based_job_space*(psrc_parcel.building.building_type_id==8))',
+			 'nonres_13_spaces=county.aggregate(psrc_parcel.building.total_non_home_based_job_space*(psrc_parcel.building.building_type_id==13))',
+			 'nonres_20_spaces=county.aggregate(psrc_parcel.building.total_non_home_based_job_space*(psrc_parcel.building.building_type_id==20))',
+			 'nonres_21_spaces=county.aggregate(psrc_parcel.building.total_non_home_based_job_space*(psrc_parcel.building.building_type_id==21))',
+			 'nonres_3_sqft=county.aggregate(psrc_parcel.building.non_residential_sqft*(psrc_parcel.building.building_type_id==3))',
+			 'nonres_8_sqft=county.aggregate(psrc_parcel.building.non_residential_sqft*(psrc_parcel.building.building_type_id==8))',
+			 'nonres_13_sqft=county.aggregate(psrc_parcel.building.non_residential_sqft*(psrc_parcel.building.building_type_id==13))',
+			 'nonres_20_sqft=county.aggregate(psrc_parcel.building.non_residential_sqft*(psrc_parcel.building.building_type_id==20))',
+			 'nonres_21_sqft=county.aggregate(psrc_parcel.building.non_residential_sqft*(psrc_parcel.building.building_type_id==21))',
+			 ],
+         ),		 
+  
     # FAZ indicators 
     # =====================
     
