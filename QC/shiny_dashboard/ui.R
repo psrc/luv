@@ -367,6 +367,25 @@ ui <- function(request) {
                       ) # end fluidRow
                    ) # end fluidPage
            ), # end tabPanel
+           tabPanel("Vacancy",
+                    fluidPage(
+                      column(width = 2,
+                             h4(class="header", checked=NA, tags$b("Vacancy by County")),
+                             uiOutput("vacancy_select_run"),
+                             br(),
+                             uiOutput("vacancy_select_bldgtype"),
+                             br(),
+                             h6(class="header", checked=NA, tags$b("Building Type Key")),
+                             htmlOutput("vac_key")
+                      ), # end column
+                      column(width = 10,
+                             h5(class="header", checked=NA, tags$b("Units or Square Feet")),
+                             fluidRow(plotlyOutput("vacancy_estimate_plot", height = "400px")), # end fluidRow
+                             h5(class="header", checked=NA, tags$b("Rate")),
+                             fluidRow(plotlyOutput("vacancy_rate_plot", height = "400px"))# end fluidRow
+                      ) # end column
+                    ) # end fluidPage
+                    ), # end tabPanel
            fluid = TRUE
 )# end navbarPage
 )# end fluidPage

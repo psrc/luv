@@ -5,7 +5,22 @@ server <- function(input, output, session) {
   
   # remove all whitespaces
   remove.spaces <- function(x) gsub(" ", "", x, fixed = TRUE)
-
+  
+  # Creates a Plotly line graph for Vacancy tab
+  linegraph <- function(table, xcolumn, ycolumn, split) {
+    table %>%
+      plot_ly(x = ~xcolumn,
+              y = ~ycolumn,
+              color = ~split,
+              colors = "Dark2",
+              type = 'scatter',
+              mode = 'lines') %>%
+      layout(font = list(family = "Segoe UI", size = 12),
+             yaxis = list(title = ""),
+             xaxis = list(title = "Year")
+      )
+  }
+  
   # Creates a Plotly scatterplot. Requires reactive table, string source name and string x&y axis titles.
   scatterplot <- function(table, sourcename, xcolumn, ycolumn, xtitle, ytitle) {
     data <- table
@@ -903,8 +918,46 @@ server <- function(input, output, session) {
     return(gc.table)
 
   })
-
-
+  
+  # Build vacancy estimates/rates table
+  vacdt <- eventReactive(input$goButton,{
+    runnames <- runnames()
+    runs <- runs()
+    base.dir <- base.dir()
+    
+    vac.table <- NULL
+    dtype <- c("rate","estimate")
+    
+    for (d in 1:length(dtype)) {
+      for (r in 1:length(runnames)){
+        p <- switch(dtype[d], "rate" = "(\\w+_)*eoy_vacancy(_\\w+)*", "estimate" = "(\\w+_)*units_and_nonres_sqft(.)*")
+        vac.files <- list.files(file.path(base.dir, runnames[r], "indicators"), pattern = paste0(p, extension))
+        if (length(vac.files) > 0) {
+          for (v in 1:length(vac.files)) {
+            vac.tbl <- NULL
+            vac.file <- NULL
+            vac.file <- vac.files[v]
+            vac.tbl <- read.csv(file.path(base.dir, runnames[r],"indicators", vac.file), header = TRUE, sep = ",") %>% as.data.table()
+            if (dtype[d] == "estimate") {
+              vac.tbl.col <- colnames(vac.tbl)[grep(".*units$|.*sqft$", colnames(vac.tbl))]
+              vac.tbl <- vac.tbl[, c("county_id", eval(vac.tbl.col)), with = FALSE]
+            } 
+            vac.tbl1 <- melt.data.table(vac.tbl, id.vars = 1, measure.vars = c(2:ncol(vac.tbl)), variable.name = "building_type", value.name = "value")
+            vac.tbl1 <- vac.tbl1[, `:=`(year = str_extract(vac.file, "\\d+"), type = dtype[d], run = runs[r])]
+            ifelse(is.null(vac.table), vac.table <- vac.tbl1, vac.table <- rbind(vac.table, vac.tbl1))
+          } # end vac.files loop
+        } else {
+          next
+        } # end if/else
+      } # end dtype
+    } # end runnames
+    
+    colstr <- str_extract(vac.table$building_type, "(\\w+_\\d+)")
+    vac.table$building_type <- colstr
+    vac.table$county_id <- as.factor(vac.table$county_id)
+    return(vac.table)
+  })
+  
 # Data Ready Message ------------------------------------------------------
 
   
@@ -1995,6 +2048,57 @@ server <- function(input, output, session) {
 
   })
 
+# Vacancy Reactions and Rendering -----------------------------------------
+
+  output$vacancy_select_run <- renderUI({
+    if (is.null(vacdt())) return(NULL)
+    vacdt <- vacdt()
+    # browser()
+    select.runs <- unique(vacdt[, run])
+    selectInput(inputId = "vac_select_run",
+                label = "Run",
+                choices = select.runs)
+  })
+  
+  output$vacancy_select_bldgtype <- renderUI({
+    if (is.null(vacdt())) return(NULL)
+    vacdt <- vacdt()
+    select.runs <- unique(vacdt[, building_type])
+    selectInput(inputId = "vac_select_bldgtype",
+                label = "Building Type",
+                choices = select.runs)
+  })
+  
+  output$vac_key <- renderUI({
+    HTML(paste("Res_4: Condo", "<br/>",
+               "Res_12: Multi-Family", "<br/>",
+               "Res_19: Single Family", "<br/>",
+               "Nonres_3: Commercial","<br/>",
+               "Nonres_8: Industrial","<br/>",
+               "Nonres_13: Office","<br/>",
+               "Nonres_20: TCU","<br/>",
+               "Nonres_21: Warehouse"
+               )
+         )  
+  })
+  
+  vTable <- reactive({
+    vacdt <- vacdt()
+    vacdt[run == input$vac_select_run & building_type == input$vac_select_bldgtype,]
+  })
+  
+  output$vacancy_estimate_plot <- renderPlotly({
+    vTable <- vTable() 
+    v <- vTable[type == "estimate", ]
+    p <- linegraph(v, v$year, v$value, v$county_id)
+  })
+  
+  output$vacancy_rate_plot <- renderPlotly({
+    vTable <- vTable() 
+    v <- vTable[type == "rate", ]
+    p <- linegraph(v, v$year, v$value, v$county_id)
+  })
+  
   outputOptions(output, 'strdtavail', suspendWhenHidden = FALSE)
   outputOptions(output, 'gstrdtavail', suspendWhenHidden = FALSE)
 }# end server function
