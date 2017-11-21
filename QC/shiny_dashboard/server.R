@@ -867,11 +867,12 @@ server <- function(input, output, session) {
       }
     }
     
-    my.dt[colnames(sectorJobs.table)[1:(ncol(sectorJobs.table)-2)]] <- 0
-    my.dt <- my.dt %>% as.data.table()
+    if (!is.null(my.dt)) {
+      my.dt[colnames(sectorJobs.table)[1:(ncol(sectorJobs.table)-2)]] <- 0
+      my.dt <- my.dt %>% as.data.table()
+      sectorJobs.table <- rbindlist(list(sectorJobs.table, my.dt), use.names = TRUE, fill = TRUE)
+    }
     
-    sectorJobs.table <- rbindlist(list(sectorJobs.table, my.dt), use.names = TRUE, fill = TRUE)
-
     sj <- melt.data.table(sectorJobs.table, id.vars = c("run", "year"), measure.vars = colnames(sectorJobs.table)[1:(ncol(sectorJobs.table)-2)])
     setnames(sj, colnames(sj), c("run", "year", "sector", "estimate"))
     return(sj)
