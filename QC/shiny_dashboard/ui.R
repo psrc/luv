@@ -12,12 +12,11 @@ ui <- function(request) {
                                 tags$b("Select the following to view or update Dashboard content")
                              ),
                              br(),
-                             selectInput(inputId = "init_select_server",
-                                         label = "Server",
-                                         choices = structure(c(1:length(base)), names=names(base))
-                             ),
-                             uiOutput("init_select_run1"), # dynamic, lists runs based on selected modelsrv
-                             uiOutput("init_select_run2all"), # dynamic, lists runs based on selected modelsrv
+                             selectizeInput(inputId = "init_select_allruns",
+                                            label = "Select Runs (minimum 2)",
+                                            choices = allruns,
+                                            width = "100%",
+                                            multiple = TRUE),
                              uiOutput("init_select_resultsdir"), # dynamic, lists dirs in QC/results
                              br(),
                              actionButton("goButton", "Submit"),
