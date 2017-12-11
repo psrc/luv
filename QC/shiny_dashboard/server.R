@@ -502,29 +502,8 @@ server <- function(input, output, session) {
                          runs = NULL
                          )
   
-  base.dir <- reactive({
-          base[[as.integer(input$init_select_server)]]
-  })
-  
-  output$init_select_run1 <- renderUI({
-    select.run1 <- list.dirs(base.dir(), full.names = FALSE, recursive = FALSE)
-    selectInput(inputId = "select_run1",
-                label = "Run 1",
-                choices = select.run1,
-                width = "100%")
-  })
-  
-  output$init_select_run2all <- renderUI({
-    select.run2all <- list.dirs(base.dir(), full.names = FALSE, recursive = FALSE)
-    # new.select.run2all <- setdiff(select.run2all, selectRun1())
-    selectInput(inputId = "select_run2all",
-                label = "Run 2 (select one or more)",
-                choices = select.run2all,
-                #selected = new.select.run2all[1],
-                multiple = TRUE,
-                width = "100%")
-  })
-  
+  base.dir <- reactive({input$init_select_allruns})
+
   output$init_select_resultsdir <- renderUI({
     select.resultsdir <- list.files(file.path(wrkdir, "results"))
     selectInput(inputId = "select_resultsdir",
@@ -567,13 +546,12 @@ server <- function(input, output, session) {
   observeEvent(input$goButton, {
     if(length(input$select_resultsdir) == 0) return()
     if (!(file.exists(subdir))) dir.create(subdir)
- 
     vars$result.dir <- file.path(wrkdir, "results", input$select_resultsdir)
-    vars$select_run1 <- input$select_run1
-    vars$select_run2all <- input$select_run2all
-    vars$runnames <-  c(input$select_run1, input$select_run2all)
-    vars$runname1 <- unlist(strsplit(input$select_run1,"[.]"))[[1]]
-    vars$runnames2 <- sapply(strsplit(input$select_run2all,"[.]"), function(x) x[1])  
+    vars$select_run1 <- str_extract(input$init_select_allruns[1], "runs/(.*)") %>% str_split("/") %>% unlist %>% .[2]
+    vars$select_run2all <- lapply(input$init_select_allruns[2:length(input$init_select_allruns)], function(x) str_extract(x, "runs/(.*)") %>% str_split("/") %>% unlist %>% .[2]) %>% unlist
+    vars$runnames <-  c(vars$select_run1, vars$select_run2all)
+    vars$runname1 <- unlist(strsplit(vars$select_run1,"[.]"))[[1]]
+    vars$runnames2 <- sapply(strsplit(vars$select_run2all,"[.]"), function(x) x[1])
     vars$runs <- c(vars$runname1, unlist(vars$runnames2))
     
     result.dir <- resultsDir()
@@ -606,9 +584,8 @@ server <- function(input, output, session) {
   alldt <- eventReactive(input$goButton,{
     runnames <- runnames()
     runs <- runs()
-    # browser()
     base.dir <- base.dir()
-    
+    # browser()
     # ititialize alldata.table
     alldata.table <- data.frame(matrix(ncol = 31, nrow = 0))
     new.alldata.table.colnames <- c("name_id", paste0("yr", seq(2014, 2040)), "indicator", "geography", "run")
@@ -619,7 +596,7 @@ server <- function(input, output, session) {
       for (a in 1:length(geography)){
         for (i in 1:length(attribute)){
           filename <- paste0(geography[a],'__',"table",'__',attribute[i], extension)
-          datatable <- read.csv(file.path(base.dir, runnames[r],"indicators",filename), header = TRUE, sep = ",")
+          datatable <- read.csv(file.path(base.dir[r], "indicators",filename), header = TRUE, sep = ",")
           colnames(datatable)[2: ncol(datatable)] <- str_replace(colnames(datatable)[2: ncol(datatable)], '\\w+_', 'yr') # rename columns
           colnames(datatable)[1] <- str_replace(colnames(datatable)[1], '\\w+_', 'name_')
           datatable$indicator <- switch(attribute[i],
@@ -652,16 +629,17 @@ server <- function(input, output, session) {
   strdt <- eventReactive(input$goButton,{
     runnames <- runnames()
     runs <- runs()
-    
+    base.dir <- base.dir()
+   
     stypedt <- NULL
     for (r in 1:length(runnames)){
-      structure.files <- as.list(list.files(file.path(base.dir(), runnames[r], "indicators"), 
+      structure.files <- as.list(list.files(file.path(base.dir[r], "indicators"), 
                                             pattern = 'dataset_table__DU_and_HH_by_bld_type_by(_)*(\\w+)*(_)*(\\d+)*\\.tab'))
       if (length(structure.files) > 0){
         for (f in 1:length(structure.files)){
           geo <- str_extract(structure.files[f], "^(\\w+)__dataset") %>% strsplit("__") %>% unlist()
           yr <- str_extract(structure.files[f], "(\\d+)")  
-          dt0 <- read.table(file.path(base.dir(), runnames[r], 'indicators', structure.files[f]), header = T, sep = "\t", fill = TRUE) %>% as.data.table()
+          dt0 <- read.table(file.path(base.dir[r], 'indicators', structure.files[f]), header = T, sep = "\t", fill = TRUE) %>% as.data.table()
           setnames(dt0, colnames(dt0), str_match(colnames(dt0), "(\\w+_\\w+)[^_^\\d+]")[,1])
           setnames(dt0, colnames(dt0)[1], "name_id")
           dt <- melt.data.table(dt0, id.vars = colnames(dt0)[1], measure.vars = colnames(dt0)[2:ncol(dt0)], variable.name = "description", value.name = "estimate")
@@ -673,10 +651,12 @@ server <- function(input, output, session) {
         next
       } # end conditional
     } # end runnames loop
+    
     dt1 <- stypedt[, multifamily := MF + CO][, singlefamily := Total - multifamily]
     dt2 <- melt.data.table(dt1, id.vars = colnames(dt1)[1:5], measure.vars = colnames(dt1)[(ncol(dt1)-1):ncol(dt1)], variable.name = 'strtype', value.name = "estimate")
     ind.name <- c("HH" = "Households", "DU" = "Residential Units")
     dt2$indicator <- ind.name[dt2$indicator]
+    
     return(dt2)
   })
   
@@ -684,6 +664,7 @@ server <- function(input, output, session) {
   demogdt <- eventReactive(input$goButton,{
     runnames <- runnames()
     runs <- runs()
+    base.dir <- base.dir()
   
     demog.indicators <- list(agegroup = "5year_age_groups__\\d+",
                              agegroup_intr = "age_groups_of_interest__\\d+",
@@ -696,11 +677,11 @@ server <- function(input, output, session) {
 
     for (r in 1:length(runnames)){
       for (d in 1:length(demog.indicators)){
-        demog.files <- as.list(list.files(file.path(base.dir(), runnames[r], "indicators"), pattern = paste0(demog.indicators[[d]], extension)))
+        demog.files <- as.list(list.files(file.path(base.dir[r], "indicators"), pattern = paste0(demog.indicators[[d]], extension)))
         if (length(demog.files) > 0){
           for (f in 1:length(demog.files)){
             year <- str_match(demog.files[f] , "(\\d+){4}")[,1]
-            datafile <- read.csv(file.path(base.dir(), runnames[r], "indicators", demog.files[f]), header = TRUE, sep = ",")
+            datafile <- read.csv(file.path(base.dir[r], "indicators", demog.files[f]), header = TRUE, sep = ",")
             table <- transpose(datafile)
             names(table) <- "estimate"
             table$year <- year
@@ -751,6 +732,7 @@ server <- function(input, output, session) {
   capdt <- eventReactive(input$goButton,{
     runnames <- runnames()
     runs <- runs()
+    base.dir <- base.dir()
     
     cap.geography <- c(geography, "growth_center")
     cap.type <- c("max_dev", "max_dev_nonresidential", "max_dev_residential")
@@ -758,13 +740,13 @@ server <- function(input, output, session) {
     cap.table <- NULL
 
     for (r in 1:length(runnames)){
-      cap.files <- as.list(list.files(file.path(base.dir(), runnames[r], "indicators"), pattern = paste0("max_dev(_\\w+)*", extension)))
+      cap.files <- as.list(list.files(file.path(base.dir[r], "indicators"), pattern = paste0("max_dev(_\\w+)*", extension)))
       if (length(cap.files) >= 1){
         for (g in 1:length(cap.geography)){
           for (c in 1:length(cap.type)){
             cap.tbl <- NULL
             cap.file <- paste0(cap.geography[g], '__table__', cap.type[c], "_capacity", extension)
-            cap.tbl <- read.csv(file.path(base.dir(), runnames[r],"indicators", cap.file), header = TRUE, sep = ",")
+            cap.tbl <- read.csv(file.path(base.dir[r],"indicators", cap.file), header = TRUE, sep = ",")
             cap.tbl$captype <- switch(cap.type[c],
                                       "max_dev"="Total",
                                       "max_dev_nonresidential"="Non-Residential",
@@ -790,6 +772,7 @@ server <- function(input, output, session) {
   devdt <- eventReactive(input$goButton,{
     runnames <- runnames()
     runs <- runs()
+    base.dir <- base.dir()
     
     cap.geography <- c(geography, "growth_center")
     dev.type <- c("residential_units", "building_sqft", "nonres_sqft")
@@ -797,13 +780,13 @@ server <- function(input, output, session) {
     dev.dt <- NULL
     
     for (r in 1:length(runnames)){
-      dev.files <- as.list(list.files(file.path(base.dir(), runnames[r], "indicators"), pattern = paste0("sqft", extension)))
+      dev.files <- as.list(list.files(file.path(base.dir[r], "indicators"), pattern = paste0("sqft", extension)))
       if (length(dev.files) >= 1){
         for (g in 1:length(cap.geography)){
           for (d in 1:length(dev.type)){
             dev.tbl <- NULL
             dev.file <- paste0(cap.geography[g], '__table__', dev.type[d], extension)
-            dev.tbl <- fread(file.path(base.dir(), runnames[r],"indicators", dev.file), header = TRUE)
+            dev.tbl <- fread(file.path(base.dir[r],"indicators", dev.file), header = TRUE)
             dev.tbl.m <- melt(dev.tbl, id.vars = c(paste0(cap.geography[g], "_id")), measure.vars = names(dev.tbl)[2:ncol(dev.tbl)])
             dev.tbl.m[, `:=` (devtype = switch(dev.type[d],
                                                "residential_units" = "Residential Units",
@@ -836,10 +819,9 @@ server <- function(input, output, session) {
     
     sectorJobs.table <- NULL
     for (r in 1:length(runnames)) {
-      sectorJobs.file <- list.files(file.path(base.dir, runnames[r], "indicators"), pattern = paste0(sectorJobs.pat, extension))
+      sectorJobs.file <- list.files(file.path(base.dir[r], "indicators"), pattern = paste0(sectorJobs.pat, extension))
       for (f in 1:length(sectorJobs.file)){
-        # table <- NULL
-        table <- read.csv(file.path(base.dir, runnames[r], "indicators", sectorJobs.file[f]), header = TRUE, sep = ",")
+        table <- read.csv(file.path(base.dir[r], "indicators", sectorJobs.file[f]), header = TRUE, sep = ",")
         col.sum <- apply(table, 2, sum)
         sectorJobs.df <- transpose(data.frame(col.sum))
         colnames(sectorJobs.df) <- colnames(table)
@@ -893,7 +875,7 @@ server <- function(input, output, session) {
     for (r in 1:length(runnames)) {
       for (i in 1:length(attribute)){
         filename <- paste0('growth_center__table','__',attribute[i], extension)
-        datatable <- read.csv(file.path(base.dir, runnames[r],"indicators",filename), header = TRUE, sep = ",")
+        datatable <- read.csv(file.path(base.dir[r],"indicators",filename), header = TRUE, sep = ",")
         colnames(datatable)[2:ncol(datatable)] <- str_replace(colnames(datatable)[2: ncol(datatable)], '\\w+_', 'yr') # rename columns
         colnames(datatable)[1] <- str_replace(colnames(datatable)[1], '\\w+_', 'name_')
         datatable$indicator <- switch(attribute[i],
@@ -932,13 +914,13 @@ server <- function(input, output, session) {
     for (d in 1:length(dtype)) {
       for (r in 1:length(runnames)){
         p <- switch(dtype[d], "rate" = "(\\w+_)*eoy_vacancy(_\\w+)*", "estimate" = "(\\w+_)*units_and_nonres_sqft(.)*")
-        vac.files <- list.files(file.path(base.dir, runnames[r], "indicators"), pattern = paste0(p, extension))
+        vac.files <- list.files(file.path(base.dir[r], "indicators"), pattern = paste0(p, extension))
         if (length(vac.files) > 0) {
           for (v in 1:length(vac.files)) {
             vac.tbl <- NULL
             vac.file <- NULL
             vac.file <- vac.files[v]
-            vac.tbl <- read.csv(file.path(base.dir, runnames[r],"indicators", vac.file), header = TRUE, sep = ",") %>% as.data.table()
+            vac.tbl <- read.csv(file.path(base.dir[r],"indicators", vac.file), header = TRUE, sep = ",") %>% as.data.table()
             if (dtype[d] == "estimate") {
               vac.tbl.col <- colnames(vac.tbl)[grep(".*units$|.*sqft$", colnames(vac.tbl))]
               vac.tbl <- vac.tbl[, c("county_id", eval(vac.tbl.col)), with = FALSE]
@@ -984,14 +966,18 @@ server <- function(input, output, session) {
   })
   
   output$ts_desc <- renderText({
+    base.dir <- base.dir()
     filename <- "Description.txt"
-    desc.file <- readLines(file.path(base.dir(), selectRun1(),"indicators", filename), warn = FALSE)
+    # desc.file <- readLines(file.path(base.dir(), selectRun1(),"indicators", filename), warn = FALSE)
+    desc.file <- readLines(file.path(base.dir[1],"indicators", filename), warn = FALSE)
     paste("<b>Description</b>:", desc.file)
   })
   
   output$ts_rest <- renderText({
+    base.dir <- base.dir()
     filename <- "Restrictions.txt"
-    desc.file <- readLines(file.path(base.dir(), selectRun1(),"indicators", filename), warn = FALSE)
+    # desc.file <- readLines(file.path(base.dir(), selectRun1(),"indicators", filename), warn = FALSE)
+    desc.file <- readLines(file.path(base.dir[1],"indicators", filename), warn = FALSE)
     paste("<b>Restrictions</b>:", desc.file)
   })
   
@@ -1377,7 +1363,7 @@ server <- function(input, output, session) {
   # determine if all years available, and update available years in Run Comparison UI
   observe({
     alldt <- alldt()
-    
+
     dt1 <- alldt[(run == runname1() | run == cRun()), c("run", addn.yrs), with = FALSE]
     dt2 <- dt1[, lapply(.SD, sum), by=run, .SDcols= addn.yrs]
     dt3 <- dt2[, sumdt := rowSums(.SD), .SDcols = 2:ncol(dt2)][, .(run, sumdt)]

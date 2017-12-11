@@ -32,12 +32,14 @@ if(make) {
   result.name <- Sys.getenv('QC_NAME')
   wrkdir <- file.path(Sys.getenv('QC_SCRIPT_PATH'), "..")
 } else {
-  base <- list(Modelsrv3 = "/media/modelsrv3e/opusgit/urbansim_data/data/psrc_parcel/runs",
+  base <- list(Modelsrv6 = "/media/modelsrv6d/opusgit/urbansim_data/data/psrc_parcel/runs",
                Modelsrv8 = "/media/modelsrv8d/opusgit/urbansim_data/data/psrc_parcel/runs",
-               Modelsrv6 = "/media/modelsrv6d/opusgit/urbansim_data/data/psrc_parcel/runs")
-  # base <- list(Modelsrv3 = "//modelsrv3/e$/opusgit/urbansim_data/data/psrc_parcel/runs",
+               Modelsrv3 = "/media/modelsrv3e/opusgit/urbansim_data/data/psrc_parcel/runs"
+              )
+  # base <- list(Modelsrv6 = "//modelsrv6/d$/opusgit/urbansim_data/data/psrc_parcel/runs",
   #              Modelsrv8 = "//MODELSRV8/d$/opusgit/urbansim_data/data/psrc_parcel/runs",
-  #              Modelsrv6 = "//modelsrv6/D$/opusgit/urbansim_data/data/psrc_parcel/runs")
+  #              Modelsrv3 = "//modelsrv3/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
+  #              )
   # base <- list(Modelsrv3 = "/Volumes/e$/opusgit/urbansim_data/data/psrc_parcel/runs",
   #             Modelsrv8 = "/Volumes/d$/opusgit/urbansim_data/data/psrc_parcel/runs")
   # wrkdir <- "C:/Users/CLam/Desktop/luv/QC"
@@ -46,6 +48,16 @@ if(make) {
 }
 
 dsn <- file.path(wrkdir, "data")
+
+# scan all modelservers for runs and setnames
+allruns <- list()
+for (b in 1:length(base)) {
+  fdirlist <- list.dirs(base[[b]], full.names = TRUE, recursive = FALSE)
+  ndirlist <- list.dirs(base[[b]], full.names = FALSE, recursive = FALSE)
+  dirlist <- setNames(fdirlist, ndirlist)
+  allruns[[length(allruns)+1]] <- dirlist
+}
+names(allruns) <- names(base) %>% toupper
 
 # lookup tables and shape names
 faz.lookup <- read.table(file.path(dsn, "faz_names.txt"), header =TRUE, sep = "\t")
