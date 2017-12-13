@@ -587,8 +587,8 @@ server <- function(input, output, session) {
     base.dir <- base.dir()
     # browser()
     # ititialize alldata.table
-    alldata.table <- data.frame(matrix(ncol = 31, nrow = 0))
-    new.alldata.table.colnames <- c("name_id", paste0("yr", seq(2014, 2040)), "indicator", "geography", "run")
+    alldata.table <- data.frame(matrix(ncol = length(years) + 4, nrow = 0)) #31
+    new.alldata.table.colnames <- c("name_id", paste0("yr", years), "indicator", "geography", "run") #seq(2014, 2040)
     colnames(alldata.table) <- new.alldata.table.colnames
     alldata.table <- alldata.table %>% as.data.table()
     
@@ -867,8 +867,8 @@ server <- function(input, output, session) {
     base.dir <- base.dir()
     
     # initialize growctr.table
-    growctr.table <- data.frame(matrix(ncol = 30, nrow = 0))
-    new.growctr.table.colnames <- c("name_id", paste0("yr", seq(2014, 2040)), "indicator", "run")
+    growctr.table <- data.frame(matrix(ncol = length(years) + 3, nrow = 0)) #30
+    new.growctr.table.colnames <- c("name_id", paste0("yr", years), "indicator", "run") #seq(2014, 2040)
     colnames(growctr.table) <- new.growctr.table.colnames
     growctr.table <- growctr.table %>% as.data.table()
     
@@ -968,7 +968,6 @@ server <- function(input, output, session) {
   output$ts_desc <- renderText({
     base.dir <- base.dir()
     filename <- "Description.txt"
-    # desc.file <- readLines(file.path(base.dir(), selectRun1(),"indicators", filename), warn = FALSE)
     desc.file <- readLines(file.path(base.dir[1],"indicators", filename), warn = FALSE)
     paste("<b>Description</b>:", desc.file)
   })
@@ -976,7 +975,6 @@ server <- function(input, output, session) {
   output$ts_rest <- renderText({
     base.dir <- base.dir()
     filename <- "Restrictions.txt"
-    # desc.file <- readLines(file.path(base.dir(), selectRun1(),"indicators", filename), warn = FALSE)
     desc.file <- readLines(file.path(base.dir[1],"indicators", filename), warn = FALSE)
     paste("<b>Restrictions</b>:", desc.file)
   })
