@@ -14,7 +14,7 @@ enableBookmarking(store = "server")
 # environment inputs
 attribute <- c("population", "households","employment", "residential_units")
 geography <- c( "zone", "faz", "city")
-years <- seq(2014, 2040)
+years <- seq(2014, 2050) #2040
 luv.years <- c(2014, 2015, 2020, 2025, 2030, 2035, 2040)
 addn.yrs <- setdiff(years, luv.years) %>% paste0("yr", .)
 extension <- ".csv"
