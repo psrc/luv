@@ -69,9 +69,9 @@ ui <- function(request) {
                                                    DT::dataTableOutput('tpsht_emp'),
                                                    br(),
                                                    
-                                                   h4(class="header", checked=NA, tags$b("Jobs by Sector")),
-                                                   DT::dataTableOutput('tpsht_jobs'),
-                                                   br(),
+                                                   # h4(class="header", checked=NA, tags$b("Jobs by Sector")),
+                                                   # DT::dataTableOutput('tpsht_jobs'),
+                                                   # br(),
                                                    
                                                    h4(class="header", checked=NA, tags$b("Worker Type")),
                                                    DT::dataTableOutput('tpsht_pwtype'),
