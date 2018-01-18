@@ -1,1 +1,220 @@
-faz_id	Name110	Tillicum / American Lakes Gardens120	Steilacoom area / Ketron 135	Lakes 136	Fort Steilacoom205	Monte Vista / Flett 206	Lakewood area / Ponders Corner 315	Parkland 325	Midland 405	Spanaway / Lake Park 505	Frederickson / Berkeley 506	Thun Field 605	Clover Creek 606	South Hill 705	Orting / Prairie Ridge 706	Buckley / S. Prairie / Wilkeson / Carbonado area805	Bonney Lake area806	Lake Tapps / Dieringer 900	Sumner area1000	Lidford 1115	Summit 1116	Puyallup CBD 1120	Wildwood / Shaw Road 1130	North Puyallup1200	Milton area / Edgewood area1310	Fern Hill 1320	Lincoln 1330	Mckinley / Portland 1410	Orchard / Manitou 1420	Tacoma Mall / South Tacoma1505	Fircrest area1506	University Park / Menlo Park1605	West End 1606	Ruston / Point Defiance 1710	Central 1720	North Tacoma area1810	Tacoma CBD / Union Station1820	Tacoma CBD / Stadium 1900	Port Of Tacoma 2000	Fife area2100	Northeast Tacoma area2215	Fox Island / Tacoma Airport2216	Purdy / Rosedale / Arletta2225	Gig Harbor area2910	East Pierce County 2925	Roy area2926	Graham area2927	Eatonville / Ashford / Elbe area2935	Fort Lewis / McChord 2936	Dupont area2940	Key Peninsula / Islands 3010	Twin Lakes 3020	Central Federal Way 3030	Lakeland 3045	Redondo / Woodmont 3046	Des Moines area3110	Algona area / Pacific area3120	Auburn South 3130	Auburn North 3200	Enumclaw Plateau 3310	Black Diamond / Lake Sawyer3320	Covington area / Timberlane 3330	Maple Valley area / Hobart 3413	Lake Youngs 3414	Kentridge 3415	Panther Lake 3416	Fairwood 3425	Lake Heights 3426	Southwest Soos Creek 3427	Lake Meridian 3505	Kent CBD / Kent East Hill 3600	Kent Industrial 3705	Sea-Tac area3706	Normandy Park area3815	Burien area / Seahurst 3816	White Center / Shorewood 3825	Boulevard Park 3900	South Tukwila 3905	North Tukwila / Riverton 4005	Skyway / Bryn Mawr 4110	Renton Industrial 4120	Renton Highlands 4130	Renton Airport / CBD 4210	East Renton 4225	Cougar Mountain 4226	Newport Hills 4230	Renton Plateau 4300	Issaquah area4400	Mercer Island4505	South Bellevue 4506	Eastgate / Vasa Park 4605	Klahanie / Pine Lake 4606	Sahalee 4607	Beaver Lake 4706	North Bear Creek 4810	West Bellevue 4820	Northwest Bellevue 4900	Bellevue CBD 5010	Central Bellevue 5020	East Bellevue / Lake Hills5100	Point Cities area5205	North  Bellevue 5305	Kirkland area / Houghton 5306	Kirkland area / Totem Lake 5415	Redmond area / Overlake 5425	Redmond CBD 5426	Redmond area / Union Hill 5515	Juanita / Finn Hill 5525	Norway Hill / North Kingsgate5535	Kenmore area / Inglewood 5545	Kingsgate / Hollywood Hill5546	Woodinville area5600	Bothell area5715	Fauntleroy / Arbor Heights5716	Delridge / Highland Park 5720	Alki / Admiral 5815	Lower Duwamish / Boeing Field5825	Industrial District 5826	Upper Duwamish / Harbor Island5915	Rainier Beach 5916	South Beacon Hill / Columbia5925	North Beacon Hill / Mount Baker6010	Seattle CBD 6020	Denny Regrade 6113	First Hill / Broadway 6114	East Capitol Hill / Central Area6115	North Capitol Hill / Madison Park6123	Lake Union / Seattle Center6124	Queen Anne 6125	Interbay 6126	Magnolia 6213	Wallingford / Fremont 6214	University Of Washington 6215	Ravenna / University District6216	Windermere / Laurelhurst 6223	Lake City 6224	Green Lake 6225	Northgate 6226	Wedgewood / View Ridge 6316	Ballard 6325	Greenwood / Crown Hill 6326	Broadview / Haller Lake 6410	Richmond Highlands 6420	North City 6505	Fall City area / Preston area6506	North Bend area / Snoqualmie area6605	Duvall area6606	Carnation area6900	Cumberland / Southeast King County6910	East King County 6930	Vashon Island 7015	Woodway area / Esperance 7025	Edmonds South 7026	Edmonds North 7100	Mountlake Terrace area7205	Lynnwood West 7206	Lynnwood East 7315	Brier area7316	Hilltop 7320	North Creek 7335	Mill Creek area / Silver Lake 7340	Eastmont 7415	Canyon Park 7425	Clearview / Silver Firs / Snohomish Cascade7435	Maltby / High Bridge 7436	Cathcart 7515	Alderwood Mall 7525	Lake Serene / Norma Beach 7526	Harbour Pointe 7535	Swamp Creek 7537	Paine Field 7605	South Snohomish Valley 7606	North Snohomish Valley 7700	Snohomish area7805	Machias / Cavalero Corner 7806	Fobes Hill 7905	Lake Stevens area / Frontier Village8000	Mukilteo area / Southwest Everett8115	Everett Mall 8125	Forest Park / Beverly Park8126	Pinehurst / Lowell 8210	Everett CBD 8220	North Everett 8310	Marysville area8320	North Marysville / Smokey Point8405	Getchell Hill 8406	Sisco Heights 8500	Arlington area8600	Monroe area 8905	Meadow Lake / Woods Creek 8906	Three Lakes 8910	Skykomish Valley 8925	Granite Falls area8926	Oso / Darrington area8927	Bryant 8935	Stanwood area8936	Lakewood / Warm Beach 8937	Tulalip 9002	Port Orchard area9004	Gorst / Burley / Glenwood 9005	Gold Mountain / Holly 9006	Seabeck / Olympic View 9009	Keyport / Brownsville 9011	Poulsbo area9015	Southworth / Manchester 9016	Ollala 9017	Erlands Point / Chico 9018	Silverdale area9019	Port Gamble area / Suquamish 9020	Kingston area9900	Sheridan 9901	Kitsap Lake 9902	West Bremerton / CBD 9904	Manette / View Ridge 9908	Bangor 9909	Clear Creek 9913	Winslow area9914	Bainbridge Island (rest of island)9915	Tracyton 9916	Illahee 
+"faz_id"	"Name"	"LARGE_AREA"	"County"
+110	"Tillicum / American Lakes Gardens"	"SW Pierce"	"Pierce"
+120	"Steilacoom area / Ketron "	"SW Pierce"	"Pierce"
+135	"Lakes "	"SW Pierce"	"Pierce"
+136	"Fort Steilacoom"	"SW Pierce"	"Pierce"
+205	"Monte Vista / Flett "	"SW Pierce"	"Pierce"
+206	"Lakewood area / Ponders Corner "	"SW Pierce"	"Pierce"
+315	"Parkland "	"Pierce Other"	"Pierce"
+325	"Midland "	"Pierce Other"	"Pierce"
+405	"Spanaway / Lake Park "	"Pierce Other"	"Pierce"
+505	"Frederickson / Berkeley "	"Pierce Other"	"Pierce"
+506	"Thun Field "	"Pierce Other"	"Pierce"
+605	"Clover Creek "	"Pierce Other"	"Pierce"
+606	"South Hill "	"Pierce Other"	"Pierce"
+705	"Orting / Prairie Ridge "	"Pierce Other"	"Pierce"
+706	"Buckley / S. Prairie / Wilkeson / Carbonado area"	"Pierce Other"	"Pierce"
+805	"Bonney Lake area"	"Pierce Other"	"Pierce"
+806	"Lake Tapps / Dieringer "	"Pierce Other"	"Pierce"
+900	"Sumner area"	"Pierce Other"	"Pierce"
+1000	"Lidford "	"Pierce Other"	"Pierce"
+1115	"Summit "	"Pierce Other"	"Pierce"
+1116	"Puyallup CBD "	"Pierce Other"	"Pierce"
+1120	"Wildwood / Shaw Road "	"Pierce Other"	"Pierce"
+1130	"North Puyallup"	"Pierce Other"	"Pierce"
+1200	"Milton area / Edgewood area"	"Pierce Other"	"Pierce"
+1310	"Fern Hill "	"Tacoma"	"Pierce"
+1320	"Lincoln "	"Tacoma"	"Pierce"
+1330	"Mckinley / Portland "	"Tacoma"	"Pierce"
+1410	"Orchard / Manitou "	"Tacoma"	"Pierce"
+1420	"Tacoma Mall / South Tacoma"	"Tacoma"	"Pierce"
+1505	"Fircrest area"	"SW Pierce"	"Pierce"
+1506	"University Park / Menlo Park"	"SW Pierce"	"Pierce"
+1605	"West End "	"Tacoma"	"Pierce"
+1606	"Ruston / Point Defiance "	"Tacoma"	"Pierce"
+1710	"Central "	"Tacoma"	"Pierce"
+1720	"North Tacoma area"	"Tacoma"	"Pierce"
+1810	"Tacoma CBD / Union Station"	"Tacoma"	"Pierce"
+1820	"Tacoma CBD / Stadium "	"Tacoma"	"Pierce"
+1900	"Port Of Tacoma "	"Tacoma"	"Pierce"
+2000	"Fife area"	"Tacoma"	"Pierce"
+2100	"Northeast Tacoma area"	"Tacoma"	"Pierce"
+2215	"Fox Island / Tacoma Airport"	"Peninsula"	"Pierce"
+2216	"Purdy / Rosedale / Arletta"	"Peninsula"	"Pierce"
+2225	"Gig Harbor area"	"Peninsula"	"Pierce"
+2910	"East Pierce County "	"Pierce Other"	"Pierce"
+2925	"Roy area"	"Pierce Other"	"Pierce"
+2926	"Graham area"	"Pierce Other"	"Pierce"
+2927	"Eatonville / Ashford / Elbe area"	"Pierce Other"	"Pierce"
+2935	"Fort Lewis / McChord "	"SW Pierce"	"Pierce"
+2936	"Dupont area"	"SW Pierce"	"Pierce"
+2940	"Key Peninsula / Islands "	"Peninsula"	"Pierce"
+3010	"Twin Lakes "	"SW King"	"King"
+3020	"Central Federal Way "	"SW King"	"King"
+3030	"Lakeland "	"SW King"	"King"
+3045	"Redondo / Woodmont "	"SW King"	"King"
+3046	"Des Moines area"	"SW King"	"King"
+3110	"Algona area / Pacific area"	"Green River"	"King"
+3120	"Auburn South "	"Green River"	"King"
+3130	"Auburn North "	"Green River"	"King"
+3200	"Enumclaw Plateau "	"SE King"	"King"
+3310	"Black Diamond / Lake Sawyer"	"SE King"	"King"
+3320	"Covington area / Timberlane "	"SE King"	"King"
+3330	"Maple Valley area / Hobart "	"SE King"	"King"
+3413	"Lake Youngs "	"SE King"	"King"
+3414	"Kentridge "	"SE King"	"King"
+3415	"Panther Lake "	"SE King"	"King"
+3416	"Fairwood "	"SE King"	"King"
+3425	"Lake Heights "	"SE King"	"King"
+3426	"Southwest Soos Creek "	"SE King"	"King"
+3427	"Lake Meridian "	"SE King"	"King"
+3505	"Kent CBD / Kent East Hill "	"Green River"	"King"
+3600	"Kent Industrial "	"Green River"	"King"
+3705	"Sea-Tac area"	"SW King"	"King"
+3706	"Normandy Park area"	"SW King"	"King"
+3815	"Burien area / Seahurst "	"SW King"	"King"
+3816	"White Center / Shorewood "	"SW King"	"King"
+3825	"Boulevard Park "	"SW King"	"King"
+3900	"South Tukwila "	"Green River"	"King"
+3905	"North Tukwila / Riverton "	"Green River"	"King"
+4005	"Skyway / Bryn Mawr "	"Green River"	"King"
+4110	"Renton Industrial "	"Green River"	"King"
+4120	"Renton Highlands "	"Green River"	"King"
+4130	"Renton Airport / CBD "	"Green River"	"King"
+4210	"East Renton "	"SE King"	"King"
+4225	"Cougar Mountain "	"Eastside King"	"King"
+4226	"Newport Hills "	"Eastside King"	"King"
+4230	"Renton Plateau "	"SE King"	"King"
+4300	"Issaquah area"	"Eastside King"	"King"
+4400	"Mercer Island"	"Eastside King"	"King"
+4505	"South Bellevue "	"Eastside King"	"King"
+4506	"Eastgate / Vasa Park "	"Eastside King"	"King"
+4605	"Klahanie / Pine Lake "	"Eastside King"	"King"
+4606	"Sahalee "	"Eastside King"	"King"
+4607	"Beaver Lake "	"Eastside King"	"King"
+4706	"North Bear Creek "	"Eastside King"	"King"
+4810	"West Bellevue "	"Eastside King"	"King"
+4820	"Northwest Bellevue "	"Eastside King"	"King"
+4900	"Bellevue CBD "	"Eastside King"	"King"
+5010	"Central Bellevue "	"Eastside King"	"King"
+5020	"East Bellevue / Lake Hills"	"Eastside King"	"King"
+5100	"Point Cities area"	"Eastside King"	"King"
+5205	"North  Bellevue "	"Eastside King"	"King"
+5305	"Kirkland area / Houghton "	"Eastside King"	"King"
+5306	"Kirkland area / Totem Lake "	"Eastside King"	"King"
+5415	"Redmond area / Overlake "	"Eastside King"	"King"
+5425	"Redmond CBD "	"Eastside King"	"King"
+5426	"Redmond area / Union Hill "	"Eastside King"	"King"
+5515	"Juanita / Finn Hill "	"Eastside King"	"King"
+5525	"Norway Hill / North Kingsgate"	"Eastside King"	"King"
+5535	"Kenmore area / Inglewood "	"Eastside King"	"King"
+5545	"Kingsgate / Hollywood Hill"	"Eastside King"	"King"
+5546	"Woodinville area"	"Eastside King"	"King"
+5600	"Bothell area"	"Eastside King"	"King"
+5715	"Fauntleroy / Arbor Heights"	"Seattle"	"King"
+5716	"Delridge / Highland Park "	"Seattle"	"King"
+5720	"Alki / Admiral "	"Seattle"	"King"
+5815	"Lower Duwamish / Boeing Field"	"Seattle"	"King"
+5825	"Industrial District "	"Seattle"	"King"
+5826	"Upper Duwamish / Harbor Island"	"Seattle"	"King"
+5915	"Rainier Beach "	"Seattle"	"King"
+5916	"South Beacon Hill / Columbia"	"Seattle"	"King"
+5925	"North Beacon Hill / Mount Baker"	"Seattle"	"King"
+6010	"Seattle CBD "	"Seattle"	"King"
+6020	"Denny Regrade "	"Seattle"	"King"
+6113	"First Hill / Broadway "	"Seattle"	"King"
+6114	"East Capitol Hill / Central Area"	"Seattle"	"King"
+6115	"North Capitol Hill / Madison Park"	"Seattle"	"King"
+6123	"Lake Union / Seattle Center"	"Seattle"	"King"
+6124	"Queen Anne "	"Seattle"	"King"
+6125	"Interbay "	"Seattle"	"King"
+6126	"Magnolia "	"Seattle"	"King"
+6213	"Wallingford / Fremont "	"Seattle"	"King"
+6214	"University Of Washington "	"Seattle"	"King"
+6215	"Ravenna / University District"	"Seattle"	"King"
+6216	"Windermere / Laurelhurst "	"Seattle"	"King"
+6223	"Lake City "	"Seattle"	"King"
+6224	"Green Lake "	"Seattle"	"King"
+6225	"Northgate "	"Seattle"	"King"
+6226	"Wedgewood / View Ridge "	"Seattle"	"King"
+6316	"Ballard "	"Seattle"	"King"
+6325	"Greenwood / Crown Hill "	"Seattle"	"King"
+6326	"Broadview / Haller Lake "	"Seattle"	"King"
+6410	"Richmond Highlands "	"Shoreline"	"King"
+6420	"North City "	"Shoreline"	"King"
+6505	"Fall City area / Preston area"	"King Other"	"King"
+6506	"North Bend area / Snoqualmie area"	"King Other"	"King"
+6605	"Duvall area"	"King Other"	"King"
+6606	"Carnation area"	"King Other"	"King"
+6900	"Cumberland / Southeast King County"	"King Other"	"King"
+6910	"East King County "	"King Other"	"King"
+6930	"Vashon Island "	"SW King"	"King"
+7015	"Woodway area / Esperance "	"SW Snohomish"	"Snohomish"
+7025	"Edmonds South "	"SW Snohomish"	"Snohomish"
+7026	"Edmonds North "	"SW Snohomish"	"Snohomish"
+7100	"Mountlake Terrace area"	"SW Snohomish"	"Snohomish"
+7205	"Lynnwood West "	"SW Snohomish"	"Snohomish"
+7206	"Lynnwood East "	"SW Snohomish"	"Snohomish"
+7315	"Brier area"	"SW Snohomish"	"Snohomish"
+7316	"Hilltop "	"SW Snohomish"	"Snohomish"
+7320	"North Creek "	"SW Snohomish"	"Snohomish"
+7335	"Mill Creek area / Silver Lake "	"SW Snohomish"	"Snohomish"
+7340	"Eastmont "	"SW Snohomish"	"Snohomish"
+7415	"Canyon Park "	"SW Snohomish"	"Snohomish"
+7425	"Clearview / Silver Firs / Snohomish Cascade"	"SW Snohomish"	"Snohomish"
+7435	"Maltby / High Bridge "	"SW Snohomish"	"Snohomish"
+7436	"Cathcart "	"SW Snohomish"	"Snohomish"
+7515	"Alderwood Mall "	"SW Snohomish"	"Snohomish"
+7525	"Lake Serene / Norma Beach "	"SW Snohomish"	"Snohomish"
+7526	"Harbour Pointe "	"SW Snohomish"	"Snohomish"
+7535	"Swamp Creek "	"SW Snohomish"	"Snohomish"
+7537	"Paine Field "	"Everett"	"Snohomish"
+7605	"South Snohomish Valley "	"Everett"	"Snohomish"
+7606	"North Snohomish Valley "	"Everett"	"Snohomish"
+7700	"Snohomish area"	"Everett"	"Snohomish"
+7805	"Machias / Cavalero Corner "	"Everett"	"Snohomish"
+7806	"Fobes Hill "	"Everett"	"Snohomish"
+7905	"Lake Stevens area / Frontier Village"	"Everett"	"Snohomish"
+8000	"Mukilteo area / Southwest Everett"	"Everett"	"Snohomish"
+8115	"Everett Mall "	"Everett"	"Snohomish"
+8125	"Forest Park / Beverly Park"	"Everett"	"Snohomish"
+8126	"Pinehurst / Lowell "	"Everett"	"Snohomish"
+8210	"Everett CBD "	"Everett"	"Snohomish"
+8220	"North Everett "	"Everett"	"Snohomish"
+8310	"Marysville area"	"Everett"	"Snohomish"
+8320	"North Marysville / Smokey Point"	"Everett"	"Snohomish"
+8405	"Getchell Hill "	"Everett"	"Snohomish"
+8406	"Sisco Heights "	"Everett"	"Snohomish"
+8500	"Arlington area"	"Everett"	"Snohomish"
+8600	"Monroe area "	"Snohomish Other"	"Snohomish"
+8905	"Meadow Lake / Woods Creek "	"Snohomish Other"	"Snohomish"
+8906	"Three Lakes "	"Snohomish Other"	"Snohomish"
+8910	"Skykomish Valley "	"Snohomish Other"	"Snohomish"
+8925	"Granite Falls area"	"Snohomish Other"	"Snohomish"
+8926	"Oso / Darrington area"	"Snohomish Other"	"Snohomish"
+8927	"Bryant "	"NW Snohomish"	"Snohomish"
+8935	"Stanwood area"	"NW Snohomish"	"Snohomish"
+8936	"Lakewood / Warm Beach "	"NW Snohomish"	"Snohomish"
+8937	"Tulalip "	"NW Snohomish"	"Snohomish"
+9002	"Port Orchard area"	"South Kitsap"	"Kitsap"
+9004	"Gorst / Burley / Glenwood "	"South Kitsap"	"Kitsap"
+9005	"Gold Mountain / Holly "	"Central Kitsap"	"Kitsap"
+9006	"Seabeck / Olympic View "	"Central Kitsap"	"Kitsap"
+9009	"Keyport / Brownsville "	"Central Kitsap"	"Kitsap"
+9011	"Poulsbo area"	"North Kitsap"	"Kitsap"
+9015	"Southworth / Manchester "	"South Kitsap"	"Kitsap"
+9016	"Ollala "	"South Kitsap"	"Kitsap"
+9017	"Erlands Point / Chico "	"Central Kitsap"	"Kitsap"
+9018	"Silverdale area"	"Central Kitsap"	"Kitsap"
+9019	"Port Gamble area / Suquamish "	"North Kitsap"	"Kitsap"
+9020	"Kingston area"	"North Kitsap"	"Kitsap"
+9900	"Sheridan "	"Central Kitsap"	"Kitsap"
+9901	"Kitsap Lake "	"Central Kitsap"	"Kitsap"
+9902	"West Bremerton / CBD "	"Central Kitsap"	"Kitsap"
+9904	"Manette / View Ridge "	"Central Kitsap"	"Kitsap"
+9908	"Bangor "	"Central Kitsap"	"Kitsap"
+9909	"Clear Creek "	"Central Kitsap"	"Kitsap"
+9913	"Winslow area"	"North Kitsap"	"Kitsap"
+9914	"Bainbridge Island (rest of island)"	"North Kitsap"	"Kitsap"
+9915	"Tracyton "	"Central Kitsap"	"Kitsap"
+9916	"Illahee "	"Central Kitsap"	"Kitsap"

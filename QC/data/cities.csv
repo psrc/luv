@@ -1,141 +1,141 @@
-city_id,city_name,county_id,county_id_fips
-49,Snohomish-Rural,61,61
-94,Lynnwood,61,61
-95,Everett,61,61
-96,Brier,61,61
-97,Brier MUGA,61,61
-98,Edmonds,61,61
-99,Meadowdale Gap MUGA,61,61
-100,Mill Creek,61,61
-101,Mountlake Terrace,61,61
-102,Lynnwood MUGA,61,61
-103,Mill Creek MUGA,61,61
-104,Larch Way Overlap MUGA,61,61
-105,Bothell MUGA,61,61
-106,Marysville,61,61
-107,Lake Stickney Gap,61,61
-108,Mukilteo MUGA,61,61
-109,Everett MUGA,61,61
-110,Monroe,61,61
-111,Arlington,61,61
-112,Snohomish,61,61
-113,Lake Stevens,61,61
-114,Sultan,61,61
-115,Woodway,61,61
-116,Darrington,61,61
-117,Gold Bar UGA,61,61
-118,Edmonds MUGA,61,61
-119,Mountlake Terrace MUGA,61,61
-120,Mukilteo,61,61
-121,Marysville UGA,61,61
-122,Lake Stevens UGA,61,61
-123,Stanwood,61,61
-124,Arlington UGA,61,61
-125,Monroe UGA,61,61
-126,Snohomish UGA,61,61
-127,Silver Firs Gap MUGA,61,61
-128,Gold Bar,61,61
-129,Granite Falls,61,61
-130,Stanwood UGA,61,61
-131,Index,61,61
-132,Maltby UGA,61,61
-133,Granite Falls UGA,61,61
-134,PAINE FIELD AREA,61,61
-135,Sultan UGA,61,61
-136,Woodway MUGA,61,61
-137,Darrington UGA,61,61
-139,Bothell,61,61
-1,Normandy Park,33,33
-2,Auburn,33,33
-3,King-Rural,33,33
-4,Sea Tac,33,33
-5,Shoreline,33,33
-6,Renton PAA,33,33
-7,Kent,33,33
-8,Tukwila,33,33
-9,Seattle,33,33
-10,Kent PAA,33,33
-11,North Highline,33,33
-12,Renton,33,33
-13,Bellevue,33,33
-14,Kirkland,33,33
-15,Redmond,33,33
-16,Covington,33,33
-17,Enumclaw,33,33
-18,Des Moines,33,33
-19,Mercer Island,33,33
-20,Federal Way,33,33
-21,Sammamish,33,33
-22,Issaquah,33,33
-23,Burien,33,33
-24,Sammamish PAA,33,33
-25,Federal Way PAA,33,33
-26,Kenmore,33,33
-27,Duvall,33,33
-28,Bothell,33,33
-30,Woodinville,33,33
-31,Algona,33,33
-32,North Bend,33,33
-33,Lake Forest Park,33,33
-34,Redmond PAA,33,33
-35,Black Diamond,33,33
-36,Newcastle PAA,33,33
-37,Snoqualmie,33,33
-38,Bear Creek UPD,33,33
-39,Pacific,33,33
-40,Tukwila PAA,33,33
-41,Clyde Hill,33,33
-42,Maple Valley,33,33
-43,Newcastle,33,33
-44,Issaquah PAA,33,33
-45,Black Diamond PAA,33,33
-47,Yarrow Point,33,33
-48,Hunts Point,33,33
-50,Medina,33,33
-51,Beaux Arts,33,33
-52,Skykomish,33,33
-46,UUU,33,33
-54,Milton,33,33
-55,Carnation,33,33
-57,Milton PAA,33,33
-58,Bellevue PAA,33,33
-60,Auburn PAA,33,33
-61,Pacific PAA,33,33
-62,Seattle PAA,33,33
-63,Kitsap-Rural,35,35
-64,Port Orchard,35,35
-65,Bremerton,35,35
-66,Bremerton UGA,35,35
-67,Port Orchard UGA,35,35
-68,Central Kitsap UGA,35,35
-69,Bainbridge Island,35,35
-70,Silverdale,35,35
-71,Poulsbo,35,35
-72,Poulsbo PUTA,35,35
-73,Kingston UGA,35,35
-29,Pierce-Rural,53,53
-53,UU,53,53
-59,Tacoma,53,53
-74,Steilacoom,53,53
-75,JBLM,53,53
-76,DuPont,53,53
-77,Gig Harbor,53,53
-78,Roy,53,53
-79,Lakewood,53,53
-80,University Place,53,53
-81,Fircrest,53,53
-82,Ruston,53,53
-83,Fife,53,53
-84,Eatonville,53,53
-85,Puyallup,53,53
-86,Orting,53,53
-87,Edgewood,53,53
-88,Sumner,53,53
-89,Bonney Lake,53,53
-90,South Prairie,53,53
-91,Carbonado,53,53
-92,Buckley,53,53
-93,Wilkeson,53,53
-138,Auburn,53,53
-141,Milton,53,53
-142,Pacific,53,53
+"city_id","city_name","county_id","county_id_fips","County"
+1,"Normandy Park",33,33,"King"
+2,"Auburn",33,33,"King"
+3,"King-Rural",33,33,"King"
+4,"Sea Tac",33,33,"King"
+5,"Shoreline",33,33,"King"
+6,"Renton PAA",33,33,"King"
+7,"Kent",33,33,"King"
+8,"Tukwila",33,33,"King"
+9,"Seattle",33,33,"King"
+10,"Kent PAA",33,33,"King"
+11,"North Highline",33,33,"King"
+12,"Renton",33,33,"King"
+13,"Bellevue",33,33,"King"
+14,"Kirkland",33,33,"King"
+15,"Redmond",33,33,"King"
+16,"Covington",33,33,"King"
+17,"Enumclaw",33,33,"King"
+18,"Des Moines",33,33,"King"
+19,"Mercer Island",33,33,"King"
+20,"Federal Way",33,33,"King"
+21,"Sammamish",33,33,"King"
+22,"Issaquah",33,33,"King"
+23,"Burien",33,33,"King"
+24,"Sammamish PAA",33,33,"King"
+25,"Federal Way PAA",33,33,"King"
+26,"Kenmore",33,33,"King"
+27,"Duvall",33,33,"King"
+28,"Bothell",33,33,"King"
+29,"Pierce-Rural",53,53,"Pierce"
+30,"Woodinville",33,33,"King"
+31,"Algona",33,33,"King"
+32,"North Bend",33,33,"King"
+33,"Lake Forest Park",33,33,"King"
+34,"Redmond PAA",33,33,"King"
+35,"Black Diamond",33,33,"King"
+36,"Newcastle PAA",33,33,"King"
+37,"Snoqualmie",33,33,"King"
+38,"Bear Creek UPD",33,33,"King"
+39,"Pacific",33,33,"King"
+40,"Tukwila PAA",33,33,"King"
+41,"Clyde Hill",33,33,"King"
+42,"Maple Valley",33,33,"King"
+43,"Newcastle",33,33,"King"
+44,"Issaquah PAA",33,33,"King"
+45,"Black Diamond PAA",33,33,"King"
+46,"UUU",33,33,"King"
+47,"Yarrow Point",33,33,"King"
+48,"Hunts Point",33,33,"King"
+49,"Snohomish-Rural",61,61,"Snohomish"
+50,"Medina",33,33,"King"
+51,"Beaux Arts",33,33,"King"
+52,"Skykomish",33,33,"King"
+53,"UU",53,53,"Pierce"
+54,"Milton",33,33,"King"
+55,"Carnation",33,33,"King"
+57,"Milton PAA",33,33,"King"
+58,"Bellevue PAA",33,33,"King"
+59,"Tacoma",53,53,"Pierce"
+60,"Auburn PAA",33,33,"King"
+61,"Pacific PAA",33,33,"King"
+62,"Seattle PAA",33,33,"King"
+63,"Kitsap-Rural",35,35,"Kitsap"
+64,"Port Orchard",35,35,"Kitsap"
+65,"Bremerton",35,35,"Kitsap"
+66,"Bremerton UGA",35,35,"Kitsap"
+67,"Port Orchard UGA",35,35,"Kitsap"
+68,"Central Kitsap UGA",35,35,"Kitsap"
+69,"Bainbridge Island",35,35,"Kitsap"
+70,"Silverdale",35,35,"Kitsap"
+71,"Poulsbo",35,35,"Kitsap"
+72,"Poulsbo PUTA",35,35,"Kitsap"
+73,"Kingston UGA",35,35,"Kitsap"
+74,"Steilacoom",53,53,"Pierce"
+75,"JBLM",53,53,"Pierce"
+76,"DuPont",53,53,"Pierce"
+77,"Gig Harbor",53,53,"Pierce"
+78,"Roy",53,53,"Pierce"
+79,"Lakewood",53,53,"Pierce"
+80,"University Place",53,53,"Pierce"
+81,"Fircrest",53,53,"Pierce"
+82,"Ruston",53,53,"Pierce"
+83,"Fife",53,53,"Pierce"
+84,"Eatonville",53,53,"Pierce"
+85,"Puyallup",53,53,"Pierce"
+86,"Orting",53,53,"Pierce"
+87,"Edgewood",53,53,"Pierce"
+88,"Sumner",53,53,"Pierce"
+89,"Bonney Lake",53,53,"Pierce"
+90,"South Prairie",53,53,"Pierce"
+91,"Carbonado",53,53,"Pierce"
+92,"Buckley",53,53,"Pierce"
+93,"Wilkeson",53,53,"Pierce"
+94,"Lynnwood",61,61,"Snohomish"
+95,"Everett",61,61,"Snohomish"
+96,"Brier",61,61,"Snohomish"
+97,"Brier MUGA",61,61,"Snohomish"
+98,"Edmonds",61,61,"Snohomish"
+99,"Meadowdale Gap MUGA",61,61,"Snohomish"
+100,"Mill Creek",61,61,"Snohomish"
+101,"Mountlake Terrace",61,61,"Snohomish"
+102,"Lynnwood MUGA",61,61,"Snohomish"
+103,"Mill Creek MUGA",61,61,"Snohomish"
+104,"Larch Way Overlap MUGA",61,61,"Snohomish"
+105,"Bothell MUGA",61,61,"Snohomish"
+106,"Marysville",61,61,"Snohomish"
+107,"Lake Stickney Gap",61,61,"Snohomish"
+108,"Mukilteo MUGA",61,61,"Snohomish"
+109,"Everett MUGA",61,61,"Snohomish"
+110,"Monroe",61,61,"Snohomish"
+111,"Arlington",61,61,"Snohomish"
+112,"Snohomish",61,61,"Snohomish"
+113,"Lake Stevens",61,61,"Snohomish"
+114,"Sultan",61,61,"Snohomish"
+115,"Woodway",61,61,"Snohomish"
+116,"Darrington",61,61,"Snohomish"
+117,"Gold Bar UGA",61,61,"Snohomish"
+118,"Edmonds MUGA",61,61,"Snohomish"
+119,"Mountlake Terrace MUGA",61,61,"Snohomish"
+120,"Mukilteo",61,61,"Snohomish"
+121,"Marysville UGA",61,61,"Snohomish"
+122,"Lake Stevens UGA",61,61,"Snohomish"
+123,"Stanwood",61,61,"Snohomish"
+124,"Arlington UGA",61,61,"Snohomish"
+125,"Monroe UGA",61,61,"Snohomish"
+126,"Snohomish UGA",61,61,"Snohomish"
+127,"Silver Firs Gap MUGA",61,61,"Snohomish"
+128,"Gold Bar",61,61,"Snohomish"
+129,"Granite Falls",61,61,"Snohomish"
+130,"Stanwood UGA",61,61,"Snohomish"
+131,"Index",61,61,"Snohomish"
+132,"Maltby UGA",61,61,"Snohomish"
+133,"Granite Falls UGA",61,61,"Snohomish"
+134,"PAINE FIELD AREA",61,61,"Snohomish"
+135,"Sultan UGA",61,61,"Snohomish"
+136,"Woodway MUGA",61,61,"Snohomish"
+137,"Darrington UGA",61,61,"Snohomish"
+138,"Auburn",53,53,"Pierce"
+139,"Bothell",61,61,"Snohomish"
+141,"Milton",53,53,"Pierce"
+142,"Pacific",53,53,"Pierce"

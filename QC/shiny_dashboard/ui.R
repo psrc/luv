@@ -179,11 +179,18 @@ ui <- function(request) {
                                         points and view its location on the map.")
                         ), # end column
                         column(width = 5,
-                               plotlyOutput("compare_plot", height = "925px")
+                               plotlyOutput("compare_plot", height = "725px")
                         ), # end column
                         column(width = 5,
-                               leafletOutput("compare_map", height = "925px")
+                               leafletOutput("compare_map", height = "725px")
                         ) # end column
+                      ), # end fluidRow
+                      br(),
+                      fluidRow(
+                        column(width = 2),
+                        column(width = 10,
+                               DT::dataTableOutput('compare_dt')
+                               ) # end column
                       ) # end fluidRow
 
                     ) # end fluidPage
@@ -229,10 +236,17 @@ ui <- function(request) {
                                         points and view its location on the map.")
                         ), # end column
                         column(width = 5,
-                               plotlyOutput("growth_plot", height = "925px")
+                               plotlyOutput("growth_plot", height = "725px")
                         ), # end column
                         column(width = 5,
-                               leafletOutput("growth_map", height = "925px")
+                               leafletOutput("growth_map", height = "725px")
+                        ) # end column
+                      ), # end fluidRow
+                      br(),
+                      fluidRow(
+                        column(width = 2),
+                        column(width = 10,
+                               DT::dataTableOutput('growth_dt')
                         ) # end column
                       ) # end fluidRow
                     ) # end fluidPage
