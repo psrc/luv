@@ -490,6 +490,29 @@ server <- function(input, output, session) {
       formatStyle(colnames(table)[c(2,7)],
                   backgroundColor = 'AliceBlue')
   }
+  
+  create.DT.generic <- function(table) {
+    datatable(table,
+              extensions = 'Buttons',
+              class = 'cell-border stripe',
+              options = list(dom = 'Bfrtip',
+                             buttons = list('copy',
+                                            list(extend = 'excel',
+                                                 buttons = 'excel',
+                                                 filename = 'LUVQCDashboard')),
+                             initComplete = JS(
+                               "function(settings, json) {",
+                               "$(this.api().table().header()).css({'font-size': '15px'});",
+                               "}"),
+                             paging = TRUE,
+                             pageLength = 150,
+                             searching = TRUE,
+                             scrollY = '450px'
+              )
+    ) %>%
+      formatStyle(colnames(table)[1:ncol(table)],
+                  `font-size` = '13px')
+  }
 
 
 # Bookmarking State -------------------------------------------------------
@@ -625,8 +648,8 @@ server <- function(input, output, session) {
     base.dir <- base.dir()
     # browser()
     # ititialize alldata.table
-    alldata.table <- data.frame(matrix(ncol = length(years) + 4, nrow = 0)) #31
-    new.alldata.table.colnames <- c("name_id", paste0("yr", years), "indicator", "geography", "run") #seq(2014, 2040)
+    alldata.table <- data.frame(matrix(ncol = length(years) + 4, nrow = 0)) 
+    new.alldata.table.colnames <- c("name_id", paste0("yr", years), "indicator", "geography", "run") 
     colnames(alldata.table) <- new.alldata.table.colnames
     alldata.table <- alldata.table %>% as.data.table()
     
@@ -1520,8 +1543,8 @@ server <- function(input, output, session) {
       dt <- merge(dt1, dt2, by = 'name_id')
     } else {
       dt1 <- strdt[run == runname1() & geography == cGeog() & (year == year[1] | year == input$compare_select_year) & indicator == cIndicator() & strtype == cStructureType()]
-      dt1.cast <- dcast.data.table(dt1, name_id ~ year, value.var = "estimate")
-      setnames(dt1.cast, colnames(dt1.cast)[2:3], c('baseyr', 'estrun1'))
+      dt1.cast <- dcast.data.table(dt1, name_id + indicator + geography ~ year, value.var = "estimate")
+      setnames(dt1.cast, colnames(dt1.cast)[4:5], c('baseyr', 'estrun1'))
       dt2 <- strdt[run == cRun() & geography == cGeog() & year == input$compare_select_year & indicator == cIndicator() & strtype == cStructureType()]
       dt2.cast <- dcast.data.table(dt2, name_id ~ year, value.var = "estimate")
       setnames(dt2.cast, colnames(dt2.cast)[2], 'estrun2')
@@ -1560,6 +1583,22 @@ server <- function(input, output, session) {
     runname2.trim <- sapply(strsplit(cRun(),"[.]"), function(x) x[1])
     ctable <- cTable()
     scatterplot(ctable, "compare", ctable$estrun1, ctable$estrun2, runname1(), runname2.trim)
+  })
+  
+  output$compare_dt <- renderDataTable({
+    if(!vars$submitted) return(NULL)
+    if (is.null(cRun())) return(NULL)
+    runname2.trim <- sapply(strsplit(cRun(),"[.]"), function(x) x[1])
+    select.year <- str_extract(cYear(), "\\d+")
+    
+    ctable0 <- cTable()
+    ctable <- ctable0[, .(County, indicator, geography, name_id, Name, baseyr, estrun1, estrun2, diff)]
+    setnames(ctable, c("County", "Indicator", "Geography", "ID", "Name",
+                         paste0("Baseyear_", years[1]), 
+                         paste0(runname1(), "_", select.year), 
+                         paste0(runname2.trim, "_", select.year), 
+                         "Difference"))
+    create.DT.generic(ctable) 
   })
   
   # Leaflet
@@ -1695,8 +1734,9 @@ server <- function(input, output, session) {
                    .(name_id, geography, run, indicator, get(gYear[1]), get(gYear[2]))]
        setnames(dt, c(dt[,ncol(dt)-1], dt[,ncol(dt)]), c('yr1', 'yr2'))
      } else {
-       dt1 <- strdt[run == gRun() & geography == gGeog() & indicator == gIndicator() & strtype == gStructureType() & (year == get(gYear0[1]) | year == get(gYear0[2])),
+       dt1 <- strdt[run == gRun() & geography == gGeog() & indicator == gIndicator() & strtype == gStructureType() & (year == gYear0[1] | year == gYear0[2]),
                    .(name_id, geography, run, indicator, strtype, year, estimate)]
+       
        dt <- dcast.data.table(dt1, name_id + geography + run + indicator ~ year, value.var = "estimate")
        setnames(dt, colnames(dt)[(ncol(dt)-1):ncol(dt)], c('yr1', 'yr2'))
      }  
@@ -1732,6 +1772,18 @@ server <- function(input, output, session) {
     gtable <- gTable()
     if (is.null(gtable)| all(gtable$yr1 == 0) | all(gtable$yr2 == 0)) return(NULL)
     scatterplot(gtable, "growth", gtable$yr1, gtable$yr2, gYear.label1(), gYear.label2())
+  })
+   
+  output$growth_dt <- renderDataTable({
+    if(!vars$submitted) return(NULL)
+    gtable0 <- gTable()
+    if (is.null(gtable0)| all(gtable0$yr1 == 0) | all(gtable0$yr2 == 0)) return(NULL)
+    gtable <- gtable0[, .(run, County, indicator, geography, name_id, Name, yr1, yr2, diff)]
+    setnames(gtable, c("Run", "County", "Indicator", "Geography", "ID", "Name",
+                        gYear.label1(),
+                        gYear.label2(),
+                        "Growth"))
+    create.DT.generic(gtable) 
   })
 
   # Leaflet
