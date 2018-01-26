@@ -646,7 +646,7 @@ server <- function(input, output, session) {
     runnames <- runnames()
     runs <- runs()
     base.dir <- base.dir()
-    # browser()
+    
     # ititialize alldata.table
     alldata.table <- data.frame(matrix(ncol = length(years) + 4, nrow = 0)) 
     new.alldata.table.colnames <- c("name_id", paste0("yr", years), "indicator", "geography", "run") 
@@ -871,55 +871,48 @@ server <- function(input, output, session) {
   })
   
   # Build Jobs by Sector table
-  # jobsectdt <- eventReactive(input$goButton,{
-  #   runnames <- runnames()
-  #   runs <- runs()
-  #   base.dir <- base.dir()
-  #   
-  #   sectorJobs.pat <- "census_tract__dataset_table__employment_by_aggr_sector__\\d+"
-  #   
-  #   sectorJobs.table <- NULL
-  #   for (r in 1:length(runnames)) {
-  #     sectorJobs.file <- list.files(file.path(base.dir[r], "indicators"), pattern = paste0(sectorJobs.pat, extension))
-  #     for (f in 1:length(sectorJobs.file)){
-  #       table <- read.csv(file.path(base.dir[r], "indicators", sectorJobs.file[f]), header = TRUE, sep = ",")
-  #       col.sum <- apply(table, 2, sum)
-  #       sectorJobs.df <- transpose(data.frame(col.sum))
-  #       colnames(sectorJobs.df) <- colnames(table)
-  #       sectorJobs.df$run <- runs[r]
-  #       sectorJobs.df$census_tract_id <- NULL
-  #       sectorJobs.df$year <- str_match(sectorJobs.file[f], "(\\d+){4}")[,1]
-  #       ifelse(is.null(sectorJobs.table), sectorJobs.table <- sectorJobs.df, sectorJobs.table  <- rbind(sectorJobs.table, sectorJobs.df))
-  #     } # end sectorJobs.file loop
-  #   } # end runnames loop
-  #   
-  #   sectorJobs.table <- as.data.table(sectorJobs.table)
-  #   
-  #   my.dt <-NULL
-  #   # create separate table for non-luv years
-  #   for (rn in runs){
-  #     missing.yrs <- setdiff(years, sectorJobs.table[run == rn, year]) %>% as.vector
-  #     if (length(missing.yrs) == 0) {
-  #       next
-  #     } else {
-  #       missyr.df <- data.frame(matrix(ncol = 2, nrow=length(missing.yrs)))
-  #       colnames(missyr.df) <- c("run", "year")
-  #       missyr.df$year <- missing.yrs
-  #       missyr.df$run <- rn
-  #       ifelse(is.null(my.dt), my.dt <- missyr.df, my.dt <- rbind(my.dt, missyr.df))
-  #     }
-  #   }
-  #   
-  #   if (!is.null(my.dt)) {
-  #     my.dt[colnames(sectorJobs.table)[1:(ncol(sectorJobs.table)-2)]] <- 0
-  #     my.dt <- my.dt %>% as.data.table()
-  #     sectorJobs.table <- rbindlist(list(sectorJobs.table, my.dt), use.names = TRUE, fill = TRUE)
-  #   }
-  #   
-  #   sj <- melt.data.table(sectorJobs.table, id.vars = c("run", "year"), measure.vars = colnames(sectorJobs.table)[1:(ncol(sectorJobs.table)-2)])
-  #   setnames(sj, colnames(sj), c("run", "year", "sector", "estimate"))
-  #   return(sj)
-  # })
+  jobsectdt <- eventReactive(input$goButton,{
+    runnames <- runnames()
+    runs <- runs()
+    base.dir <- base.dir()
+    
+    sectorJobs.pat <- "city__dataset_table__employment_by_aggr_sector__\\d+"
+    
+    sectorJobs.table <- NULL
+    for (r in 1:length(runnames)) {
+      sectorJobs.file <- list.files(file.path(base.dir[r], "indicators"), pattern = paste0(sectorJobs.pat, ".tab"))
+      for (f in 1:length(sectorJobs.file)){
+        t <- read.csv(file.path(base.dir[r], "indicators", sectorJobs.file[f]), header = TRUE, sep = "\t") %>% as.data.table
+        t1 <- t[, 1 := NULL][, lapply(.SD, sum)][, `:=` (run = runs[r], year = str_extract(sectorJobs.file[f], "\\d+"))]
+        ifelse(is.null(sectorJobs.table), sectorJobs.table <- t1, sectorJobs.table  <- rbind(sectorJobs.table, t1))
+      } # end sectorJobs.file loop
+    } # end runnames loop
+
+    my.dt <-NULL
+    # create separate table for non-luv years
+    for (rn in runs){
+      missing.yrs <- setdiff(years, sectorJobs.table[run == rn, year]) %>% as.vector
+      if (length(missing.yrs) == 0) {
+        next
+      } else {
+        missyr.df <- data.frame(matrix(ncol = 2, nrow=length(missing.yrs)))
+        colnames(missyr.df) <- c("run", "year")
+        missyr.df$year <- missing.yrs
+        missyr.df$run <- rn
+        ifelse(is.null(my.dt), my.dt <- missyr.df, my.dt <- rbind(my.dt, missyr.df))
+      }
+    }
+
+    if (!is.null(my.dt)) {
+      my.dt[colnames(sectorJobs.table)[1:(ncol(sectorJobs.table)-2)]] <- 0
+      my.dt <- my.dt %>% as.data.table()
+      sectorJobs.table <- rbindlist(list(sectorJobs.table, my.dt), use.names = TRUE, fill = TRUE)
+    }
+
+    sj <- melt.data.table(sectorJobs.table, id.vars = c("run", "year"), measure.vars = colnames(sectorJobs.table)[1:(ncol(sectorJobs.table)-2)])
+    setnames(sj, colnames(sj), c("run", "year", "sector", "estimate"))
+    return(sj)
+  })
   
   # Build Growth Centers table
   growctrdt <- eventReactive(input$goButton,{
@@ -1047,7 +1040,6 @@ server <- function(input, output, session) {
   # Filter table and calculate regional totals for general all-data-table
   tsTable <- reactive({
     alldt <- alldt()
-    # browser()
     runs <- runs()
     tsYear <- tsYear()
     sel.yrs.col <- paste0("yr", c(years[1], tsYear))
@@ -1061,16 +1053,13 @@ server <- function(input, output, session) {
   # Display households summary table
   output$tpsht_hh <- DT::renderDataTable({
     tsTable <- tsTable()
-    # browser()
     runs <- runs()
     tsYear <- tsYear()
     sel.yr.fl <- c(years[1], tsYear)
     
     t <- tsTable[indicator == 'Households']
     t1 <- create.tsTable(t, "County") %>% select(1:3, 10:12, 4, 13:15, 5:6)
-    # browser()
     sketch <- sketch.basic(colnames(t1)[1],  sel.yr.fl[1],  sel.yr.fl[2], runs[1], runs[2])
-    # browser()
     create.DT.basic(t1, sketch)
   })
   
@@ -1101,38 +1090,45 @@ server <- function(input, output, session) {
   })
   
   # Filter table and calculate totals for Jobs by Sector table
-  # tsSectorJobs <- reactive({
-  #   jobsectdt <- jobsectdt()
-  #   # browser()
-  #   runs <- runs()
-  #   tsYear <- tsYear()
-  #   sel.yr.fl <- c(years[1], tsYear)
-  # 
-  #   t <- jobsectdt[(run == runs[1] | run == runs[2]) & (year %in% sel.yr.fl)]
-  #   t.sum <- t[, .(estimate = sum(estimate)), by = list(run, year)][, sector := "Sub-Total: Jobs"]
-  #   rbindlist(list(t, t.sum), use.names = TRUE)
-  # })
+  tsSectorJobs <- reactive({
+    jobsectdt <- jobsectdt()
+    runs <- runs()
+    tsYear <- tsYear()
+    sel.yr.fl <- c(years[1], tsYear)
+
+    t <- jobsectdt[(run == runs[1] | run == runs[2]) & (year %in% sel.yr.fl)]
+    t.sum <- t[, .(estimate = sum(estimate)), by = list(run, year)][, sector := "Sub-Total: Jobs"]
+    rbindlist(list(t, t.sum), use.names = TRUE)
+  })
 
   # Display Jobs by sector summary table
-  # output$tpsht_jobs <- DT::renderDataTable({
-  #   tsSectorJobs <- tsSectorJobs()
-  #   # browser()
-  #   runs <- runs()
-  #   tsYear <- tsYear()
-  #   sel.yr.fl <- c(years[1], tsYear)
-  # 
-  #   t <- dcast.data.table(tsSectorJobs, sector ~ year + run, value.var = "estimate")
-  #   setnames(t, "sector", "Sector")
-  #   # browser()
-  #   setcolorder(t, c("Sector", paste0(sel.yr.fl[1],"_",runs[1]), paste0(sel.yr.fl[2],"_",runs[1]), paste0(sel.yr.fl[2],"_",runs[2]), paste0(sel.yr.fl[1],"_",runs[2])))
-  #   t[, ncol(t) := NULL]
-  #   t[, Change := (t[[ncol(t)-1]]-t[[ncol(t)]])][, Per.Change := round((Change/t[[4]])*100, 2)]
-  #   # browser()
-  #   t1 <- t[, 2:4 := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = 2:4]
-  # 
-  #   sketch <- sketch.basic(colnames(t1)[1], sel.yr.fl[1], sel.yr.fl[2], runs[1], runs[2])
-  #   create.DT.basic(t1, sketch)
-  # })
+  output$tpsht_jobs <- DT::renderDataTable({
+    tsSectorJobs <- tsSectorJobs()
+    runs <- runs()
+    tsYear <- tsYear()
+    sel.yr.fl <- c(years[1], tsYear)
+
+    t <- dcast.data.table(tsSectorJobs, sector ~ year + run, value.var = "estimate")
+    setnames(t, "sector", "Sector")
+    setcolorder(t, c("Sector", paste0(sel.yr.fl[1],"_",runs[1]), paste0(sel.yr.fl[2],"_",runs[1]), paste0(sel.yr.fl[2],"_",runs[2]), paste0(sel.yr.fl[1],"_",runs[2])))
+    t[, ncol(t) := NULL]
+    t <- calc.cols.tsTable(t, sel.yr.fl)
+    setcolorder(t, c("Sector",
+                     paste0(sel.yr.fl[1], "_", runs[1]),
+                     paste0(sel.yr.fl[2], "_", runs[1]),
+                     "r1.baseyr",
+                     "r1.baseyr.per",
+                     "r1.avgann",
+                     paste0(sel.yr.fl[2], "_", runs[2]),
+                     "r2.baseyr",
+                     "r2.baseyr.per",
+                     "r2.avgann",
+                     "Change",
+                     "Per.Change"))
+    t1 <- t[, c(2:4, 7:8) := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = c(2:4, 7:8)]
+    sketch <- sketch.basic(colnames(t1)[1], sel.yr.fl[1], sel.yr.fl[2], runs[1], runs[2])
+    create.DT.basic(t1, sketch)
+  })
   
   # Filter table and calculate totals for PWTYPE
   tsPwtypeTable <- reactive({
@@ -1150,7 +1146,6 @@ server <- function(input, output, session) {
   # Display PWTYPE summary table
   output$tpsht_pwtype <- DT::renderDataTable({
     tsPwtypeTable <- tsPwtypeTable()
-    # browser()
     runs <- runs()
     tsYear <- tsYear()
     sel.yr.fl <- c(years[1], tsYear)
