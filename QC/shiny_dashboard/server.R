@@ -257,7 +257,9 @@ server <- function(input, output, session) {
                                  "r2.baseyr.per",
                                  "r1.avgann",
                                  "r2.avgann"))
-    t1[, `:=` (r1dist = round(r1.baseyr/(unlist(t1[like(get(eval(idname)), "Sub-Total"), .(r1.baseyr)])[[1]])*100, 2), r2dist = round(r2.baseyr/(unlist(t1[like(get(eval(idname)), "Sub-Total"), .(r2.baseyr)])[[1]])*100, 2))]
+    t1[, `:=` (r1dist = round(r1.baseyr/(unlist(t1[like(get(eval(idname)), "Sub-Total"), .(r1.baseyr)])[[1]])*100, 2), 
+               r2dist = round(r2.baseyr/(unlist(t1[like(get(eval(idname)), "Sub-Total"), .(r2.baseyr)])[[1]])*100, 2))
+       ][, `:=` (distdiff = round(r1dist - r2dist, 2))]
     setcolorder(t1, c(idname,
                       paste0(sel.yr.fl[1], "_", runs[1]),
                       paste0(sel.yr.fl[2], "_", runs[1]),
@@ -272,7 +274,8 @@ server <- function(input, output, session) {
                       "r1.avgann",
                       "r2.baseyr",
                       "r2.baseyr.per",
-                      "r2.avgann"
+                      "r2.avgann",
+                      "distdiff"
                       ))
 
     t1[, c(2:4, 10, 13) := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = c(2:4, 10, 13)]
@@ -359,24 +362,24 @@ server <- function(input, output, session) {
   
   sketch.basic.growth <- function(grpcol, year1, year2, run1, run2){
     htmltools::withTags(table(
-      class = 'display', 
+      class = 'display',
       thead(
         tr(
           th(rowspan = 3, grpcol),
           th(bgcolor='AliceBlue', colspan = 1, year1),
-          th(colspan = 7, year2)
+          th(colspan = 8, year2)
         ),
         tr(
           th(style="font-size:12px; font-style:italic; font-weight:normal;", bgcolor='AliceBlue', 'A'),
-          lapply(c('B', '(B-A)/(subtotal[B-A])'), function(x) th(style="font-size:12px; font-style:italic; font-weight:normal;", bgcolor='MintCream', x)), 
-          lapply(c('C', '(C-A)/(subtotal[C-A])'), function(x) th(style="font-size:12px; font-style:italic; font-weight:normal;", bgcolor='Ivory', x)),
-          lapply(c('D = B-C', 'D/C', 'D/(C-A)'), function(x) th(style="font-size:12px; font-style:italic; font-weight:normal;", x))
+          lapply(c('B', 'GD1 = (B-A)/(subtotal[B-A])'), function(x) th(style="font-size:12px; font-style:italic; font-weight:normal;", bgcolor='MintCream', x)),
+          lapply(c('C', 'GD2 = (C-A)/(subtotal[C-A])'), function(x) th(style="font-size:12px; font-style:italic; font-weight:normal;", bgcolor='Ivory', x)),
+          lapply(c('GD1 - GD2', 'D = B-C', 'D/C', 'D/(C-A)'), function(x) th(style="font-size:12px; font-style:italic; font-weight:normal;", x))
         ),
         tr(
           th(style="font-size:13px;", bgcolor='AliceBlue', run1),
           lapply(c(run1, paste('%', run1, "Growth Distribution")), function(x) th(style="font-size:13px;", bgcolor='MintCream', x)),
           lapply(c(run2 , paste('%', run2, "Growth Distribution")), function(x) th(style="font-size:13px;", bgcolor='Ivory', x)),
-          lapply(c('Change', '% Change', '% Growth from Base Year'), function(x) th(style="font-size:13px;", x))
+          lapply(c('Growth Distribution Change', 'Change', '% Change', '% Growth from Base Year'), function(x) th(style="font-size:13px;", x))
         )
       ) # end thead
     )) # end withTags/table
@@ -442,7 +445,7 @@ server <- function(input, output, session) {
     DT::datatable(table,
                   extensions = 'Buttons',
                   class = 'cell-border stripe',
-                  options = list(columnDefs = list(list(className = 'dt-center', targets = 1:8), 
+                  options = list(columnDefs = list(list(className = 'dt-center', targets = 1:8),
                                                    list(width = '15%', targets = 0)),
                                  dom = 'Bfrtip',
                                  buttons = list('copy',
@@ -450,13 +453,13 @@ server <- function(input, output, session) {
                                                      buttons = 'excel',
                                                      filename = 'LUVQCDashboard')),
                                  #autoWidth = TRUE,
-                                 paging = FALSE, 
+                                 paging = FALSE,
                                  searching = TRUE
                   ),
-                  container = acontainer, 
+                  container = acontainer,
                   rownames = FALSE
-    ) %>% 
-      formatStyle(colnames(table)[c(4, (ncol(table)-3):(ncol(table)))], color = styleInterval(c(0), c('red', 'black'))
+    ) %>%
+      formatStyle(colnames(table)[c(4, (ncol(table)-4):(ncol(table)))], color = styleInterval(c(0), c('red', 'black'))
                   ) %>%
       formatStyle(colnames(table)[2], backgroundColor = 'AliceBlue'
                   ) %>%
@@ -464,9 +467,8 @@ server <- function(input, output, session) {
                   ) %>%
       formatStyle(colnames(table)[5:6], backgroundColor = 'Ivory'
                   )
-
   }
-  
+
   # Create an expanded DT
   create.DT.expanded <- function(table, acontainer){
     DT::datatable(table,
@@ -491,6 +493,7 @@ server <- function(input, output, session) {
                   backgroundColor = 'AliceBlue')
   }
   
+  # function creating tables on Run Comparison and Growth tabs
   create.DT.generic <- function(table) {
     datatable(table,
               extensions = 'Buttons',
@@ -1347,7 +1350,8 @@ server <- function(input, output, session) {
     sel.yr.fl <- c(years[1], tsYear)
     
     t <- tsTable[indicator == 'Households']
-    t1 <- create.tsTable(t, "County") %>% select(1:3, 7, 4, 8, 5:6, 9)
+    # browser()
+    t1 <- create.tsTable(t, "County") %>% select(1:3, 7, 4, 8, 16, 5:6, 9)
     sketch <- sketch.basic.growth(colnames(t1)[1],  sel.yr.fl[1],  sel.yr.fl[2], runs[1], runs[2])
     create.DT.basic.growth(t1, sketch) 
 
@@ -1361,7 +1365,7 @@ server <- function(input, output, session) {
     sel.yr.fl <- c(years[1], tsYear)
     
     t <- tsTable[indicator == 'Total Population']
-    t1 <- create.tsTable(t, "County") %>% select(1:3, 7, 4, 8, 5:6, 9) 
+    t1 <- create.tsTable(t, "County") %>% select(1:3, 7, 4, 8, 16, 5:6, 9) 
     sketch <- sketch.basic.growth(colnames(t1)[1], sel.yr.fl[1], sel.yr.fl[2], runs[1], runs[2])
     create.DT.basic.growth(t1, sketch) 
   })
@@ -1374,7 +1378,7 @@ server <- function(input, output, session) {
     sel.yr.fl <- c(years[1], tsYear)
     
     t <- tsTable[indicator == 'Employment']
-    t1 <- create.tsTable(t, "County") %>% select(1:3, 7, 4, 8, 5:6, 9)
+    t1 <- create.tsTable(t, "County") %>% select(1:3, 7, 4, 8, 16, 5:6, 9)
     sketch <- sketch.basic.growth(colnames(t1)[1], sel.yr.fl[1], sel.yr.fl[2], runs[1], runs[2])
     create.DT.basic.growth(t1, sketch)
   })
@@ -1393,7 +1397,7 @@ server <- function(input, output, session) {
     t0 <- setDT(t0)[!mics, on = "name"]
     t.sum <- t0[, lapply(.SD, sum), by = list(indicator, run), .SDcols = sel.yrs.col][, name := "Sub-Total: All RGCs"]
     t <- rbindlist(list(t0, t.sum), use.names = TRUE)
-    t1 <- create.tsTable(t, "name") %>% select(1:3, 7, 4, 8, 5:6, 9)
+    t1 <- create.tsTable(t, "name") %>% select(1:3, 7, 4, 8, 16, 5:6, 9)
     setnames(t1, "name", "Name")
     sketch <- sketch.basic.growth(colnames(t1)[1], sel.yr.fl[1], sel.yr.fl[2], runs[1], runs[2])
     create.DT.basic.growth(t1, sketch)
@@ -1413,7 +1417,7 @@ server <- function(input, output, session) {
     t0 <- setDT(t0)[!mics, on = "name"]
     t.sum <- t0[, lapply(.SD, sum), by = list(indicator, run), .SDcols = sel.yrs.col][, name := "Sub-Total: All RGCs"]
     t <- rbindlist(list(t0, t.sum), use.names = TRUE)
-    t1 <- create.tsTable(t, "name") %>% select(1:3, 7, 4, 8, 5:6, 9)
+    t1 <- create.tsTable(t, "name") %>% select(1:3, 7, 4, 8, 16, 5:6, 9)
     setnames(t1, "name", "Name")
     sketch <- sketch.basic.growth(colnames(t1)[1], sel.yr.fl[1], sel.yr.fl[2], runs[1], runs[2])
     create.DT.basic.growth(t1, sketch)
@@ -1430,7 +1434,7 @@ server <- function(input, output, session) {
     t0 <- tsSplace[indicator == 'Population']
     t.sum <- t0[, lapply(.SD, sum), by = list(indicator, run), .SDcols = sel.yrs.col][, Name := "Sub-Total: Key Locations"]
     t <- rbindlist(list(t0, t.sum), use.names = TRUE)
-    t1 <- create.tsTable(t, "Name") %>% select(1:3, 7, 4, 8, 5:6, 9)
+    t1 <- create.tsTable(t, "Name") %>% select(1:3, 7, 4, 8, 16, 5:6, 9)
     sketch <- sketch.basic.growth(colnames(t1)[1], sel.yr.fl[1], sel.yr.fl[2], runs[1], runs[2])
     create.DT.basic.growth(t1, sketch)
   })
@@ -1446,7 +1450,7 @@ server <- function(input, output, session) {
     t0 <- tsSplace[indicator == 'Employment']
     t.sum <- t0[, lapply(.SD, sum), by = list(indicator, run), .SDcols = sel.yrs.col][, Name := "Sub-Total: Key Locations"]
     t <- rbindlist(list(t0, t.sum), use.names = TRUE)
-    t1 <- create.tsTable(t, "Name") %>% select(1:3, 7, 4, 8, 5:6, 9)
+    t1 <- create.tsTable(t, "Name") %>% select(1:3, 7, 4, 8, 16, 5:6, 9)
     sketch <- sketch.basic.growth(colnames(t1)[1], sel.yr.fl[1], sel.yr.fl[2], runs[1], runs[2])
     create.DT.basic.growth(t1, sketch)
   })
