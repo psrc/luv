@@ -1,7 +1,7 @@
 ui <- function(request) {
-  fluidPage(title="", windowTitle="LUV QC Dashboard",
+  fluidPage(title="", windowTitle="USim QC Dashboard",
   navbarPage(theme = shinytheme("readable"),
-           title = div("LUV QC Dashboard", HTML("&nbsp;"), bookmarkButton(label = "", id = "bookmark1")), 
+           title = div("USim QC Dashboard", HTML("&nbsp;"), bookmarkButton(label = "", id = "bookmark1")), 
            tabPanel("Selection",
                     fluidPage(
                       column(width = 4
@@ -136,7 +136,32 @@ ui <- function(request) {
                                            ) # end fluidRow
                                          ) # end fluidPage
                                   
-                                ) ### end tabPanel
+                                ), ### end tabPanel
+                                tabPanel(title = "Regional Growth Strategy",
+                                         br(),
+                                         fluidPage(
+                                           fluidRow(
+                                             column(width = 12,
+                                                    uiOutput("r_tpsht_select_run_ui"),
+                                                    h4(class="header", checked=NA, tags$b("Population by County")),
+                                                    DT::dataTableOutput("r_tpsht_pop"),
+                                                    br(),
+                                                    
+                                                    h4(class="header", checked=NA, tags$b("Employment by County")),
+                                                    DT::dataTableOutput("r_tpsht_emp"),
+                                                    br(),
+                                                    
+                                                    h4(class="header", checked=NA, tags$b("Population for all RGCs")),
+                                                    DT::dataTableOutput("r_tpsht_rgc_pop"),
+                                                    br(),
+                                                    
+                                                    h4(class="header", checked=NA, tags$b("Employment for all RGCs")),
+                                                    DT::dataTableOutput("r_tpsht_rgc_emp"),
+                                                    br()
+                                             )# end column 
+                                           )# end fluidRow
+                                         )# end fluidPage
+                                )### end tabPanel
                     ) ### end tabSetPanel
                     ) ### end fluidPage
            ), # end tabPanel
