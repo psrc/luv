@@ -385,6 +385,74 @@ server <- function(input, output, session) {
     )) # end withTags/table
   }
   
+  sketch.basic.rgs <- function(grpcol, year1, year2, run){
+    htmltools::withTags(table(
+      class = 'display', 
+      thead(
+        tr(
+          th(rowspan = 3, grpcol),
+          th(colspan = 1, year1),
+          th(colspan = 1, year2),
+          th(colspan = 1, paste(year1, "-", year2)),
+          th(colspan = 1, " "),
+          th(colspan = 1, year2),
+          th(colspan = 1, "2000-2050"),
+          th(colspan = 1, " ")
+        ),
+        tr(
+          th(style="font-size:12px; font-style:italic; font-weight:normal;", 'A'),
+          lapply(list('B'), function(x) th(style="font-size:12px; font-style:italic; font-weight:normal;", x)),
+          lapply(list('C = B-A'), function(x) th(style="font-size:12px; font-style:italic; font-weight:normal;", x)),
+          lapply(list('GD1 = (C)/(subtotal[C])'), function(x) th(style="font-size:12px; font-style:italic; font-weight:normal;", x)),
+          lapply(list('D'), function(x) th(style="font-size:12px; font-style:italic; font-weight:normal;", x)),
+          lapply(list('E'), function(x) th(style="font-size:12px; font-style:italic; font-weight:normal;", x)),
+          lapply(list('GD2 = E/(subtotal[E])'), function(x) th(style="font-size:12px; font-style:italic; font-weight:normal;", x))
+        ),
+        tr(
+          th(style="font-size:14px;", run),
+          th(style="font-size:14px;", run),
+          lapply("Change", function(x) th(style="font-size:14px;", x)),
+          lapply(paste('%', run, "Growth Distribution"), function(x) th(style="font-size:14px;", x)),
+          lapply("RGS Policy", function(x) th(style="font-size:14px;", x)),
+          lapply("RGS Policy Change", function(x) th(style="font-size:14px;", x)),
+          lapply("% RGS Growth Distribution", function(x) th(style="font-size:14px;",x))
+        )
+      ) # end thead
+    )) # end withTags/table
+  }
+  
+  sketch.basic.centers <- function(grpcol, year1, year2, run){
+    htmltools::withTags(table(
+      class = 'display', 
+      thead(
+        tr(
+          th(rowspan = 3, grpcol),
+          th(colspan = 2, year1),
+          th(colspan = 2, year2),
+          th(colspan = 3, paste(year1, "-", year2))
+        ),
+        tr(
+          th(style="font-size:12px; font-style:italic; font-weight:normal;", 'A'),
+          lapply(list(''), function(x) th(style="font-size:12px; font-style:italic; font-weight:normal;", x)),
+          lapply(list('B'), function(x) th(style="font-size:12px; font-style:italic; font-weight:normal;", x)),
+          lapply(list(''), function(x) th(style="font-size:12px; font-style:italic; font-weight:normal;", x)),
+          lapply(list('C = B-A'), function(x) th(style="font-size:12px; font-style:italic; font-weight:normal;", x)),
+          lapply(list('D = C/A'), function(x) th(style="font-size:12px; font-style:italic; font-weight:normal;", x)),
+          lapply(list(''), function(x) th(style="font-size:12px; font-style:italic; font-weight:normal;", x))
+        ),
+        tr(
+          th(style="font-size:14px;", run),
+          lapply("% of Region in Centers", function(x) th(style="font-size:14px;", x)),
+          th(style="font-size:14px;", run),
+          lapply("% of Region in Centers", function(x) th(style="font-size:14px;", x)),
+          lapply("Change", function(x) th(style="font-size:14px;", x)),
+          lapply("% Change", function(x) th(style="font-size:14px;", x)),
+          lapply("% AvgAnn", function(x) th(style="font-size:14px;", x))
+        )
+      ) # end thead
+    )) # end withTags/table
+  }
+  
   # Create expanded table container
   sketch.expanded <- function(grpcol, year1, year2, run1, run2){
     htmltools::withTags(table(
@@ -516,7 +584,28 @@ server <- function(input, output, session) {
       formatStyle(colnames(table)[1:ncol(table)],
                   `font-size` = '13px')
   }
-
+  
+  # function creating tables on RGS topsheet tab
+  create.DT.generic.container <- function(table, acontainer) {
+    DT::datatable(table,
+                  extensions = 'Buttons',
+                  class = 'cell-border stripe',
+                  options = list(columnDefs = list(list(className = 'dt-center', targets = 1:7),
+                                                   list(width = '20%', targets = 0)
+                                                   ),
+                                 dom = 'Bfrtip',
+                                 buttons = list('copy',
+                                                list(extend = 'excel',
+                                                     buttons = 'excel',
+                                                     filename = 'LUVQCDashboard')),
+                                 paging = FALSE,
+                                 searching = TRUE
+                                 ),
+                  container = acontainer, 
+                  rownames = FALSE
+    )
+  }
+  
 
 # Bookmarking State -------------------------------------------------------
 
@@ -1039,7 +1128,7 @@ server <- function(input, output, session) {
   tsYear <- reactive({
     input$ts_select_year
   })
-  
+
   # Filter table and calculate regional totals for general all-data-table
   tsTable <- reactive({
     alldt <- alldt()
@@ -1281,6 +1370,7 @@ server <- function(input, output, session) {
   # Filter table and calculate totals for largest RGCs
   tsGrowthCtr <- reactive({
     growctrdt <- growctrdt()
+    # browser()
     runs <- runs()
     tsYear <- tsYear()
     sel.yrs.col <- paste0("yr", c(years[1], tsYear))
@@ -1454,7 +1544,164 @@ server <- function(input, output, session) {
     sketch <- sketch.basic.growth(colnames(t1)[1], sel.yr.fl[1], sel.yr.fl[2], runs[1], runs[2])
     create.DT.basic.growth(t1, sketch)
   })
+
+# RGS Topsheet Reactions and Rendering ------------------------------------  
+
+  output$r_tpsht_select_run_ui <- renderUI({
+    runs <- runs()
+    selectInput(inputId = "r_tpsht_select_run",
+                label = "Select Run",
+                choices = runs,
+                selected = runs[1])
+  }) 
   
+  # Filter table and calculate regional totals for general all-data-table (fixed years)
+  rtsTable <- reactive({
+    if (is.null(input$r_tpsht_select_run)) return(NULL)
+    alldt <- alldt()
+    sel.yrs.col <- paste0("yr", c(years[1], max(years)))
+    
+    t <- merge(alldt[geography == 'zone' & run == input$r_tpsht_select_run], zonecnty.lookup, by.x = "name_id", by.y = "TAZ")
+    t1 <- t[, lapply(.SD, sum), by = list(County = COUNTY_NM, indicator, run), .SDcols = sel.yrs.col]
+    t.sum <- t1[, lapply(.SD, sum), by = list(indicator, run), .SDcols = sel.yrs.col][, County := "Sub-Total: Region"]
+    rbindlist(list(t1, t.sum), use.names = TRUE)
+    
+  })
+  
+  rtsGrowthCtr <- reactive({
+    if (is.null(input$r_tpsht_select_run)) return(NULL)
+    growctrdt <- growctrdt()
+    sel.yrs.col <- paste0("yr", c(years[1], max(years)))
+    
+    mics <- rgc.lookup %>% filter(growth_center_id >= 600) %>% select(name) %>% as.data.table()
+    
+    cols <- c("name_id", "name", "indicator", "run", sel.yrs.col)
+    t <- growctrdt[(indicator == 'Total Population' | indicator == 'Employment') & run == input$r_tpsht_select_run, 
+                   colnames(growctrdt) %in% cols, with = FALSE]
+    t0 <- setDT(t)[!mics, on = "name"]
+    t1 <- t0[, lapply(.SD, sum), by = list(indicator, run), .SDcols = sel.yrs.col][, jurisdiction := "RGCs"]
+  })
+  
+  rtsRegion <- reactive({
+    if (is.null(input$r_tpsht_select_run)) return(NULL)
+    alldt <- alldt()
+    
+    sel.yrs.col <- paste0("yr", c(years[1], max(years)))
+    
+    cols <- c("name_id", "indicator", "run", sel.yrs.col)
+    t <- alldt[geography == 'zone' & (indicator == 'Total Population' | indicator == 'Employment') & run == input$r_tpsht_select_run, 
+               colnames(alldt) %in% cols, with = FALSE]
+    t1 <- t[, lapply(.SD, sum), by = list(indicator, run), .SDcols = sel.yrs.col][, jurisdiction := "Region"]
+  })
+  
+  # RGS policy numbers (regional geography) 
+  policy.reggeog <- eventReactive(input$goButton, {
+    df <- read.csv(file.path(dsn, "policy_nums.csv")) %>% as.data.table()
+    cols <- grep("^[Pop|Emp]", names(df), value = TRUE)
+    colsid <- c("fips_rgs_id", "fips_rgs_name", "county_name", "area_name")
+    dt <- melt.data.table(df, id.vars = colsid, measure.vars = cols, variable.name = "cols", value.name = "policy_est")
+  })
+  
+  # RGS policy numbers (county)
+  policy.cnty <- eventReactive(input$goButton, {
+    dt <- policy.reggeog()
+    dt1 <- dt[, `:=` (attribute = ifelse(grepl("Pop", cols), "population", "employment"), 
+                      year = ifelse(grepl("0050", cols), "0050", "2050"),
+                      yeardesc = ifelse(grepl("0050", cols), "polnumchg", "polnum"))
+              ][, lapply(.SD, sum), by = list(county_name, attribute, yeardesc), .SDcols = c("policy_est")]
+    dt.sum <- dt[, lapply(.SD, sum), by = list(attribute, yeardesc), .SDcols = c("policy_est")][, county_name := "Sub-Total: Region"]
+    rbindlist(list(dt1, dt.sum), use.names = TRUE)
+  })
+  
+  # Population compared to RGS
+  output$r_tpsht_pop <- DT::renderDataTable({
+    if (is.null(input$r_tpsht_select_run)) return(NULL)
+    rtsTable <- rtsTable()
+    policy.cnty <- policy.cnty()
+    sel.yrs.col <- paste0("yr", c(years[1], max(years)))
+    
+    df <- rtsTable[indicator == "Total Population", c("County", sel.yrs.col[1], sel.yrs.col[2]), with = FALSE
+                   ][, diff := get(eval(sel.yrs.col[2]))-get(eval(sel.yrs.col[1]))]
+    df1 <- df[, rdist := round(diff/(unlist(df[like(County, "Sub-Total"), .(diff)])[1])*100, 2)]
+              
+    p <- policy.cnty[attribute == "population"]
+    p1 <- dcast.data.table(p, county_name ~ yeardesc, value.var = "policy_est")
+    p2 <- p1[, rgsdist := round((polnumchg/(p1[like(county_name, "Sub-Total"), polnumchg] %>% unlist() %>% .[[1]]))*100, 2)]
+    
+    df2 <- merge(df1, p2, by.x = "County", by.y = "county_name")
+    df2 <- df2[, c(6:7) := lapply(.SD, FUN=function(x) round(x, 2)), .SDcols = c(6:7)
+               ][, c(2:4, 6:7) := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = c(2:4, 6:7)]
+
+    sketch <- sketch.basic.rgs(colnames(df2)[1], years[1], max(years), input$r_tpsht_select_run)
+    create.DT.generic.container(df2, sketch)
+  })
+  
+  output$r_tpsht_emp <- DT::renderDataTable({
+    if (is.null(input$r_tpsht_select_run)) return(NULL)
+    rtsTable <- rtsTable()
+    policy.cnty <- policy.cnty()
+    sel.yrs.col <- paste0("yr", c(years[1], max(years)))
+    
+    df <- rtsTable[indicator == "Employment", c("County", sel.yrs.col[1], sel.yrs.col[2]), with = FALSE
+                   ][, diff := get(eval(sel.yrs.col[2]))-get(eval(sel.yrs.col[1]))]
+    df1 <- df[, rdist := round(diff/(unlist(df[like(County, "Sub-Total"), .(diff)])[1])*100, 2)]
+    
+    p <- policy.cnty[attribute == "employment"]
+    p1 <- dcast.data.table(p, county_name ~ yeardesc, value.var = "policy_est")
+    p2 <- p1[, rgsdist := round((polnumchg/(p1[like(county_name, "Sub-Total"), polnumchg] %>% unlist() %>% .[[1]]))*100, 2)]
+    
+    df2 <- merge(df1, p2, by.x = "County", by.y = "county_name")
+    df2 <- df2[, c(6:7) := lapply(.SD, FUN=function(x) round(x, 2)), .SDcols = c(6:7)
+               ][, c(2:4, 6:7) := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = c(2:4, 6:7)]
+    
+    sketch <- sketch.basic.rgs(colnames(df2)[1], years[1], max(years), input$r_tpsht_select_run)
+    create.DT.generic.container(df2, sketch)
+  })
+  
+  output$r_tpsht_rgc_pop <- DT::renderDataTable({
+    if (is.null(input$r_tpsht_select_run)|is.null(rtsGrowthCtr())|is.null(rtsRegion())) return(NULL)
+    rtsGrowthCtr <- rtsGrowthCtr()
+    rtsRegion <- rtsRegion()
+    sel.yrs.col <- paste0("yr", c(years[1], max(years)))
+    # browser()
+    g <- rtsGrowthCtr[indicator == "Total Population"]
+    r <- rtsRegion[indicator == "Total Population"]
+    t <- rbindlist(list(g, r), use.names = TRUE)
+    t0 <- t[, c("jurisdiction", sel.yrs.col), with = FALSE
+            ][, `:=` (y1per = round(get(eval(sel.yrs.col[1]))/(unlist(t[like(jurisdiction, "Region"), c(get(eval(sel.yrs.col[1])))]))*100, 2),
+                      y2per = round(get(eval(sel.yrs.col[2]))/(unlist(t[like(jurisdiction, "Region"), c(get(eval(sel.yrs.col[2])))]))*100, 2),
+                      chg = get(eval(sel.yrs.col[2])) - get(eval(sel.yrs.col[1])) )
+              ][, `:=` (perchg = (chg/get(eval(sel.yrs.col[1])))*100,
+                        aapc = ((get(eval(sel.yrs.col[2]))/get(eval(sel.yrs.col[1])))^(1/(max(years) - years[1]))-1)*100)]
+    t0 <- t0[, c(7:8) := lapply(.SD, FUN=function(x) round(x, 2)), .SDcols = c(7:8)
+             ][, c(2:3, 6) := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = c(2:3, 6)]
+    setcolorder(t0, c("jurisdiction", sel.yrs.col[1], "y1per", sel.yrs.col[2], "y2per", "chg", "perchg", "aapc"))
+    sketch <- sketch.basic.centers("Jurisdiction",  years[1], max(years), input$r_tpsht_select_run)
+    create.DT.generic.container(t0, sketch)
+  })
+  
+  output$r_tpsht_rgc_emp <- DT::renderDataTable({
+    if (is.null(input$r_tpsht_select_run)|is.null(rtsGrowthCtr())|is.null(rtsRegion())) return(NULL)
+    rtsGrowthCtr <- rtsGrowthCtr()
+    rtsRegion <- rtsRegion()
+    sel.yrs.col <- paste0("yr", c(years[1], max(years)))
+    # browser()
+    g <- rtsGrowthCtr[indicator == "Employment"]
+    r <- rtsRegion[indicator == "Employment"]
+    t <- rbindlist(list(g, r), use.names = TRUE)
+    t0 <- t[, c("jurisdiction", sel.yrs.col), with = FALSE
+            ][, `:=` (y1per = round(get(eval(sel.yrs.col[1]))/(unlist(t[like(jurisdiction, "Region"), c(get(eval(sel.yrs.col[1])))]))*100, 2),
+                      y2per = round(get(eval(sel.yrs.col[2]))/(unlist(t[like(jurisdiction, "Region"), c(get(eval(sel.yrs.col[2])))]))*100, 2),
+                      chg = get(eval(sel.yrs.col[2])) - get(eval(sel.yrs.col[1])) )
+              ][, `:=` (perchg = (chg/get(eval(sel.yrs.col[1])))*100,
+                        aapc = ((get(eval(sel.yrs.col[2]))/get(eval(sel.yrs.col[1])))^(1/(max(years) - years[1]))-1)*100)]
+    t0 <- t0[, c(7:8) := lapply(.SD, FUN=function(x) round(x, 2)), .SDcols = c(7:8)
+             ][, c(2:3, 6) := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = c(2:3, 6)]
+    setcolorder(t0, c("jurisdiction", sel.yrs.col[1], "y1per", sel.yrs.col[2], "y2per", "chg", "perchg", "aapc"))
+    sketch <- sketch.basic.centers("Jurisdiction",  years[1], max(years), input$r_tpsht_select_run)
+    create.DT.generic.container(t0, sketch)
+  })
+
 # Run Comparison Reactions ------------------------------------------------
 
   
