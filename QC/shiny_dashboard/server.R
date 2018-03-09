@@ -812,13 +812,18 @@ server <- function(input, output, session) {
     
     return(dt2)
   })
+
   
+
+# Compile: demogdt --------------------------------------------------------
+
+
   # build demographics indicators source table
   demogdt <- eventReactive(input$goButton,{
     runnames <- runnames()
     runs <- runs()
     base.dir <- base.dir()
-  
+
     demog.indicators <- list(agegroup = "5year_age_groups__\\d+",
                              agegroup_intr = "age_groups_of_interest__\\d+",
                              dollargroup = "30_60_90_in_14dollars_groups__\\d+",
@@ -835,7 +840,7 @@ server <- function(input, output, session) {
           for (f in 1:length(demog.files)){
             year <- str_match(demog.files[f] , "(\\d+){4}")[,1]
             datafile <- read.csv(file.path(base.dir[r], "indicators", demog.files[f]), header = TRUE, sep = ",")
-            table <- transpose(datafile)
+            table <- data.table::transpose(datafile)
             names(table) <- "estimate"
             table$year <- year
             table$run <- runs[r]
@@ -1582,6 +1587,15 @@ server <- function(input, output, session) {
     t1 <- t0[, lapply(.SD, sum), by = list(indicator, run), .SDcols = sel.yrs.col][, jurisdiction := "RGCs"]
   })
   
+  rtsTable00 <- reactive({
+    # read separate file containing 2000 estimates
+    t <- read.csv(file.path(dsn, "pop_emp_2000.csv"), header = TRUE) %>% as.data.table
+    # browser()
+    setnames(t, c("county", "estimate"), c("County", "yr2000"))
+    t.sum <- t[, lapply(.SD, sum), by = list(indicator), .SDcols = "yr2000"][, County := "Sub-Total: Region"]
+    rbindlist(list(t, t.sum), use.names = TRUE)
+  })
+  
   rtsRegion <- reactive({
     if (is.null(input$r_tpsht_select_run)) return(NULL)
     alldt <- alldt()
@@ -1617,13 +1631,18 @@ server <- function(input, output, session) {
   output$r_tpsht_pop <- DT::renderDataTable({
     if (is.null(input$r_tpsht_select_run)) return(NULL)
     rtsTable <- rtsTable()
+    rtsTable00 <- rtsTable00()
     policy.cnty <- policy.cnty()
-    sel.yrs.col <- paste0("yr", c(years[1], max(years)))
+    sel.yrs.col <- paste0("yr", c(2000, max(years)))
     
-    df <- rtsTable[indicator == "Total Population", c("County", sel.yrs.col[1], sel.yrs.col[2]), with = FALSE
-                   ][, diff := get(eval(sel.yrs.col[2]))-get(eval(sel.yrs.col[1]))]
-    df1 <- df[, rdist := round(diff/(unlist(df[like(County, "Sub-Total"), .(diff)])[1])*100, 2)]
-              
+    # alldt
+    df <- rtsTable[indicator == "Total Population", c("County", sel.yrs.col[2]), with = FALSE]
+    df00 <- rtsTable00[indicator == 'population', c("County", sel.yrs.col[1]), with = FALSE]
+    d <- df[df00, on = "County"][,c("County", sel.yrs.col), with = FALSE
+                                 ][, `:=` (diff = get(eval(sel.yrs.col[2]))-get(eval(sel.yrs.col[1])))]
+    df1 <- d[, rdist := round(diff/(unlist(d[like(County, "Sub-Total"), .(diff)])[[1]])*100, 2)]
+    
+    # policy          
     p <- policy.cnty[attribute == "population"]
     p1 <- dcast.data.table(p, county_name ~ yeardesc, value.var = "policy_est")
     p2 <- p1[, rgsdist := round((polnumchg/(p1[like(county_name, "Sub-Total"), polnumchg] %>% unlist() %>% .[[1]]))*100, 2)]
@@ -1632,19 +1651,23 @@ server <- function(input, output, session) {
     df2 <- df2[, c(6:7) := lapply(.SD, FUN=function(x) round(x, 2)), .SDcols = c(6:7)
                ][, c(2:4, 6:7) := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = c(2:4, 6:7)]
 
-    sketch <- sketch.basic.rgs(colnames(df2)[1], years[1], max(years), input$r_tpsht_select_run)
+    sketch <- sketch.basic.rgs(colnames(df2)[1], "2000", max(years), input$r_tpsht_select_run)
     create.DT.generic.container(df2, sketch)
   })
   
+  # Employment compared to RGS
   output$r_tpsht_emp <- DT::renderDataTable({
     if (is.null(input$r_tpsht_select_run)) return(NULL)
     rtsTable <- rtsTable()
+    rtsTable00 <- rtsTable00()
     policy.cnty <- policy.cnty()
-    sel.yrs.col <- paste0("yr", c(years[1], max(years)))
+    sel.yrs.col <- paste0("yr", c(2000, max(years)))
     
-    df <- rtsTable[indicator == "Employment", c("County", sel.yrs.col[1], sel.yrs.col[2]), with = FALSE
-                   ][, diff := get(eval(sel.yrs.col[2]))-get(eval(sel.yrs.col[1]))]
-    df1 <- df[, rdist := round(diff/(unlist(df[like(County, "Sub-Total"), .(diff)])[1])*100, 2)]
+    df <- rtsTable[indicator == "Employment", c("County", sel.yrs.col[2]), with = FALSE]
+    df00 <- rtsTable00[indicator == 'employment', c("County", sel.yrs.col[1]), with = FALSE]
+    d <- df[df00, on = "County"][,c("County", sel.yrs.col), with = FALSE
+                                 ][, `:=` (diff = get(eval(sel.yrs.col[2]))-get(eval(sel.yrs.col[1])))]
+    df1 <- d[, rdist := round(diff/(unlist(d[like(County, "Sub-Total"), .(diff)])[[1]])*100, 2)]
     
     p <- policy.cnty[attribute == "employment"]
     p1 <- dcast.data.table(p, county_name ~ yeardesc, value.var = "policy_est")
@@ -1654,7 +1677,7 @@ server <- function(input, output, session) {
     df2 <- df2[, c(6:7) := lapply(.SD, FUN=function(x) round(x, 2)), .SDcols = c(6:7)
                ][, c(2:4, 6:7) := lapply(.SD, FUN=function(x) prettyNum(x, big.mark=",")), .SDcols = c(2:4, 6:7)]
     
-    sketch <- sketch.basic.rgs(colnames(df2)[1], years[1], max(years), input$r_tpsht_select_run)
+    sketch <- sketch.basic.rgs(colnames(df2)[1], "2000", max(years), input$r_tpsht_select_run)
     create.DT.generic.container(df2, sketch)
   })
   
@@ -1685,7 +1708,7 @@ server <- function(input, output, session) {
     rtsGrowthCtr <- rtsGrowthCtr()
     rtsRegion <- rtsRegion()
     sel.yrs.col <- paste0("yr", c(years[1], max(years)))
-    # browser()
+    
     g <- rtsGrowthCtr[indicator == "Employment"]
     r <- rtsRegion[indicator == "Employment"]
     t <- rbindlist(list(g, r), use.names = TRUE)
