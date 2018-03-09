@@ -17,8 +17,12 @@ def jobs_by_sector(geo, package="psrc_parcel"):
                "edu = %s.%s.number_of_jobs_of_sector_19" % (package, geo)
            ]
 
-#def get_indicators(cache_directory, run_description, years = [2014,2015,2020,2025,2030,2035,2040], base_year=2014):
-def get_indicators(cache_directory, run_description, years = range(2014,2041), base_year=2014):
+def get_indicators(cache_directory, run_description, years = [2014,2015,2016,2017,2020,2025,2030,2035,2040,2045,2050], base_year=2014):
+#def get_indicators(cache_directory, run_description, years = [2014,2016,2017,2050], base_year=2014):
+#def get_indicators(cache_directory, run_description, years = [2014,2015,2016,2017,2020,2025,2030,2035,2040], base_year=2014):
+#def get_indicators(cache_directory, run_description, years = [2016,2017], base_year=2014):
+#def get_indicators(cache_directory, run_description, years = [2014,2050], base_year=2014):
+#def get_indicators(cache_directory, run_description, years = range(2014,2046), base_year=2014):
     source_data = SourceData(
         cache_directory = cache_directory,
         run_description = run_description,
@@ -50,7 +54,27 @@ def get_indicators(cache_directory, run_description, years = range(2014,2041), b
        ],
   ),
 
-# # County MHS vacancy indicators - added 11.1.2017
+# County Regional Geography indicators  - added 1.23.2018
+
+       Table(
+           attribute = 'population = fips_rgs.aggregate(urbansim_parcel.parcel.population, intermediates=[city])',
+           dataset_name = 'fips_rgs',
+           source_data = source_data,
+           ),
+	   Table(
+           attribute = 'households = fips_rgs.aggregate(urbansim_parcel.parcel.number_of_households, intermediates=[city])',
+           dataset_name = 'fips_rgs',
+           source_data = source_data,
+           ),
+       Table(
+           attribute = 'employment = fips_rgs.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[city])',
+           dataset_name = 'fips_rgs',
+           source_data = source_data,
+           ),
+		   
+
+  
+# County MHS vacancy indicators - added 11.1.2017
      DatasetTable (
          source_data = source_data,
          dataset_name = 'county',
@@ -198,11 +222,11 @@ def get_indicators(cache_directory, run_description, years = range(2014,2041), b
            source_data = source_data,
            ),       
        
-       #Table(
-       #    attribute = 'acres=city.aggregate(parcel.parcel_sqft/43560.)',
-       #    dataset_name = 'city',
-       #    source_data = source_data,
-       #    ),
+       Table(
+          attribute = 'acres=city.aggregate(parcel.parcel_sqft/43560.)',
+          dataset_name = 'city',
+          source_data = source_data,
+          ),
        DatasetTable(
                   source_data = source_data,
                   dataset_name = 'city',
@@ -214,36 +238,36 @@ def get_indicators(cache_directory, run_description, years = range(2014,2041), b
     # ## Tract-City indicators
     # ==================
     
-       Table(
-           attribute = 'households=tractcity.aggregate(urbansim_parcel.building.number_of_households, intermediates=[parcel])',
-           dataset_name = 'tractcity',
-           source_data = source_data,
-           ),
-       Table(
-           attribute = 'population=tractcity.aggregate(urbansim_parcel.building.population, intermediates=[parcel])',
-           dataset_name = 'tractcity',
-           source_data = source_data,
-            ),
-       Table(
-           attribute = 'employment=tractcity.aggregate(urbansim_parcel.building.number_of_jobs, intermediates=[parcel])',
-           dataset_name = 'tractcity',
-           source_data = source_data,
-           ),
-       Table(
-           attribute = 'residential_units=tractcity.aggregate(urbansim_parcel.building.residential_units, intermediates=[parcel])',
-           dataset_name = 'tractcity',
-           source_data = source_data,
-           ),
-       Table(
-           attribute = 'nonres_sqft=tractcity.aggregate(urbansim_parcel.building.non_residential_sqft, intermediates=[parcel])',
-           dataset_name = 'tractcity',
-           source_data = source_data,
-           ),
-       Table(
-           attribute = 'building_sqft=tractcity.aggregate(urbansim_parcel.parcel.building_sqft)',
-           dataset_name = 'tractcity',
-           source_data = source_data,
-           ),       
+       # # Table(
+           # # attribute = 'households=tractcity.aggregate(urbansim_parcel.building.number_of_households, intermediates=[parcel])',
+           # # dataset_name = 'tractcity',
+           # # source_data = source_data,
+           # # ),
+       # # Table(
+           # # attribute = 'population=tractcity.aggregate(urbansim_parcel.building.population, intermediates=[parcel])',
+           # # dataset_name = 'tractcity',
+           # # source_data = source_data,
+            # # ),
+       # # Table(
+           # # attribute = 'employment=tractcity.aggregate(urbansim_parcel.building.number_of_jobs, intermediates=[parcel])',
+           # # dataset_name = 'tractcity',
+           # # source_data = source_data,
+           # # ),
+       # # Table(
+           # # attribute = 'residential_units=tractcity.aggregate(urbansim_parcel.building.residential_units, intermediates=[parcel])',
+           # # dataset_name = 'tractcity',
+           # # source_data = source_data,
+           # # ),
+       # # Table(
+           # # attribute = 'nonres_sqft=tractcity.aggregate(urbansim_parcel.building.non_residential_sqft, intermediates=[parcel])',
+           # # dataset_name = 'tractcity',
+           # # source_data = source_data,
+           # # ),
+       # # Table(
+           # # attribute = 'building_sqft=tractcity.aggregate(urbansim_parcel.parcel.building_sqft)',
+           # # dataset_name = 'tractcity',
+           # # source_data = source_data,
+           # # ),       
                
     # ## Growth Centers Indicators
     # ============================
@@ -279,11 +303,11 @@ def get_indicators(cache_directory, run_description, years = range(2014,2041), b
            source_data = source_data,
            ),          
        
-       #Table(
-       #    attribute = 'acres=growth_center.aggregate(parcel.parcel_sqft/43560.)',
-       #    dataset_name = 'growth_center',
-       #    source_data = source_data,
-       #    ),       
+       # #Table(
+       # #    attribute = 'acres=growth_center.aggregate(parcel.parcel_sqft/43560.)',
+       # #    dataset_name = 'growth_center',
+       # #    source_data = source_data,
+       # #    ),       
     
     # ## Large Area Indicators
     # ============================
@@ -303,39 +327,39 @@ def get_indicators(cache_directory, run_description, years = range(2014,2041), b
     # ## Tract indicators
     # ============================
 
-Table(
-           attribute = 'households=census_tract.aggregate(urbansim_parcel.building.number_of_households, intermediates=[parcel,census_block_group])',
-           dataset_name = 'census_tract',
-           source_data = source_data,
-           ),
-       Table(
-           attribute = 'population=census_tract.aggregate(urbansim_parcel.building.population, intermediates=[parcel,census_block_group])',
-           dataset_name = 'census_tract',
-           source_data = source_data,
-           ),
-       Table(
-           attribute = 'employment=census_tract.aggregate(urbansim_parcel.building.number_of_jobs, intermediates=[parcel,census_block_group])',
-           dataset_name = 'census_tract',
-           source_data = source_data,
-           ),
-       # Table(
-           # attribute = 'nonres_sqft=fcensus_tract.aggregate(urbansim_parcel.building.non_residential_sqft, intermediates=[parcel,census_block_group])',
-           # dataset_name = 'census_tract',
-           # source_data = source_data,
-           # ),	   
-       Table(
-           attribute = 'residential_units=census_tract.aggregate(urbansim_parcel.building.residential_units, intermediates=[parcel,census_block_group])',
-           dataset_name = 'census_tract',
-           source_data = source_data,
-           ),
+# # Table(
+           # # attribute = 'households=census_tract.aggregate(urbansim_parcel.building.number_of_households, intermediates=[parcel,census_block_group])',
+           # # dataset_name = 'census_tract',
+           # # source_data = source_data,
+           # # ),
+       # # Table(
+           # # attribute = 'population=census_tract.aggregate(urbansim_parcel.building.population, intermediates=[parcel,census_block_group])',
+           # # dataset_name = 'census_tract',
+           # # source_data = source_data,
+           # # ),
+       # # Table(
+           # # attribute = 'employment=census_tract.aggregate(urbansim_parcel.building.number_of_jobs, intermediates=[parcel,census_block_group])',
+           # # dataset_name = 'census_tract',
+           # # source_data = source_data,
+           # # ),
+       # # # Table(
+           # # # attribute = 'nonres_sqft=fcensus_tract.aggregate(urbansim_parcel.building.non_residential_sqft, intermediates=[parcel,census_block_group])',
+           # # # dataset_name = 'census_tract',
+           # # # source_data = source_data,
+           # # # ),	   
+       # # Table(
+           # # attribute = 'residential_units=census_tract.aggregate(urbansim_parcel.building.residential_units, intermediates=[parcel,census_block_group])',
+           # # dataset_name = 'census_tract',
+           # # source_data = source_data,
+           # # ),
     
-       DatasetTable(
-            source_data = source_data,
-            dataset_name = 'census_tract',
-            name = 'employment_by_aggr_sector',
-            attributes = jobs_by_sector("census_tract"),
-            output_type = 'csv'
-                ),
+       # # DatasetTable(
+            # # source_data = source_data,
+            # # dataset_name = 'census_tract',
+            # # name = 'employment_by_aggr_sector',
+            # # attributes = jobs_by_sector("census_tract"),
+            # # output_type = 'csv'
+                # # ),
 
 
 ## ##------Liming's Unplaced Households and Jobs in the Region-----------
@@ -491,7 +515,7 @@ Table(
     ]
     return indicators
 
-def get_end_year_indicators(cache_directory, run_description, years = [2040], base_year=2014):
+def get_end_year_indicators(cache_directory, run_description, years = [2050], base_year=2014):
     source_data = SourceData(
         cache_directory = cache_directory,
         run_description = run_description,
@@ -549,7 +573,7 @@ if __name__ == '__main__':
     
     # runs buildings indicator only for the simulation end year
     IndicatorFactory().create_indicators(
-        indicators = get_end_year_indicators(ind_cache, os.getenv('QC_RUN1_DESCR', '')),
+        indicators = get_end_year_indicators(ind_cache, os.getenv('QC_RUN1_DESCR', ''),years = [2050]),
         display_error_box = False, 
         show_results = False)    
 
