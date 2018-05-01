@@ -1,7 +1,7 @@
 #This script will produce a timeseries plot for cities by indicator, separated by faz large areas
 
 library(data.table)
-library(plotly) # version 4.5.6
+library(plotly)
 
 # environment inputs
 attribute <- c("population", "households","residential_units", "employment")
@@ -25,12 +25,13 @@ if(make) {
   result.name <- Sys.getenv('QC_NAME')
   wrkdir <- file.path(Sys.getenv('QC_SCRIPT_PATH'), "..")
 } else {
-  base.dir <- "//modelsrv3/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
+  base.dir <- "//modelsrv6/d$/opusgit/urbansim_data/data/psrc_parcel/runs"
+  # base.dir <- "//modelsrv3/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
   #base.dir <- "/Volumes/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
-  run1 <- "luv2.1draft"
-  run2.all <- c("run_32.run_2016_10_17_15_00", "run_81.run_2016_07_05_16_00","luv_1.compiled")
-  run.name <- 'luv21draft_32'
-  wrkdir <- "C:/Users/clam/Desktop/luv/QC"
+  run1 <- "run_102.run_2018_04_03_15_40"
+  run2.all <- c("run_74.run_2018_02_26_14_59")
+  run.name <- 'run102_74'
+  wrkdir <- "C:/Users/CLam/Desktop/luv/QC"
   #wrkdir <- "/Users/hana/ForecastProducts/LUV/QC"
   #source(file.path(wrkdir,'/templates/create_Rmd_blocks.R'))
   result.dir <- file.path(wrkdir, "results", run.name)
@@ -101,7 +102,8 @@ for (a in 1:length(geography)){
   # transform master table
   ptable <- NULL
   for (y in 1:length(years)){
-    subtable <- subset(alldt, select = c(1:5,ncol(alldt), grep(years[y], names(alldt))))
+    # subtable <- subset(alldt, select = c(1:5,ncol(alldt), grep(years[y], names(alldt))))
+    subtable <- subset(alldt, select = c(1:5, grep("indicator", names(alldt)), ncol(alldt), grep(years[y], names(alldt))))
     setnames(subtable, names(subtable)[ncol(subtable)], "estimate")
     subtable[, year := years[y]]
     ifelse (is.null(ptable),

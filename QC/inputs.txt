@@ -1,18 +1,22 @@
 # QC_NAME is obligatory entry; defines subdirectory for the QC results
-QC_NAME=run64_raw
+QC_NAME=run122_test
 
-QC_BASE_DIRECTORY=//MODELSRV8/d$$/opusgit/urbansim_data/data/psrc_parcel/runs
+QC_BASE_DIRECTORY=//modelsrv6/d$$/opusgit/urbansim_data/data/psrc_parcel/runs
+#QC_BASE_DIRECTORY=//modelsrv5/d$$/opusgit/urbansim_data/data/psrc_parcel/runs
+#QC_BASE_DIRECTORY=//MODELSRV8/d$$/opusgit/urbansim_data/data/psrc_parcel/runs
 #QC_BASE_DIRECTORY=//modelsrv3/e$$/opusgit/urbansim_data/data/psrc_parcel/runs
 #QC_BASE_DIRECTORY=/Volumes/d$$/opusgit/urbansim_data/data/psrc_parcel/runs
 
-QC_RUN1=run_64R.efined
-# Optional description of the run
-QC_RUN1_DESCR=synthpop_hh_xtab_distributions_refined
-# Optional info about any restrictions
-#QC_RUN1_RESTR=Test run!
+QC_RUN1=run_122.run_2018_04_23_15_08
 
-#QC_RUN2=run_31.run_2017_01_17_13_57, run_29.run_2017_01_10_11_25, luv_1.compiled
-QC_RUN2=run_64.run_2017_04_12_10_17, run_57R.efined, luv2.1draft,  run_29.run_2017_01_10_11_25
+# Optional description of the run
+QC_RUN1_DESCR=test
+
+# Optional info about any restrictions
+QC_RUN1_RESTR=Test run!
+
+# QC_RUN2 must reside in the same server as QC_RUN1
+QC_RUN2=run_74.run_2018_02_26_14_59
 
 DECREASE_THRESHOLD=10
 DECREASE_THRESHOLD_PERCENT=1
