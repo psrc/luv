@@ -17,11 +17,13 @@ def jobs_by_sector(geo, package="psrc_parcel"):
                "edu = %s.%s.number_of_jobs_of_sector_19" % (package, geo)
            ]
 
-def get_indicators(cache_directory, run_description, years = [2014,2015,2016,2017,2020,2025,2030,2035,2040,2045,2050], base_year=2014):
+def get_indicators(cache_directory, run_description, years = [2014,2015,2017,2020,2025,2030,2035,2040,2045,2050], base_year=2014):
+#def get_indicators(cache_directory, run_description, years = [2014,2015,2017,2020,2025], base_year=2014):
+#def get_indicators(cache_directory, run_description, years = [2014,2015,2017,2020,2021,2022,2023,2024,2025,2030,2035,2040,2045,2046,2047,2048,2049,2050], base_year=2014):
 #def get_indicators(cache_directory, run_description, years = [2014,2016,2017,2050], base_year=2014):
-#def get_indicators(cache_directory, run_description, years = [2014,2015,2016,2017,2020,2025,2030,2035,2040], base_year=2014):
+#def get_indicators(cache_directory, run_description, years = range(2014,2034), base_year=2014):
 #def get_indicators(cache_directory, run_description, years = [2016,2017], base_year=2014):
-#def get_indicators(cache_directory, run_description, years = [2014,2050], base_year=2014):
+#def get_indicators(cache_directory, run_description, years = [2014,2015], base_year=2014):
 #def get_indicators(cache_directory, run_description, years = range(2014,2046), base_year=2014):
     source_data = SourceData(
         cache_directory = cache_directory,
@@ -54,7 +56,26 @@ def get_indicators(cache_directory, run_description, years = [2014,2015,2016,201
        ],
   ),
 
-# County Regional Geography indicators  - added 1.23.2018
+# County Level Control indicators  - added 4.17.2018
+
+   Table(
+	   attribute = 'population = county.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel])',
+	   dataset_name = 'county',
+	   source_data = source_data,
+	   ),
+   Table(
+	   attribute = 'households = county.aggregate(urbansim_parcel.parcel.number_of_households, intermediates=[parcel])',
+	   dataset_name = 'county',
+	   source_data = source_data,
+	   ),
+   Table(
+	   attribute = 'employment = county.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
+	   dataset_name = 'county',
+	   source_data = source_data,
+	   ),
+
+  
+# # County Regional Geography indicators  - added 1.23.2018
 
        Table(
            attribute = 'population = fips_rgs.aggregate(urbansim_parcel.parcel.population, intermediates=[city])',
