@@ -25,7 +25,7 @@ ui <- function(request) {
                              br(),
                              verbatimTextOutput("submit_msg"),
                              uiOutput('link'),
-                             helpText("*affects Index file, and the Employment by Sector and Time Series tabs")
+                             helpText("*affects Index file, and the Employment by Sector tab")
                       ), # end column
                       column(width = 4
  
@@ -298,41 +298,77 @@ ui <- function(request) {
                     ) # end fluidPage
        
            ), # end tabPanel
-           tabPanel("Time Series",
-                      fluidPage(
-                        fluidRow(
-                          column(width = 2,
-                                 h4(class="header", checked=NA,
-                                    tags$b("Select the following to see time series trends by jurisdiction and indicator")
-                                 ),
-                                 br(),
-                                 selectInput(inputId = "select_tsplots",
-                                             label = "FAZ Large Area Groups",
-                                             choices = c("Eastside King (1)"=1,
-                                                         "Eastside King (2)"=2,
-                                                         "Green River"=3,
-                                                         "Seattle and Shoreline"=4,
-                                                         "SE King and King Other"=5,
-                                                         "SW King"=6,
-                                                         "Central, North, and South Kitsap"=7,
-                                                         "Peninsula and Tacoma"=8,
-                                                         "Pierce Other (1)"=9,
-                                                         "Pierce Other (2)"=10,
-                                                         "SW Pierce"=11,
-                                                         "Everett"=12,
-                                                         "NW Snohomish"=13,
-                                                         "Snohomish Other"=14,
-                                                         "SW Snohomish (1)"=15,
-                                                         "SW Snohomish (2)"=16
-                                             ),
-                                             selected = 1)
-
-                                 ), # end column
-                          column(width = 10,
-                                 htmlOutput("tsplots")
-                          ) # end column
-                        ) # end fluidRow
-              ) # end fluidPage
+           # tabPanel("Time Series",
+           #            fluidPage(
+           #              fluidRow(
+           #                column(width = 2,
+           #                       h4(class="header", checked=NA,
+           #                          tags$b("Select the following to see time series trends by jurisdiction and indicator")
+           #                       ),
+           #                       br(),
+           #                       selectInput(inputId = "select_tsplots",
+           #                                   label = "FAZ Large Area Groups",
+           #                                   choices = c("Eastside King (1)"=1,
+           #                                               "Eastside King (2)"=2,
+           #                                               "Green River"=3,
+           #                                               "Seattle and Shoreline"=4,
+           #                                               "SE King and King Other"=5,
+           #                                               "SW King"=6,
+           #                                               "Central, North, and South Kitsap"=7,
+           #                                               "Peninsula and Tacoma"=8,
+           #                                               "Pierce Other (1)"=9,
+           #                                               "Pierce Other (2)"=10,
+           #                                               "SW Pierce"=11,
+           #                                               "Everett"=12,
+           #                                               "NW Snohomish"=13,
+           #                                               "Snohomish Other"=14,
+           #                                               "SW Snohomish (1)"=15,
+           #                                               "SW Snohomish (2)"=16
+           #                                   ),
+           #                                   selected = 1)
+           # 
+           #                       ), # end column
+           #                column(width = 10,
+           #                       htmlOutput("tsplots")
+           #                ) # end column
+           #              ) # end fluidRow
+           #    ) # end fluidPage
+           # ), # end tabPanel
+           tabPanel("Time Series-alpha", ###transfer make-all timeseries to shiny
+                    fluidPage(
+                      fluidRow(
+                        column(width = 2,
+                               h4(class="header", checked=NA,
+                                  tags$b("Select the following to view city estimates by indicator from 2014 to 2050")
+                               ),
+                               br(),
+                               # helpText("View city estimates by indicator from 2014 to 2050 based on FAZ Large Areas"),
+                               selectInput(inputId = "ts_select_lgarea",
+                                           label = "FAZ Large Area Groups",
+                                           choices = c("Eastside King (1)",
+                                                       "Eastside King (2)",
+                                                       "Green River",
+                                                       "Seattle and Shoreline",
+                                                       "SE King and King Other",
+                                                       "SW King",
+                                                       "Central, North, and South Kitsap",
+                                                       "Peninsula and Tacoma",
+                                                       "Pierce Other (1)",
+                                                       "Pierce Other (2)",
+                                                       "SW Pierce",
+                                                       "Everett",
+                                                       "NW Snohomish",
+                                                       "Snohomish Other",
+                                                       "SW Snohomish (1)",
+                                                       "SW Snohomish (2)"
+                                           ),
+                                           selected = 1)
+                        ), # end column
+                        column(width = 10,
+                               plotlyOutput("ts_plots", height = "3000px")
+                        ) # end column
+                      ) # end fluidRow
+                    ) # end fluidPage
            ), # end tabPanel
            tabPanel("Demographics",
                     fluidPage(

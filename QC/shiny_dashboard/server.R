@@ -2099,22 +2099,59 @@ server <- function(input, output, session) {
 
 
 # Time Series Reactions and Rendering -------------------------------------
+  
+  # Make-all Timeseries
 
-  lgarea <- list("EastsideKing_1","EastsideKing_2","GreenRiver","SeattleandShoreline","SEKingandKingOther",
-                 "SWKing","Central,North,andSouthKitsap","PeninsulaandTacoma","PierceOther_1","PierceOther_2",
-                 "SWPierce","Everett","NWSnohomish","SnohomishOther","SWSnohomish_1","SWSnohomish_2")
+  # lgarea <- list("EastsideKing_1","EastsideKing_2","GreenRiver","SeattleandShoreline","SEKingandKingOther",
+  #                "SWKing","Central,North,andSouthKitsap","PeninsulaandTacoma","PierceOther_1","PierceOther_2",
+  #                "SWPierce","Everett","NWSnohomish","SnohomishOther","SWSnohomish_1","SWSnohomish_2")
+  # 
+  # tsSelected_plot <- reactive({
+  #   plot <- lgarea[[as.integer(input$select_tsplots)]]
+  #   file <- remove.spaces(paste0(file.path(trim.subdir, 'qc_ts_city_'), plot,'.html'))
+  #   return(file)
+  # })
+  # 
+  # output$tsplots <- renderText({
+  #   if(!vars$submitted) return(NULL)
+  #   t <- paste0('<iframe height=5000 width=2000 frameBorder=0 seamless="seamless" scrolling="yes" src="', tsSelected_plot(),'">')
+  #   return(t)
+  #   })
+  
+  # Shiny conversion
+  
+  tsdt <- reactive({
+    alldt <- alldt()
 
-  tsSelected_plot <- reactive({
-    plot <- lgarea[[as.integer(input$select_tsplots)]]
-    file <- remove.spaces(paste0(file.path(trim.subdir, 'qc_ts_city_'), plot,'.html'))
-    return(file)
-  })
+    cols <- c("name_id", "indicator", "run", paste0("yr", c(luv.years, 2045, 2050)))
+    a <- alldt[geography == 'city', .SD, .SDcols = cols]
 
-  output$tsplots <- renderText({
-    if(!vars$submitted) return(NULL)
-    t <- paste0('<iframe height=5000 width=2000 frameBorder=0 seamless="seamless" scrolling="yes" src="', tsSelected_plot(),'">')
-    return(t)
+    aa <- merge(a, faz_lgarea.lookup, by.x = "name_id", by.y = "city_id")
+    a.melt <- melt.data.table(aa, 
+                              id.vars = c(cols[1:3], "city_name", "county_name", "county_id", "large_area", "lgarea_group"), 
+                              measure.vars = grep("yr\\d+", colnames(aa)), 
+                              variable.name = "yearcol", 
+                              value.name = "estimate")
+    adt <- a.melt[, year := str_extract(yearcol, "\\d+")][, yearcol := NULL]
+    dt <- adt[lgarea_group == input$ts_select_lgarea,]
+    g <- ggplot(dt, aes(x = year, y = estimate, group = run, colour = run)) +
+      geom_line() +
+      geom_point(size = 1.5) +
+      facet_grid(city_name ~ indicator, scales = "free") +
+      labs(x = " ", y = " ") +
+      scale_y_continuous(labels = comma) +
+      theme(legend.key.size = unit(0.012, "npc"),
+            legend.title = element_blank(),
+            strip.background = element_blank(),
+            strip.text.x = element_text(size = 11, colour = "black", face = "bold"),
+            strip.text.y = element_text(size = 10, colour = "black", face = "bold"),
+            plot.margin = margin(t = 0, r = 1, b = 1, l = 1, "cm"),
+            text = element_text(family="Segoe UI"))
+    ggplotly(g)
+    
     })
+  
+  output$ts_plots <- renderPlotly(tsdt())
 
 
 
