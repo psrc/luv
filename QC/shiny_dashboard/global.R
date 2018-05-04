@@ -8,6 +8,7 @@ library(magrittr)
 library(shinythemes)
 library(stringr)
 library(DT)
+library(scales)
 
 enableBookmarking(store = "server")
 
@@ -69,6 +70,7 @@ zonecnty.lookup <- read.table(file.path(dsn, "zonecnty.txt"), header =TRUE, sep 
 rgc.lookup <- read.table(file.path(dsn, "growth_centers.csv"),header=TRUE, sep=',') %>% subset(growth_center_id >= 500)
 splaces.lookup <- read.table(file.path(dsn, 'SpecialPlaces.csv'), header=TRUE, sep=',')
 demog.lookup <- read.csv(file.path(dsn, "demographic_groups.csv"))
+faz_lgarea.lookup <- read.table(file.path(dsn, "cities_faz_lgarea.csv"), header =TRUE, sep = ",")
 
 layer_zone <- "TAZ_2010_WGS84"
 layer_faz <- "FAZ_2010_WGS84"
