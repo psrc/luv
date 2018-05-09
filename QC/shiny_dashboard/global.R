@@ -9,6 +9,7 @@ library(shinythemes)
 library(stringr)
 library(DT)
 library(scales)
+library(lemon)
 
 enableBookmarking(store = "server")
 
