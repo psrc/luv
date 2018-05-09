@@ -660,7 +660,7 @@ server <- function(input, output, session) {
   output$init_select_resultsdir <- renderUI({
     select.resultsdir <- list.files(file.path(wrkdir, "results"))
     selectInput(inputId = "select_resultsdir",
-                label = "Makefile Results Folder*",
+                label = "Makefile Results Folder (to view Index file)",
                 choices = select.resultsdir,
                 width = "100%")
   })
@@ -2084,20 +2084,93 @@ server <- function(input, output, session) {
 
 # Employment by Sector Reactions and Rendering ----------------------------
 
+  # Make-all Timeseries
+  # empGeog <- reactive({
+  #   switch(as.integer(input$emp_display),
+  #          file.path(trim.subdir, "qc_ts_emp_cnty.html"),
+  #          file.path(trim.subdir, "qc_ts_emp_sp.html"))
+  # })
+  # 
+  # output$empplots <- renderText({
+  #   if(!vars$submitted) return(NULL)
+  #   t <- paste0('<iframe height=2500 width=2500 frameBorder=0 seamless="seamless" scrolling="yes" src="', empGeog(),'">')
+  #   return(t)
+  # })
+  
+  # Shiny conversion
+  empSector <- reactive({
+    runnames <- runnames()
+    runs <- runs()
+    base.dir <- base.dir()
 
-  empGeog <- reactive({
-    switch(as.integer(input$emp_display),
-           file.path(trim.subdir, "qc_ts_emp_cnty.html"),
-           file.path(trim.subdir, "qc_ts_emp_sp.html"))
+    empdt <- NULL
+    for (r in 1:length(runnames)){
+      emp.files <- list.files(file.path(base.dir[r], "indicators"), pattern = 'zone__dataset_table__employment_by_aggr_sector__\\d+\\.tab')
+      if (length(emp.files) > 0){
+        for (f in 1:length(emp.files)){
+          t <- read.table(file.path(base.dir[r], "indicators", emp.files[f]), sep = '\t', header = TRUE) %>% as.data.table
+          t[, `:=` (year = str_extract(emp.files[f], "\\d+"), run = runs[r])]
+          ifelse(is.null(empdt), empdt <- t, empdt <- rbind(empdt, t))
+        }
+      } else if (length(emp.files) == 0) {
+        next
+      } # end conditional
+    } # end runnames loop
+  
+  dt <- merge(empdt, zone.lookup, by = "zone_id") %>%
+    melt.data.table(id.vars = c("zone_id", "year", "County", "run"), measure.vars = c(2:7), variable.name = "sector", value.name = "estimate")
   })
   
-  output$empplots <- renderText({
-    if(!vars$submitted) return(NULL)
-    t <- paste0('<iframe height=2500 width=2500 frameBorder=0 seamless="seamless" scrolling="yes" src="', empGeog(),'">')
-    return(t)
+  # Summarize by county
+  empSector.cnty <- reactive({
+    empSector()[, .(estimate = sum(estimate)), by = c("County", "year", "run", "sector")][, name := County][, .(name, year, run, sector, estimate)]
   })
-
-
+  
+  # Summarize by special places
+  empSector.sp <- reactive({
+    empSector <- empSector()
+    dt <- merge(empSector, splaces.lookup, by = "zone_id")
+    dt[, .(estimate = sum(estimate)), by = c("name", "year", "run", "sector")]
+  })
+  
+  output$empSector_plots <- renderPlotly({
+    ggplot.width <- 1850
+    ggplot.ncols <- 6
+    if (input$empSector_display == 1) {
+      d <- empSector.cnty()
+      ggplot.height <- 1200
+    } else {
+      d <- empSector.sp()
+      ggplot.height <- 4000
+    }
+    
+    g <- ggplot(d, aes(x = year, y = estimate, group = run, colour = run)) +
+      geom_line() +
+      geom_point(size = .75) +
+      facet_wrap(~ interaction(sector, name), scales = "free", shrink = FALSE, ncol = ggplot.ncols) +
+      coord_capped_cart(bottom='both', left='both') +
+      labs(x = " ", y = " ") +
+      scale_y_continuous(labels = comma) +
+      scale_x_discrete(labels=c("2014" = "", 
+                                "2015" ="2015", 
+                                "2016" = "",
+                                "2017" = "", 
+                                "2020" ="2020", 
+                                "2025"= "", 
+                                "2030"="2030", 
+                                "2035"="", 
+                                "2040"="2040", 
+                                "2045"="", 
+                                "2050"="2050")) +
+      theme(legend.key.size = unit(0.012, "npc"),
+            legend.title = element_blank(),
+            axis.text.x = element_text(size = 8, hjust = 1),
+            text = element_text(family="Segoe UI"))
+    
+    ggplotly(g, width = ggplot.width, height = ggplot.height)
+  
+  })
+ 
 # Time Series Reactions and Rendering -------------------------------------
   
   # Make-all Timeseries
@@ -2134,25 +2207,60 @@ server <- function(input, output, session) {
                               value.name = "estimate")
     adt <- a.melt[, year := str_extract(yearcol, "\\d+")][, yearcol := NULL]
     dt <- adt[lgarea_group == input$ts_select_lgarea,]
+
+    # g <- ggplot(dt, aes(x = year, y = estimate, group = run, colour = run)) +
+    #   geom_line() +
+    #   geom_point(size = .75) +
+    #   facet_grid(city_name ~ indicator, scales = "free") +
+    #   labs(x = " ", y = " ") +
+    #   scale_y_continuous(labels = comma) +
+    #   theme(legend.key.size = unit(0.012, "npc"),
+    #         legend.title = element_blank(),
+    #         strip.background = element_blank(),
+    #         strip.text.x = element_text(size = 11, colour = "black", face = "bold"),
+    #         strip.text.y = element_text(size = 10, colour = "black", face = "bold"),
+    #         plot.margin = margin(t = 0, r = 1, b = 1, l = 1, "cm"),
+    #         text = element_text(family="Segoe UI"))
+    # ggplotly(g)
+    
+    ggplot.ncities <- unique(dt[lgarea_group == isolate(input$ts_select_lgarea), .(city_name)]) %>% nrow()
+    ggplot.width <- 1700
+    
+    if (ggplot.ncities >= 9) {
+      ggplot.height <- 3000
+    } else if (ggplot.ncities <= 8 & ggplot.ncities >= 6) {
+      ggplot.height <- 1500
+    } else if (ggplot.ncities <= 5) {
+      ggplot.height <- 825
+    }
+    
     g <- ggplot(dt, aes(x = year, y = estimate, group = run, colour = run)) +
       geom_line() +
-      geom_point(size = 1.5) +
-      facet_grid(city_name ~ indicator, scales = "free") +
+      geom_point(size = .75) +
+      facet_wrap(~ interaction(indicator, city_name), scales = "free", shrink = FALSE, ncol = 4) +
+      coord_capped_cart(bottom='both', left='both') +
       labs(x = " ", y = " ") +
       scale_y_continuous(labels = comma) +
+      scale_x_discrete(labels=c("2014" = "",
+                                "2015" ="2015",
+                                "2017" = "",
+                                "2020" ="2020",
+                                "2025"= "",
+                                "2030"="2030",
+                                "2035"="",
+                                "2040"="2040",
+                                "2045"="",
+                                "2050"="2050")) +
       theme(legend.key.size = unit(0.012, "npc"),
             legend.title = element_blank(),
-            strip.background = element_blank(),
-            strip.text.x = element_text(size = 11, colour = "black", face = "bold"),
-            strip.text.y = element_text(size = 10, colour = "black", face = "bold"),
-            plot.margin = margin(t = 0, r = 1, b = 1, l = 1, "cm"),
+            axis.text.x = element_text(size = 8, hjust = 1),
             text = element_text(family="Segoe UI"))
-    ggplotly(g)
+    
+    ggplotly(g, width = ggplot.width, height = ggplot.height)
     
     })
   
   output$ts_plots <- renderPlotly(tsdt())
-
 
 
 # Demographic Indicators Reactions and Rendering --------------------------

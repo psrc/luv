@@ -24,8 +24,7 @@ ui <- function(request) {
                              br(),
                              br(),
                              verbatimTextOutput("submit_msg"),
-                             uiOutput('link'),
-                             helpText("*affects Index file, and the Employment by Sector tab")
+                             uiOutput('link')
                       ), # end column
                       column(width = 4
  
@@ -276,27 +275,44 @@ ui <- function(request) {
                       ) # end fluidRow
                     ) # end fluidPage
            ),# end tabPanel
+           # tabPanel("Employment by Sector",
+           #          fluidPage(
+           #            fluidRow(h4(class="header", checked=NA,
+           #                        tags$b("Select the following")
+           #            )),
+           #            fluidRow(
+           #              column(width = 5,
+           #                     selectInput(inputId = "emp_display",
+           #                                 label = "Employment Geography",
+           #                                 choices = c("County"=1,
+           #                                             "Special Places"=2),
+           #                                 selected = 1)
+           #              ) # end column
+           #            ), # end fluidRow
+           #            fluidRow(
+           #              column(width = 12,
+           #                     htmlOutput("empplots")
+           #              ) # end column
+           #            ) # end fluidRow
+           #          ) # end fluidPage
+           # 
+           # ), # end tabPanel
            tabPanel("Employment by Sector",
                     fluidPage(
-                      fluidRow(h4(class="header", checked=NA,
-                                  tags$b("Select the following")
-                      )),
                       fluidRow(
-                        column(width = 5,
-                               selectInput(inputId = "emp_display",
-                                           label = "Employment Geography",
-                                           choices = c("County"=1,
-                                                       "Special Places"=2),
-                                           selected = 1)
-                        ) # end column
-                      ), # end fluidRow
+                        h4(class="header", checked=NA, tags$b("Select the following to view estimates by sector from 2014 to 2050")),
+                        selectInput(inputId = "empSector_display",
+                                    label = "Geography",
+                                    choices = c("County"=1,
+                                                "Special Places"=2),
+                                    selected = 1)
+                        ), # end fluidRow
                       fluidRow(
                         column(width = 12,
-                               htmlOutput("empplots")
+                               plotlyOutput("empSector_plots")
                         ) # end column
                       ) # end fluidRow
                     ) # end fluidPage
-       
            ), # end tabPanel
            # tabPanel("Time Series",
            #            fluidPage(
@@ -334,15 +350,12 @@ ui <- function(request) {
            #              ) # end fluidRow
            #    ) # end fluidPage
            # ), # end tabPanel
-           tabPanel("Time Series-alpha", ###transfer make-all timeseries to shiny
+           tabPanel("Time Series", ###transfer make-all timeseries to shiny
                     fluidPage(
                       fluidRow(
-                        column(width = 2,
                                h4(class="header", checked=NA,
                                   tags$b("Select the following to view city estimates by indicator from 2014 to 2050")
                                ),
-                               br(),
-                               # helpText("View city estimates by indicator from 2014 to 2050 based on FAZ Large Areas"),
                                selectInput(inputId = "ts_select_lgarea",
                                            label = "FAZ Large Area Groups",
                                            choices = c("Eastside King (1)",
@@ -363,9 +376,11 @@ ui <- function(request) {
                                                        "SW Snohomish (2)"
                                            ),
                                            selected = 1)
-                        ), # end column
-                        column(width = 10,
-                               plotlyOutput("ts_plots", height = "3000px")
+                      ), # end fluidRow
+                      br(),
+                      fluidRow(
+                        column(width = 12,
+                               plotlyOutput("ts_plots")
                         ) # end column
                       ) # end fluidRow
                     ) # end fluidPage
