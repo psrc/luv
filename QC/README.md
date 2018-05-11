@@ -141,6 +141,8 @@ To view the Makefile results on the shiny server, copy the makefile results fold
 scp -r insert-makefile-results-folder-name shiny@dataweb:/home/shiny/apps/luv/QC/results
 ```
 
+IE for run_133 type: scp -r run_133 shiny@dataweb:/home/shiny/apps/luv/QC/results
+
 See Administrators for password.
  
 ## R-Reports
