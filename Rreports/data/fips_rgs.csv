@@ -1,0 +1,25 @@
+"fips_rgs_id","fips_rgs_name","rgs_id","county_name","area_name","fips_rgs_label"
+3301,"King - Metropolitan Cities",1,"King","Metropolitan Cities",3301
+3302,"King - Core Cities",2,"King","Core Cities",3302
+3303,"King - Larger Cities",3,"King","Larger Cities",3303
+3304,"King - Smaller Cities",4,"King","Smaller Cities",3304
+3305,"King - Unincorporated UGA",5,"King","Unincorporated UGA",3305
+3306,"King - Rural",6,"King","Rural",3306
+3501,"Kitsap - Metropolitan Cities",1,"Kitsap","Metropolitan Cities",3501
+3502,"Kitsap - Core Cities",2,"Kitsap","Core Cities",3502
+3503,"Kitsap - Larger Cities",3,"Kitsap","Larger Cities",3503
+3504,"Kitsap - Smaller Cities",4,"Kitsap","Smaller Cities",3504
+3505,"Kitsap - Unincorporated UGA",5,"Kitsap","Unincorporated UGA",3505
+3506,"Kitsap - Rural",6,"Kitsap","Rural",3506
+5301,"Pierce - Metropolitan Cities",1,"Pierce","Metropolitan Cities",5301
+5302,"Pierce - Core Cities",2,"Pierce","Core Cities",5302
+5303,"Pierce - Larger Cities",3,"Pierce","Larger Cities",5303
+5304,"Pierce - Smaller Cities",4,"Pierce","Smaller Cities",5304
+5305,"Pierce - Unincorporated UGA",5,"Pierce","Unincorporated UGA",5305
+5306,"Pierce - Rural",6,"Pierce","Rural",5306
+6101,"Snohomish - Metropolitan Cities",1,"Snohomish","Metropolitan Cities",6101
+6102,"Snohomish - Core Cities",2,"Snohomish","Core Cities",6102
+6103,"Snohomish - Larger Cities",3,"Snohomish","Larger Cities",6103
+6104,"Snohomish - Smaller Cities",4,"Snohomish","Smaller Cities",6104
+6105,"Snohomish - Unincorporated UGA",5,"Snohomish","Unincorporated UGA",6105
+6106,"Snohomish - Rural",6,"Snohomish","Rural",6106

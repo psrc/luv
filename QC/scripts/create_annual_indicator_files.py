@@ -10,7 +10,7 @@ from opus_core.indicator_framework.image_types.dataset_table import DatasetTable
 
 
 
-def get_indicators(cache_directory, run_description, years = range(2014,2041), base_year=2014):
+def get_indicators(cache_directory, run_description, years = range(2014,2051), base_year=2014):
     source_data = SourceData(
         cache_directory = cache_directory,
         run_description = run_description,
@@ -97,7 +97,24 @@ def get_indicators(cache_directory, run_description, years = range(2014,2041), b
            dataset_name = 'tractcity',
            source_data = source_data,
            ),
-    
+       
+       # # County Regional Geography indicators 
+       
+       Table(
+           attribute = 'populationAn = fips_rgs.aggregate(urbansim_parcel.parcel.population, intermediates=[city])',
+           dataset_name = 'fips_rgs',
+           source_data = source_data,
+            ),
+       Table(
+            attribute = 'householdsAn = fips_rgs.aggregate(urbansim_parcel.parcel.number_of_households, intermediates=[city])',
+            dataset_name = 'fips_rgs',
+            source_data = source_data,
+            ),
+        Table(
+            attribute = 'employmentAn = fips_rgs.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[city])',
+            dataset_name = 'fips_rgs',
+            source_data = source_data,
+            ),
     ]
     return indicators
 
