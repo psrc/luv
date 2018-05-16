@@ -17,13 +17,17 @@ if(!interactive()) { # running using Makefile
 	other.runs <- Sys.getenv('RREPORT_RUNS')
 	other.runs <- trim(unlist(strsplit(other.runs, ",")))
 	annual <- as.logical(Sys.getenv('RREPORT_ANNUAL', 'FALSE'))
+	ci.runs <- c()
+	ci.dir <- "/modelsrv6/d$/opusgit/urbansim_data/data/psrc_parcel/runs"
 } else { # running interactively
-	run1 <- "run_81.run_2016_07_05_16_00"
-	base.dir <- "/Volumes/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
-	run.name <- "run81"
+    run1 <- "run_134.run_2018_05_12_13_11"
+    other.runs <- c('run_16.run_2018_05_14_15_03', 'run_17.run_2018_05_14_15_06')
+    #other.runs <- c()
+    base.dir <- "~/d6$/opusgit/urbansim_data/data/psrc_parcel/runs"
+    run.name <- "run_134"
 	result.dir <- "."
-	other.runs <- c('run_78.run_2016_06_23_09_47', 'run_170.run_2015_09_15_16_02')
-	other.runs <- c()
+	ci.runs <- c("8")
+	ci.dir <- "~/d6$/opusgit/urbansim_data/data/psrc_parcel/runs"
 	annual <- TRUE
 }
 runs <- c(run1, other.runs)
@@ -43,9 +47,13 @@ not.all.years <- c() # if show.all.years is TRUE, put here runs that are excepti
 geography <- 'city'
 output.file.name <- file.path(result.dir, paste(geography, 'reportLUV', if(show.all.years) 'annual' else '', '_', paste(run.numbers, collapse='_'), sep=''))
 
-years <- c(2014, seq(2015, 2040, by=5))
-years.for.table <- c(2014, 2015, seq(2020, 2040, by=10))
-all.years <- if(show.all.years) 2014:2040 else c()
+years <- c(2014, seq(2015, 2050, by=5))
+years.for.table <- c(2014, 2015, seq(2020, 2050, by=10))
+all.years <- if(show.all.years) 2014:2050 else c()
+
+# Runs with CIs
+ci.run.name <- list()
+PIs <- 80
 
 save.data.as.ascii <- FALSE
 ###### END USER SETTINGS ############
@@ -58,7 +66,8 @@ library(gridExtra)
 lyears <- length(years)
 indicators <- c('households',  'population', 'employment')
 indicators.obs <- as.list(indicators)
-ci.names <- list(employment='job', households='household', population='population')
+ci.names <- list(employment='employment', households='households', population='population',
+                 employmentAn='employment', householdsAn='households', populationAn='population')
 titles <- list(households='Households', employment='Employment', population='HH Population')
 if(show.all.years) {
 	indicators <- paste0(indicators, "An")
@@ -78,7 +87,7 @@ remove.na <- function(data)
 
 
 
-sim <- ids <- CIs <- saf <- trend.data <- ids.tr <- list()
+sim <- ids <- CIs <- trend.data <- ids.tr <- list()
 
 id.correspondence <- data.frame(read.table(file.path(wrkdir, 'data', 'citiesLUV.csv'), sep=',', header=TRUE))
 id.correspondence <- id.correspondence[order(id.correspondence[,'city_id']),]
@@ -105,6 +114,20 @@ for (what in indicators) {
 		ids[[what]][[run]] <- data[,1]
 		sim[[what]][[run]] <- sim[[what]][[run]][order(ids[[what]][[run]]),]
 		ids[[what]][[run]] <- sort(ids[[what]][[run]])
+	}
+	CIs[[what]] <- NULL
+	for(run in ci.runs) {
+	    crun.name <- if(is.null(ci.run.name[[as.character(run)]])) run else ci.run.name[[as.character(run)]]
+	    for(year in years[which(years>=2020)[1]:lyears]) {
+	        ci.file.name <- file.path(ci.dir, paste0('bm_', run), 
+	                                  paste0(year, '_', geography, '_', ci.names[[what]], ".txt"))
+	        if(!file.exists(ci.file.name)) next
+	        this.ci <- read.table(ci.file.name, header=TRUE)[, c("id", "median", paste0("lower_", PIs), paste0("upper_", PIs))]
+	        colnames(this.ci) <- c('id', 'median', 'lower', 'upper')
+	        CIs[[what]] <- rbind(CIs[[what]], 
+	                             cbind(data.frame(run=crun.name, Time=year), 
+	                                   this.ci))
+	    }
 	}
 	trend.data[[what]][] <- NA
 }
@@ -149,6 +172,11 @@ for(geo in sort(zones)) {
 			tabDF <- cbind(tabDF, this.tabdata)
 		}
 		if(not_found) next
+		
+		CI.df <- NULL
+		if(!is.null(CIs[[what]])) 
+		    CI.df <- subset(CIs[[what]], id == geo)
+		
 		idxt <- which(ids.tr[[what]]==geo)
 		obs.df <- data.frame(run=rep('Actual', ncol(trend.data[[what]])), 
 						Time=as.integer(colnames(trend.data[[what]])), 
@@ -158,7 +186,8 @@ for(geo in sort(zones)) {
 		tabDF$Actual <- rep(NA, nrow(tabDF))
 		tabDF$Actual[tabDF$Time %in% as.integer(colnames(trend.data[[what]]))] <- trend.data[[what]][idxt,]
 		# Create plot of lines
-		g[[what]] <- ggplot(subset(datafrs, (Time %in% years) | (Time==2014 & as.integer(run) < 170)), aes(Time, amount, colour=factor(run))) + geom_line() + 
+		g[[what]] <- ggplot(subset(datafrs, (Time %in% years))) + 
+		                    geom_line(aes(Time, amount, colour=factor(run))) + 
 							scale_y_continuous('') + scale_x_continuous('') + 
 							scale_colour_discrete(name = '') +
 							ggtitle(titles[[what]]) + 
@@ -167,7 +196,12 @@ for(geo in sort(zones)) {
 									legend.key.size = unit(0.02, "npc"),
 									plot.title=element_text(size=12))
 		if(length(all.years) > 0)
-			g[[what]] <- g[[what]] + geom_line(data=subset(datafrs, run %in% run.numbers & !(run %in% not.all.years) & Time %in% all.years), linetype=3)
+			g[[what]] <- g[[what]] + geom_line(data=subset(datafrs, run %in% run.numbers & !(run %in% not.all.years) & Time %in% all.years), 
+			                                   aes(Time, amount, colour=factor(run)), linetype=3)
+		if(!is.null(CI.df)) { # add confidence intervals
+		    g[[what]] <- g[[what]] + geom_ribbon(data = CI.df, aes(x=Time, ymin=lower, ymax=upper, linetype=NA), alpha=0.1) +
+		        geom_line(data = CI.df, aes(x=Time, y = median), alpha=0.4)
+		}
 		# Create table
 		tidx <- c(which(is.element(tabDF[,1], years.for.table)), which(tabDF[,1]==9999))
 		tidx.raw <- tidx
