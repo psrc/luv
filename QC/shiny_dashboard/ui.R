@@ -160,6 +160,118 @@ ui <- function(request) {
                                              )# end column 
                                            )# end fluidRow
                                          )# end fluidPage
+                                ), ### end tabPanel
+                                tabPanel(title = "Other Summaries",
+                                         br(),
+                                         uiOutput("mk_tpsht_select_run_ui"),
+                                         navlistPanel(
+                                                      tabPanel("Control Total Mismatch (2040)",
+                                                               column(width = 1),
+                                                               column(width = 11,
+                                                                 h3("Control Total Mismatch"),
+                                                                 br(),
+                                                                 h4("Summary"),
+                                                                 div(DT::dataTableOutput("mk_tpsht_ctm"), style = "width: 95%"), # top level summary,
+                                                                 br(),
+                                                                 br(),
+                                                                 h4("Detail"),
+                                                                 br(),
+                                                                 div(DT::dataTableOutput("mk_tpsht_ctm_rec"), style = "width: 95%") # data
+                                                               ) # end column
+                                                              ), # end tabPanel
+                                                       tabPanel("Decreases",
+                                                                column(width = 1
+                                                                       ),# end column
+                                                                column(width = 11,
+                                                                       helpText("To view results, select a comparison year, run, and the following thresholds"),
+                                                                       fluidRow(
+                                                                         column(width = 4, numericInput("mk_tpsht_dec_abs", label = h6("Absolute Threshold"), value = 10)),
+                                                                         column(width = 4, numericInput("mk_tpsht_dec_per", label = h6("Percent Threshold"), value = 1)),
+                                                                         column(width = 4, 
+                                                                               h5("Text", style = "color: white"),
+                                                                                actionButton("mk_tpsht_dec_goButton", label = "Enter"))
+                                                                       ),# end column
+                                                                       fluidRow(
+                                                                         h3("Decreases"),
+                                                                         br(),
+                                                                         h4("Summary"),
+                                                                         div(DT::dataTableOutput("mk_tpsht_dec"), style = "width: 95%"), 
+                                                                         br(),
+                                                                         br(),
+                                                                         h4("Detail"),
+                                                                         br(),
+                                                                         div(DT::dataTableOutput("mk_tpsht_dec_rec"), style = "width: 95%")
+                                                                       )
+                                                                      ) # end column
+                                                                ), # end tabPanel
+                                                       tabPanel("Share of RGCs (by region & cities)",
+                                                                column(width = 1
+                                                                ), # end column
+                                                                column(width = 11,
+                                                                       h3("Allocation to RGCs"),
+                                                                       br(),
+                                                                       h4("Share of region (%)"),
+                                                                       DT::dataTableOutput("mk_tpsht_shr_reg"),
+                                                                       br(),
+                                                                       h4("Share of cities with RGCs (%)"),
+                                                                       DT::dataTableOutput("mk_tpsht_shr_city"),
+                                                                       br(),
+                                                                       h4("Details on Share of Cities with RGCs (%)"),
+                                                                       br(),
+                                                                       DT::dataTableOutput("mk_tpsht_shr_city_detail")
+                                                                ) # end column
+                                                                ), # end tabPanel
+                                                      tabPanel("Share of RGCs (by type & rest of region & cities)",
+                                                               column(width = 1
+                                                               ), # end column
+                                                               column(width = 11,
+                                                                      h3("Allocation to RGCs (by type & rest of region & cities)"),
+                                                                      br(),
+                                                                      DT::dataTableOutput("mk_tpsht_shr_rest")
+                                                               )# end column
+                                                      ), # end tabPanel
+                                                      tabPanel("Activity Units",
+                                                               column(width = 1
+                                                               ), # end column
+                                                               column(width = 11,
+                                                                      h3("Activity Units"),
+                                                                      br(),
+                                                                      h4("RGCs"),
+                                                                      DT::dataTableOutput("mk_tpsht_au_rgc"),
+                                                                      br(),
+                                                                      h4("MICs"),
+                                                                      DT::dataTableOutput("mk_tpsht_au_mic"),
+                                                                      br(),
+                                                                      h4("Details"),
+                                                                      DT::dataTableOutput("mk_tpsht_au_rec")
+                                                               )# end column
+                                                      ), # end tabPanel
+                                                      tabPanel("Employment in MICs",
+                                                               column(width = 1
+                                                               ), # end column
+                                                               column(width = 11,
+                                                                      h3("Employment in MICs"),
+                                                                      DT::dataTableOutput("mk_tpsht_emp_mic")
+                                                               )# end column
+                                                      ), # end tabPanel
+                                                      tabPanel("Special Places",
+                                                               column(width = 1
+                                                               ), # end column
+                                                               column(width = 11,
+                                                                      h3("Households"),
+                                                                      DT::dataTableOutput("mk_tpsht_sp_hh"),
+                                                                      br(),
+                                                                      h3("Population"),
+                                                                      DT::dataTableOutput("mk_tpsht_sp_pop"),
+                                                                      br(),
+                                                                      h3("Employment"),
+                                                                      DT::dataTableOutput("mk_tpsht_sp_emp")
+                                                               )# end column
+                                                      ), # end tabPanel
+                                                      widths = c(2, 10),
+                                                      well = FALSE
+                                                       # ) # end tabPanel  
+                                        ) # end navlistPanel
                                 )### end tabPanel
                     ) ### end tabSetPanel
                     ) ### end fluidPage

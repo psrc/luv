@@ -731,7 +731,7 @@ server <- function(input, output, session) {
   
   output$link <- renderUI({HTML(paste0("<a href=", "'", file.path(trim.subdir, 'index.html'), "'", "target='blank'>View Index file</a>"))})
 
-  # Compile Source Tables ---------------------------------------------------  
+  # Compile: alldt (by geo: faz, city, zone) ---------------------------------------------------  
     
   # build general attributes source table
   alldt <- eventReactive(input$goButton,{
@@ -778,6 +778,10 @@ server <- function(input, output, session) {
     return(alldata.table)
   })
   
+
+  # Compile: strdt (Structure Type) -------------------------------------------------
+
+    
   # build structure type (sf/mf) indicators source table
   strdt <- eventReactive(input$goButton,{
     runnames <- runnames()
@@ -813,9 +817,55 @@ server <- function(input, output, session) {
     return(dt2)
   })
 
+
+  # Compile: regdt ---------------------------------------
+  
+  regdt <- eventReactive(input$goButton, {
+    runnames <- runnames()
+    runs <- runs()
+    base.dir <- base.dir()
+    
+    # ititialize alldata.table
+    alldata.table <- data.frame(matrix(ncol = length(years) + 3, nrow = 0)) 
+    new.alldata.table.colnames <- c("name_id", paste0("yr", years), "indicator", "run") 
+    colnames(alldata.table) <- new.alldata.table.colnames
+    alldata.table <- alldata.table %>% as.data.table()
+    
+    for (r in 1:length(runnames)) {
+        for (i in 1:length(attribute)){
+          filename <- paste0('alldata__table__',attribute[i], extension)
+          datatable <- read.csv(file.path(base.dir[r], "indicators", filename), header = TRUE, sep = ",")
+          colnames(datatable)[2: ncol(datatable)] <- str_replace(colnames(datatable)[2: ncol(datatable)], '\\w+_', 'yr') # rename columns
+          colnames(datatable)[1] <- str_replace(colnames(datatable)[1], '\\w+_', 'name_')
+          datatable$indicator <- switch(attribute[i],
+                                        "population"="Total Population",
+                                        "households"="Households",
+                                        "employment"="Employment",
+                                        "residential_units"="Residential Units")
+          # datatable$indicator <- attribute[i]
+          datatable$run <- runs[r]
+          datatable <- datatable %>% as.data.table()
+          alldata.table <- rbindlist(list(alldata.table, datatable), use.names = TRUE, fill = TRUE)
+        } # end of attribute loop
+    } # end of runnames loop
+    
+    # convert class of selected columns
+    logical.cols <- setdiff(years, luv.years) %>% paste0("yr", .) 
+    for (col in logical.cols) set(alldata.table, j = col, value = as.numeric(alldata.table[[col]]))
+    
+    # where na in alldata.table fill with 0
+    for(j in seq_along(alldata.table)){
+      set(alldata.table, which(is.na(alldata.table[[j]])), j, 0)
+    }
+    
+    return(alldata.table)
+  }) 
+ 
   
 
-# Compile: demogdt --------------------------------------------------------
+
+  
+  # Compile: demogdt --------------------------------------------------------
 
 
   # build demographics indicators source table
@@ -886,7 +936,10 @@ server <- function(input, output, session) {
     
   })
   
-  # build max capacity source tables
+  
+  # Compile: Max Capacity source Table ---------------------------------------------------- 
+  
+
   capdt <- eventReactive(input$goButton,{
     runnames <- runnames()
     runs <- runs()
@@ -967,7 +1020,10 @@ server <- function(input, output, session) {
     return(dev.dt)
   })
   
-  # Build Jobs by Sector table
+  
+  # Compile: Jobs by Sector Table ---------------------------------------------------- 
+  
+  
   jobsectdt <- eventReactive(input$goButton,{
     runnames <- runnames()
     runs <- runs()
@@ -1010,8 +1066,11 @@ server <- function(input, output, session) {
     setnames(sj, colnames(sj), c("run", "year", "sector", "estimate"))
     return(sj)
   })
+
+
+  # Compile: Growth Centers Table ----------------------------------------------------  
+
   
-  # Build Growth Centers table
   growctrdt <- eventReactive(input$goButton,{
     runnames <- runnames()
     runs <- runs()
@@ -1019,7 +1078,7 @@ server <- function(input, output, session) {
     
     # initialize growctr.table
     growctr.table <- data.frame(matrix(ncol = length(years) + 3, nrow = 0)) #30
-    new.growctr.table.colnames <- c("name_id", paste0("yr", years), "indicator", "run") #seq(2014, 2040)
+    new.growctr.table.colnames <- c("name_id", paste0("yr", years), "indicator", "run") 
     colnames(growctr.table) <- new.growctr.table.colnames
     growctr.table <- growctr.table %>% as.data.table()
     
@@ -1050,6 +1109,7 @@ server <- function(input, output, session) {
     }
     
     return(gc.table)
+
 
   })
   
@@ -1725,9 +1785,389 @@ server <- function(input, output, session) {
     create.DT.generic.container(t0, sketch)
   })
 
-# Run Comparison Reactions ------------------------------------------------
+
+# Makefile Summaries Topsheet: CT Mismatch ------------------------------------------------------
 
   
+  output$mk_tpsht_select_run_ui <- renderUI({
+    runs <- runs()
+    selectInput(inputId = "mk_tpsht_select_run",
+                label = "Select Run",
+                choices = runs,
+                selected = runs[1],
+                width = "15%")
+  }) 
+
+  mmdt <- reactive({
+    if (is.null(input$mk_tpsht_select_run)|is.null(alldt())) return(NULL)
+    alldt <- alldt()
+    runs <- runs()
+    runnames <- runnames()
+    ctyear <- 2040 # annual control total spreadsheet max year = 2040
+
+    indicator.names <- c('Households' = 'households', 'Employment' = 'employment')
+    indicator_settings <- list(households=c("total_number_of_households", "household"), employment=c("total_number_of_jobs", "employment"))
+    
+    result <- report <- NULL
+    for (ind in indicator.names) {
+      # Read control totals
+      CT <- read.table(file.path(dsn, paste0('annual_', indicator_settings[[ind]][2], '_control_totals.csv')), sep=',', header=TRUE)
+      CT.by.jur <- data.table(CT)[,list(CT=sum(get(indicator_settings[[ind]][1]))), by=.(city_id, year)]
+      CT.by.jur <- CT.by.jur[year == ctyear,]
+      ind.values <- alldt[geography == 'city' & run == input$mk_tpsht_select_run & indicator == eval(names(grep(ind, indicator.names, value = TRUE))), .SD, .SDcols = c("name_id", paste0("yr", ctyear))]
+      setnames(ind.values, c("name_id", paste0("yr", ctyear)), c("city_id", paste(ind, ctyear, sep='_')))
+      ct.join <- merge(CT.by.jur, ind.values, by='city_id')
+      no.match <- ct.join[CT != get(paste(ind, ctyear, sep="_")),]
+      this.report <- data.frame(indicator=ind, total=nrow(no.match), max.percent=NA)
+      if(nrow(no.match) > 0) {
+        simcol <- paste0("simulated_", ctyear)
+        colnames(no.match)[colnames(no.match) == paste(ind, ctyear, sep="_")] <- simcol
+        dif <- no.match[[simcol]] - no.match$CT
+        dif.percent <- dif/no.match[[simcol]] * 100
+        this.result <- cbind(data.frame(indicator=rep(ind, nrow(no.match)),  no.match), 
+                             data.frame(difference=dif, percent=round(dif.percent,1)))
+        result <- rbind(result, this.result)
+        this.report[,'max.percent'] <- max(abs(this.result$percent))
+      }
+      report <- rbind(report, this.report)
+    }
+    dlist <- list("report" = report, "result" = result)
+    return(dlist)
+  })
+  
+  output$mk_tpsht_ctm <- DT::renderDataTable({
+    datatable(mmdt()$report,
+              rownames = FALSE,
+              options = list(dom = 't'))
+    })
+  
+  output$mk_tpsht_ctm_rec <- DT::renderDataTable({
+    datatable(mmdt()$result,
+              rownames = FALSE,
+              filter = 'top')
+  })
+
+  
+  
+# Makefile Summaries Topsheet: Decreases ----------------------------------  
+  
+  
+  decdt <- eventReactive(input$mk_tpsht_dec_goButton, {
+    if (is.null(input$mk_tpsht_select_run)|is.null(alldt())) return(NULL)
+    alldt <- alldt()
+    runs <- runs()
+    runnames <- runnames()
+    absolute.threshold <- input$mk_tpsht_dec_abs
+    percent.threshold <- input$mk_tpsht_dec_per
+    sel.yrs.col <- paste0("yr", c(years[1], tsYear()))
+    
+    indicator.names <- c('Households' = 'households', 'Total Population' = 'population', 'Employment' = 'employment')
+
+    # Check decreases
+    result <- report <- NULL
+    for (ind in indicator.names) {
+      for (geo in geography) {
+        ind.values <- alldt[geography == eval(geo) & run == input$mk_tpsht_select_run & indicator == eval(names(grep(ind, indicator.names, value = TRUE))), ] 
+        dif <- ind.values[, diff := get(eval(sel.yrs.col[2]))- get(eval(sel.yrs.col[1]))][['diff']]
+        dif.percent <- -dif/ind.values[,get(eval(sel.yrs.col[1]))]*100
+        negatives <- dif < -absolute.threshold
+        if(percent.threshold > 0) negatives <- negatives & dif.percent < percent.threshold
+        negatives <- which(negatives)
+        lneg <- length(negatives)
+        this.report <- data.frame(indicator=ind, geo=geo, total=nrow(ind.values), negat=lneg, remains=nrow(ind.values)-lneg, percent=round(lneg/nrow(ind.values)*100,2),
+                                  max.neg=NA, max.loc=NA, median.neg=NA)
+        if(lneg>0) {				
+          this.result <- cbind(ind.values[negatives, name_id], dif[negatives], round(dif.percent[negatives],2))
+          this.result <- data.frame(indicator=rep(ind, lneg), geography=rep(geo, lneg), this.result)
+          result <- rbind(result, this.result)
+          this.report[,'max.neg'] <- -min(dif[negatives])
+          this.report[,'max.loc'] <- ind.values[which.min(dif), name_id]
+          this.report[,'median.neg'] <- -median(dif[negatives])
+        }
+        report <- rbind(report, this.report)
+      }
+    }
+    
+    # output result table
+    colnames(result)[3:ncol(result)] <- c('geo_id', 'difference', 'percent')
+    
+    dlist <- list("report" = report, "result" = result)
+    return(dlist)
+  })
+  
+
+  output$mk_tpsht_dec <- DT::renderDataTable({
+    datatable(decdt()$report,
+              rownames = FALSE,
+              options = list(dom = 't'))
+  })
+  
+  output$mk_tpsht_dec_rec <- DT::renderDataTable({
+    datatable(decdt()$result,
+              rownames = FALSE,
+              filter = 'top')
+  })
+  
+
+# Makefile Summaries Topsheet: RGCs ------------------------------------------------ 
+ 
+
+  shr.rgcdt <- reactive({
+    if (is.null(input$mk_tpsht_select_run)|is.null(alldt())) return(NULL)
+    alldt <- alldt()
+    growctrdt <- growctrdt()
+    regdt <- regdt()
+    runs <- runs()
+    runnames <- runnames()
+    sel.yrs.col <- paste0("yr", c(years[1], tsYear()))
+    yrs <- c(years[1], tsYear())
+    
+    format.rgcdt <- function(table) {
+      ind.labels <- c("Total Population"="population",
+                      "Households"="households",
+                      "Employment"="employment",
+                      "Residential Units"="residential_units")
+      
+      table$indicator <- ind.labels[table$indicator]
+      setnames(table, sel.yrs.col, yrs)
+      t0 <- melt.data.table(table, id.vars = c("name_id", "indicator"), measure.vars = c(yrs, "change"), variable.name = "coltype", value.name = "estimate")
+      t <- dcast.data.table(t0, name_id ~ indicator + coltype, value.var = "estimate")
+    }
+    
+    # compute activity units
+    cols <- c("name_id", "indicator", sel.yrs.col[1], sel.yrs.col[2])
+    rgc.total0 <- growctrdt[run == input$mk_tpsht_select_run, .SD, .SDcols = cols][, `:=` (change = get(eval(sel.yrs.col[2])) - get(eval(sel.yrs.col[1])))]
+    rgc.total <- format.rgcdt(rgc.total0)
+
+    city.total0 <- alldt[geography == 'city' & run == input$mk_tpsht_select_run, .SD, .SDcols = cols][, change := get(eval(sel.yrs.col[2])) - get(eval(sel.yrs.col[1]))]
+    city.total <- format.rgcdt(city.total0)
+
+    all.total0 <- regdt[run == input$mk_tpsht_select_run, .SD, .SDcols = cols][, change := get(eval(sel.yrs.col[2])) - get(eval(sel.yrs.col[1]))]
+    all.total <- format.rgcdt(all.total0)
+
+    lookup.rgc <- rgc.lookup
+    
+    # Shares of RGCs within region and city
+    rgc.total <- subset(rgc.total, name_id >= 500)
+    rgc.total.nomic <- subset(rgc.total, name_id < 600)
+    
+    rgc.total.table <- colSums(rgc.total.nomic[,2:ncol(rgc.total.nomic)])
+    lookup.rgc.nomic <- subset(lookup.rgc, growth_center_id < 600)
+    
+    city.total.nomic <- city.total[city.total$name_id %in% lookup.rgc.nomic$city_id,]
+    city.total.table <- colSums(city.total.nomic[,2:ncol(city.total.nomic)])
+    
+    rgc.with.city <- merge(merge(rgc.total.nomic, lookup.rgc.nomic[,c('growth_center_id', 'city_id', 'name')], by.x = 'name_id', by.y='growth_center_id'), city.total, by.x ='city_id', by.y = 'name_id')
+ 
+    res.region <- res.city <- ind.report <- NULL
+    for (ind in c('households', 'residential_units', 'employment')) {
+      res.region <- rbind(res.region, data.frame(indicator=ind, 
+                                                 total.base=round(100*rgc.total.table[[paste(ind, yrs[1], sep="_")]]/all.total[[paste(ind, yrs[1], sep="_")]],1),
+                                                 total=round(100*rgc.total.table[[paste(ind, yrs[2], sep="_")]]/all.total[[paste(ind,  yrs[2], sep="_")]],1), 
+                                                 change=round(100*rgc.total.table[[paste0(ind, "_change")]]/all.total[[paste0(ind, "_change")]],1)))
+      res.city <- rbind(res.city, data.frame(indicator=ind, 
+                                             total.base=round(100*rgc.total.table[[paste(ind, yrs[1], sep="_")]]/city.total.table[[paste(ind, yrs[1], sep="_")]],1),
+                                             total=round(100*rgc.total.table[[paste(ind, yrs[2], sep="_")]]/city.total.table[[paste(ind, yrs[2], sep="_")]],1),
+                                             change=round(100*rgc.total.table[[paste0(ind, "_change")]]/city.total.table[[paste0(ind, "_change")]],1)))
+      ind.report <- rbind(ind.report, data.frame(indicator=ind,
+                                                 id=rgc.with.city[['name_id']],
+                                                 share.base=round(100*rgc.with.city[[paste0(ind, "_", yrs[1], ".x")]]/rgc.with.city[[paste0(ind, "_", yrs[1], ".y")]],1),
+                                                 share=round(100*rgc.with.city[[paste0(ind, "_", yrs[2], ".x")]]/rgc.with.city[[paste0(ind, "_", yrs[2], ".y")]],1),
+                                                 share.change=round(100*rgc.with.city[[paste0(ind, "_change.x")]]/rgc.with.city[[paste0(ind, "_change.y")]],1),
+                                                 name = rgc.with.city[['name']]))
+    }
+    colnames(ind.report)[3:(ncol(ind.report)-1)] <-  c(paste0("share_", yrs[1]), paste0("share_", yrs[2]), paste0("share_", yrs[1], "_", yrs[2]))
+    ind.report <- ind.report[order(as.character(ind.report$name)), ]
+    res.region$indicator <- as.character(res.region$indicator)
+    res.city$indicator <- as.character(res.city$indicator)
+    colnames(res.region)[2:4] <- c(paste0("total_", yrs[1]), paste0("total_", yrs[2]), paste0("change_", yrs[1], "_", yrs[2]))
+    colnames(res.city)[2:4] <- colnames(res.region)[2:4]
+    
+    # RGC vs the rest of region and city
+    city.total.allrgc <- city.total[city.total$name_id %in% lookup.rgc$city_id,]
+    city.total.all.table <- colSums(city.total.allrgc[,2:ncol(city.total.allrgc)])
+    rgcall.with.city <- merge(merge(rgc.total, lookup.rgc[,c('growth_center_id', 'city_id', 'name')], by.x = 'name_id', by.y ='growth_center_id'), city.total, by.x ='city_id', by.y = 'name_id')
+    data.by.type <- list(RGC=subset(rgc.total, name_id < 600), MIC=subset(rgc.total, name_id >= 600),
+                         cities=city.total.all.table, region=all.total)
+    
+    type.table.all <- NULL
+    for (ind in c('households', 'residential_units', 'employment')) {
+      type.table <- NULL
+      for(ctype in c("RGC", "MIC")) {
+        base <- sum(data.by.type[[ctype]][[paste0(ind, "_", yrs[1])]])
+        total <- sum(data.by.type[[ctype]][[paste0(ind, "_", yrs[2])]])
+        type.table <- rbind(type.table, data.frame(indicator = ind, area=ctype, base=base, total=total, change=total-base, percent=round(100*(total-base)/base,1),
+                                                   AAPC=round(100*((total/base)^(1/(as.numeric(yrs[2])-as.numeric(yrs[1])))-1), 2)))
+      }
+      for(ctype in c("cities", "region")) {
+        base <- sum(data.by.type[[ctype]][[paste0(ind, "_", yrs[1])]]) - sum(type.table$base)
+        total <- sum(data.by.type[[ctype]][[paste0(ind, "_", yrs[2])]]) - sum(type.table$total)
+        type.table <- rbind(type.table, data.frame(indicator = ind, area=paste("rest of", ctype), base=base, total=total, change=total-base, percent=round(100*(total-base)/base,1),
+                                                   AAPC=round(100*((total/base)^(1/(as.numeric(yrs[2])-as.numeric(yrs[1])))-1), 2)))
+      }
+      sums <- colSums(type.table[3:5])
+      type.table <- rbind(type.table, data.frame(indicator = ind, area="Total", base=sums['base'], total=sums['total'], change=sums['change'],
+                                                 percent=round(100*(sums['total']-sums['base'])/sums['base'],1),
+                                                 AAPC=round(100*((sums['total']/sums['base'])^(1/(as.numeric(yrs[2])-as.numeric(yrs[1])))-1), 2)))
+      type.table.all <- rbind(type.table.all, type.table)
+    }
+    type.table.all$area <- as.character(type.table$area)
+    colnames(type.table.all)[3:6] <- c(yrs[1], yrs[2], paste0("change_", yrs[1], "_", yrs[2]), "percent_change")
+    
+    # AU per unit for RGCs
+    aucols <- c("name_id", colnames(rgc.total)[grep("[population|employment]_\\d+", colnames(rgc.total))])
+    rgc.au <- merge(rgc.total[, .SD, .SDcols = aucols], lookup.rgc, by.x = "name_id", by.y = "growth_center_id")
+    rgc.au <- cbind(rgc.au, total.base=rgc.au[[paste('population',yrs[1],sep='_')]] + rgc.au[[paste('employment',yrs[1],sep='_')]],
+                    total=rgc.au[[paste('population',yrs[2],sep='_')]] + rgc.au[[paste('employment',yrs[2],sep='_')]])
+    rgc.au <- subset(rgc.au, name_id >= 500)
+    rgc.au <- cbind(rgc.au, au.base=round(rgc.au$total.base/rgc.au$acres,1), au=round(rgc.au$total/rgc.au$acres,1))
+    
+    au.table.all <- rgc.au[,c('name_id', 'name', 'total.base', 'au.base', 'total', 'au')]
+    au.table.all$name <- as.character(au.table.all$name)
+    
+    au.table <- subset(au.table.all, name_id < 600)
+    au.table.output <- au.table
+    colnames(au.table.output)[1] <- "id"
+    colnames(au.table.output)[3:ncol(au.table.output)] <- c(paste(c('AU', 'AU/acre'), yrs[1]), paste(c('AU', 'AU/acre'), yrs[2]))
+
+    # AU per unit for MICs
+    au.mic.table <- subset(au.table.all, name_id >= 600)
+    au.mic.table.output <- au.mic.table
+    colnames(au.mic.table.output) <- colnames(au.table.output)
+
+    # details table
+    outtable <- rgc.au
+    outtable <- cbind(outtable, popu.base=round(outtable[[paste('population', yrs[1],sep='_')]]/outtable$acres,1), 
+                      empu.base=round(outtable[[paste('employment',yrs[1],sep='_')]]/outtable$acres,1),
+                      popu=round(outtable[[paste('population',yrs[2],sep='_')]]/outtable$acres,1), 
+                      empu=round(outtable[[paste('employment',yrs[2],sep='_')]]/outtable$acres,1))
+    otcols <- c('name_id', paste('population',yrs[1],sep='_'), 'popu.base', paste('employment',yrs[1],sep='_'), 'empu.base',
+                paste('population',yrs[2],sep='_'), 'popu', paste('employment',yrs[2],sep='_'), 'empu', 'name') 
+    outtable <- outtable[, .SD, .SDcols = otcols]
+    colnames(outtable)[1] <- 'id'
+    colnames(outtable)[seq(2, by=2, length=4)] <-  c(paste0(c('Pop_', 'Emp_'), yrs[1]), paste0(c('Pop_', 'Emp_'), yrs[2]))
+    colnames(outtable)[seq(3, by=2, length=4)] <-  c(paste0(c('Pop/U_', 'Emp/U_'), yrs[1]), paste0(c('Pop/U_', 'Emp/U_'), yrs[2]))
+
+    # Job loss in MIC
+    empcols <- c("name_id", colnames(rgc.total)[grep("employment_", colnames(rgc.total))])
+    mic.jobs <- rgc.total[name_id >= 600, .SD, .SDcols = empcols]
+    setnames(mic.jobs, "employment_change", "difference")
+    mic.jobs <- merge(lookup.rgc[,c('growth_center_id', 'name')], mic.jobs,  by.x='growth_center_id', by.y = 'name_id')
+    mic.jobs$name <- as.character(mic.jobs$name)
+    colnames(mic.jobs)[1] <- "id"
+    # idx1 <- which(mic.jobs$difference <= -10000)
+    # idx2 <- which(mic.jobs$difference > -10000 & mic.jobs$difference < 0)
+    
+    
+    dlist <- list("res.region" = res.region, 
+                  "res.city" = res.city, 
+                  "ind.report" = ind.report,
+                  "type.table.all" = type.table.all,
+                  "au.table.output" = au.table.output,
+                  "au.mic.table.output" = au.mic.table.output,
+                  "au.outtable" = outtable,
+                  "mic.jobs" = mic.jobs)
+    return(dlist)
+  })
+
+    
+  output$mk_tpsht_shr_reg <- DT::renderDataTable({
+    datatable(shr.rgcdt()$res.region,
+              rownames = FALSE,
+              options = list(dom = 't'))
+  })
+  output$mk_tpsht_shr_city <- DT::renderDataTable({
+    datatable(shr.rgcdt()$res.city,
+              rownames = FALSE,
+              options = list(dom = 't'))
+  })
+  
+  output$mk_tpsht_shr_city_detail <- DT::renderDataTable({
+    datatable(shr.rgcdt()$ind.report,
+              rownames = FALSE,
+              filter = 'top')
+  })
+  
+  output$mk_tpsht_shr_rest <- DT::renderDataTable({
+    datatable(shr.rgcdt()$type.table.all,
+              rownames = FALSE,
+              filter = 'top',
+              options = list(pageLength = 15, dom = 'tip'))
+  })
+  
+  output$mk_tpsht_au_rgc<- DT::renderDataTable({
+    datatable(shr.rgcdt()$au.table.output,
+              rownames = FALSE)
+  })  
+  
+  output$mk_tpsht_au_mic<- DT::renderDataTable({
+    datatable(shr.rgcdt()$au.mic.table.output,
+              rownames = FALSE,
+              options = list(dom = 't'))
+  })
+  
+  output$mk_tpsht_au_rec<- DT::renderDataTable({
+    datatable(shr.rgcdt()$au.outtable,
+              rownames = FALSE
+              )
+  })
+  
+  output$mk_tpsht_emp_mic<- DT::renderDataTable({
+    datatable(shr.rgcdt()$mic.jobs,
+              rownames = FALSE
+    ) #%>%
+      # formatStyle(colnames(shr.rgcdt()$mic.jobs)[(ncol(shr.rgcdt()$mic.jobs)-2):ncol(shr.rgcdt()$mic.jobs)],
+      #             backgroundColor = styleInterval(0 , c('yellow', ' ')))
+  })
+  
+  
+# Makefile Summaries Topsheet: Special Places --------------------------------------
+  
+  spdt <- reactive({
+    if (is.null(input$mk_tpsht_select_run)|is.null(alldt())) return(NULL)
+    alldt <- alldt()
+    runs <- runs()
+    runnames <- runnames()
+    sel.yrs.col <- paste0("yr", c(years[1], tsYear()))
+    yrs <- c(years[1], tsYear())
+    
+    spcols <- c("name_id", "indicator", sel.yrs.col)
+    zone.values <- merge(alldt[geography == 'zone' & run == input$mk_tpsht_select_run, .SD, .SDcols = spcols], splaces.lookup[,c('zone_id', 'name')], by.x = 'name_id', by.y ='zone_id')
+    place.data <- zone.values[, lapply(.SD, sum), .SDcols = c(spcols[3], spcols[4]), by = list(indicator, name)
+                              ][, `:=`(change = get(eval(sel.yrs.col[2])) - get(eval(sel.yrs.col[1])))
+                                ][, `:=`(percent = round((change/get(eval(sel.yrs.col[1])))*100,1) )]
+    place.data$name <- as.character(place.data$name)
+    colnames(place.data)[2:ncol(place.data)] <- c('special place', yrs[1], yrs[2], paste("change", yrs[1], "-", yrs[2]), "percent change")
+    return(place.data)
+  })
+  
+  output$mk_tpsht_sp_hh<- DT::renderDataTable({
+    datatable(spdt()[indicator == "Households", 2:ncol(spdt())],
+              rownames = FALSE,
+              options = list(pageLength = nrow(spdt()), dom = 'tip')
+    )
+  })
+  
+  output$mk_tpsht_sp_pop<- DT::renderDataTable({
+    datatable(spdt()[indicator == "Total Population", 2:ncol(spdt())],
+              rownames = FALSE,
+              options = list(pageLength = nrow(spdt()), dom = 'tip')
+    )
+  })
+  
+  output$mk_tpsht_sp_emp<- DT::renderDataTable({
+    datatable(spdt()[indicator == "Employment", 2:ncol(spdt())],
+              rownames = FALSE,
+              options = list(pageLength = nrow(spdt()), dom = 'tip')
+    )
+  })
+  
+  
+  
+  
+# Run Comparison Reactions ------------------------------------------------
+
+
   # determine if all years available, and update available years in Run Comparison UI
   observe({
     alldt <- alldt()
@@ -1801,7 +2241,7 @@ server <- function(input, output, session) {
   cTable <- reactive({
     strdt <- strdt()
     alldt <- alldt()
-    
+
     if (is.null(cStructureType()) | cStructureType() == "All" | (cIndicator() %in% c("Total Population", "Employment"))){
       dt1 <- alldt[run == runname1() & geography == cGeog() & indicator == cIndicator(),
                    .(name_id, geography, indicator, get(cBaseYear()), get(cYear()))]
@@ -1820,8 +2260,9 @@ server <- function(input, output, session) {
       dt <- merge(dt1.cast, dt2.cast, by = 'name_id')
     }
     dt[,"diff" := (estrun1-estrun2)]
+   
     switch(as.integer(input$compare_select_geography),
-           merge(dt, zone.lookup, by.x = "name_id", by.y = "zone_id") %>% merge(faz.lookup, by = "faz_id"),
+           merge(dt, zone.lookup, by.x = "name_id", by.y = "zone_id") %>% merge(faz.lookup, by = c("faz_id", "County")),
            merge(dt, faz.lookup, by.x = "name_id", by.y = "faz_id"),
            merge(dt, city.lookup, by.x = "name_id", by.y = "city_id") %>% setnames("city_name", "Name")
     )
