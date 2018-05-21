@@ -20,15 +20,17 @@ if(!interactive()) { # running using Makefile
 	ci.runs <- c()
 	ci.dir <- "/modelsrv6/d$/opusgit/urbansim_data/data/psrc_parcel/runs"
 } else { # running interactively
-	run1 <- "run_134.run_2018_05_12_13_11"
-	other.runs <- c('run_16.run_2018_05_14_15_03', 'run_17.run_2018_05_14_15_06')
+	#run1 <- "run_134.run_2018_05_12_13_11"
+	run1 <- "run_8.run_2018_05_08_16_46"
+	other.runs <- c('run_16.run_2018_05_14_15_03', 'run_17.run_2018_05_14_15_06', 'run_18.run_2018_05_15_12_54', 'run_19.run_2018_05_15_12_55')
 	#other.runs <- c()
 	base.dir <- "~/d6$/opusgit/urbansim_data/data/psrc_parcel/runs"
 	run.name <- "run_134"
+	run.name <- "run_8"
 	result.dir <- "."
 	ci.dir <- "~/d6$/opusgit/urbansim_data/data/psrc_parcel/runs"
-	ci.runs <- c("8")
-	annual <- TRUE
+	ci.runs <- c("8_5runs")
+	annual <- FALSE
 }
 runs <- c(run1, other.runs)
 #run.numbers <- sapply(strsplit(sapply(strsplit(runs, '[.]'), function(x) x[1]), '_'), function(x) x[2])
