@@ -17,14 +17,14 @@ ui <- function(request) {
                                             choices = allruns,
                                             width = "100%",
                                             multiple = TRUE),
-                             uiOutput("init_select_resultsdir"), # dynamic, lists dirs in QC/results
+                             # uiOutput("init_select_resultsdir"), # dynamic, lists dirs in QC/results
                              br(),
                              actionButton("goButton", "Submit"),
                              br(),
                              br(),
                              br(),
-                             verbatimTextOutput("submit_msg"),
-                             uiOutput('link')
+                             verbatimTextOutput("submit_msg")#,
+                             # uiOutput('link')
                       ), # end column
                       column(width = 4
  
@@ -165,10 +165,11 @@ ui <- function(request) {
                                          br(),
                                          uiOutput("mk_tpsht_select_run_ui"),
                                          navlistPanel(
-                                                      tabPanel("Control Total Mismatch (2040)",
+                                                      tabPanel("Control Total Mismatch",
                                                                column(width = 1),
                                                                column(width = 11,
                                                                  h3("Control Total Mismatch"),
+                                                                 h4(em("(applicable to LUV runs only)")),
                                                                  br(),
                                                                  h4("Summary"),
                                                                  div(DT::dataTableOutput("mk_tpsht_ctm"), style = "width: 95%"), # top level summary,
@@ -211,14 +212,14 @@ ui <- function(request) {
                                                                        h3("Allocation to RGCs"),
                                                                        br(),
                                                                        h4("Share of region (%)"),
-                                                                       DT::dataTableOutput("mk_tpsht_shr_reg"),
+                                                                       div(DT::dataTableOutput("mk_tpsht_shr_reg"), style = "width: 95%"),
                                                                        br(),
                                                                        h4("Share of cities with RGCs (%)"),
-                                                                       DT::dataTableOutput("mk_tpsht_shr_city"),
+                                                                       div(DT::dataTableOutput("mk_tpsht_shr_city"), style = "width: 95%"),
                                                                        br(),
                                                                        h4("Details on Share of Cities with RGCs (%)"),
                                                                        br(),
-                                                                       DT::dataTableOutput("mk_tpsht_shr_city_detail")
+                                                                       div(DT::dataTableOutput("mk_tpsht_shr_city_detail"), style = "width: 95%")
                                                                 ) # end column
                                                                 ), # end tabPanel
                                                       tabPanel("Share of RGCs (by type & rest of region & cities)",
@@ -227,7 +228,7 @@ ui <- function(request) {
                                                                column(width = 11,
                                                                       h3("Allocation to RGCs (by type & rest of region & cities)"),
                                                                       br(),
-                                                                      DT::dataTableOutput("mk_tpsht_shr_rest")
+                                                                      div(DT::dataTableOutput("mk_tpsht_shr_rest"), style = "width: 95%")
                                                                )# end column
                                                       ), # end tabPanel
                                                       tabPanel("Activity Units",
@@ -237,13 +238,13 @@ ui <- function(request) {
                                                                       h3("Activity Units"),
                                                                       br(),
                                                                       h4("RGCs"),
-                                                                      DT::dataTableOutput("mk_tpsht_au_rgc"),
+                                                                      div(DT::dataTableOutput("mk_tpsht_au_rgc"), style = "width: 95%"),
                                                                       br(),
                                                                       h4("MICs"),
-                                                                      DT::dataTableOutput("mk_tpsht_au_mic"),
+                                                                      div(DT::dataTableOutput("mk_tpsht_au_mic"), style = "width: 95%"),
                                                                       br(),
                                                                       h4("Details"),
-                                                                      DT::dataTableOutput("mk_tpsht_au_rec")
+                                                                      div(DT::dataTableOutput("mk_tpsht_au_rec"), style = "width: 95%")
                                                                )# end column
                                                       ), # end tabPanel
                                                       tabPanel("Employment in MICs",
@@ -251,7 +252,7 @@ ui <- function(request) {
                                                                ), # end column
                                                                column(width = 11,
                                                                       h3("Employment in MICs"),
-                                                                      DT::dataTableOutput("mk_tpsht_emp_mic")
+                                                                      div(DT::dataTableOutput("mk_tpsht_emp_mic"), style = "width: 95%")
                                                                )# end column
                                                       ), # end tabPanel
                                                       tabPanel("Special Places",
@@ -259,13 +260,13 @@ ui <- function(request) {
                                                                ), # end column
                                                                column(width = 11,
                                                                       h3("Households"),
-                                                                      DT::dataTableOutput("mk_tpsht_sp_hh"),
+                                                                      div(DT::dataTableOutput("mk_tpsht_sp_hh"), style = "width: 95%"),
                                                                       br(),
                                                                       h3("Population"),
-                                                                      DT::dataTableOutput("mk_tpsht_sp_pop"),
+                                                                      div(DT::dataTableOutput("mk_tpsht_sp_pop"), style = "width: 95%"),
                                                                       br(),
                                                                       h3("Employment"),
-                                                                      DT::dataTableOutput("mk_tpsht_sp_emp")
+                                                                      div(DT::dataTableOutput("mk_tpsht_sp_emp"), style = "width: 95%")
                                                                )# end column
                                                       ), # end tabPanel
                                                       widths = c(2, 10),

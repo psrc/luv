@@ -618,7 +618,7 @@ server <- function(input, output, session) {
   
   onBookmark(function(state) {
     state$values$submitted <- vars$submitted
-    state$values$dir <- vars$result.dir
+    # state$values$dir <- vars$result.dir
     state$values$select_run1 <- vars$select_run1
     state$values$select_run2all <- vars$select_run2all
     state$values$runnames <- vars$runnames
@@ -629,7 +629,7 @@ server <- function(input, output, session) {
   
   onRestore(function(state) {
     vars$submitted <- state$values$submitted
-    vars$result.dir <- state$values$dir
+    # vars$result.dir <- state$values$dir
     vars$select_run1 <-state$values$select_run1 
     vars$select_run2all<-state$values$select_run2all
     vars$runnames<-state$values$runnames
@@ -642,11 +642,11 @@ server <- function(input, output, session) {
 # Initialize Dashboard ----------------------------------------------------
 
   
-  trim.subdir <- tempfile(pattern="sessiondir", tmpdir=".")
+  # trim.subdir <- tempfile(pattern="sessiondir", tmpdir=".")
   # trim.subdir <- tempfile(pattern="sessiondir", tmpdir="")
-  subdir <- file.path("www", trim.subdir)
+  # subdir <- file.path("www", trim.subdir)
   vars <- reactiveValues(submitted = FALSE, 
-                         result.dir = NULL,
+                         # result.dir = NULL,
                          select_run1 = NULL,
                          select_run2all = NULL,
                          runnames = NULL,
@@ -657,18 +657,18 @@ server <- function(input, output, session) {
   
   base.dir <- reactive({input$init_select_allruns})
 
-  output$init_select_resultsdir <- renderUI({
-    select.resultsdir <- list.files(file.path(wrkdir, "results"))
-    selectInput(inputId = "select_resultsdir",
-                label = "Makefile Results Folder (to view Index file)",
-                choices = select.resultsdir,
-                width = "100%")
-  })
+  # output$init_select_resultsdir <- renderUI({
+  #   select.resultsdir <- list.files(file.path(wrkdir, "results"))
+  #   selectInput(inputId = "select_resultsdir",
+  #               label = "Makefile Results Folder (to view Index file)",
+  #               choices = select.resultsdir,
+  #               width = "100%")
+  # })
   
 
-  resultsDir <- reactive({
-    vars$result.dir
-  })
+  # resultsDir <- reactive({
+  #   vars$result.dir
+  # })
   
   selectRun1 <- reactive({
     vars$select_run1
@@ -697,9 +697,9 @@ server <- function(input, output, session) {
   # create sub-directory in 'www'
   # find text files from results dir and copy to www dir
   observeEvent(input$goButton, {
-    if(length(input$select_resultsdir) == 0) return()
-    if (!(file.exists(subdir))) dir.create(subdir)
-    vars$result.dir <- file.path(wrkdir, "results", input$select_resultsdir)
+    # if(length(input$select_resultsdir) == 0) return()
+    # if (!(file.exists(subdir))) dir.create(subdir)
+    # vars$result.dir <- file.path(wrkdir, "results", input$select_resultsdir)
     vars$select_run1 <- str_extract(input$init_select_allruns[1], "runs/(.*)") %>% str_split("/") %>% unlist %>% .[2]
     vars$select_run2all <- lapply(input$init_select_allruns[2:length(input$init_select_allruns)], function(x) str_extract(x, "runs/(.*)") %>% str_split("/") %>% unlist %>% .[2]) %>% unlist
     vars$runnames <-  c(vars$select_run1, vars$select_run2all)
@@ -707,29 +707,29 @@ server <- function(input, output, session) {
     vars$runnames2 <- sapply(strsplit(vars$select_run2all,"[.]"), function(x) x[1])
     vars$runs <- c(vars$runname1, unlist(vars$runnames2))
     
-    result.dir <- resultsDir()
+    # result.dir <- resultsDir()
     
-    flist <- list.files(subdir, glob2rx('*.txt|*.html'), full.names = TRUE, include.dirs=TRUE, ignore.case=TRUE)
-    if (length(flist) > 0) file.remove(flist)
-    unlink(file.path(subdir, 'index_files'), recursive = TRUE)
-    flist <- list.files(result.dir, glob2rx('*.txt|*.html'), full.names = TRUE, include.dirs=TRUE, ignore.case=TRUE)
-    if (length(flist) > 0) file.copy(flist, subdir)
+    # flist <- list.files(subdir, glob2rx('*.txt|*.html'), full.names = TRUE, include.dirs=TRUE, ignore.case=TRUE)
+    # if (length(flist) > 0) file.remove(flist)
+    # unlink(file.path(subdir, 'index_files'), recursive = TRUE)
+    # flist <- list.files(result.dir, glob2rx('*.txt|*.html'), full.names = TRUE, include.dirs=TRUE, ignore.case=TRUE)
+    # if (length(flist) > 0) file.copy(flist, subdir)
 
-    # remove index.html from www dir
-    # fn <- list.files('www', glob2rx('index.html'), full.names = TRUE, include.dirs=TRUE, ignore.case=TRUE)
-    # if (length(fn) > 0 && file.exists(fn)) file.remove(fn)
-    indexf.dir <- file.path(result.dir,"index_files")
-     if (length(indexf.dir) == 0) browser()
-    if(file.exists(indexf.dir)) {
-    	file.copy(indexf.dir, subdir, recursive = TRUE)
-    	indexdirs <- c()#'bootstrap-3.3.5', 'jquery-1.11.3'
-    	for (dir in indexdirs)
-      		unlink(file.path(subdir, 'index_files', dir), recursive = TRUE)
-    }
+    ## remove index.html from www dir
+    ## fn <- list.files('www', glob2rx('index.html'), full.names = TRUE, include.dirs=TRUE, ignore.case=TRUE)
+    ## if (length(fn) > 0 && file.exists(fn)) file.remove(fn)
+    # indexf.dir <- file.path(result.dir,"index_files")
+    #  if (length(indexf.dir) == 0) browser()
+    # if(file.exists(indexf.dir)) {
+    # 	file.copy(indexf.dir, subdir, recursive = TRUE)
+    # 	indexdirs <- c()#'bootstrap-3.3.5', 'jquery-1.11.3'
+    # 	for (dir in indexdirs)
+    #   		unlink(file.path(subdir, 'index_files', dir), recursive = TRUE)
+    # }
     vars$submitted <- TRUE
   })
   
-  output$link <- renderUI({HTML(paste0("<a href=", "'", file.path(trim.subdir, 'index.html'), "'", "target='blank'>View Index file</a>"))})
+  # output$link <- renderUI({HTML(paste0("<a href=", "'", file.path(trim.subdir, 'index.html'), "'", "target='blank'>View Index file</a>"))})
 
   # Compile: alldt (by geo: faz, city, zone) ---------------------------------------------------  
     
@@ -1157,16 +1157,16 @@ server <- function(input, output, session) {
   
   output$submit_msg <- renderText({
     if (vars$submitted == TRUE) {
-      "Data has been loaded, click on Index link or dashboard tabs"
+      "Data is ready to view"
     } else {
       return(NULL)
     }
   })
   
   # Delete temporary sub-directory in 'www' when session ends 
-  session$onSessionEnded(function() {
-    unlink(subdir, recursive=TRUE)
-  })
+  # session$onSessionEnded(function() {
+  #   unlink(subdir, recursive=TRUE)
+  # })
   
 
 # Topsheet Reactions and Rendering ----------------------------------------
@@ -1803,7 +1803,8 @@ server <- function(input, output, session) {
     alldt <- alldt()
     runs <- runs()
     runnames <- runnames()
-    ctyear <- 2040 # annual control total spreadsheet max year = 2040
+    yrs <- c(years[1], tsYear())
+    # ctyear <- 2040 # annual control total spreadsheet max year = 2040
 
     indicator.names <- c('Households' = 'households', 'Employment' = 'employment')
     indicator_settings <- list(households=c("total_number_of_households", "household"), employment=c("total_number_of_jobs", "employment"))
@@ -1813,15 +1814,15 @@ server <- function(input, output, session) {
       # Read control totals
       CT <- read.table(file.path(dsn, paste0('annual_', indicator_settings[[ind]][2], '_control_totals.csv')), sep=',', header=TRUE)
       CT.by.jur <- data.table(CT)[,list(CT=sum(get(indicator_settings[[ind]][1]))), by=.(city_id, year)]
-      CT.by.jur <- CT.by.jur[year == ctyear,]
-      ind.values <- alldt[geography == 'city' & run == input$mk_tpsht_select_run & indicator == eval(names(grep(ind, indicator.names, value = TRUE))), .SD, .SDcols = c("name_id", paste0("yr", ctyear))]
-      setnames(ind.values, c("name_id", paste0("yr", ctyear)), c("city_id", paste(ind, ctyear, sep='_')))
+      CT.by.jur <- CT.by.jur[year == yrs[2],]
+      ind.values <- alldt[geography == 'city' & run == input$mk_tpsht_select_run & indicator == eval(names(grep(ind, indicator.names, value = TRUE))), .SD, .SDcols = c("name_id", paste0("yr", yrs[2]))]
+      setnames(ind.values, c("name_id", paste0("yr", yrs[2])), c("city_id", paste(ind, yrs[2], sep='_')))
       ct.join <- merge(CT.by.jur, ind.values, by='city_id')
-      no.match <- ct.join[CT != get(paste(ind, ctyear, sep="_")),]
+      no.match <- ct.join[CT != get(paste(ind, yrs[2], sep="_")),]
       this.report <- data.frame(indicator=ind, total=nrow(no.match), max.percent=NA)
       if(nrow(no.match) > 0) {
-        simcol <- paste0("simulated_", ctyear)
-        colnames(no.match)[colnames(no.match) == paste(ind, ctyear, sep="_")] <- simcol
+        simcol <- paste0("simulated_", yrs[2])
+        colnames(no.match)[colnames(no.match) == paste(ind, yrs[2], sep="_")] <- simcol
         dif <- no.match[[simcol]] - no.match$CT
         dif.percent <- dif/no.match[[simcol]] * 100
         this.result <- cbind(data.frame(indicator=rep(ind, nrow(no.match)),  no.match), 
