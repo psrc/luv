@@ -82,9 +82,9 @@ make ind
 
 Note that the above step need Opus to be installed.
 
-To view results, navigate to the internal shiny server front page and open the 'LUV Dashboard' app.
+To view results, navigate to the internal shiny server front page and open the LUV Dashboard app.
 
-For running additional QC not available through the LUV Dashboard, some scripts perform comparisons of the current run (defined in  'QC\_RUN1') with other runs, which should be defined in 'QC\_RUN2' as comma-separated character string. Also in inputs.txt, the entry 'QC\_NAME' defines a directory where QC results are stored, and thus has the potential of overwriting existing results.
+For running additional QC not available through the LUV Dashboard app, some scripts perform comparisons of the current run (defined in  'QC\_RUN1') with other runs, which should be defined in 'QC\_RUN2' as comma-separated character string. Also in inputs.txt, the entry 'QC\_NAME' defines a directory where QC results are stored, and thus has the potential of overwriting existing results.
 
 For running only a subset of the scripts and other options, see next section. For an interactive visualization, see Section "Viewing Results".
 
@@ -137,9 +137,9 @@ The following phonies are obsolete:
 
 ## Viewing Results
 
-After indicator files have been created, QC results are immediately available on the 'LUV Dashboard' app. If your desired run does not appear in the selection menu, login to the shiny server to restart the app.
+After indicator files have been created, QC results are immediately available on the LUV Dashboard app. If your desired run does not appear in the selection menu, login to the shiny server to restart the app. See Administrators for password and more information.
 
-For scripts outside of the Dashboard app, each should write its summary results into an Rmd file (in [R Markdown](http://rmarkdown.rstudio.com)), using a prefix that corresponds to its phonie (e.g. 'rplots\_', 'rtables\_'). The script 'scripts/create\_index\_file.R' (invoked by the index phonie) combines such files into one and translates it into index.html that can be viewed from a browser.  The file is located in the corresponding results directory.
+For scripts outside of the LUV Dashboard app, each should write its summary results into an Rmd file (in [R Markdown](http://rmarkdown.rstudio.com)), using a prefix that corresponds to its phonie (e.g. 'rplots\_', 'rtables\_'). The script 'scripts/create\_index\_file.R' (invoked by the index phonie) combines such files into one and translates it into index.html that can be viewed from a browser.  The file is located in the corresponding results directory.
 <!--
 Typing ''make shiny'' (preceeded by ''make all'') will launch a dashboard in your browser allowing you to view the results interactively. To exit the dashboard press Ctrl-C. Note that currently only one dashboard per computer can be launched. It is using results from a directory determined by  the QC\_NAME entry in inputs.txt
 
