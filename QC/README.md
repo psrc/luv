@@ -40,10 +40,10 @@ $ pip install plotly
 
 Make sure [R](https://www.r-project.org) is installed. Also, check that R is working from the command line by typing R into the bash terminal. If it is not found, add the location of R.exe into your Path environment (on modelsrv3 it's ``C:\Program Files\R\R-3.3.1\bin``).
 
-While R is open, install the packages ``shinythemes``, ``htmltools``, ``flexdashboard``, ``shiny``, ``magrittr``, ``plotly``, ``data.table``, ``leaflet``, ``rgdal``, ``sp`` using
+While R is open, install the packages ``shinythemes``, ``htmltools``, ``flexdashboard``, ``shiny``, ``magrittr``, ``plotly``, ``data.table``, ``leaflet``, ``rgdal``, ``sp``, ``stringr``, ``DT``, ``scales``, ``lemon`` using
 
 ```
-install.packages(c('shinythemes', 'htmltools', 'flexdashboard', 'shiny', 'magrittr', 'plotly', 'data.table', 'leaflet', 'rgdal', 'sp'), dependencies=TRUE)
+install.packages(c('shinythemes', 'htmltools', 'flexdashboard', 'shiny', 'magrittr', 'plotly', 'data.table', 'leaflet', 'rgdal', 'sp', 'stringr', 'DT', 'scales', 'lemon'), dependencies=TRUE)
 ```
 
 If you plan to generate R-reports, you will also need ``ggplot2``, ``grid`` and ``gridExtra``. I believe they should be installed as dependencies in the previous step.
@@ -82,26 +82,29 @@ make ind
 
 Note that the above step need Opus to be installed.
 
-For running the QC, some scripts perform comparisons of the current run (defined in  'QC\_RUN1') with other runs, which should be defined in 'QC\_RUN2' as comma-separated character string. Also in inputs.txt, the entry 'QC\_NAME' defines a directory where QC results are stored, and thus has the potential of overwriting existing results.
+To view results, navigate to the internal shiny server front page and open the 'LUV Dashboard' app.
 
+For running additional QC not available through the LUV Dashboard, some scripts perform comparisons of the current run (defined in  'QC\_RUN1') with other runs, which should be defined in 'QC\_RUN2' as comma-separated character string. Also in inputs.txt, the entry 'QC\_NAME' defines a directory where QC results are stored, and thus has the potential of overwriting existing results.
+
+For running only a subset of the scripts and other options, see next section. For an interactive visualization, see Section "Viewing Results".
+
+<!--
 To run all the QCs, type
 
 ```
 make all
 ```
 
-For running only a subset of the scripts and other options, see next section. For an interactive visualization, see Section "Viewing Results".
-
-IF:  you get an error message that says, 
+IF:  you get an error message that says,
 
 ```
 'the requested operation requires elevation'
 ```
-try running make in Git Bash (if you were using Console Z or some other program) or run the program as administrator.  Christy & Mark got that error message using Console Z on MODELSRV8 but not in Git Bash - web search indicated it has to do with Admin rights.  
-
+try running make in Git Bash (if you were using Console Z or some other program) or run the program as administrator.  Christy & Mark got that error message using Console Z on MODELSRV8 but not in Git Bash - web search indicated it has to do with Admin rights.
+-->
 ## Extending the Makefile
 
-The idea is that people write a QC script and connect it to the framework via the Makefile. We can create several grouppings for different types of outputs, each of them would correspond to a phonie. For example, there is a group called 'rtables'. The command 
+People can write a QC script and connect it to a framework via the Makefile. We can create several grouppings for different types of outputs, each of them would correspond to a phonie. For example, there is a group called 'rtables'. The command 
 
 ```
 make rtables
@@ -123,16 +126,21 @@ Currently, the following phonies are implemented:
    * **emplots**: run python in scripts/qc\_tsplot\_emp\_cnty.py which generates time series plots of jobs by sector and county. 
    * **index**: run R code in scripts/create\_index\_file.R (see next section for more details)
    * **clean-index**: removes the index output file
-   * **all**: run the phonies rtables, rplots, rmaps, emplots and index
-   * **shiny**: create a shiny dashboard in a browser
-   * **dash**: create a browser-based dashboard (obsolete; use shiny instead)
    * **rreport-city**: generate R-report on the city level (see Section R-Reports)
    * **rreport-faz**: generate R-report on the faz level (see Section R-Reports)
 
+The following phonies are obsolete:
+
+   * **all**: run the phonies rtables, rplots, rmaps, emplots and index (obsolete)
+   * **shiny**: create a shiny dashboard in a browser(obsolete)
+   * **dash**: create a browser-based dashboard (obsolete)
+
 ## Viewing Results
 
-Each script should write its summary results into an Rmd file (in [R Markdown](http://rmarkdown.rstudio.com)), using a prefix that corresponds to its phonie (e.g. 'rplots\_', 'rtables\_'). The script 'scripts/create\_index\_file.R' (invoked by the index phonie) combines such files into one and translates it into index.html that can be viewed from a browser.  The file is located in the corresponding results directory.
+After indicator files have been created, QC results are immediately available on the 'LUV Dashboard' app. If your desired run does not appear in the selection menu, login to the shiny server to restart the app.
 
+For scripts outside of the Dashboard app, each should write its summary results into an Rmd file (in [R Markdown](http://rmarkdown.rstudio.com)), using a prefix that corresponds to its phonie (e.g. 'rplots\_', 'rtables\_'). The script 'scripts/create\_index\_file.R' (invoked by the index phonie) combines such files into one and translates it into index.html that can be viewed from a browser.  The file is located in the corresponding results directory.
+<!--
 Typing ''make shiny'' (preceeded by ''make all'') will launch a dashboard in your browser allowing you to view the results interactively. To exit the dashboard press Ctrl-C. Note that currently only one dashboard per computer can be launched. It is using results from a directory determined by  the QC\_NAME entry in inputs.txt
 
 To view the Makefile results on the shiny server, copy the makefile results folder directly onto the server. In Git Bash, navigate to the location of the makefile results folder and type:
@@ -142,9 +150,8 @@ scp -r insert-makefile-results-folder-name shiny@dataweb:/home/shiny/apps/luv/QC
 ```
 
 IE for run_133 type: scp -r run_133 shiny@dataweb:/home/shiny/apps/luv/QC/results
+-->
 
-See Administrators for password.
- 
 ## R-Reports
 
 One can generate R-reports via the Makefile, using the phonies  
