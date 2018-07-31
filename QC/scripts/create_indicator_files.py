@@ -9,21 +9,35 @@ from opus_core.indicator_framework.image_types.dataset_table import DatasetTable
 
 def jobs_by_sector(geo, package="psrc_parcel"):
     return [
-               "construction_resources = %s.%s.number_of_jobs_of_sector_1 + %s.%s.number_of_jobs_of_sector_2" % (2*(package, geo)),
-               "manuf_WTU = %s.%s.number_of_jobs_of_sector_3 + %s.%s.number_of_jobs_of_sector_4 + %s.%s.number_of_jobs_of_sector_5 + %s.%s.number_of_jobs_of_sector_6 + %s.%s.number_of_jobs_of_sector_8 + %s.%s.number_of_jobs_of_sector_9" % (6*(package, geo)),
-               "retail_food_services = %s.%s.number_of_jobs_of_sector_7 + %s.%s.number_of_jobs_of_sector_14" % (2*(package, geo)),
-               "FIRE_services = %s.%s.number_of_jobs_of_sector_12 + %s.%s.number_of_jobs_of_sector_10 + %s.%s.number_of_jobs_of_sector_11 + %s.%s.number_of_jobs_of_sector_13 + %s.%s.number_of_jobs_of_sector_15 + %s.%s.number_of_jobs_of_sector_16 + %s.%s.number_of_jobs_of_sector_17" % (7*(package, geo)),
-               "government = %s.%s.number_of_jobs_of_sector_18" % (package, geo),
-               "edu = %s.%s.number_of_jobs_of_sector_19" % (package, geo)
+               "Natural_resources = %s.%s.number_of_jobs_of_sector_1" % (package, geo),
+               "Construction = %s.%s.number_of_jobs_of_sector_2" % (package, geo),
+			   "Manuf = %s.%s.number_of_jobs_of_sector_3" % (package, geo),
+               "WTU = %s.%s.number_of_jobs_of_sector_4" % (package, geo),
+			   "Retail = %s.%s.number_of_jobs_of_sector_5" % (package, geo),
+			   "Business_Services = %s.%s.number_of_jobs_of_sector_7" % (package, geo),
+               "Private_Ed = %s.%s.number_of_jobs_of_sector_8" % (package, geo),
+			   "Healthcare = %s.%s.number_of_jobs_of_sector_9" % (package, geo),
+			   "Food_Services = %s.%s.number_of_jobs_of_sector_10" % (package, geo),
+               "Personal_Services = %s.%s.number_of_jobs_of_sector_11" % (package, geo),
+			   "government = %s.%s.number_of_jobs_of_sector_12" % (package, geo),
+               "edu = %s.%s.number_of_jobs_of_sector_13" % (package, geo)               
+			   # Old Employment Sectors
+			   # "construction_resources = %s.%s.number_of_jobs_of_sector_1 + %s.%s.number_of_jobs_of_sector_2" % (2*(package, geo)),
+               # "manuf_WTU = %s.%s.number_of_jobs_of_sector_3 + %s.%s.number_of_jobs_of_sector_4 + %s.%s.number_of_jobs_of_sector_5 + %s.%s.number_of_jobs_of_sector_6 + %s.%s.number_of_jobs_of_sector_8 + %s.%s.number_of_jobs_of_sector_9" % (6*(package, geo)),
+               # "retail_food_services = %s.%s.number_of_jobs_of_sector_7 + %s.%s.number_of_jobs_of_sector_14" % (2*(package, geo)),
+               # "FIRE_services = %s.%s.number_of_jobs_of_sector_12 + %s.%s.number_of_jobs_of_sector_10 + %s.%s.number_of_jobs_of_sector_11 + %s.%s.number_of_jobs_of_sector_13 + %s.%s.number_of_jobs_of_sector_15 + %s.%s.number_of_jobs_of_sector_16 + %s.%s.number_of_jobs_of_sector_17" % (7*(package, geo)),
+               # "government = %s.%s.number_of_jobs_of_sector_18" % (package, geo),
+               # "edu = %s.%s.number_of_jobs_of_sector_19" % (package, geo)
            ]
 
 def get_indicators(cache_directory, run_description, years = [2014,2015,2017,2020,2025,2030,2035,2040,2045,2050], base_year=2014):
 #def get_indicators(cache_directory, run_description, years = [2014,2015,2017,2020,2025], base_year=2014):
 #def get_indicators(cache_directory, run_description, years = [2014,2015,2017,2020,2021,2022,2023,2024,2025,2030,2035,2040,2045,2046,2047,2048,2049,2050], base_year=2014):
 #def get_indicators(cache_directory, run_description, years = [2014,2016,2017,2050], base_year=2014):
+#def get_indicators(cache_directory, run_description, years = [2014,2015,2020,2025,2030,2035,2036], base_year=2014):
 #def get_indicators(cache_directory, run_description, years = range(2014,2034), base_year=2014):
-#def get_indicators(cache_directory, run_description, years = [2016,2017], base_year=2014):
-#def get_indicators(cache_directory, run_description, years = [2014,2015], base_year=2014):
+#def get_indicators(cache_directory, run_description, years = [2050], base_year=2014):
+#def get_indicators(cache_directory, run_description, years = [2020,2035], base_year=2014):
 #def get_indicators(cache_directory, run_description, years = range(2014,2046), base_year=2014):
     source_data = SourceData(
         cache_directory = cache_directory,
@@ -56,6 +70,44 @@ def get_indicators(cache_directory, run_description, years = [2014,2015,2017,202
        ],
   ),
 
+# Subarea Level Indicators  
+  
+   Table(
+	   attribute = 'population = subarea.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel])',
+	   dataset_name = 'subarea',
+	   source_data = source_data,
+	   ),
+   Table(
+	   attribute = 'households = subarea.aggregate(urbansim_parcel.parcel.number_of_households, intermediates=[parcel])',
+	   dataset_name = 'subarea',
+	   source_data = source_data,
+	   ),
+   Table(
+	   attribute = 'employment = subarea.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
+	   dataset_name = 'subarea',
+	   source_data = source_data,
+	   ),
+  
+  
+# TOD Level Indicators  
+  
+   Table(
+	   attribute = 'population = tod.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel])',
+	   dataset_name = 'tod',
+	   source_data = source_data,
+	   ),
+   Table(
+	   attribute = 'households = tod.aggregate(urbansim_parcel.parcel.number_of_households, intermediates=[parcel])',
+	   dataset_name = 'tod',
+	   source_data = source_data,
+	   ),
+   Table(
+	   attribute = 'employment = tod.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
+	   dataset_name = 'tod',
+	   source_data = source_data,
+	   ),
+  
+  
 # County Level Control indicators  - added 4.17.2018
 
    Table(
@@ -564,6 +616,24 @@ def get_end_year_indicators(cache_directory, run_description, years = [2050], ba
                 'urbansim_parcel.building.building_sqft'
             ],
             exclude_condition = 'building.year_built<2015',
+            ),
+			
+        DatasetTable(
+            source_data = source_data,
+            dataset_name = 'parcel',
+            name =  'households_jobs',
+            attributes = [
+                'households = urbansim_parcel.parcel.number_of_households',
+                'urbansim_parcel.parcel.population',
+                'urbansim_parcel.parcel.residential_units',
+                'urbansim_parcel.parcel.employment',
+                'non_home_based_employment = parcel.aggregate(psrc_parcel.building.number_of_non_home_based_jobs)',
+                'non_residential_sqft = parcel.aggregate(building.non_residential_sqft)',
+                'building_sqft = parcel.aggregate(urbansim_parcel.building.building_sqft)',
+                'psrc_parcel.parcel.job_capacity',
+                'parcel.plan_type_id',
+				'residential_units_base = parcel.aggregate(building.residential_units * (building.year_built < 2015))'
+            ],
             ),
         ]
     return indicators
