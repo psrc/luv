@@ -70,6 +70,24 @@ def get_indicators(cache_directory, run_description, years = [2014,2015,2017,202
        ],
   ),
 
+# Census Tract Level Indicators  
+  
+   Table(
+	   attribute = 'population = census_tract.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel])',
+	   dataset_name = 'census_tract',
+	   source_data = source_data,
+	   ),
+   Table(
+	   attribute = 'households = census_tract.aggregate(urbansim_parcel.parcel.number_of_households, intermediates=[parcel])',
+	   dataset_name = 'census_tract',
+	   source_data = source_data,
+	   ),
+   Table(
+	   attribute = 'employment = census_tract.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
+	   dataset_name = 'census_tract',
+	   source_data = source_data,
+	   ),
+  
 # Subarea Level Indicators  
   
    Table(
