@@ -34,12 +34,18 @@ if(make) {
   result.name <- Sys.getenv('QC_NAME')
   wrkdir <- file.path(Sys.getenv('QC_SCRIPT_PATH'), "..")
 } else {
-  base <- list(Modelsrv5 = "/media/modelsrv5d/opusgit/urbansim_data/data/psrc_parcel/runs",
+  base <- list(Aws03 = "/media/aws-model03e/opusgit/urbansim_data/data/psrc_parcel/runs",
+               Aws04 = "/media/aws-model04e/opusgit/urbansim_data/data/psrc_parcel/runs",
+               Aws05 = "/media/aws-model05e/opusgit/urbansim_data/data/psrc_parcel/runs",
+               Modelsrv5 = "/media/modelsrv5d/opusgit/urbansim_data/data/psrc_parcel/runs",
                Modelsrv6 = "/media/modelsrv6d/opusgit/urbansim_data/data/psrc_parcel/runs",
                Modelsrv8 = "/media/modelsrv8d/opusgit/urbansim_data/data/psrc_parcel/runs",
                Modelsrv3 = "/media/modelsrv3e/opusgit/urbansim_data/data/psrc_parcel/runs"
               )
-  # base <- list(Modelsrv5 = "//modelsrv5/d$/opusgit/urbansim_data/data/psrc_parcel/runs",
+  # base <- list(Aws03 = "//aws-model03/e$/opusgit/urbansim_data/data/psrc_parcel/runs",
+  #              Aws04 = "//aws-model04/e$/opusgit/urbansim_data/data/psrc_parcel/runs",
+  #              Aws05 = "//aws-model05/e$/opusgit/urbansim_data/data/psrc_parcel/runs",
+  #              Modelsrv5 = "//modelsrv5/d$/opusgit/urbansim_data/data/psrc_parcel/runs",
   #              Modelsrv6 = "//modelsrv6/d$/opusgit/urbansim_data/data/psrc_parcel/runs",
   #              Modelsrv8 = "//MODELSRV8/d$/opusgit/urbansim_data/data/psrc_parcel/runs",
   #              Modelsrv3 = "//modelsrv3/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
