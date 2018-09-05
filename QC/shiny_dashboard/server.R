@@ -2243,7 +2243,8 @@ server <- function(input, output, session) {
     strdt <- strdt()
     alldt <- alldt()
 
-    if (is.null(cStructureType()) | cStructureType() == "All" | (cIndicator() %in% c("Total Population", "Employment"))){
+    if (is.null(cStructureType()) | cStructureType() == "All" | (cIndicator() %in% c("Total Population", "Employment")) |
+        (cIndicator() %in% c("Households", "Residential Units") & cGeog() %in% c("zone", "city")) ){
       dt1 <- alldt[run == runname1() & geography == cGeog() & indicator == cIndicator(),
                    .(name_id, geography, indicator, get(cBaseYear()), get(cYear()))]
       setnames(dt1, dt1[,c((ncol(dt1)-1), ncol(dt1))], c('baseyr', 'estrun1'))
@@ -2440,7 +2441,8 @@ server <- function(input, output, session) {
      gYear <- gYear()
      gYear0 <- gYear0()
      
-     if (is.null(gStructureType()) || gStructureType() == "All" || gRunInStrdt() == FALSE || (gIndicator() %in% c("Total Population", "Employment"))){
+     if (is.null(gStructureType()) || gStructureType() == "All" || gRunInStrdt() == FALSE || 
+         (gIndicator() %in% c("Total Population", "Employment")) || (gIndicator() %in% c("Households", "Residential Units") & gGeog() %in% c("zone", "city")) ){
        dt <- alldt[run == gRun() & geography == gGeog() & indicator == gIndicator(),
                    .(name_id, geography, run, indicator, get(gYear[1]), get(gYear[2]))]
        setnames(dt, c(dt[,ncol(dt)-1], dt[,ncol(dt)]), c('yr1', 'yr2'))
