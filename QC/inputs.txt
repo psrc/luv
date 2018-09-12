@@ -1,16 +1,16 @@
 # QC_NAME is obligatory entry; defines subdirectory for the QC results
-QC_NAME=run122_test
+QC_NAME= run_3 STC integrated
 
-QC_BASE_DIRECTORY=//modelsrv6/d$$/opusgit/urbansim_data/data/psrc_parcel/runs
+QC_BASE_DIRECTORY=//aws-model04/e$$/opusgit/urbansim_data/data/psrc_parcel/runs
 #QC_BASE_DIRECTORY=//modelsrv5/d$$/opusgit/urbansim_data/data/psrc_parcel/runs
 #QC_BASE_DIRECTORY=//MODELSRV8/d$$/opusgit/urbansim_data/data/psrc_parcel/runs
 #QC_BASE_DIRECTORY=//modelsrv3/e$$/opusgit/urbansim_data/data/psrc_parcel/runs
 #QC_BASE_DIRECTORY=/Volumes/d$$/opusgit/urbansim_data/data/psrc_parcel/runs
 
-QC_RUN1=run_122.run_2018_04_23_15_08
+QC_RUN1=run_3.run_2018_08_17_13_06
 
 # Optional description of the run
-QC_RUN1_DESCR=test
+QC_RUN1_DESCR= run_3 STC integrated
 
 # Optional info about any restrictions
 QC_RUN1_RESTR=Test run!
