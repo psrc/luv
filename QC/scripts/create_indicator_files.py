@@ -366,17 +366,17 @@ def get_indicators(cache_directory, run_description, years = [2014,2015,2017,202
       ##============================
 
         Table(
-            attribute = 'households=census_tract.aggregate(urbansim_parcel.parcel.number_of_households, intermediates=[census_block_group])',
+            attribute = 'households=census_tract.aggregate(urbansim_parcel.parcel.number_of_households)',
             dataset_name = 'census_tract',
             source_data = source_data,
             ),
         Table(
-            attribute = 'population=census_tract.aggregate(urbansim_parcel.parcel.population, intermediates=[census_block_group])',
+            attribute = 'population=census_tract.aggregate(urbansim_parcel.parcel.population)',
             dataset_name = 'census_tract',
             source_data = source_data,
             ),
         Table(
-            attribute = 'employment=census_tract.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[census_block_group])',
+            attribute = 'employment=census_tract.aggregate(urbansim_parcel.parcel.number_of_jobs)',
             dataset_name = 'census_tract',
             source_data = source_data,
             ),
@@ -384,9 +384,9 @@ def get_indicators(cache_directory, run_description, years = [2014,2015,2017,202
             # attribute = 'nonres_sqft=fcensus_tract.aggregate(urbansim_parcel.parcel.non_residential_sqft, intermediates=[census_block_group])',
             # dataset_name = 'census_tract',
             # source_data = source_data,
-            # ),	   
+            # )
         Table(
-            attribute = 'residential_units=census_tract.aggregate(urbansim_parcel.parcel.residential_units, intermediates=[census_block_group])',
+            attribute = 'residential_units=census_tract.aggregate(urbansim_parcel.parcel.residential_units)',
             dataset_name = 'census_tract',
             source_data = source_data,
             ),
