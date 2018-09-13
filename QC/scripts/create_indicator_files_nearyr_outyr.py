@@ -11,18 +11,18 @@ from opus_core.indicator_framework.image_types.dataset_table import DatasetTable
     # return [
                # "Natural_resources = %s.%s.number_of_jobs_of_sector_1" % (package, geo),
                # "Construction = %s.%s.number_of_jobs_of_sector_2" % (package, geo),
-			   # "Manuf = %s.%s.number_of_jobs_of_sector_3" % (package, geo),
+               # "Manuf = %s.%s.number_of_jobs_of_sector_3" % (package, geo),
                # "WTU = %s.%s.number_of_jobs_of_sector_4" % (package, geo),
-			   # "Retail = %s.%s.number_of_jobs_of_sector_5" % (package, geo),
-			   # "Business_Services = %s.%s.number_of_jobs_of_sector_7" % (package, geo),
+               # "Retail = %s.%s.number_of_jobs_of_sector_5" % (package, geo),
+               # "Business_Services = %s.%s.number_of_jobs_of_sector_7" % (package, geo),
                # "Private_Ed = %s.%s.number_of_jobs_of_sector_8" % (package, geo),
-			   # "Healthcare = %s.%s.number_of_jobs_of_sector_9" % (package, geo),
-			   # "Food_Services = %s.%s.number_of_jobs_of_sector_10" % (package, geo),
+               # "Healthcare = %s.%s.number_of_jobs_of_sector_9" % (package, geo),
+               # "Food_Services = %s.%s.number_of_jobs_of_sector_10" % (package, geo),
                # "Personal_Services = %s.%s.number_of_jobs_of_sector_11" % (package, geo),
-			   # "government = %s.%s.number_of_jobs_of_sector_12" % (package, geo),
+               # "government = %s.%s.number_of_jobs_of_sector_12" % (package, geo),
                # "edu = %s.%s.number_of_jobs_of_sector_13" % (package, geo)               
-			   # # Old Employment Sectors
-			   # # "construction_resources = %s.%s.number_of_jobs_of_sector_1 + %s.%s.number_of_jobs_of_sector_2" % (2*(package, geo)),
+               # # Old Employment Sectors
+               # # "construction_resources = %s.%s.number_of_jobs_of_sector_1 + %s.%s.number_of_jobs_of_sector_2" % (2*(package, geo)),
                # # "manuf_WTU = %s.%s.number_of_jobs_of_sector_3 + %s.%s.number_of_jobs_of_sector_4 + %s.%s.number_of_jobs_of_sector_5 + %s.%s.number_of_jobs_of_sector_6 + %s.%s.number_of_jobs_of_sector_8 + %s.%s.number_of_jobs_of_sector_9" % (6*(package, geo)),
                # # "retail_food_services = %s.%s.number_of_jobs_of_sector_7 + %s.%s.number_of_jobs_of_sector_14" % (2*(package, geo)),
                # # "FIRE_services = %s.%s.number_of_jobs_of_sector_12 + %s.%s.number_of_jobs_of_sector_10 + %s.%s.number_of_jobs_of_sector_11 + %s.%s.number_of_jobs_of_sector_13 + %s.%s.number_of_jobs_of_sector_15 + %s.%s.number_of_jobs_of_sector_16 + %s.%s.number_of_jobs_of_sector_17" % (7*(package, geo)),
@@ -157,130 +157,129 @@ def get_indicators(cache_directory, run_description, years = [2014,2017,2050], b
 ## Transit Buffer Level Indicators  
   
     Table(
-	    attribute = 'population = transit_buffer.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel])',
-	    dataset_name = 'transit_buffer',
-	    source_data = source_data,
-	    ),
+        attribute = 'population = transit_buffer.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel])',
+        dataset_name = 'transit_buffer',
+        source_data = source_data,
+        ),
     Table(
-	    attribute = 'households = transit_buffer.aggregate(urbansim_parcel.parcel.number_of_households, intermediates=[parcel])',
-	    dataset_name = 'transit_buffer',
-	    source_data = source_data,
-	    ),
+        attribute = 'households = transit_buffer.aggregate(urbansim_parcel.parcel.number_of_households, intermediates=[parcel])',
+        dataset_name = 'transit_buffer',
+        source_data = source_data,
+        ),
     Table(
-	    attribute = 'employment = transit_buffer.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
-	    dataset_name = 'transit_buffer',
-	    source_data = source_data,
-	    ),  
+        attribute = 'employment = transit_buffer.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
+        dataset_name = 'transit_buffer',
+        source_data = source_data,
+        ),  
   
     Table(
-	    attribute = 'activity_units = transit_buffer.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel]) + transit_buffer.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
-	    dataset_name = 'transit_buffer',
-	    source_data = source_data,
-	    ),
+        attribute = 'activity_units = transit_buffer.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel]) + transit_buffer.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
+        dataset_name = 'transit_buffer',
+        source_data = source_data,
+        ),
 
-	   
 ## UGA Buffer Level Indicators  
   
     Table(
-	    attribute = 'population = uga_buffer.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel])',
-	    dataset_name = 'uga_buffer',
-	    source_data = source_data,
-	    ),
+        attribute = 'population = uga_buffer.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel])',
+        dataset_name = 'uga_buffer',
+        source_data = source_data,
+        ),
     Table(
-	    attribute = 'households = uga_buffer.aggregate(urbansim_parcel.parcel.number_of_households, intermediates=[parcel])',
-	    dataset_name = 'uga_buffer',
-	    source_data = source_data,
-	    ),
+        attribute = 'households = uga_buffer.aggregate(urbansim_parcel.parcel.number_of_households, intermediates=[parcel])',
+        dataset_name = 'uga_buffer',
+        source_data = source_data,
+        ),
     Table(
-	    attribute = 'employment = uga_buffer.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
-	    dataset_name = 'uga_buffer',
-	    source_data = source_data,
-	    ),  
+        attribute = 'employment = uga_buffer.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
+        dataset_name = 'uga_buffer',
+        source_data = source_data,
+        ),  
   
     Table(
-	    attribute = 'activity_units = uga_buffer.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel]) + uga_buffer.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
-	    dataset_name = 'uga_buffer',
-	    source_data = source_data,
-	    ),
+        attribute = 'activity_units = uga_buffer.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel]) + uga_buffer.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
+        dataset_name = 'uga_buffer',
+        source_data = source_data,
+        ),
 
 ## Grid Level Indicators  
   
     Table(
-	    attribute = 'population = grid.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel])',
-	    dataset_name = 'grid',
-	    source_data = source_data,
-	    ),
+        attribute = 'population = grid.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel])',
+        dataset_name = 'grid',
+        source_data = source_data,
+        ),
     Table(
-	    attribute = 'households = grid.aggregate(urbansim_parcel.parcel.number_of_households, intermediates=[parcel])',
-	    dataset_name = 'grid',
-	    source_data = source_data,
-	    ),
+        attribute = 'households = grid.aggregate(urbansim_parcel.parcel.number_of_households, intermediates=[parcel])',
+        dataset_name = 'grid',
+        source_data = source_data,
+        ),
     Table(
-	    attribute = 'employment = grid.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
-	    dataset_name = 'grid',
-	    source_data = source_data,
-	    ),  
+        attribute = 'employment = grid.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
+        dataset_name = 'grid',
+        source_data = source_data,
+        ),  
     Table(
-	    attribute = 'activity_units = grid.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel]) + grid.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
-	    dataset_name = 'grid',
-	    source_data = source_data,
-	    ),
+        attribute = 'activity_units = grid.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel]) + grid.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
+        dataset_name = 'grid',
+        source_data = source_data,
+        ),
   
 ## Census Tract Level Indicators  
   
    # Table(
-	   # attribute = 'population = census_tract.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel])',
-	   # dataset_name = 'census_tract',
-	   # source_data = source_data,
-	   # ),
+        # attribute = 'population = census_tract.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel])',
+        # dataset_name = 'census_tract',
+        # source_data = source_data,
+        # ),
    # Table(
-	   # attribute = 'households = census_tract.aggregate(urbansim_parcel.parcel.number_of_households, intermediates=[parcel])',
-	   # dataset_name = 'census_tract',
-	   # source_data = source_data,
-	   # ),
+        # attribute = 'households = census_tract.aggregate(urbansim_parcel.parcel.number_of_households, intermediates=[parcel])',
+        # dataset_name = 'census_tract',
+        # source_data = source_data,
+        # ),
    # Table(
-	   # attribute = 'employment = census_tract.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
-	   # dataset_name = 'census_tract',
-	   # source_data = source_data,
-	   # ),
-  
+        # attribute = 'employment = census_tract.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
+        # dataset_name = 'census_tract',
+        # source_data = source_data,
+        # ),
+
 ## Subarea Level Indicators  
-  
+
     Table(
-	    attribute = 'population = subarea.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel])',
-	    dataset_name = 'subarea',
-	    source_data = source_data,
-	    ),
+        attribute = 'population = subarea.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel])',
+        dataset_name = 'subarea',
+        source_data = source_data,
+        ),
     Table(
-	    attribute = 'households = subarea.aggregate(urbansim_parcel.parcel.number_of_households, intermediates=[parcel])',
-	    dataset_name = 'subarea',
-	    source_data = source_data,
-	    ),
+        attribute = 'households = subarea.aggregate(urbansim_parcel.parcel.number_of_households, intermediates=[parcel])',
+        dataset_name = 'subarea',
+        source_data = source_data,
+        ),
     Table(
-	    attribute = 'employment = subarea.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
-	    dataset_name = 'subarea',
-	    source_data = source_data,
-	    ),
-  
-  
+        attribute = 'employment = subarea.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
+        dataset_name = 'subarea',
+        source_data = source_data,
+        ),
+
+
 ## TOD Level Indicators  
   
     Table(
-	    attribute = 'population = tod.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel])',
-	    dataset_name = 'tod',
-	    source_data = source_data,
-	    ),
+        attribute = 'population = tod.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel])',
+        dataset_name = 'tod',
+        source_data = source_data,
+        ),
     Table(
-	    attribute = 'households = tod.aggregate(urbansim_parcel.parcel.number_of_households, intermediates=[parcel])',
-	    dataset_name = 'tod',
-	    source_data = source_data,
-	    ),
+        attribute = 'households = tod.aggregate(urbansim_parcel.parcel.number_of_households, intermediates=[parcel])',
+        dataset_name = 'tod',
+        source_data = source_data,
+        ),
     Table(
-	    attribute = 'employment = tod.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
-	    dataset_name = 'tod',
-	    source_data = source_data,
-	    ),
-          
+        attribute = 'employment = tod.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
+        dataset_name = 'tod',
+        source_data = source_data,
+        ),
+
 ## Impervious Area Indicators at County total and Regional category breakdown
 
      Table(
@@ -288,7 +287,7 @@ def get_indicators(cache_directory, run_description, years = [2014,2017,2050], b
         dataset_name = 'county',
         source_data = source_data,
         ),
-      
+
     DatasetTable(
         source_data = source_data,
         dataset_name = 'alldata',
@@ -300,9 +299,9 @@ def get_indicators(cache_directory, run_description, years = [2014,2017,2050], b
         ],
     ),
 
- 
- 
- 
+
+
+
     ]
     return indicators
 
@@ -332,9 +331,7 @@ if __name__ == '__main__':
     ## runs buildings indicator only for the simulation end year
     #IndicatorFactory().create_indicators(
     #    indicators = get_end_year_indicators(ind_cache, os.getenv('QC_RUN1_DESCR', ''),years = [2050]),
-    #    display_error_box = False, 
-    #    show_results = False)    
+    #    display_error_box = False,
+    #    show_results = False)
 
     write_info(ind_cache, os.getenv('QC_RUN1_DESCR', ''), os.getenv('QC_RUN1_RESTR', ''))
-    
-    

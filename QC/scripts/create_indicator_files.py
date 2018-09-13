@@ -7,19 +7,19 @@ from opus_core.indicator_framework.image_types.table import Table
 from opus_core.indicator_framework.image_types.dataset_table import DatasetTable
 
 
- def jobs_by_sector(geo, package="psrc_parcel"):
+def jobs_by_sector(geo, package="psrc_parcel"):
      return [
                 "Natural_resources = %s.%s.number_of_jobs_of_sector_1" % (package, geo),
                 "Construction = %s.%s.number_of_jobs_of_sector_2" % (package, geo),
-			    "Manuf = %s.%s.number_of_jobs_of_sector_3" % (package, geo),
+                "Manuf = %s.%s.number_of_jobs_of_sector_3" % (package, geo),
                 "WTU = %s.%s.number_of_jobs_of_sector_4" % (package, geo),
-			    "Retail = %s.%s.number_of_jobs_of_sector_5" % (package, geo),
-			    "Business_Services = %s.%s.number_of_jobs_of_sector_7" % (package, geo),
+                "Retail = %s.%s.number_of_jobs_of_sector_5" % (package, geo),
+                "Business_Services = %s.%s.number_of_jobs_of_sector_7" % (package, geo),
                 "Private_Ed = %s.%s.number_of_jobs_of_sector_8" % (package, geo),
-			    "Healthcare = %s.%s.number_of_jobs_of_sector_9" % (package, geo),
-			    "Food_Services = %s.%s.number_of_jobs_of_sector_10" % (package, geo),
+                "Healthcare = %s.%s.number_of_jobs_of_sector_9" % (package, geo),
+                "Food_Services = %s.%s.number_of_jobs_of_sector_10" % (package, geo),
                 "Personal_Services = %s.%s.number_of_jobs_of_sector_11" % (package, geo),
-			    "government = %s.%s.number_of_jobs_of_sector_12" % (package, geo),
+                "government = %s.%s.number_of_jobs_of_sector_12" % (package, geo),
                 "edu = %s.%s.number_of_jobs_of_sector_13" % (package, geo)               
             ]
 
@@ -61,26 +61,26 @@ def get_indicators(cache_directory, run_description, years = [2014,2015,2017,202
  
 ## County Level Control indicators  - added 4.17.2018
 
-        Table(
+       Table(
             attribute = 'population = county.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel])',
-	    dataset_name = 'county',
-	    source_data = source_data,
-	    ),
-        Table(
+            dataset_name = 'county',
+            source_data = source_data,
+            ),
+       Table(
             attribute = 'households = county.aggregate(urbansim_parcel.parcel.number_of_households, intermediates=[parcel])',
-	    dataset_name = 'county',
-	    source_data = source_data,
-	    ),
-        Table(
+            dataset_name = 'county',
+            source_data = source_data,
+            ),
+       Table(
             attribute = 'employment = county.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
-	    dataset_name = 'county',
-	    source_data = source_data,
-	    ),
-        Table(
+            dataset_name = 'county',
+            source_data = source_data,
+            ),
+       Table(
             attribute = 'activity_units = county.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel]) + county.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
-	    dataset_name = 'county',
-	    source_data = source_data,
-	    ),		  
+            dataset_name = 'county',
+            source_data = source_data,
+            ),		  
 
   
 ## County Regional Geography indicators  - added 1.23.2018
@@ -108,45 +108,45 @@ def get_indicators(cache_directory, run_description, years = [2014,2015,2017,202
 
   
 ## County MHS vacancy indicators - added 11.1.2017
-      DatasetTable (
-          source_data = source_data,
-          dataset_name = 'county',
-          name = 'eoy_vacancy_by_building_type',
-		  output_type = 'csv',
-          attributes = [
-			  'res_4_VR=numpy.true_divide(county.aggregate(urbansim_parcel.building.vacant_residential_units*(building.building_type_id==4)),county.aggregate(urbansim_parcel.building.residential_units*(building.building_type_id==4)))',
-			  'res_12_VR=numpy.true_divide(county.aggregate(urbansim_parcel.building.vacant_residential_units*(building.building_type_id==12)),county.aggregate(urbansim_parcel.building.residential_units*(building.building_type_id==12)))',
-			  'res_19_VR=numpy.true_divide(county.aggregate(urbansim_parcel.building.vacant_residential_units*(building.building_type_id==19)),county.aggregate(urbansim_parcel.building.residential_units*(building.building_type_id==19)))',
-			  'nonres_3_VR=numpy.true_divide(county.aggregate(psrc_parcel.building.vacant_non_home_based_job_space*(psrc_parcel.building.building_type_id==3)),county.aggregate(psrc_parcel.building.total_non_home_based_job_space*(psrc_parcel.building.building_type_id==3)))',
-			  'nonres_8_VR=numpy.true_divide(county.aggregate(psrc_parcel.building.vacant_non_home_based_job_space*(psrc_parcel.building.building_type_id==8)),county.aggregate(psrc_parcel.building.total_non_home_based_job_space*(psrc_parcel.building.building_type_id==8)))',
-			  'nonres_13_VR=numpy.true_divide(county.aggregate(psrc_parcel.building.vacant_non_home_based_job_space*(psrc_parcel.building.building_type_id==13)),county.aggregate(psrc_parcel.building.total_non_home_based_job_space*(psrc_parcel.building.building_type_id==13)))',
-			  'nonres_20_VR=numpy.true_divide(county.aggregate(psrc_parcel.building.vacant_non_home_based_job_space*(psrc_parcel.building.building_type_id==20)),county.aggregate(psrc_parcel.building.total_non_home_based_job_space*(psrc_parcel.building.building_type_id==20)))',
-			  'nonres_21_VR=numpy.true_divide(county.aggregate(psrc_parcel.building.vacant_non_home_based_job_space*(psrc_parcel.building.building_type_id==21)),county.aggregate(psrc_parcel.building.total_non_home_based_job_space*(psrc_parcel.building.building_type_id==21)))',
-		     ],
-          ),
+    DatasetTable (
+       source_data = source_data,
+       dataset_name = 'county',
+       name = 'eoy_vacancy_by_building_type',
+       output_type = 'csv',
+       attributes = [
+            'res_4_VR=numpy.true_divide(county.aggregate(urbansim_parcel.building.vacant_residential_units*(building.building_type_id==4)),county.aggregate(urbansim_parcel.building.residential_units*(building.building_type_id==4)))',
+            'res_12_VR=numpy.true_divide(county.aggregate(urbansim_parcel.building.vacant_residential_units*(building.building_type_id==12)),county.aggregate(urbansim_parcel.building.residential_units*(building.building_type_id==12)))',
+            'res_19_VR=numpy.true_divide(county.aggregate(urbansim_parcel.building.vacant_residential_units*(building.building_type_id==19)),county.aggregate(urbansim_parcel.building.residential_units*(building.building_type_id==19)))',
+            'nonres_3_VR=numpy.true_divide(county.aggregate(psrc_parcel.building.vacant_non_home_based_job_space*(psrc_parcel.building.building_type_id==3)),county.aggregate(psrc_parcel.building.total_non_home_based_job_space*(psrc_parcel.building.building_type_id==3)))',
+            'nonres_8_VR=numpy.true_divide(county.aggregate(psrc_parcel.building.vacant_non_home_based_job_space*(psrc_parcel.building.building_type_id==8)),county.aggregate(psrc_parcel.building.total_non_home_based_job_space*(psrc_parcel.building.building_type_id==8)))',
+            'nonres_13_VR=numpy.true_divide(county.aggregate(psrc_parcel.building.vacant_non_home_based_job_space*(psrc_parcel.building.building_type_id==13)),county.aggregate(psrc_parcel.building.total_non_home_based_job_space*(psrc_parcel.building.building_type_id==13)))',
+            'nonres_20_VR=numpy.true_divide(county.aggregate(psrc_parcel.building.vacant_non_home_based_job_space*(psrc_parcel.building.building_type_id==20)),county.aggregate(psrc_parcel.building.total_non_home_based_job_space*(psrc_parcel.building.building_type_id==20)))',
+            'nonres_21_VR=numpy.true_divide(county.aggregate(psrc_parcel.building.vacant_non_home_based_job_space*(psrc_parcel.building.building_type_id==21)),county.aggregate(psrc_parcel.building.total_non_home_based_job_space*(psrc_parcel.building.building_type_id==21)))',
+            ],
+       ),
 
-     DatasetTable (
-          source_data = source_data,
-          dataset_name = 'county',
-          name = 'units_and_nonres_sqft_by_building_type',
-		  output_type = 'csv',
-          attributes = [
-			  'res_4_units=county.aggregate(urbansim_parcel.building.residential_units*(building.building_type_id==4))',
-			  'res_12_units=county.aggregate(urbansim_parcel.building.residential_units*(building.building_type_id==12))',
-			  'res_19_units=county.aggregate(urbansim_parcel.building.residential_units*(building.building_type_id==19))',
-			  'nonres_3_spaces=county.aggregate(psrc_parcel.building.total_non_home_based_job_space*(psrc_parcel.building.building_type_id==3))',
-			  'nonres_8_spaces=county.aggregate(psrc_parcel.building.total_non_home_based_job_space*(psrc_parcel.building.building_type_id==8))',
-			  'nonres_13_spaces=county.aggregate(psrc_parcel.building.total_non_home_based_job_space*(psrc_parcel.building.building_type_id==13))',
-			  'nonres_20_spaces=county.aggregate(psrc_parcel.building.total_non_home_based_job_space*(psrc_parcel.building.building_type_id==20))',
-			  'nonres_21_spaces=county.aggregate(psrc_parcel.building.total_non_home_based_job_space*(psrc_parcel.building.building_type_id==21))',
-			  'nonres_3_sqft=county.aggregate(psrc_parcel.building.non_residential_sqft*(psrc_parcel.building.building_type_id==3))',
-			  'nonres_8_sqft=county.aggregate(psrc_parcel.building.non_residential_sqft*(psrc_parcel.building.building_type_id==8))',
-			  'nonres_13_sqft=county.aggregate(psrc_parcel.building.non_residential_sqft*(psrc_parcel.building.building_type_id==13))',
-			  'nonres_20_sqft=county.aggregate(psrc_parcel.building.non_residential_sqft*(psrc_parcel.building.building_type_id==20))',
-			  'nonres_21_sqft=county.aggregate(psrc_parcel.building.non_residential_sqft*(psrc_parcel.building.building_type_id==21))',
-			  ],
-          ),		 
-  
+   DatasetTable (
+       source_data = source_data,
+       dataset_name = 'county',
+       name = 'units_and_nonres_sqft_by_building_type',
+       output_type = 'csv',
+       attributes = [
+            'res_4_units=county.aggregate(urbansim_parcel.building.residential_units*(building.building_type_id==4))',
+            'res_12_units=county.aggregate(urbansim_parcel.building.residential_units*(building.building_type_id==12))',
+            'res_19_units=county.aggregate(urbansim_parcel.building.residential_units*(building.building_type_id==19))',
+            'nonres_3_spaces=county.aggregate(psrc_parcel.building.total_non_home_based_job_space*(psrc_parcel.building.building_type_id==3))',
+            'nonres_8_spaces=county.aggregate(psrc_parcel.building.total_non_home_based_job_space*(psrc_parcel.building.building_type_id==8))',
+            'nonres_13_spaces=county.aggregate(psrc_parcel.building.total_non_home_based_job_space*(psrc_parcel.building.building_type_id==13))',
+            'nonres_20_spaces=county.aggregate(psrc_parcel.building.total_non_home_based_job_space*(psrc_parcel.building.building_type_id==20))',
+            'nonres_21_spaces=county.aggregate(psrc_parcel.building.total_non_home_based_job_space*(psrc_parcel.building.building_type_id==21))',
+            'nonres_3_sqft=county.aggregate(psrc_parcel.building.non_residential_sqft*(psrc_parcel.building.building_type_id==3))',
+            'nonres_8_sqft=county.aggregate(psrc_parcel.building.non_residential_sqft*(psrc_parcel.building.building_type_id==8))',
+            'nonres_13_sqft=county.aggregate(psrc_parcel.building.non_residential_sqft*(psrc_parcel.building.building_type_id==13))',
+            'nonres_20_sqft=county.aggregate(psrc_parcel.building.non_residential_sqft*(psrc_parcel.building.building_type_id==20))',
+            'nonres_21_sqft=county.aggregate(psrc_parcel.building.non_residential_sqft*(psrc_parcel.building.building_type_id==21))',
+            ],
+       ),
+
     ## FAZ indicators 
     ## =====================
     
@@ -212,15 +212,15 @@ def get_indicators(cache_directory, run_description, years = [2014,2015,2017,202
             dataset_name = 'zone',
             source_data = source_data,
             ),       
-       
+
         DatasetTable(
-                          source_data = source_data,
-                          dataset_name = 'zone',
-                          name = 'employment_by_aggr_sector',
-                          attributes = jobs_by_sector("zone", "urbansim_parcel"),
-                          output_type = 'tab'
-                              ),
-    
+            source_data = source_data,
+            dataset_name = 'zone',
+            name = 'employment_by_aggr_sector',
+            attributes = jobs_by_sector("zone", "urbansim_parcel"),
+            output_type = 'tab'
+            ),
+
      ## City indicators
      ## ==================
     
@@ -264,14 +264,14 @@ def get_indicators(cache_directory, run_description, years = [2014,2015,2017,202
            dataset_name = 'city',
            source_data = source_data,
            ),
-		  
+
         DatasetTable(
-                   source_data = source_data,
-                   dataset_name = 'city',
-                   name = 'employment_by_aggr_sector',
-                   attributes = jobs_by_sector("city"),
-                   output_type = 'tab'
-                       ),         
+            source_data = source_data,
+            dataset_name = 'city',
+            name = 'employment_by_aggr_sector',
+            attributes = jobs_by_sector("city"),
+            output_type = 'tab'
+            ),         
 
     # # ## Tract-City indicators
     # # ==================
@@ -356,7 +356,7 @@ def get_indicators(cache_directory, run_description, years = [2014,2015,2017,202
             name = 'employment_by_aggr_sector',
             attributes = ['large_area.county_id'] + jobs_by_sector("large_area"),
             output_type = 'tab'
-                ),    
+            ),    
 
   #### ============  Miscellaneous tables
   #### ============  Checked pretty regularly 
@@ -365,55 +365,55 @@ def get_indicators(cache_directory, run_description, years = [2014,2015,2017,202
       ## Tract indicators
       ##============================
 
-   Table(
-              attribute = 'households=census_tract.aggregate(urbansim_parcel.parcel.number_of_households, intermediates=[census_block_group])',
-              dataset_name = 'census_tract',
-              source_data = source_data,
-              ),
-          Table(
-              attribute = 'population=census_tract.aggregate(urbansim_parcel.parcel.population, intermediates=[census_block_group])',
-              dataset_name = 'census_tract',
-              source_data = source_data,
-              ),
-          Table(
-              attribute = 'employment=census_tract.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[census_block_group])',
-              dataset_name = 'census_tract',
-              source_data = source_data,
-              ),
-          # Table(
-              # attribute = 'nonres_sqft=fcensus_tract.aggregate(urbansim_parcel.parcel.non_residential_sqft, intermediates=[census_block_group])',
-              # dataset_name = 'census_tract',
-              # source_data = source_data,
-              # ),	   
-          Table(
-              attribute = 'residential_units=census_tract.aggregate(urbansim_parcel.parcel.residential_units, intermediates=[census_block_group])',
-              dataset_name = 'census_tract',
-              source_data = source_data,
-              ),
-    
-          DatasetTable(
-               source_data = source_data,
-               dataset_name = 'census_tract',
-               name = 'employment_by_aggr_sector',
-               attributes = jobs_by_sector("census_tract"),
-               output_type = 'csv'
-                   ),
+        Table(
+            attribute = 'households=census_tract.aggregate(urbansim_parcel.parcel.number_of_households, intermediates=[census_block_group])',
+            dataset_name = 'census_tract',
+            source_data = source_data,
+            ),
+        Table(
+            attribute = 'population=census_tract.aggregate(urbansim_parcel.parcel.population, intermediates=[census_block_group])',
+            dataset_name = 'census_tract',
+            source_data = source_data,
+            ),
+        Table(
+            attribute = 'employment=census_tract.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[census_block_group])',
+            dataset_name = 'census_tract',
+            source_data = source_data,
+            ),
+        # Table(
+            # attribute = 'nonres_sqft=fcensus_tract.aggregate(urbansim_parcel.parcel.non_residential_sqft, intermediates=[census_block_group])',
+            # dataset_name = 'census_tract',
+            # source_data = source_data,
+            # ),	   
+        Table(
+            attribute = 'residential_units=census_tract.aggregate(urbansim_parcel.parcel.residential_units, intermediates=[census_block_group])',
+            dataset_name = 'census_tract',
+            source_data = source_data,
+            ),
+
+        DatasetTable(
+            source_data = source_data,
+            dataset_name = 'census_tract',
+            name = 'employment_by_aggr_sector',
+            attributes = jobs_by_sector("census_tract"),
+            output_type = 'csv'
+            ),
 
 
   ##------Liming's Unplaced Households and Jobs in the Region-----------
 
-     Table(
+        Table(
             attribute = 'num_unplaced_hhs=alldata.aggregate_all(household.building_id<=0)',
             dataset_name = 'alldata',
             source_data = source_data,
-          ),
-     Table(
+            ),
+        Table(
             attribute = 'num_unplaced_jobs=alldata.aggregate_all(job.building_id<=0)',
             dataset_name = 'alldata',
             source_data = source_data,
-          ),
-    
-       Regional Total Tables	 
+            ),
+       
+##       Regional Total Tables	 
              
              
        Table(
@@ -583,14 +583,14 @@ def get_indicators(cache_directory, run_description, years = [2014,2015,2017,202
             # ],
             # exclude_condition = 'building.year_built<2015',
             # ),
-			
+
         # DatasetTable(
             # source_data = source_data,
             # dataset_name = 'parcel',
             # name =  'households_jobs',
             # attributes = [
                 # 'parcel.county_id',
-				# 'households = urbansim_parcel.parcel.number_of_households',
+                # 'households = urbansim_parcel.parcel.number_of_households',
                 # 'urbansim_parcel.parcel.population',
                 # 'urbansim_parcel.parcel.residential_units',
                 # 'urbansim_parcel.parcel.employment',
@@ -599,7 +599,7 @@ def get_indicators(cache_directory, run_description, years = [2014,2015,2017,202
                 # 'building_sqft = parcel.aggregate(urbansim_parcel.building.building_sqft)',
                 # 'psrc_parcel.parcel.job_capacity',
                 # 'parcel.plan_type_id',
-				# 'residential_units_base = parcel.aggregate(building.residential_units * (building.year_built < 2015))'
+                # 'residential_units_base = parcel.aggregate(building.residential_units * (building.year_built < 2015))'
             # ],
             # ),
         # ]
