@@ -329,11 +329,11 @@ if __name__ == '__main__':
         display_error_box = False, 
         show_results = False)
     
-    # runs buildings indicator only for the simulation end year
-    IndicatorFactory().create_indicators(
-        indicators = get_end_year_indicators(ind_cache, os.getenv('QC_RUN1_DESCR', ''),years = [2050]),
-        display_error_box = False, 
-        show_results = False)    
+    ## runs buildings indicator only for the simulation end year
+    #IndicatorFactory().create_indicators(
+    #    indicators = get_end_year_indicators(ind_cache, os.getenv('QC_RUN1_DESCR', ''),years = [2050]),
+    #    display_error_box = False, 
+    #    show_results = False)    
 
     write_info(ind_cache, os.getenv('QC_RUN1_DESCR', ''), os.getenv('QC_RUN1_RESTR', ''))
     
