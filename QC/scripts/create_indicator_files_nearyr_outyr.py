@@ -299,11 +299,59 @@ def get_indicators(cache_directory, run_description, years = [2014,2017,2050], b
         ],
     ),
 
-
-
-
     ]
     return indicators
+
+def get_end_year_indicators(cache_directory, run_description, years = [2050], base_year=2014):
+     source_data = SourceData(
+         cache_directory = cache_directory,
+         run_description = run_description,
+         years = years,
+         base_year = base_year,
+         dataset_pool_configuration = DatasetPoolConfiguration(
+             package_order=['psrc_parcel','urbansim_parcel','psrc', 'urbansim','opus_core'],
+             package_order_exceptions={},
+             ),       
+     )
+
+     indicators=[
+         DatasetTable(
+             source_data = source_data,
+             dataset_name = 'building',
+             name =  'new_buildings',
+             attributes = [
+                 'building.building_type_id',
+                 'building.parcel_id',
+                 'urbansim_parcel.building.unit_price',
+                 'urbansim_parcel.building.residential_units',
+                 'urbansim_parcel.building.non_residential_sqft',
+                 'urbansim_parcel.building.year_built',
+                 'building.template_id',
+                 'urbansim_parcel.building.building_sqft'
+             ],
+             exclude_condition = 'building.year_built<2015',
+             ),
+
+         DatasetTable(
+             source_data = source_data,
+             dataset_name = 'parcel',
+             name =  'households_jobs',
+             attributes = [
+                 'parcel.county_id',
+                 'households = urbansim_parcel.parcel.number_of_households',
+                 'urbansim_parcel.parcel.population',
+                 'urbansim_parcel.parcel.residential_units',
+                 'urbansim_parcel.parcel.employment',
+                 'non_home_based_employment = parcel.aggregate(psrc_parcel.building.number_of_non_home_based_jobs)',
+                 'non_residential_sqft = parcel.aggregate(building.non_residential_sqft)',
+                 'building_sqft = parcel.aggregate(urbansim_parcel.building.building_sqft)',
+                 'psrc_parcel.parcel.job_capacity',
+                 'parcel.plan_type_id',
+                 'residential_units_base = parcel.aggregate(building.residential_units * (building.year_built < 2015))'
+             ],
+             ),
+         ]
+     return indicators
 
 import os
 from opus_core.indicator_framework.core.indicator_factory import IndicatorFactory
@@ -316,9 +364,9 @@ def write_info(directory, description, restrictions):
     descrfile.close()
     restrfile = open(os.path.join(path, "Restrictions.txt"), "w")
     restrfile.write(restrictions)
-    restrfile.close()        
-    
-    
+    restrfile.close()
+
+
 if __name__ == '__main__':
     ind_cache = os.path.join(os.environ['QC_BASE_DIRECTORY'], os.environ['QC_RUN1'])
     indicators = get_indicators(ind_cache, os.getenv('QC_RUN1_DESCR', '')#, years = [2014,2015,2020]
@@ -328,10 +376,10 @@ if __name__ == '__main__':
         display_error_box = False, 
         show_results = False)
     
-    ## runs buildings indicator only for the simulation end year
-    #IndicatorFactory().create_indicators(
-    #    indicators = get_end_year_indicators(ind_cache, os.getenv('QC_RUN1_DESCR', ''),years = [2050]),
-    #    display_error_box = False,
-    #    show_results = False)
+    # runs buildings indicator only for the simulation end year
+    IndicatorFactory().create_indicators(
+        indicators = get_end_year_indicators(ind_cache, os.getenv('QC_RUN1_DESCR', ''),years = [2050]),
+        display_error_box = False,
+        show_results = False)
 
     write_info(ind_cache, os.getenv('QC_RUN1_DESCR', ''), os.getenv('QC_RUN1_RESTR', ''))

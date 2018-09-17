@@ -20,7 +20,7 @@ def jobs_by_sector(geo, package="psrc_parcel"):
                 "Food_Services = %s.%s.number_of_jobs_of_sector_10" % (package, geo),
                 "Personal_Services = %s.%s.number_of_jobs_of_sector_11" % (package, geo),
                 "government = %s.%s.number_of_jobs_of_sector_12" % (package, geo),
-                "edu = %s.%s.number_of_jobs_of_sector_13" % (package, geo)               
+                "edu = %s.%s.number_of_jobs_of_sector_13" % (package, geo)
             ]
 
 def get_indicators(cache_directory, run_description, years = [2014,2015,2017,2020,2025,2030,2035,2040,2045,2050], base_year=2014):
@@ -179,8 +179,8 @@ def get_indicators(cache_directory, run_description, years = [2014,2015,2017,202
             attribute = 'building_sqft=faz.aggregate(urbansim_parcel.parcel.building_sqft, intermediates=[zone])',
             dataset_name = 'faz',
             source_data = source_data,
-            ),	       
-               
+            ),
+
      ## TAZ indicators 
         Table(
             attribute = 'residential_units=zone.aggregate(urbansim_parcel.building.residential_units, intermediates=[parcel])',
@@ -211,7 +211,7 @@ def get_indicators(cache_directory, run_description, years = [2014,2015,2017,202
             attribute = 'building_sqft=zone.aggregate(urbansim_parcel.parcel.building_sqft)',
             dataset_name = 'zone',
             source_data = source_data,
-            ),       
+            ),
 
         DatasetTable(
             source_data = source_data,
@@ -358,10 +358,6 @@ def get_indicators(cache_directory, run_description, years = [2014,2015,2017,202
             output_type = 'tab'
             ),    
 
-  #### ============  Miscellaneous tables
-  #### ============  Checked pretty regularly 
-  #### ============  Run for every year in the simulation
-
       ## Tract indicators
       ##============================
 
@@ -412,10 +408,9 @@ def get_indicators(cache_directory, run_description, years = [2014,2015,2017,202
             dataset_name = 'alldata',
             source_data = source_data,
             ),
-       
+
 ##       Regional Total Tables	 
-             
-             
+
        Table(
            attribute = 'residential_units=alldata.aggregate_all(urbansim_parcel.building.residential_units)',
            dataset_name = 'alldata',
@@ -441,7 +436,7 @@ def get_indicators(cache_directory, run_description, years = [2014,2015,2017,202
            dataset_name = 'alldata',
            source_data = source_data,
            ),
-      
+
       ## Demographic indicators
       ## ======================
       # DatasetTable(
@@ -478,7 +473,7 @@ def get_indicators(cache_directory, run_description, years = [2014,2015,2017,202
                       # 'Over_60 = alldata.aggregate_all(person.age>=61)',
                       # ],
               # ),
-      
+
           # DatasetTable(
               # source_data = source_data,
               # dataset_name = 'alldata',
@@ -507,7 +502,7 @@ def get_indicators(cache_directory, run_description, years = [2014,2015,2017,202
                       # 'age_96_and_up = alldata.aggregate_all(person.age>=96)',
                       # ],
               # ),
-      
+
           # DatasetTable(
               # source_data = source_data,
               # dataset_name = 'alldata',
@@ -522,7 +517,7 @@ def get_indicators(cache_directory, run_description, years = [2014,2015,2017,202
                       # 'Group4_Over100K = alldata.aggregate_all(household.income>=100001)',
                       # ],
               # ),
-      
+
           # DatasetTable(
               # source_data = source_data,
               # dataset_name = 'alldata',
@@ -536,8 +531,8 @@ def get_indicators(cache_directory, run_description, years = [2014,2015,2017,202
                       # 'Group3_UpTo110600 = alldata.aggregate_all(numpy.logical_and(household.income<110600,household.income>=73700))',
                       # 'Group4_Over110600 = alldata.aggregate_all(household.income>=110600)',
                       # ],
-              # ), 
-              
+              # ),
+
           # DatasetTable(
               # source_data = source_data,
               # dataset_name = 'alldata',
@@ -549,61 +544,12 @@ def get_indicators(cache_directory, run_description, years = [2014,2015,2017,202
                         # 'workers_no_job = alldata.aggregate_all((person.employment_status >0)*(urbansim_parcel.person.job_id < 0))',
                         # 'non_workers_no_job = alldata.aggregate_all((person.employment_status <1)*(urbansim_parcel.person.job_id < 0))',
                       # ],
-              # ),            
- 
+              # ),
+
     ]
     return indicators
 
-# def get_end_year_indicators(cache_directory, run_description, years = [2050], base_year=2014):
-    # source_data = SourceData(
-        # cache_directory = cache_directory,
-        # run_description = run_description,
-        # years = years,
-        # base_year = base_year,
-        # dataset_pool_configuration = DatasetPoolConfiguration(
-            # package_order=['psrc_parcel','urbansim_parcel','psrc', 'urbansim','opus_core'],
-            # package_order_exceptions={},
-            # ),       
-    # )
-    
-    # indicators=[
-        # DatasetTable(
-            # source_data = source_data,
-            # dataset_name = 'building',
-            # name =  'new_buildings',
-            # attributes = [
-                # 'building.building_type_id',
-                # 'building.parcel_id',
-                # 'urbansim_parcel.building.unit_price',
-                # 'urbansim_parcel.building.residential_units',
-                # 'urbansim_parcel.building.non_residential_sqft',
-                # 'urbansim_parcel.building.year_built',
-                # 'building.template_id',
-                # 'urbansim_parcel.building.building_sqft'
-            # ],
-            # exclude_condition = 'building.year_built<2015',
-            # ),
 
-        # DatasetTable(
-            # source_data = source_data,
-            # dataset_name = 'parcel',
-            # name =  'households_jobs',
-            # attributes = [
-                # 'parcel.county_id',
-                # 'households = urbansim_parcel.parcel.number_of_households',
-                # 'urbansim_parcel.parcel.population',
-                # 'urbansim_parcel.parcel.residential_units',
-                # 'urbansim_parcel.parcel.employment',
-                # 'non_home_based_employment = parcel.aggregate(psrc_parcel.building.number_of_non_home_based_jobs)',
-                # 'non_residential_sqft = parcel.aggregate(building.non_residential_sqft)',
-                # 'building_sqft = parcel.aggregate(urbansim_parcel.building.building_sqft)',
-                # 'psrc_parcel.parcel.job_capacity',
-                # 'parcel.plan_type_id',
-                # 'residential_units_base = parcel.aggregate(building.residential_units * (building.year_built < 2015))'
-            # ],
-            # ),
-        # ]
-    # return indicators
 
 
 import os
@@ -628,13 +574,6 @@ if __name__ == '__main__':
         indicators = indicators,
         display_error_box = False, 
         show_results = False)
-    
-    # runs buildings indicator only for the simulation end year
-    IndicatorFactory().create_indicators(
-        indicators = get_end_year_indicators(ind_cache, os.getenv('QC_RUN1_DESCR', ''),years = [2050]),
-        display_error_box = False, 
-        show_results = False)    
+
 
     write_info(ind_cache, os.getenv('QC_RUN1_DESCR', ''), os.getenv('QC_RUN1_RESTR', ''))
-    
-    
