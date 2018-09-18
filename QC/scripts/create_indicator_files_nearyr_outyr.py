@@ -156,51 +156,51 @@ def get_indicators(cache_directory, run_description, years = [2014,2017,2050], b
   
 ## Transit Buffer Level Indicators  
   
-    Table(
-        attribute = 'population = transit_buffer.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel])',
-        dataset_name = 'transit_buffer',
-        source_data = source_data,
-        ),
-    Table(
-        attribute = 'households = transit_buffer.aggregate(urbansim_parcel.parcel.number_of_households, intermediates=[parcel])',
-        dataset_name = 'transit_buffer',
-        source_data = source_data,
-        ),
-    Table(
-        attribute = 'employment = transit_buffer.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
-        dataset_name = 'transit_buffer',
-        source_data = source_data,
-        ),  
-  
-    Table(
-        attribute = 'activity_units = transit_buffer.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel]) + transit_buffer.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
-        dataset_name = 'transit_buffer',
-        source_data = source_data,
-        ),
+    #Table(
+    #    attribute = 'population = transit_buffer.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel])',
+    #    dataset_name = 'transit_buffer',
+    #    source_data = source_data,
+    #    ),
+    #Table(
+    #    attribute = 'households = transit_buffer.aggregate(urbansim_parcel.parcel.number_of_households, intermediates=[parcel])',
+    #    dataset_name = 'transit_buffer',
+    #    source_data = source_data,
+    #    ),
+    #Table(
+    #    attribute = 'employment = transit_buffer.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
+    #    dataset_name = 'transit_buffer',
+    #    source_data = source_data,
+    #    ),  
+    #
+    #Table(
+    #    attribute = 'activity_units = transit_buffer.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel]) + transit_buffer.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
+    #    dataset_name = 'transit_buffer',
+    #    source_data = source_data,
+    #    ),
 
 ## UGA Buffer Level Indicators  
   
-    Table(
-        attribute = 'population = uga_buffer.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel])',
-        dataset_name = 'uga_buffer',
-        source_data = source_data,
-        ),
-    Table(
-        attribute = 'households = uga_buffer.aggregate(urbansim_parcel.parcel.number_of_households, intermediates=[parcel])',
-        dataset_name = 'uga_buffer',
-        source_data = source_data,
-        ),
-    Table(
-        attribute = 'employment = uga_buffer.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
-        dataset_name = 'uga_buffer',
-        source_data = source_data,
-        ),  
-  
-    Table(
-        attribute = 'activity_units = uga_buffer.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel]) + uga_buffer.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
-        dataset_name = 'uga_buffer',
-        source_data = source_data,
-        ),
+    #Table(
+    #    attribute = 'population = uga_buffer.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel])',
+    #    dataset_name = 'uga_buffer',
+    #    source_data = source_data,
+    #    ),
+    #Table(
+    #    attribute = 'households = uga_buffer.aggregate(urbansim_parcel.parcel.number_of_households, intermediates=[parcel])',
+    #    dataset_name = 'uga_buffer',
+    #    source_data = source_data,
+    #    ),
+    #Table(
+    #    attribute = 'employment = uga_buffer.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
+    #    dataset_name = 'uga_buffer',
+    #    source_data = source_data,
+    #    ),  
+    #
+    #Table(
+    #    attribute = 'activity_units = uga_buffer.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel]) + uga_buffer.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
+    #    dataset_name = 'uga_buffer',
+    #    source_data = source_data,
+    #    ),
 
 ## Grid Level Indicators  
   
