@@ -55,10 +55,10 @@ def get_indicators(cache_directory, run_description, years = [2014,2015,2017,202
             'HH_CO_4=faz.aggregate(urbansim_parcel.building.number_of_households * (building.building_type_id==4), intermediates=[parcel])',
             'HH_MH_11=faz.aggregate(urbansim_parcel.building.number_of_households * (building.building_type_id==11), intermediates=[parcel])',
             'HH_Total=faz.aggregate(urbansim_parcel.building.number_of_households, intermediates=[parcel])',
-        ],
-   ),
+            ],
+       ),
 
- 
+
 ## County Level Control indicators  - added 4.17.2018
 
        Table(
@@ -80,7 +80,7 @@ def get_indicators(cache_directory, run_description, years = [2014,2015,2017,202
             attribute = 'activity_units = county.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel]) + county.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
             dataset_name = 'county',
             source_data = source_data,
-            ),		  
+            ),
 
   
 ## County Regional Geography indicators  - added 1.23.2018
@@ -104,7 +104,7 @@ def get_indicators(cache_directory, run_description, years = [2014,2015,2017,202
             attribute = 'activity_units = fips_rgs_proposed.aggregate(urbansim_parcel.parcel.population, intermediates=[city]) + fips_rgs_proposed.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[city])',
             dataset_name = 'fips_rgs_proposed',
             source_data = source_data,
-            ),		   
+            ),
 
   
 ## County MHS vacancy indicators - added 11.1.2017
@@ -387,13 +387,13 @@ def get_indicators(cache_directory, run_description, years = [2014,2015,2017,202
             source_data = source_data,
             ),
 
-        DatasetTable(
-            source_data = source_data,
-            dataset_name = 'census_tract',
-            name = 'employment_by_aggr_sector',
-            attributes = jobs_by_sector("census_tract"),
-            output_type = 'csv'
-            ),
+        #DatasetTable(
+        #    source_data = source_data,
+        #    dataset_name = 'census_tract',
+        #    name = 'employment_by_aggr_sector',
+        #    attributes = jobs_by_sector("census_tract"),
+        #    output_type = 'csv'
+        #    ),
 
 
   ##------Liming's Unplaced Households and Jobs in the Region-----------
