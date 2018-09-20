@@ -202,26 +202,26 @@ def get_indicators(cache_directory, run_description, years = [2014,2017,2050], b
     #    source_data = source_data,
     #    ),
 
-## Grid Level Indicators  
+## Hex Level Indicators -- for mapping
   
     Table(
-        attribute = 'population = grid.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel])',
-        dataset_name = 'grid',
+        attribute = 'population = hex.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel])',
+        dataset_name = 'hex',
         source_data = source_data,
         ),
     Table(
-        attribute = 'households = grid.aggregate(urbansim_parcel.parcel.number_of_households, intermediates=[parcel])',
-        dataset_name = 'grid',
+        attribute = 'households = hex.aggregate(urbansim_parcel.parcel.number_of_households, intermediates=[parcel])',
+        dataset_name = 'hex',
         source_data = source_data,
         ),
     Table(
-        attribute = 'employment = grid.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
-        dataset_name = 'grid',
+        attribute = 'employment = hex.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
+        dataset_name = 'hex',
         source_data = source_data,
         ),  
     Table(
-        attribute = 'activity_units = grid.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel]) + grid.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
-        dataset_name = 'grid',
+        attribute = 'activity_units = hex.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel]) + hex.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
+        dataset_name = 'hex',
         source_data = source_data,
         ),
   
