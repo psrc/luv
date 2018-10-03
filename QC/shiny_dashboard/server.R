@@ -1464,6 +1464,27 @@ server <- function(input, output, session) {
     create.DT.expanded(t1, sketch)
   })
   
+  # Display MICs summary table
+  output$tpsht_mic <- DT::renderDataTable({
+    tsGrowthCtr <- tsGrowthCtr()
+    # browser()
+    runs <- runs()
+    tsYear <- tsYear()
+    sel.yr.fl <- c(years[1], tsYear)
+    sel.yrs.col <- paste0("yr", c(years[1], tsYear))
+    rgclu <- as.data.table(rgc.lookup)
+    
+    # identify names of mics from growth_center lu and store in vector
+    mics <- rgclu[growth_center_id >= 600][, name := as.character(name)][['name']]
+    t0 <- dcast.data.table(tsGrowthCtr, name ~ indicator + run, value.var = sel.yrs.col)
+    t <- t0[name %in% mics,]
+    setnames(t, "name", "Name")
+    t1 <- create.exp.tsTable(t)
+    
+    sketch <- sketch.expanded(colnames(t1)[1], sel.yr.fl[1], sel.yr.fl[2], runs[1], runs[2])
+    create.DT.expanded(t1, sketch)
+  })
+  
   # Filter table and calculate totals for Special Places
   tsSplace <- reactive({
     alldt <- alldt()
@@ -2350,7 +2371,8 @@ server <- function(input, output, session) {
     input$growth_select_year
     alldt <- alldt()
     
-    gdt1 <- alldt[run == gRun(), c("run", addn.yrs), with = FALSE]
+    # gdt1 <- alldt[run == gRun(), c("run", addn.yrs), with = FALSE]
+    gdt1 <- alldt[run %in% gRun(), c("run", addn.yrs), with = FALSE]
     gdt2 <- gdt1[, lapply(.SD, sum), by=run, .SDcols= addn.yrs]
     gdt3 <- gdt2[, gsumdt := rowSums(.SD), .SDcols = 2:ncol(gdt2)][, .(run, gsumdt)]
     gluv.yr.only <- nrow(gdt3[gdt3$gsumdt == 0])

@@ -88,6 +88,10 @@ ui <- function(request) {
                                                    DT::dataTableOutput('tpsht_rgc'),
                                                    br(),
                                                    
+                                                   h4(class="header", checked=NA, tags$b("MICs")),
+                                                   DT::dataTableOutput('tpsht_mic'),
+                                                   br(),
+                                                   
                                                    h4(class="header", checked=NA, tags$b("Key Locations")),
                                                    DT::dataTableOutput('tpsht_splace')
                                             ), # end column
