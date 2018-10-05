@@ -41,7 +41,7 @@ if(make) {
                Aws03 = "/media/aws-model03e/opusgit/urbansim_data/data/psrc_parcel/runs",
                Aws04 = "/media/aws-model04e/opusgit/urbansim_data/data/psrc_parcel/runs",
                Aws05 = "/media/aws-model05e/opusgit/urbansim_data/data/psrc_parcel/runs",
-               # Aws06 = "/media/aws-model06e/opusgit/urbansim_data/data/psrc_parcel/runs",
+               Aws06 = "/media/aws-model06e/opusgit/urbansim_data/data/psrc_parcel/runs",
                Aws07 = "/media/aws-model07e/opusgit/urbansim_data/data/psrc_parcel/runs",
                Aws08 = "/media/aws-model08e/opusgit/urbansim_data/data/psrc_parcel/runs",
                Aws09 = "/media/aws-model09e/opusgit/urbansim_data/data/psrc_parcel/runs",
