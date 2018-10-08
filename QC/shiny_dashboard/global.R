@@ -36,14 +36,14 @@ if(make) {
 } else {
   rund <- "/media/aws-prod-file01/model\ data/vision2050/opusgit/urbansim_data/data/psrc_parcel/runs"
   # rund <- "L:/vision2050/opusgit/urbansim_data/data/psrc_parcel/runs"
-  base <- list(L-Aws01 = file.path(rund, "awsmodel01"),
-               L-Aws02 = file.path(rund, "awsmodel02"),
-               L-Aws03 = file.path(rund, "awsmodel03"),
-               L-Aws04 = file.path(rund, "awsmodel04"),
-               L-Aws05 = file.path(rund, "awsmodel05"),
-               L-Aws06 = file.path(rund, "awsmodel06"),
-               L-Aws07 = file.path(rund, "awsmodel07"),
-               L-Aws08 = file.path(rund, "awsmodel08"),
+  base <- list(LAws01 = file.path(rund, "awsmodel01"),
+               LAws02 = file.path(rund, "awsmodel02"),
+               LAws03 = file.path(rund, "awsmodel03"),
+               LAws04 = file.path(rund, "awsmodel04"),
+               LAws05 = file.path(rund, "awsmodel05"),
+               LAws06 = file.path(rund, "awsmodel06"),
+               LAws07 = file.path(rund, "awsmodel07"),
+               LAws08 = file.path(rund, "awsmodel08"),
                # Aws01 = "/media/aws-model01e/opusgit/urbansim_data/data/psrc_parcel/runs",
                # Aws02 = "/media/aws-model02e/opusgit/urbansim_data/data/psrc_parcel/runs",
                # Aws03 = "/media/aws-model03e/opusgit/urbansim_data/data/psrc_parcel/runs",
