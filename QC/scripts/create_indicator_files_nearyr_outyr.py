@@ -50,25 +50,25 @@ def get_indicators(cache_directory, run_description, years = [2014,2017,2050], b
 ## Park/OS Buffer Indicators
   
     Table(
-        attribute = 'population_park_buffer = county.aggregate(urbansim_parcel.parcel.population * (parcel.park_buffer_id == 1) * (parcel.is_inside_urban_growth_boundary == 1))',
+        attribute = 'population_park_buffer = county.aggregate(urbansim_parcel.parcel.population * (parcel.park_buffer_id == 1))',
         dataset_name = 'county',
         source_data = source_data,
         ),
 
     Table(
-        attribute = 'households_park_buffer = county.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.park_buffer_id == 1) * (parcel.is_inside_urban_growth_boundary == 1))',
+        attribute = 'households_park_buffer = county.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.park_buffer_id == 1))',
         dataset_name = 'county',
         source_data = source_data,
         ),
 
     Table(
-        attribute = 'employment_park_buffer = county.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.park_buffer_id == 1) * (parcel.is_inside_urban_growth_boundary == 1))',
+        attribute = 'employment_park_buffer = county.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.park_buffer_id == 1))',
         dataset_name = 'county',
         source_data = source_data,
         ),  
   
     Table(
-        attribute = 'activity_units_park_buffer = county.aggregate((urbansim_parcel.parcel.population + urbansim_parcel.parcel.number_of_jobs) * (parcel.park_buffer_id == 1) * (parcel.is_inside_urban_growth_boundary == 1))',
+        attribute = 'activity_units_park_buffer = county.aggregate((urbansim_parcel.parcel.population + urbansim_parcel.parcel.number_of_jobs) * (parcel.park_buffer_id == 1))',
         dataset_name = 'county',
         source_data = source_data,
         ),
@@ -310,7 +310,7 @@ def get_indicators(cache_directory, run_description, years = [2014,2017,2050], b
 ]
     return indicators
 
-def get_end_year_indicators(cache_directory, run_description, years = [2050], base_year=2014):
+def get_end_year_indicators(cache_directory, run_description, years = [2017,2050], base_year=2014):
      source_data = SourceData(
          cache_directory = cache_directory,
          run_description = run_description,
@@ -354,8 +354,7 @@ def get_end_year_indicators(cache_directory, run_description, years = [2050], ba
                  'non_residential_sqft = parcel.aggregate(building.non_residential_sqft)',
                  'building_sqft = parcel.aggregate(urbansim_parcel.building.building_sqft)',
                  'psrc_parcel.parcel.job_capacity',
-                 'parcel.plan_type_id',
-                 'residential_units_base = parcel.aggregate(building.residential_units * (building.year_built < 2015))'
+                 'parcel.plan_type_id'
              ],
              ),
          ]
