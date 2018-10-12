@@ -310,7 +310,7 @@ def get_indicators(cache_directory, run_description, years = [2014,2017,2050], b
 ]
     return indicators
 
-def get_end_year_indicators(cache_directory, run_description, years = [2050], base_year=2014):
+def get_end_year_indicators(cache_directory, run_description, years = [2017,2050], base_year=2014):
      source_data = SourceData(
          cache_directory = cache_directory,
          run_description = run_description,
@@ -354,8 +354,7 @@ def get_end_year_indicators(cache_directory, run_description, years = [2050], ba
                  'non_residential_sqft = parcel.aggregate(building.non_residential_sqft)',
                  'building_sqft = parcel.aggregate(urbansim_parcel.building.building_sqft)',
                  'psrc_parcel.parcel.job_capacity',
-                 'parcel.plan_type_id',
-                 'residential_units_base = parcel.aggregate(building.residential_units * (building.year_built < 2015))'
+                 'parcel.plan_type_id'
              ],
              ),
          ]
