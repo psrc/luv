@@ -34,7 +34,7 @@ if(make) {
   result.name <- Sys.getenv('QC_NAME')
   wrkdir <- file.path(Sys.getenv('QC_SCRIPT_PATH'), "..")
 } else {
-  rund <- "/media/aws-prod-file01/modeldata/vision2050/opusgit/urbansim_data/data/psrc_parcel/runs"
+  rund <- "/media/aws-prod-file01modeldata/vision2050/opusgit/urbansim_data/data/psrc_parcel/runs"
   # rund <- "L:/vision2050/opusgit/urbansim_data/data/psrc_parcel/runs"
   base <- list(LAws01 = file.path(rund, "awsmodel01"),
                LAws02 = file.path(rund, "awsmodel02"),
