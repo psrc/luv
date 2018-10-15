@@ -34,7 +34,7 @@ if(make) {
   result.name <- Sys.getenv('QC_NAME')
   wrkdir <- file.path(Sys.getenv('QC_SCRIPT_PATH'), "..")
 } else {
-  rund <- "/media/aws-prod-file01/model\ data/vision2050/opusgit/urbansim_data/data/psrc_parcel/runs"
+  rund <- "/media/aws-prod-file01/modeldata/vision2050/opusgit/urbansim_data/data/psrc_parcel/runs"
   # rund <- "L:/vision2050/opusgit/urbansim_data/data/psrc_parcel/runs"
   base <- list(LAws01 = file.path(rund, "awsmodel01"),
                LAws02 = file.path(rund, "awsmodel02"),
@@ -44,14 +44,14 @@ if(make) {
                LAws06 = file.path(rund, "awsmodel06"),
                LAws07 = file.path(rund, "awsmodel07"),
                LAws08 = file.path(rund, "awsmodel08"),
-               # Aws01 = "/media/aws-model01e/opusgit/urbansim_data/data/psrc_parcel/runs",
-               # Aws02 = "/media/aws-model02e/opusgit/urbansim_data/data/psrc_parcel/runs",
-               # Aws03 = "/media/aws-model03e/opusgit/urbansim_data/data/psrc_parcel/runs",
-               # Aws04 = "/media/aws-model04e/opusgit/urbansim_data/data/psrc_parcel/runs",
-               # Aws05 = "/media/aws-model05e/opusgit/urbansim_data/data/psrc_parcel/runs",
-               # Aws06 = "/media/aws-model06e/opusgit/urbansim_data/data/psrc_parcel/runs",
-               # Aws07 = "/media/aws-model07e/opusgit/urbansim_data/data/psrc_parcel/runs",
-               # Aws08 = "/media/aws-model08e/opusgit/urbansim_data/data/psrc_parcel/runs",
+               Aws01 = "/media/aws-model01e/opusgit/urbansim_data/data/psrc_parcel/runs",
+               Aws02 = "/media/aws-model02e/opusgit/urbansim_data/data/psrc_parcel/runs",
+               Aws03 = "/media/aws-model03e/opusgit/urbansim_data/data/psrc_parcel/runs",
+               Aws04 = "/media/aws-model04e/opusgit/urbansim_data/data/psrc_parcel/runs",
+               Aws05 = "/media/aws-model05e/opusgit/urbansim_data/data/psrc_parcel/runs",
+               Aws06 = "/media/aws-model06e/opusgit/urbansim_data/data/psrc_parcel/runs",
+               Aws07 = "/media/aws-model07e/opusgit/urbansim_data/data/psrc_parcel/runs",
+               Aws08 = "/media/aws-model08e/opusgit/urbansim_data/data/psrc_parcel/runs",
                # Aws09 = "/media/aws-model09e/opusgit/urbansim_data/data/psrc_parcel/runs",
                Modelsrv5 = "/media/modelsrv5d/opusgit/urbansim_data/data/psrc_parcel/runs",
                Modelsrv6 = "/media/modelsrv6d/opusgit/urbansim_data/data/psrc_parcel/runs",
