@@ -314,8 +314,8 @@ def get_indicators(cache_directory, run_description, years = [2014,2017,2050], b
         dataset_name = 'alldata',
         name =  'Acreage by development category',
         attributes = [
-            'Prior_built = alldata.aggregate_all((parcel.aggregate(building.year_built, function=maximum) < 2017) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft,intermediates=[parcel])/43560.0',
-            'Affected = alldata.aggregate_all((parcel.aggregate(building.year_built, function=maximum) > 2016) * parcel.parcel_sqft,intermediates=[parcel])/43560.0',
+            'Prior_built = alldata.aggregate_all((parcel.aggregate(building.year_built, function=maximum) < 2018) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft,intermediates=[parcel])/43560.0',
+            'Affected = alldata.aggregate_all((parcel.aggregate(building.year_built, function=maximum) > 2017) * parcel.parcel_sqft,intermediates=[parcel])/43560.0',
             'Undeveloped = alldata.aggregate_all(numpy.logical_and((psrc_parcel.parcel.residential_units == 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary)==0)) * parcel.parcel_sqft,intermediates=[parcel])/43560.0',
         ],
     ),
