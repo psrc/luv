@@ -269,24 +269,89 @@ def get_indicators(cache_directory, run_description, years = [2014,2017,2050], b
         ),
 
 
-## TOD Level Indicators  
+## TOD Level Indicators (regional)
   
-    Table(
-        attribute = 'population = tod.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel])',
-        dataset_name = 'tod',
-        source_data = source_data,
-        ),
-    Table(
-        attribute = 'households = tod.aggregate(urbansim_parcel.parcel.number_of_households, intermediates=[parcel])',
-        dataset_name = 'tod',
-        source_data = source_data,
-        ),
-    Table(
-        attribute = 'employment = tod.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
-        dataset_name = 'tod',
-        source_data = source_data,
-        ),
+    # Table(
+        # attribute = 'population = tod.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel])',
+        # dataset_name = 'tod',
+        # source_data = source_data,
+        # ),
+    # Table(
+        # attribute = 'households = tod.aggregate(urbansim_parcel.parcel.number_of_households, intermediates=[parcel])',
+        # dataset_name = 'tod',
+        # source_data = source_data,
+        # ),
+    # Table(
+        # attribute = 'employment = tod.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
+        # dataset_name = 'tod',
+        # source_data = source_data,
+        # ),
 
+# # # TOD by County Indicators - #30
+
+    Table(
+        attribute = 'kin_population = tod.aggregate(urbansim_parcel.parcel.population * (parcel.county_id == 33))',
+        dataset_name = 'tod',
+        source_data = source_data,
+        ),		
+	Table(
+        attribute = 'kit_population = tod.aggregate(urbansim_parcel.parcel.population * (parcel.county_id == 35))',
+        dataset_name = 'tod',
+        source_data = source_data,
+        ),		
+	Table(
+        attribute = 'pie_population = tod.aggregate(urbansim_parcel.parcel.population * (parcel.county_id == 53))',
+        dataset_name = 'tod',
+        source_data = source_data,
+        ),		
+	Table(
+        attribute = 'sno_population = tod.aggregate(urbansim_parcel.parcel.population * (parcel.county_id == 61))',
+        dataset_name = 'tod',
+        source_data = source_data,
+        ),		
+
+    Table(
+        attribute = 'kin_households = tod.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.county_id == 33))',
+        dataset_name = 'tod',
+        source_data = source_data,
+        ),		
+	Table(
+        attribute = 'kit_households = tod.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.county_id == 35))',
+        dataset_name = 'tod',
+        source_data = source_data,
+        ),		
+	Table(
+        attribute = 'pie_households = tod.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.county_id == 53))',
+        dataset_name = 'tod',
+        source_data = source_data,
+        ),		
+	Table(
+        attribute = 'sno_households = tod.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.county_id == 61))',
+        dataset_name = 'tod',
+        source_data = source_data,
+        ),		
+
+ 	Table(
+        attribute = 'kin_employment = tod.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.county_id == 33))',
+        dataset_name = 'tod',
+        source_data = source_data,
+        ),		
+	Table(
+        attribute = 'kit_employment = tod.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.county_id == 35))',
+        dataset_name = 'tod',
+        source_data = source_data,
+        ),		
+	Table(
+        attribute = 'pie_employment = tod.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.county_id == 53))',
+        dataset_name = 'tod',
+        source_data = source_data,
+        ),		
+	Table(
+        attribute = 'sno_employment = tod.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.county_id == 61))',
+        dataset_name = 'tod',
+        source_data = source_data,
+        ),				
+		
 ## Impervious Area Indicators at County total and Regional category breakdown
 
 
