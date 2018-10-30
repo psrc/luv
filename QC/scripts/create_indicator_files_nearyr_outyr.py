@@ -308,15 +308,29 @@ def get_indicators(cache_directory, run_description, years = [2014,2017,2050], b
     ),
 
 ## Land Efficiency indicator
-    
+    #
+    #    DatasetTable(
+    #    source_data = source_data,
+    #    dataset_name = 'alldata',
+    #    name =  'Acreage by development category',
+    #    attributes = [
+    #        'Prior_built = alldata.aggregate_all((parcel.aggregate(building.year_built, function=maximum) < 2018) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft,intermediates=[parcel])/43560.0',
+    #        'Affected = alldata.aggregate_all((parcel.aggregate(building.year_built, function=maximum) > 2017) * parcel.parcel_sqft,intermediates=[parcel])/43560.0',
+    #        'Undeveloped = alldata.aggregate_all(numpy.logical_and((psrc_parcel.parcel.residential_units == 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary)==0)) * parcel.parcel_sqft,intermediates=[parcel])/43560.0',
+    #    ],
+    #),
+
         DatasetTable(
         source_data = source_data,
         dataset_name = 'alldata',
         name =  'Acreage by development category',
         attributes = [
-            'Prior_built = alldata.aggregate_all((parcel.aggregate(building.year_built, function=maximum) < 2018) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft,intermediates=[parcel])/43560.0',
-            'Affected = alldata.aggregate_all((parcel.aggregate(building.year_built, function=maximum) > 2017) * parcel.parcel_sqft,intermediates=[parcel])/43560.0',
-            'Undeveloped = alldata.aggregate_all(numpy.logical_and((psrc_parcel.parcel.residential_units == 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary)==0)) * parcel.parcel_sqft,intermediates=[parcel])/43560.0',
+            'built_by_2017_urban = alldata.aggregate_all((parcel.aggregate(building.year_built, function=maximum) < 2018) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft * (parcel.is_inside_urban_growth_boundary==1),intermediates=[parcel])/43560.0',
+            'built_after_2017_urban = alldata.aggregate_all((parcel.aggregate(building.year_built, function=maximum) > 2017) * parcel.parcel_sqft * (parcel.is_inside_urban_growth_boundary==1),intermediates=[parcel])/43560.0',
+            'undeveloped_urban = alldata.aggregate_all(numpy.logical_and((psrc_parcel.parcel.residential_units == 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary)==0)) * parcel.parcel_sqft * (parcel.is_inside_urban_growth_boundary==1),intermediates=[parcel])/43560.0',
+            'built_by_2017_rural = alldata.aggregate_all((parcel.aggregate(building.year_built, function=maximum) < 2018) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft * (parcel.is_inside_urban_growth_boundary==0),intermediates=[parcel])/43560.0',
+            'built_after_2017_rural = alldata.aggregate_all((parcel.aggregate(building.year_built, function=maximum) > 2017) * parcel.parcel_sqft * (parcel.is_inside_urban_growth_boundary==0),intermediates=[parcel])/43560.0',
+            'undeveloped_rural = alldata.aggregate_all(numpy.logical_and((psrc_parcel.parcel.residential_units == 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary)==0)) * parcel.parcel_sqft * (parcel.is_inside_urban_growth_boundary==0),intermediates=[parcel])/43560.0',
         ],
     ),
 
