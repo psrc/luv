@@ -282,6 +282,21 @@ def get_indicators(cache_directory, run_description, years = [2014,2017,2050], b
         dataset_name = 'tod',
         source_data = source_data,
         ),
+
+    DatasetTable(
+        source_data = source_data,
+        dataset_name = 'minority',
+        name =  'Acreage by development category',
+        attributes = [
+            'minority_area_built_by_2017 = alldata.aggregate_all((parcel.minority_id == 2) * (parcel.aggregate(building.year_built, function=maximum) < 2018) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft,intermediates=[parcel])/43560.0',
+            'minority_area_built_after_2017 = alldata.aggregate_all((parcel.minority_id == 2) * (parcel.aggregate(building.year_built, function=maximum) > 2017) * parcel.parcel_sqft,intermediates=[parcel])/43560.0',
+            'minority_area_undeveloped = alldata.aggregate_all((parcel.minority_id == 2) * numpy.logical_and((psrc_parcel.parcel.residential_units == 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary)==0)) * parcel.parcel_sqft,intermediates=[parcel])/43560.0',
+            'non_minority_area_built_by_2017 = alldata.aggregate_all((parcel.minority_id == 1) * (parcel.aggregate(building.year_built, function=maximum) < 2018) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft,intermediates=[parcel])/43560.0',
+            'non_minority_area_built_after_2017 = alldata.aggregate_all((parcel.minority_id == 1) * (parcel.aggregate(building.year_built, function=maximum) > 2017) * parcel.parcel_sqft,intermediates=[parcel])/43560.0',
+            'non_minority_area_undeveloped = alldata.aggregate_all((parcel.minority_id == 1) * numpy.logical_and((psrc_parcel.parcel.residential_units == 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary)==0)) * parcel.parcel_sqft,intermediates=[parcel])/43560.0',
+
+        ],
+    ),
 		
 # # Poverty - population, households, employment, and activity units
 
@@ -519,6 +534,21 @@ def get_indicators(cache_directory, run_description, years = [2014,2017,2050], b
         dataset_name = 'tod',
         source_data = source_data,
         ),
+
+    DatasetTable(
+        source_data = source_data,
+        dataset_name = 'poverty',
+        name =  'Acreage by development category',
+        attributes = [
+            'poverty_area_built_by_2017 = alldata.aggregate_all((parcel.poverty_id == 2) * (parcel.aggregate(building.year_built, function=maximum) < 2018) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft,intermediates=[parcel])/43560.0',
+            'poverty_area_built_after_2017 = alldata.aggregate_all((parcel.poverty_id == 2) * (parcel.aggregate(building.year_built, function=maximum) > 2017) * parcel.parcel_sqft,intermediates=[parcel])/43560.0',
+            'poverty_area_undeveloped = alldata.aggregate_all((parcel.poverty_id == 2) * numpy.logical_and((psrc_parcel.parcel.residential_units == 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary)==0)) * parcel.parcel_sqft,intermediates=[parcel])/43560.0',
+            'non_poverty_area_built_by_2017 = alldata.aggregate_all((parcel.poverty_id == 1) * (parcel.aggregate(building.year_built, function=maximum) < 2018) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft,intermediates=[parcel])/43560.0',
+            'non_poverty_area_built_after_2017 = alldata.aggregate_all((parcel.poverty_id == 1) * (parcel.aggregate(building.year_built, function=maximum) > 2017) * parcel.parcel_sqft,intermediates=[parcel])/43560.0',
+            'non_poverty_area_undeveloped = alldata.aggregate_all((parcel.poverty_id == 1) * numpy.logical_and((psrc_parcel.parcel.residential_units == 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary)==0)) * parcel.parcel_sqft,intermediates=[parcel])/43560.0',
+
+        ],
+    ),
 
 ]
     return indicators
