@@ -75,26 +75,26 @@ def get_indicators(cache_directory, run_description, years = [2014,2017,2050], b
   
 # ## Hex Level Indicators (minority_id = 2) -- for mapping
   
-    Table(
-        attribute = 'minority_population = hex.aggregate(urbansim_parcel.parcel.population * (parcel.minority_id == 2))',
-        dataset_name = 'hex',
-        source_data = source_data,
-        ),
-    Table(
-        attribute = 'minority_households = hex.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.minority_id == 2))',
-        dataset_name = 'hex',
-        source_data = source_data,
-        ),
-    Table(
-        attribute = 'minority_employment = hex.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.minority_id == 2))',
-        dataset_name = 'hex',
-        source_data = source_data,
-        ),  
-    Table(
-        attribute = 'minority_activity_units = hex.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel]) + hex.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.minority_id == 2))',
-        dataset_name = 'hex',
-        source_data = source_data,
-        ),	
+    # Table(
+        # attribute = 'minority_population = hex.aggregate(urbansim_parcel.parcel.population * (parcel.minority_id == 2))',
+        # dataset_name = 'hex',
+        # source_data = source_data,
+        # ),
+    # Table(
+        # attribute = 'minority_households = hex.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.minority_id == 2))',
+        # dataset_name = 'hex',
+        # source_data = source_data,
+        # ),
+    # Table(
+        # attribute = 'minority_employment = hex.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.minority_id == 2))',
+        # dataset_name = 'hex',
+        # source_data = source_data,
+        # ),  
+    # Table(
+        # attribute = 'minority_activity_units = hex.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel]) + hex.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.minority_id == 2))',
+        # dataset_name = 'hex',
+        # source_data = source_data,
+        # ),	
   
 # # # Minority Park/OS Buffer Indicators - #64
   
@@ -104,11 +104,11 @@ def get_indicators(cache_directory, run_description, years = [2014,2017,2050], b
         source_data = source_data,
         ),
 
-    # Table(
-        # attribute = 'households_park_buffer = minority.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.park_buffer_id == 1) * (parcel.is_inside_urban_growth_boundary == 1))',
-        # dataset_name = 'minority',
-        # source_data = source_data,
-        # ),
+    Table(
+        attribute = 'households_park_buffer = minority.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.park_buffer_id == 1) * (parcel.is_inside_urban_growth_boundary == 1))',
+        dataset_name = 'minority',
+        source_data = source_data,
+        ),
 
     Table(
         attribute = 'employment_park_buffer = minority.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.park_buffer_id == 1) * (parcel.is_inside_urban_growth_boundary == 1))',
@@ -131,11 +131,11 @@ def get_indicators(cache_directory, run_description, years = [2014,2017,2050], b
         source_data = source_data,
         ),
 
-   # Table(
-       # attribute = 'households_growth_amenities = minority.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.growth_amenities_id == 1))',
-       # dataset_name = 'minority',
-       # source_data = source_data,
-       # ),
+   Table(
+       attribute = 'households_growth_amenities = minority.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.growth_amenities_id == 1))',
+       dataset_name = 'minority',
+       source_data = source_data,
+       ),
 
     Table(
         attribute = 'employment_growth_amenities = minority.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.growth_amenities_id == 1))',
@@ -158,11 +158,11 @@ def get_indicators(cache_directory, run_description, years = [2014,2017,2050], b
         source_data = source_data,
         ),
 
-    # Table(
-        # attribute = 'households_transit_buffer = minority.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.transit_buffer_id == 1))',
-        # dataset_name = 'minority',
-        # source_data = source_data,
-        # ),
+    Table(
+        attribute = 'households_transit_buffer = minority.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.transit_buffer_id == 1))',
+        dataset_name = 'minority',
+        source_data = source_data,
+        ),
 
     Table(
         attribute = 'employment_transit_buffer = minority.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.transit_buffer_id == 1))',
@@ -194,19 +194,19 @@ def get_indicators(cache_directory, run_description, years = [2014,2017,2050], b
         dataset_name = 'census_tract',
         source_data = source_data,
         ),
-# # # Minority = 2
+# # Minority = 2
    Table(
-        attribute = 'non_minority_population = census_tract.aggregate(urbansim_parcel.parcel.population * (parcel.minority_id == 2))',
+        attribute = 'minority_population = census_tract.aggregate(urbansim_parcel.parcel.population * (parcel.minority_id == 2))',
         dataset_name = 'census_tract',
         source_data = source_data,
         ),
    Table(
-        attribute = 'non_minority_households = census_tract.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.minority_id == 2))',
+        attribute = 'minority_households = census_tract.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.minority_id == 2))',
         dataset_name = 'census_tract',
         source_data = source_data,
         ),
    Table(
-        attribute = 'non_minority_employment = census_tract.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.minority_id == 2))',
+        attribute = 'minority_employment = census_tract.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.minority_id == 2))',
         dataset_name = 'census_tract',
         source_data = source_data,
         ),
@@ -255,11 +255,11 @@ def get_indicators(cache_directory, run_description, years = [2014,2017,2050], b
         dataset_name = 'tod',
         source_data = source_data,
         ),
-    # Table(
-        # attribute = 'non_minority_households = tod.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.minority_id == 1))',
-        # dataset_name = 'tod',
-        # source_data = source_data,
-        # ),
+    Table(
+        attribute = 'non_minority_households = tod.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.minority_id == 1))',
+        dataset_name = 'tod',
+        source_data = source_data,
+        ),
     Table(
         attribute = 'non_minority_employment = tod.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.minority_id == 1))',
         dataset_name = 'tod',
@@ -312,26 +312,26 @@ def get_indicators(cache_directory, run_description, years = [2014,2017,2050], b
 
 ## Hex Level Indicators (poverty = 2) -- for mapping
   
-    Table(
-        attribute = 'poverty_population = hex.aggregate(urbansim_parcel.parcel.population, * (parcel.poverty_id == 2))',
-        dataset_name = 'hex',
-        source_data = source_data,
-        ),
-    Table(
-        attribute = 'poverty_households = hex.aggregate(urbansim_parcel.parcel.number_of_households, * (parcel.poverty_id == 2))',
-        dataset_name = 'hex',
-        source_data = source_data,
-        ),
-    Table(
-        attribute = 'poverty_employment = hex.aggregate(urbansim_parcel.parcel.number_of_jobs, * (parcel.poverty_id == 2))',
-        dataset_name = 'hex',
-        source_data = source_data,
-        ),  
-    Table(
-        attribute = 'poverty_activity_units = hex.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel]) + hex.aggregate(urbansim_parcel.parcel.number_of_jobs, * (parcel.poverty_id == 2))',
-        dataset_name = 'hex',
-        source_data = source_data,
-        ),		   
+    # Table(
+        # attribute = 'poverty_population = hex.aggregate(urbansim_parcel.parcel.population, * (parcel.poverty_id == 2))',
+        # dataset_name = 'hex',
+        # source_data = source_data,
+        # ),
+    # Table(
+        # attribute = 'poverty_households = hex.aggregate(urbansim_parcel.parcel.number_of_households, * (parcel.poverty_id == 2))',
+        # dataset_name = 'hex',
+        # source_data = source_data,
+        # ),
+    # Table(
+        # attribute = 'poverty_employment = hex.aggregate(urbansim_parcel.parcel.number_of_jobs, * (parcel.poverty_id == 2))',
+        # dataset_name = 'hex',
+        # source_data = source_data,
+        # ),  
+    # Table(
+        # attribute = 'poverty_activity_units = hex.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel]) + hex.aggregate(urbansim_parcel.parcel.number_of_jobs, * (parcel.poverty_id == 2))',
+        # dataset_name = 'hex',
+        # source_data = source_data,
+        # ),		   
 	   
 # # # Poverty Park/OS Buffer Indicators - #64
   
@@ -341,11 +341,11 @@ def get_indicators(cache_directory, run_description, years = [2014,2017,2050], b
         source_data = source_data,
         ),
 
-    # Table(
-        # attribute = 'households_park_buffer = poverty.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.park_buffer_id == 1) * (parcel.is_inside_urban_growth_boundary == 1))',
-        # dataset_name = 'poverty',
-        # source_data = source_data,
-        # ),
+    Table(
+        attribute = 'households_park_buffer = poverty.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.park_buffer_id == 1) * (parcel.is_inside_urban_growth_boundary == 1))',
+        dataset_name = 'poverty',
+        source_data = source_data,
+        ),
 
     Table(
         attribute = 'employment_park_buffer = poverty.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.park_buffer_id == 1) * (parcel.is_inside_urban_growth_boundary == 1))',
@@ -368,11 +368,11 @@ def get_indicators(cache_directory, run_description, years = [2014,2017,2050], b
         source_data = source_data,
         ),
 
-   # Table(
-       # attribute = 'households_growth_amenities = poverty.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.growth_amenities_id == 1))',
-       # dataset_name = 'poverty',
-       # source_data = source_data,
-       # ),
+   Table(
+       attribute = 'households_growth_amenities = poverty.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.growth_amenities_id == 1))',
+       dataset_name = 'poverty',
+       source_data = source_data,
+       ),
 
     Table(
         attribute = 'employment_growth_amenities = poverty.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.growth_amenities_id == 1))',
@@ -395,11 +395,11 @@ def get_indicators(cache_directory, run_description, years = [2014,2017,2050], b
         source_data = source_data,
         ),
 
-    # Table(
-        # attribute = 'households_transit_buffer = poverty.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.transit_buffer_id == 1))',
-        # dataset_name = 'poverty',
-        # source_data = source_data,
-        # ),
+    Table(
+        attribute = 'households_transit_buffer = poverty.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.transit_buffer_id == 1))',
+        dataset_name = 'poverty',
+        source_data = source_data,
+        ),
 
     Table(
         attribute = 'employment_transit_buffer = poverty.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.transit_buffer_id == 1))',
@@ -433,17 +433,17 @@ def get_indicators(cache_directory, run_description, years = [2014,2017,2050], b
         ),
 # # # Poverty = 2
    Table(
-        attribute = 'non_poverty_population = census_tract.aggregate(urbansim_parcel.parcel.population * (parcel.poverty_id == 2))',
+        attribute = 'poverty_population = census_tract.aggregate(urbansim_parcel.parcel.population * (parcel.poverty_id == 2))',
         dataset_name = 'census_tract',
         source_data = source_data,
         ),
    Table(
-        attribute = 'non_poverty_households = census_tract.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.poverty_id == 2))',
+        attribute = 'poverty_households = census_tract.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.poverty_id == 2))',
         dataset_name = 'census_tract',
         source_data = source_data,
         ),
    Table(
-        attribute = 'non_poverty_employment = census_tract.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.poverty_id == 2))',
+        attribute = 'poverty_employment = census_tract.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.poverty_id == 2))',
         dataset_name = 'census_tract',
         source_data = source_data,
         ),
@@ -492,11 +492,11 @@ def get_indicators(cache_directory, run_description, years = [2014,2017,2050], b
         dataset_name = 'tod',
         source_data = source_data,
         ),
-    # Table(
-        # attribute = 'non_poverty_households = tod.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.poverty_id == 1))',
-        # dataset_name = 'tod',
-        # source_data = source_data,
-        # ),
+    Table(
+        attribute = 'non_poverty_households = tod.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.poverty_id == 1))',
+        dataset_name = 'tod',
+        source_data = source_data,
+        ),
     Table(
         attribute = 'non_poverty_employment = tod.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.poverty_id == 1))',
         dataset_name = 'tod',
@@ -509,11 +509,11 @@ def get_indicators(cache_directory, run_description, years = [2014,2017,2050], b
         dataset_name = 'tod',
         source_data = source_data,
         ),
-    # Table(
-        # attribute = 'poverty_households = tod.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.poverty_id == 2))',
-        # dataset_name = 'tod',
-        # source_data = source_data,
-        # ),
+    Table(
+        attribute = 'poverty_households = tod.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.poverty_id == 2))',
+        dataset_name = 'tod',
+        source_data = source_data,
+        ),
     Table(
         attribute = 'poverty_employment = tod.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.poverty_id == 2))',
         dataset_name = 'tod',
