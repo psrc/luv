@@ -700,13 +700,12 @@ server <- function(input, output, session) {
     # if(length(input$select_resultsdir) == 0) return()
     # if (!(file.exists(subdir))) dir.create(subdir)
     # vars$result.dir <- file.path(wrkdir, "results", input$select_resultsdir)
-    vars$select_run1 <- str_extract(input$init_select_allruns[1], "runs/(.*)") %>% str_split("/") %>% unlist %>% .[2]
-    vars$select_run2all <- lapply(input$init_select_allruns[2:length(input$init_select_allruns)], function(x) str_extract(x, "runs/(.*)") %>% str_split("/") %>% unlist %>% .[2]) %>% unlist
+    vars$select_run1 <- str_extract(input$init_select_allruns[1], "runs/(.*)") %>% str_split("/") %>% unlist %>% .[length(.)]
+    vars$select_run2all <- lapply(input$init_select_allruns[2:length(input$init_select_allruns)], function(x) str_extract(x, "runs/(.*)") %>% str_split("/") %>% unlist %>% .[length(.)]) %>% unlist
     vars$runnames <-  c(vars$select_run1, vars$select_run2all)
     vars$runname1 <- unlist(strsplit(vars$select_run1,"[.]"))[[1]]
     vars$runnames2 <- sapply(strsplit(vars$select_run2all,"[.]"), function(x) x[1])
     vars$runs <- c(vars$runname1, unlist(vars$runnames2))
-    
     # result.dir <- resultsDir()
     
     # flist <- list.files(subdir, glob2rx('*.txt|*.html'), full.names = TRUE, include.dirs=TRUE, ignore.case=TRUE)
