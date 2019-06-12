@@ -34,8 +34,9 @@ if(make) {
   result.name <- Sys.getenv('QC_NAME')
   wrkdir <- file.path(Sys.getenv('QC_SCRIPT_PATH'), "..")
 } else {
+  # Shiny Server settings
   rund <- "/media/aws-prod-file01modeldata/vision2050/opusgit/urbansim_data/data/psrc_parcel/runs"
-  # rund <- "L:/vision2050/opusgit/urbansim_data/data/psrc_parcel/runs"
+  rund2 <- "/media/aws-prod-file01modeldata2/vision2050/opusgit/urbansim_data/data/psrc_parcel/runs"
   base <- list(LAws01 = file.path(rund, "awsmodel01"),
                LAws02 = file.path(rund, "awsmodel02"),
                LAws03 = file.path(rund, "awsmodel03"),
@@ -44,6 +45,14 @@ if(make) {
                LAws06 = file.path(rund, "awsmodel06"),
                LAws07 = file.path(rund, "awsmodel07"),
                LAws08 = file.path(rund, "awsmodel08"),
+               NAws01 = file.path(rund2, "awsmodel01"),
+               NAws02 = file.path(rund2, "awsmodel02"),
+               NAws03 = file.path(rund2, "awsmodel03"),
+               NAws04 = file.path(rund2, "awsmodel04"),
+               NAws05 = file.path(rund2, "awsmodel05"),
+               NAws06 = file.path(rund2, "awsmodel06"),
+               NAws07 = file.path(rund2, "awsmodel07"),
+               NAws08 = file.path(rund2, "awsmodel08"),
                # Aws01 = "/media/aws-model01e/opusgit/urbansim_data/data/psrc_parcel/runs",
                # Aws02 = "/media/aws-model02e/opusgit/urbansim_data/data/psrc_parcel/runs",
                # Aws03 = "/media/aws-model03e/opusgit/urbansim_data/data/psrc_parcel/runs",
@@ -58,14 +67,27 @@ if(make) {
                Modelsrv8 = "/media/modelsrv8d/opusgit/urbansim_data/data/psrc_parcel/runs",
                Modelsrv3 = "/media/modelsrv3e/opusgit/urbansim_data/data/psrc_parcel/runs"
               )
-  # base <- list(Aws01 = file.path(rund, "awsmodel01"),
-  #              Aws02 = file.path(rund, "awsmodel02"),
-  #              Aws03 = file.path(rund, "awsmodel03"),
-  #              Aws04 = file.path(rund, "awsmodel04"),
-  #              Aws05 = file.path(rund, "awsmodel05"),
-  #              Aws06 = file.path(rund, "awsmodel06"),
-  #              Aws07 = file.path(rund, "awsmodel07"),
-  #              Aws08 = file.path(rund, "awsmodel08"),
+  wrkdir <- "/home/shiny/apps/luv/QC"
+  
+  # Christy's settings
+  # rund <- "L:/vision2050/opusgit/urbansim_data/data/psrc_parcel/runs"
+  # rund2 <- "N:/vision2050/opusgit/urbansim_data/data/psrc_parcel/runs"
+  # base <- list(LAws01 = file.path(rund, "awsmodel01"),
+  #              LAws02 = file.path(rund, "awsmodel02"),
+  #              LAws03 = file.path(rund, "awsmodel03"),
+  #              LAws04 = file.path(rund, "awsmodel04"),
+  #              LAws05 = file.path(rund, "awsmodel05"),
+  #              LAws06 = file.path(rund, "awsmodel06"),
+  #              LAws07 = file.path(rund, "awsmodel07"),
+  #              LAws08 = file.path(rund, "awsmodel08"),
+  #              NAws01 = file.path(rund2, "awsmodel01"),
+  #              NAws02 = file.path(rund2, "awsmodel02"),
+  #              NAws03 = file.path(rund2, "awsmodel03"),
+  #              NAws04 = file.path(rund2, "awsmodel04"),
+  #              NAws05 = file.path(rund2, "awsmodel05"),
+  #              NAws06 = file.path(rund2, "awsmodel06"),
+  #              NAws07 = file.path(rund2, "awsmodel07"),
+  #              NAws08 = file.path(rund2, "awsmodel08"),
   #              # Aws01 = "//aws-model01/e$/opusgit/urbansim_data/data/psrc_parcel/runs",
   #              # Aws02 = "//aws-model02/e$/opusgit/urbansim_data/data/psrc_parcel/runs",
   #              # Aws03 = "//aws-model03/e$/opusgit/urbansim_data/data/psrc_parcel/runs",
@@ -80,10 +102,11 @@ if(make) {
   #              Modelsrv8 = "//MODELSRV8/d$/opusgit/urbansim_data/data/psrc_parcel/runs",
   #              Modelsrv3 = "//modelsrv3/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
   #              )
+  # wrkdir <- "C:/Users/CLam/Desktop/luv/QC"
+  
+  # Hana's settings
   # base <- list(Modelsrv3 = "/Volumes/e$/opusgit/urbansim_data/data/psrc_parcel/runs",
   #             Modelsrv8 = "/Volumes/d$/opusgit/urbansim_data/data/psrc_parcel/runs")
-  # wrkdir <- "C:/Users/CLam/Desktop/luv/QC"
-  wrkdir <- "/home/shiny/apps/luv/QC"
   #wrkdir <- "/Users/hana/ForecastProducts/LUV/QC"
 }
 

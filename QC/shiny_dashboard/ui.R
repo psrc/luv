@@ -12,6 +12,10 @@ ui <- function(request) {
                                 tags$b("Select the following to view or update Dashboard content")
                              ),
                              br(),
+                             tags$style(type='text/css',
+                                        ".selectize-dropdown-content {
+                                         max-height: 500px;
+                                        }"),
                              selectizeInput(inputId = "init_select_allruns",
                                             label = "Select Runs (minimum 2)",
                                             choices = allruns,
