@@ -99,10 +99,13 @@ server <- function(input, output, session) {
   }
 
   # Writes Leaflet popup text for non-centers shapefiles. Requires reactive shapefile, string x&y axis titles.
-  c.map.shp.popup <- function(shapefile, baseyear, xcolumn, ycolumn, layerctrl, xtitle, ytitle){
+  c.map.shp.popup <- function(shapefile, baseyear.df, xcolumn, ycolumn, layerctrl, xtitle, ytitle){
+    base.x <- paste(str_extract(baseyear.df[1, ][['baseyear']], '\\d+'), baseyear.df[1, ][['run']])
+    base.y <- paste(str_extract(baseyear.df[2, ][['baseyear']], '\\d+'), baseyear.df[2, ][['run']])
     paste0("<strong>ID: </strong>", shapefile$name_id,
            "<br><strong>", layerctrl, " Name: </strong>", shapefile$Name,
-           "<br><strong>", years[1]," estimate: </strong>", prettyNum(round(shapefile@data[,baseyear], 0), big.mark = ","),
+           "<br><strong>", paste('Base', base.x)," estimate: </strong>", prettyNum(round(shapefile@data[,'base_estrun1'], 0), big.mark = ","),
+           "<br><strong>", paste('Base', base.y)," estimate: </strong>", prettyNum(round(shapefile@data[,'base_estrun2'], 0), big.mark = ","),
            "<br><strong>", xtitle," estimate: </strong>", prettyNum(round(shapefile@data[,xcolumn], 0), big.mark = ","),
            "<br><strong>", ytitle," estimate: </strong>", prettyNum(round(shapefile@data[,ycolumn], 0), big.mark = ","),
            "<br><strong>Difference: </strong>", prettyNum(round(shapefile$diff, 0), big.mark = ","))
@@ -2249,7 +2252,16 @@ server <- function(input, output, session) {
   })
   
   cBaseYear <- reactive({
-    paste0("yr", years[1])
+    # paste0("yr", years[1]) # orig
+    alldt <- alldt()
+    
+    # for each run, find its baseyear
+    a <- alldt[, lapply(.SD, sum), .SDcols = patterns("^yr"), by = .(run)]
+    b.yrs <- names(a[,2:ncol(a)])[max.col(a[,2:ncol(a)] != 0, ties.method = 'first')]
+    
+    # return a df and subset for chosen runs
+    b <- a[, .(run)][, baseyear := b.yrs]
+    b[run %in% c(runname1(), cRun())]
   })
   
   cStructureType <- reactive({
@@ -2262,27 +2274,39 @@ server <- function(input, output, session) {
   cTable <- reactive({
     strdt <- strdt()
     alldt <- alldt()
-
+    byears <- cBaseYear()
+    
     if (is.null(cStructureType()) | cStructureType() == "All" | (cIndicator() %in% c("Total Population", "Employment")) |
         (cIndicator() %in% c("Households", "Residential Units") & cGeog() %in% c("zone", "city")) ){
+      # run 1
+      b1 <- byears[run == runname1(),][['baseyear']]
       dt1 <- alldt[run == runname1() & geography == cGeog() & indicator == cIndicator(),
-                   .(name_id, geography, indicator, get(cBaseYear()), get(cYear()))]
-      setnames(dt1, dt1[,c((ncol(dt1)-1), ncol(dt1))], c('baseyr', 'estrun1'))
+                   .(name_id, geography, indicator, get(b1), get(cYear()))]
+      setnames(dt1, dt1[,c((ncol(dt1)-1), ncol(dt1))], c('base_estrun1', 'estrun1'))
+      
+      # run 2
+      b2 <- byears[run == cRun(),][['baseyear']]
       dt2 <- alldt[run == cRun() & geography == cGeog() & indicator == cIndicator(),
-                   .(name_id, get(cYear()))]
-      setnames(dt2, dt2[,ncol(dt2)], 'estrun2')
+                   .(name_id, get(b2),get(cYear()))]
+      setnames(dt2, dt2[,c((ncol(dt2)-1), ncol(dt2))], c('base_estrun2', 'estrun2'))
+      
       dt <- merge(dt1, dt2, by = 'name_id')
     } else {
-      dt1 <- strdt[run == runname1() & geography == cGeog() & (year == year[1] | year == input$compare_select_year) & indicator == cIndicator() & strtype == cStructureType()]
+      # run 1
+      b1 <- str_extract(byears[run == runname1(),][['baseyear']], "\\d+")
+      dt1 <- strdt[run == runname1() & geography == cGeog() & (year == b1 | year == input$compare_select_year) & indicator == cIndicator() & strtype == cStructureType()]
       dt1.cast <- dcast.data.table(dt1, name_id + indicator + geography ~ year, value.var = "estimate")
-      setnames(dt1.cast, colnames(dt1.cast)[4:5], c('baseyr', 'estrun1'))
-      dt2 <- strdt[run == cRun() & geography == cGeog() & year == input$compare_select_year & indicator == cIndicator() & strtype == cStructureType()]
+      setnames(dt1.cast, colnames(dt1.cast)[4:5], c('base_estrun1', 'estrun1'))
+      
+      # run 2
+      b2 <- str_extract(byears[run == cRun(),][['baseyear']], "\\d+")
+      dt2 <- strdt[run == cRun() & geography == cGeog() & (year == b2 | year == input$compare_select_year)  & indicator == cIndicator() & strtype == cStructureType()]
       dt2.cast <- dcast.data.table(dt2, name_id ~ year, value.var = "estimate")
-      setnames(dt2.cast, colnames(dt2.cast)[2], 'estrun2')
+      setnames(dt2.cast, colnames(dt2.cast)[2:3], c('base_estrun2', 'estrun2'))
       dt <- merge(dt1.cast, dt2.cast, by = 'name_id')
     }
     dt[,"diff" := (estrun1-estrun2)]
-   
+
     switch(as.integer(input$compare_select_geography),
            merge(dt, zone.lookup, by.x = "name_id", by.y = "zone_id") %>% merge(faz.lookup, by = c("faz_id", "County")),
            merge(dt, faz.lookup, by.x = "name_id", by.y = "faz_id"),
@@ -2303,7 +2327,7 @@ server <- function(input, output, session) {
            "City"
     )
   })
-
+  
 
 # Run Comparison Rendering ------------------------------------------------
 
@@ -2323,18 +2347,21 @@ server <- function(input, output, session) {
     runname2.trim <- sapply(strsplit(cRun(),"[.]"), function(x) x[1])
     select.year <- str_extract(cYear(), "\\d+")
     
+    b.yrs <- cBaseYear()
     ctable0 <- cTable()
-    ctable <- ctable0[, .(County, indicator, geography, name_id, Name, baseyr, estrun1, estrun2, diff)]
+    ctable <- ctable0[, .(County, indicator, geography, name_id, Name, base_estrun1, estrun1, base_estrun2, estrun2, diff)]
     setnames(ctable, c("County", "Indicator", "Geography", "ID", "Name",
-                         paste0("Baseyear_", years[1]), 
-                         paste0(runname1(), "_", select.year), 
-                         paste0(runname2.trim, "_", select.year), 
-                         "Difference"))
+                       paste("Base", b.yrs[1, ][['run']], str_extract(b.yrs[1, ][['baseyear']], "\\d+")), 
+                       paste0(runname1(), "_", select.year), 
+                       paste("Base", b.yrs[2, ][['run']], str_extract(b.yrs[2, ][['baseyear']], "\\d+")), 
+                       paste0(runname2.trim, "_", select.year), 
+                       "Difference"))
     create.DT.generic(ctable) 
   })
   
   # Leaflet
   output$compare_map <- renderLeaflet({
+    if (is.null(cRun())) return(NULL)
     if(!vars$submitted) return(NULL)
     cshape <- cShape()
     if (is.null(cRun()) || is.null(cshape$diff)) return(NULL)
@@ -2346,7 +2373,7 @@ server <- function(input, output, session) {
     
     # popup setup
     cgeo <- cGeo()
-    geo.popup1 <- c.map.shp.popup(cshape, 'baseyr', 'estrun1','estrun2', cgeo, runname1(), runname2.trim)
+    geo.popup1 <- c.map.shp.popup(cshape, cBaseYear(), 'estrun1','estrun2', cgeo, runname1(), runname2.trim)
     geo.popup3 <- paste0("<strong>Center: </strong>", centers$name_id)
     
     # Draw the map without selected geographies
