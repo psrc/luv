@@ -371,13 +371,7 @@ ui <- function(request) {
                                                              choices = list("All" = 1, "Single Family" = 2, "Multi-Family" = 3),
                                                              selected = 1)
                                                ),
-                               sliderInput(inputId = "growth_select_year",
-                                           label = "Time Period",
-                                           min = years[1],
-                                           max = years[length(years)],
-                                           value = c(years[1], years[length(years)]),
-                                           step = 1,
-                                           sep = ""),
+                               uiOutput("growth_select_year_ui"),
                                br(),
                                helpText("Use the 'Box Select' or 'Lasso Select' option in the scatterplot to select
                                         points and view its location on the map.")
