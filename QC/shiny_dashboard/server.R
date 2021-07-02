@@ -2187,8 +2187,6 @@ server <- function(input, output, session) {
   })
   
   
-  
-  
 # Run Comparison Reactions ------------------------------------------------
 
 
@@ -2252,7 +2250,6 @@ server <- function(input, output, session) {
   })
   
   cBaseYear <- reactive({
-    # paste0("yr", years[1]) # orig
     alldt <- alldt()
     
     # for each run, find its baseyear
@@ -2394,10 +2391,10 @@ server <- function(input, output, session) {
   
   # determine if all years available, and update available years in Years Slider
   observe({
-    input$growth_select_year
+    input$growth_select_year & !is.null(gRun())
     alldt <- alldt()
     
-    # gdt1 <- alldt[run == gRun(), c("run", addn.yrs), with = FALSE]
+    # see if non-luv years have estimates
     gdt1 <- alldt[run %in% gRun(), c("run", addn.yrs), with = FALSE]
     gdt2 <- gdt1[, lapply(.SD, sum), by=run, .SDcols= addn.yrs]
     gdt3 <- gdt2[, gsumdt := rowSums(.SD), .SDcols = 2:ncol(gdt2)][, .(run, gsumdt)]
@@ -2413,6 +2410,23 @@ server <- function(input, output, session) {
                           value = c(l, h))
       }
     })
+  })
+  
+  output$growth_select_year_ui <- renderUI({
+    alldt <- alldt()
+    
+    # for selected run, find its baseyear
+    a <- alldt[run %in% gRun(), lapply(.SD, sum), .SDcols = patterns("^yr"), by = .(run)]
+    b.yr <- names(a[,2:ncol(a)])[max.col(a[,2:ncol(a)] != 0, ties.method = 'first')]
+    b <- str_extract(b.yr, "\\d+")
+    
+    sliderInput(inputId = "growth_select_year",
+                label = "Time Period",
+                min = years[1],
+                max = years[length(years)],
+                value = c(as.numeric(b), years[length(years)]),
+                step = 1,
+                sep = "")
   })
   
    output$growth_select_run_ui <- renderUI({
@@ -2440,7 +2454,6 @@ server <- function(input, output, session) {
      v <- input$growth_select_run %in% strdt[, run]
      return(v)
    })
-   
    
    gGeog <- reactive({
      switch(as.integer(input$growth_select_geography),
@@ -2483,7 +2496,8 @@ server <- function(input, output, session) {
    })
    
    gTable <- reactive({
-     if (is.null(gRun()) || is.null(input$growth_select_geography) || is.null(gYear())) return(NULL)
+     if(length(gYear()) < 2) return(NULL)
+     if(is.null(gRun()) || is.null(input$growth_select_geography) || is.null(gYear())) return(NULL)
      strdt <- strdt()
      alldt <- alldt()
      gYear <- gYear()
@@ -2532,6 +2546,7 @@ server <- function(input, output, session) {
     if(!vars$submitted) return(NULL)
     gtable <- gTable()
     if (is.null(gtable)| all(gtable$yr1 == 0) | all(gtable$yr2 == 0)) return(NULL)
+
     scatterplot(gtable, "growth", gtable$yr1, gtable$yr2, gYear.label1(), gYear.label2())
   })
    
@@ -2539,6 +2554,8 @@ server <- function(input, output, session) {
     if(!vars$submitted) return(NULL)
     gtable0 <- gTable()
     if (is.null(gtable0)| all(gtable0$yr1 == 0) | all(gtable0$yr2 == 0)) return(NULL)
+    
+    gtable0 <- gTable()
     gtable <- gtable0[, .(run, County, indicator, geography, name_id, Name, yr1, yr2, diff)]
     setnames(gtable, c("Run", "County", "Indicator", "Geography", "ID", "Name",
                         gYear.label1(),
@@ -2550,8 +2567,10 @@ server <- function(input, output, session) {
   # Leaflet
   output$growth_map <- renderLeaflet({
     if(!vars$submitted) return(NULL)
+    if(is.null(gTable()) || is.null(gShape())) return(NULL)
     gshape <- gShape()
     if (is.null(gshape$diff) | all(gshape$yr1 == 0) | all(gshape$yr2 == 0)) return(NULL)
+    
     # Set up symbology and categorization
     colorBinResult <- map.colorBins(gshape$diff, input$growth_select_geography)
     pal <- colorBin(palette = colorBinResult$color, bins = colorBinResult$bin, domain=gshape$diff, pretty = FALSE)
