@@ -2413,6 +2413,7 @@ server <- function(input, output, session) {
   })
   
   output$growth_select_year_ui <- renderUI({
+    if(is.null(alldt()) || is.null(gRun())) return(NULL)
     alldt <- alldt()
     
     # for selected run, find its baseyear
