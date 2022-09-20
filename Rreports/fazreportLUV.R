@@ -19,12 +19,19 @@ if(!interactive()) { # running using Makefile
 	annual <- as.logical(Sys.getenv('RREPORT_ANNUAL', 'FALSE'))
 } else { # running interactively
 	run1 <- "81_plus_r97.compiled"
+	run1 <- "run_89.run_2020_11_25_10_17"
+	run1 <- "run_98.run_2022_08_19_15_26"
 	base.dir <- "/Volumes/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
-	run.name <- "run81"
+	base.dir <- "~/n$/vision2050/opusgit/urbansim_data/data/psrc_parcel/runs/flatten"
+	#base.dir <- "~/n$/vision2050/opusgit/urbansim_data/data/psrc_parcel/runs/awsmodel04"
+	run.name <- "run98"
+	#run.name <- "run89"
 	result.dir <- "."
-	other.runs <- c('run_78.run_2016_06_23_09_47', 'run_170.run_2015_09_15_16_02')
-	other.runs <- c("run_81.run_2016_07_05_16_00", "luv_1.compiled")
-	annual <- FALSE
+	#other.runs <- c('run_78.run_2016_06_23_09_47', 'run_170.run_2015_09_15_16_02')
+	#other.runs <- c("run_81.run_2016_07_05_16_00", "luv_1.compiled")
+	#other.runs <- c("run_47.run_2019_12_06_16_56", "run_64R.efined")
+	other.runs <- c("run_99.run_2022_08_21_10_18", "run_62.run_2021_09_16_11_35", "run_89.run_2020_11_25_10_17")
+	annual <- TRUE
 }
 runs <- c(run1, other.runs)
 #run.numbers <- sapply(strsplit(sapply(strsplit(runs, '[.]'), function(x) x[1]), '_'), function(x) x[2])
@@ -47,19 +54,23 @@ sim.dir <- base.dir
 ci.dir <- file.path(getwd(), 'quantiles')
 
 show.all.years <- annual # should results from all years be shown as dotted lines
-not.all.years <- c() # if show.all.years is TRUE, put here runs that are exceptions
+not.all.years <- c(other.runs) # if show.all.years is TRUE, put here runs that are exceptions
 show.lut <- FALSE
 show.comments <- FALSE
 
 geography <- 'faz'
-output.file.name <- file.path(result.dir, paste(geography, 'reportLUV', if(show.all.years) 'annual' else '', '_', paste(run.numbers, collapse='_'), sep=''))
+output.file.name <- file.path(result.dir, paste(geography, 'reportLUVit', if(show.all.years) 'annual' else '', '_', paste(run.numbers, collapse='_'), sep=''))
 
-years <- c(2014, seq(2015, 2040, by=5))
-years.for.table <- c(2014, 2015, seq(2020, 2040, by=10))
-all.years <- if(show.all.years) 2014:2040 else c()
+#years <- c(2014, seq(2015, 2050, by=5))
+years <- c(2018, seq(2020, 2050, by=5))
+#years.for.table <- c(2014, 2015, seq(2020, 2050, by=10))
+years.for.table <- c(2018, 2020, seq(2020, 2050, by=10))
+#all.years <- if(show.all.years) 2014:2050 else c()
+all.years <- if(show.all.years) 2018:2050 else c()
 
 save.data.as.ascii <- FALSE
 add.data.from <- list("2014"= c("2014_faz_data_for_R_Report_No_Adj_or_Military.csv", "black"))
+add.data.from <- list()
 ###### END USER SETTINGS ############
 
 
@@ -70,15 +81,15 @@ library(gridExtra)
 lyears <- length(years)
 indicators <- c('households',  'population', 'employment')
 indicators.obs <- as.list(indicators)
+names(indicators.obs) <- indicators
 ci.names <- list(employment='job', households='household', population='population')
 titles <- list(households='Households', employment='Employment', population='HH Population')
+indicators.ann <- NULL
 if(show.all.years) {
-	indicators <- paste0(indicators, "An")
-	names(titles) <- paste0(names(titles), "An")
+	indicators.ann <- paste0(indicators, "An")
+	#names(titles) <- paste0(names(titles), "An")
+	#names(indicators.obs) <- indicators.ann
 }
-names(indicators.obs) <- indicators
-
-
 
 output.file.name.pdf <- paste(output.file.name,  'pdf', sep='.')
 output.file.name.txt <- paste(output.file.name,  'txt', sep='.')
@@ -102,7 +113,8 @@ faz.city <- read.table(file.path(wrkdir, 'data', "faz_city_luv.txt"), sep='\t', 
 faz_names <- read.table(file.path(wrkdir, 'data', 'faz_names.txt'), header=TRUE, sep='\t')
 cities <- read.table(file.path(wrkdir, 'data', "citiesLUV.csv"), sep=',', header=TRUE)
 
-for (what in indicators) {
+for (iwhat in seq_along(indicators)) {
+    what <- indicators[iwhat]
 	# Load observed data
 	trend.file.name <- file.path(wrkdir, 'data',  paste(indicators.obs[[what]], '_observed_', geography, '.txt', sep=''))
 	if(file.exists(trend.file.name)) {
@@ -127,8 +139,9 @@ for (what in indicators) {
 	for(irun in 1:length(runs)) {
 		run <- runs[irun]
 		# Load indicators
+		this.ind <- if(is.null(indicators.ann) || run %in% not.all.years) what else indicators.ann[iwhat]
 		data <- read.table(file.path(sim.dir,  run,  
-						'indicators', paste(geography, '__table__', what, '.csv', sep='')), sep=',', header=TRUE)
+						'indicators', paste(geography, '__table__', this.ind, '.csv', sep='')), sep=',', header=TRUE)
 		sim[[what]][[run]] <- data[,2:ncol(data)]
 		fazids[[what]][[run]] <- data[,1]
 		sim[[what]][[run]] <- sim[[what]][[run]][order(fazids[[what]][[run]]),]
