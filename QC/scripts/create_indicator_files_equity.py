@@ -7,32 +7,33 @@ from opus_core.indicator_framework.image_types.table import Table
 from opus_core.indicator_framework.image_types.dataset_table import DatasetTable
 
 
-# def jobs_by_sector(geo, package="psrc_parcel"):
-    # return [
-               # "Natural_resources = %s.%s.number_of_jobs_of_sector_1" % (package, geo),
-               # "Construction = %s.%s.number_of_jobs_of_sector_2" % (package, geo),
-               # "Manuf = %s.%s.number_of_jobs_of_sector_3" % (package, geo),
-               # "WTU = %s.%s.number_of_jobs_of_sector_4" % (package, geo),
-               # "Retail = %s.%s.number_of_jobs_of_sector_5" % (package, geo),
-               # "Business_Services = %s.%s.number_of_jobs_of_sector_7" % (package, geo),
-               # "Private_Ed = %s.%s.number_of_jobs_of_sector_8" % (package, geo),
-               # "Healthcare = %s.%s.number_of_jobs_of_sector_9" % (package, geo),
-               # "Food_Services = %s.%s.number_of_jobs_of_sector_10" % (package, geo),
-               # "Personal_Services = %s.%s.number_of_jobs_of_sector_11" % (package, geo),
-               # "government = %s.%s.number_of_jobs_of_sector_12" % (package, geo),
-               # "edu = %s.%s.number_of_jobs_of_sector_13" % (package, geo)               
-               # # Old Employment Sectors
-               # # "construction_resources = %s.%s.number_of_jobs_of_sector_1 + %s.%s.number_of_jobs_of_sector_2" % (2*(package, geo)),
-               # # "manuf_WTU = %s.%s.number_of_jobs_of_sector_3 + %s.%s.number_of_jobs_of_sector_4 + %s.%s.number_of_jobs_of_sector_5 + %s.%s.number_of_jobs_of_sector_6 + %s.%s.number_of_jobs_of_sector_8 + %s.%s.number_of_jobs_of_sector_9" % (6*(package, geo)),
-               # # "retail_food_services = %s.%s.number_of_jobs_of_sector_7 + %s.%s.number_of_jobs_of_sector_14" % (2*(package, geo)),
-               # # "FIRE_services = %s.%s.number_of_jobs_of_sector_12 + %s.%s.number_of_jobs_of_sector_10 + %s.%s.number_of_jobs_of_sector_11 + %s.%s.number_of_jobs_of_sector_13 + %s.%s.number_of_jobs_of_sector_15 + %s.%s.number_of_jobs_of_sector_16 + %s.%s.number_of_jobs_of_sector_17" % (7*(package, geo)),
-               # # "government = %s.%s.number_of_jobs_of_sector_18" % (package, geo),
-               # # "edu = %s.%s.number_of_jobs_of_sector_19" % (package, geo)
-           # ]
+def jobs_by_sector(geo, package="psrc_parcel"):
+    return [
+               "Natural_resources = %s.%s.number_of_jobs_of_sector_1" % (package, geo),
+               "Construction = %s.%s.number_of_jobs_of_sector_2" % (package, geo),
+               "Manuf = %s.%s.number_of_jobs_of_sector_3" % (package, geo),
+               "WTU = %s.%s.number_of_jobs_of_sector_4" % (package, geo),
+               "Retail = %s.%s.number_of_jobs_of_sector_5" % (package, geo),
+               "Business_Services = %s.%s.number_of_jobs_of_sector_7" % (package, geo),
+               "Private_Ed = %s.%s.number_of_jobs_of_sector_8" % (package, geo),
+               "Healthcare = %s.%s.number_of_jobs_of_sector_9" % (package, geo),
+               "Food_Services = %s.%s.number_of_jobs_of_sector_10" % (package, geo),
+               "Personal_Services = %s.%s.number_of_jobs_of_sector_11" % (package, geo),
+               "government = %s.%s.number_of_jobs_of_sector_12" % (package, geo),
+               "edu = %s.%s.number_of_jobs_of_sector_13" % (package, geo)               
+               # Old Employment Sectors
+               # "construction_resources = %s.%s.number_of_jobs_of_sector_1 + %s.%s.number_of_jobs_of_sector_2" % (2*(package, geo)),
+               # "manuf_WTU = %s.%s.number_of_jobs_of_sector_3 + %s.%s.number_of_jobs_of_sector_4 + %s.%s.number_of_jobs_of_sector_5 + %s.%s.number_of_jobs_of_sector_6 + %s.%s.number_of_jobs_of_sector_8 + %s.%s.number_of_jobs_of_sector_9" % (6*(package, geo)),
+               # "retail_food_services = %s.%s.number_of_jobs_of_sector_7 + %s.%s.number_of_jobs_of_sector_14" % (2*(package, geo)),
+               # "FIRE_services = %s.%s.number_of_jobs_of_sector_12 + %s.%s.number_of_jobs_of_sector_10 + %s.%s.number_of_jobs_of_sector_11 + %s.%s.number_of_jobs_of_sector_13 + %s.%s.number_of_jobs_of_sector_15 + %s.%s.number_of_jobs_of_sector_16 + %s.%s.number_of_jobs_of_sector_17" % (7*(package, geo)),
+               # "government = %s.%s.number_of_jobs_of_sector_18" % (package, geo),
+               # "edu = %s.%s.number_of_jobs_of_sector_19" % (package, geo)
+           ]
 
 #def get_indicators(cache_directory, run_description, years = [2014,2015,2017,2020,2025,2030,2035,2040,2045,2050], base_year=2014):
 #def get_indicators(cache_directory, run_description, years = [2014], base_year=2014):
-def get_indicators(cache_directory, run_description, years = [2014,2017,2050], base_year=2014):
+def get_indicators(cache_directory, run_description, years = [2018,2050], base_year=2018):
+#def get_indicators(cache_directory, run_description, years = [2017,2050], base_year=2014):
 
     source_data = SourceData(
         cache_directory = cache_directory,
@@ -47,6 +48,229 @@ def get_indicators(cache_directory, run_description, years = [2014,2017,2050], b
     
     indicators=[		
 
+# City by TOD types
+	
+Table(
+        attribute = 'population_hct_1 = city.aggregate(urbansim_parcel.parcel.population * (parcel.tod_id == 1))',
+        dataset_name = 'city',
+        source_data = source_data,
+        ),	
+
+Table(
+        attribute = 'population_hct_2 = city.aggregate(urbansim_parcel.parcel.population * (parcel.tod_id == 2))',
+        dataset_name = 'city',
+        source_data = source_data,
+        ),	
+
+# Table(
+        # attribute = 'population_hct_3 = city.aggregate(urbansim_parcel.parcel.population * (parcel.tod_id == 3))',
+        # dataset_name = 'city',
+        # source_data = source_data,
+        # ),	
+		
+Table(
+        attribute = 'population_hct_4 = city.aggregate(urbansim_parcel.parcel.population * (parcel.tod_id == 4))',
+        dataset_name = 'city',
+        source_data = source_data,
+        ),	
+		
+Table(
+        attribute = 'population_hct_5 = city.aggregate(urbansim_parcel.parcel.population * (parcel.tod_id == 5))',
+        dataset_name = 'city',
+        source_data = source_data,
+        ),	
+
+Table(
+        attribute = 'population_hct_6 = city.aggregate(urbansim_parcel.parcel.population * (parcel.tod_id == 6))',
+        dataset_name = 'city',
+        source_data = source_data,
+        ),	
+
+# Table(
+        # attribute = 'population_hct_7 = city.aggregate(urbansim_parcel.parcel.population * (parcel.tod_id == 7))',
+        # dataset_name = 'city',
+        # source_data = source_data,
+        # ),	
+
+# Table(
+        # attribute = 'population_hct_8 = city.aggregate(urbansim_parcel.parcel.population * (parcel.tod_id == 8))',
+        # dataset_name = 'city',
+        # source_data = source_data,
+        # ),	
+
+# Table(
+        # attribute = 'population_hct_9 = city.aggregate(urbansim_parcel.parcel.population * (parcel.tod_id == 9))',
+        # dataset_name = 'city',
+        # source_data = source_data,
+        # ),	
+
+Table(
+        attribute = 'population_hct_0 = city.aggregate(urbansim_parcel.parcel.population * (parcel.tod_id == 0))',
+        dataset_name = 'city',
+        source_data = source_data,
+        ),	
+
+Table(
+        attribute = 'households_hct_1 = city.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.tod_id == 1))',
+        dataset_name = 'city',
+        source_data = source_data,
+        ),	
+
+Table(
+        attribute = 'households_hct_2 = city.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.tod_id == 2))',
+        dataset_name = 'city',
+        source_data = source_data,
+        ),	
+
+# Table(
+        # attribute = 'households_hct_3 = city.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.tod_id == 3))',
+        # dataset_name = 'city',
+        # source_data = source_data,
+        # ),	
+		
+Table(
+        attribute = 'households_hct_4 = city.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.tod_id == 4))',
+        dataset_name = 'city',
+        source_data = source_data,
+        ),	
+		
+Table(
+        attribute = 'households_hct_5 = city.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.tod_id == 5))',
+        dataset_name = 'city',
+        source_data = source_data,
+        ),	
+
+Table(
+        attribute = 'households_hct_6 = city.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.tod_id == 6))',
+        dataset_name = 'city',
+        source_data = source_data,
+        ),	
+
+# Table(
+        # attribute = 'households_hct_7 = city.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.tod_id == 7))',
+        # dataset_name = 'city',
+        # source_data = source_data,
+        # ),	
+
+# Table(
+        # attribute = 'households_hct_8 = city.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.tod_id == 8))',
+        # dataset_name = 'city',
+        # source_data = source_data,
+        # ),	
+
+# Table(
+        # attribute = 'households_hct_9 = city.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.tod_id == 9))',
+        # dataset_name = 'city',
+        # source_data = source_data,
+        # ),	
+
+Table(
+        attribute = 'households_hct_0 = city.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.tod_id == 0))',
+        dataset_name = 'city',
+        source_data = source_data,
+        ),	
+
+Table(
+        attribute = 'employment_hct_1 = city.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.tod_id == 1))',
+        dataset_name = 'city',
+        source_data = source_data,
+        ),	
+
+Table(
+        attribute = 'employment_hct_2 = city.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.tod_id == 2))',
+        dataset_name = 'city',
+        source_data = source_data,
+        ),	
+
+# Table(
+        # attribute = 'employment_hct_3 = city.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.tod_id == 3))',
+        # dataset_name = 'city',
+        # source_data = source_data,
+        # ),	
+		
+Table(
+        attribute = 'employment_hct_4 = city.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.tod_id == 4))',
+        dataset_name = 'city',
+        source_data = source_data,
+        ),	
+		
+Table(
+        attribute = 'employment_hct_5 = city.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.tod_id == 5))',
+        dataset_name = 'city',
+        source_data = source_data,
+        ),	
+
+Table(
+        attribute = 'employment_hct_6 = city.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.tod_id == 6))',
+        dataset_name = 'city',
+        source_data = source_data,
+        ),	
+
+# Table(
+        # attribute = 'employment_hct_7 = city.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.tod_id == 7))',
+        # dataset_name = 'city',
+        # source_data = source_data,
+        # ),	
+
+# Table(
+        # attribute = 'employment_hct_8 = city.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.tod_id == 8))',
+        # dataset_name = 'city',
+        # source_data = source_data,
+        # ),	
+
+# Table(
+        # attribute = 'employment_hct_9 = city.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.tod_id == 9))',
+        # dataset_name = 'city',
+        # source_data = source_data,
+        # ),	
+
+Table(
+        attribute = 'employment_hct_0 = city.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.tod_id == 0))',
+        dataset_name = 'city',
+        source_data = source_data,
+        ),			
+		
+# # City by TOD (inside) - population, households, employment
+
+Table(
+        attribute = 'population_inside_hct = city.aggregate(urbansim_parcel.parcel.population * (parcel.tod_id <> 0))',
+        dataset_name = 'city',
+        source_data = source_data,
+        ),
+
+   Table(
+       attribute = 'households_inside_hct = city.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.tod_id <> 0))',
+       dataset_name = 'city',
+       source_data = source_data,
+       ),
+
+    Table(
+        attribute = 'employment_inside_hct = city.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.tod_id <> 0))',
+        dataset_name = 'city',
+        source_data = source_data,
+        ),  
+
+# # City by TOD (outside) - population, households, employment
+
+Table(
+        attribute = 'population_outside_hct = city.aggregate(urbansim_parcel.parcel.population * (parcel.tod_id == 0))',
+        dataset_name = 'city',
+        source_data = source_data,
+        ),
+
+   Table(
+       attribute = 'households_outside_hct = city.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.tod_id == 0))',
+       dataset_name = 'city',
+       source_data = source_data,
+       ),
+
+    Table(
+        attribute = 'employment_outside_hct = city.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.tod_id == 0))',
+        dataset_name = 'city',
+        source_data = source_data,
+        ), 		
+
+	   
 # # Minority - population, households, employment, and activity units
 
     Table(
@@ -122,6 +346,14 @@ def get_indicators(cache_directory, run_description, years = [2014,2017,2050], b
         source_data = source_data,
         ),
 
+# Minority population inside urban growth boundary		
+		
+    Table(
+        attribute = 'minority_population_inside_ugb = minority.aggregate(urbansim_parcel.parcel.population * (parcel.is_inside_urban_growth_boundary == 1))',
+        dataset_name = 'minority',
+        source_data = source_data,
+        ),		
+		
 	   
 # # # Minority Growth Amenities Buffer Indicators - #31
   
@@ -247,9 +479,9 @@ def get_indicators(cache_directory, run_description, years = [2014,2017,2050], b
         ),
 
 				
-# # # Minority TOD Level Indicators - #30
+# # Minority TOD Level Indicators - #30
 
-# # Non-Minority = 1
+# Non-Minority = 1
     Table(
         attribute = 'non_minority_population = tod.aggregate(urbansim_parcel.parcel.population * (parcel.minority_id == 1))',
         dataset_name = 'tod',
@@ -266,7 +498,7 @@ def get_indicators(cache_directory, run_description, years = [2014,2017,2050], b
         source_data = source_data,
         ),
 
-# # Minority = 2
+# Minority = 2
     Table(
         attribute = 'minority_population = tod.aggregate(urbansim_parcel.parcel.population * (parcel.minority_id == 2))',
         dataset_name = 'tod',
@@ -359,7 +591,14 @@ def get_indicators(cache_directory, run_description, years = [2014,2017,2050], b
         source_data = source_data,
         ),
 
-	   
+# Poverty population inside urban growth boundary		
+		
+    Table(
+        attribute = 'poverty_population_inside_ugb = poverty.aggregate(urbansim_parcel.parcel.population * (parcel.is_inside_urban_growth_boundary == 1))',
+        dataset_name = 'poverty',
+        source_data = source_data,
+        ),			
+		
 # # # Poverty Growth Amenities Buffer Indicators - #31
   
     Table(
@@ -522,8 +761,9 @@ def get_indicators(cache_directory, run_description, years = [2014,2017,2050], b
 
 ]
     return indicators
-
-def get_end_year_indicators(cache_directory, run_description, years = [2017,2050], base_year=2014):
+	
+def get_end_year_indicators(cache_directory, run_description, years = [2018,2050], base_year=2014):
+#def get_end_year_indicators(cache_directory, run_description, years = [2017,2050], base_year=2014):
      source_data = SourceData(
          cache_directory = cache_directory,
          run_description = run_description,
@@ -569,8 +809,8 @@ def get_end_year_indicators(cache_directory, run_description, years = [2017,2050
                  'non_residential_sqft = parcel.aggregate(building.non_residential_sqft)',
                  'building_sqft = parcel.aggregate(urbansim_parcel.building.building_sqft)',
                  'psrc_parcel.parcel.job_capacity',
-                 'parcel.plan_type_id',
-                 'residential_units_base = parcel.aggregate(building.residential_units * (building.year_built < 2015))'
+                 'parcel.plan_type_id'
+                 #'residential_units_base = parcel.aggregate(building.residential_units * (building.year_built < 2015))'
              ],
              ),
          ]
@@ -601,7 +841,8 @@ if __name__ == '__main__':
     
     # runs buildings indicator only for the simulation end year
     IndicatorFactory().create_indicators(
-        indicators = get_end_year_indicators(ind_cache, os.getenv('QC_RUN1_DESCR', ''),years = [2050]),
+        indicators = get_end_year_indicators(ind_cache, os.getenv('QC_RUN1_DESCR', ''),years = [2018,2050]),
+		#indicators = get_end_year_indicators(ind_cache, os.getenv('QC_RUN1_DESCR', ''),years = [2017,2050]),
         display_error_box = False,
         show_results = False)
 
