@@ -1,0 +1,25 @@
+County,RG,Pop0050,Pop50,Emp0050,Emp50,fips_rgs_id,fips_rgs_name,county_name,area_name
+33,1,438178.0051,1119136.624,373722.5658,1059705.566,3301,King - Metropolitan Cities,King,Metropolitan Cities
+33,2,380396.3369,928757.1146,329286.6326,764443.6326,3302,King - Core Cities,King,Core Cities
+33,3,168836.3385,393633.569,93240.92974,177038.9297,3303,King - Larger Cities,King,Larger Cities
+33,4,47931.34022,125891.3862,25471.18383,45380.18383,3304,King - Smaller Cities,King,Smaller Cities
+33,5,12045.02331,98518.43563,6652.879403,19543.8794,3305,King - Unincorporated UGA,King,Unincorporated UGA
+33,6,29862.51989,148358.4336,5980.66696,29299.66696,3306,King - Rural,King,Rural
+35,1,57643.36176,95069.627,22184.19462,52054.19462,3501,Kitsap - Metropolitan Cities,Kitsap,Metropolitan Cities
+35,2,28275.3663,46235.63178,18243.9943,28213.9943,3502,Kitsap - Core Cities,Kitsap,Core Cities
+35,3,23806.6202,44114.7822,6002.552937,13189.55294,3503,Kitsap - Larger Cities,Kitsap,Larger Cities
+35,4,41519.35323,59155.14272,15499.68884,28305.68884,3504,Kitsap - Smaller Cities,Kitsap,Smaller Cities
+35,5,35280.82172,81062.76309,10051.26908,18115.26908,3505,Kitsap - Unincorporated UGA,Kitsap,Unincorporated UGA
+35,6,35173.62738,128030.2038,6051.48841,20043.48841,3506,Kitsap - Rural,Kitsap,Rural
+53,1,189217.3241,381834.2262,116449.527,227716.527,5301,Pierce - Metropolitan Cities,Pierce,Metropolitan Cities
+53,2,118344.7099,211726.7924,49445.73076,96361.73076,5302,Pierce - Core Cities,Pierce,Core Cities
+53,3,62132.07979,110020.2309,22180.47668,42895.47668,5303,Pierce - Larger Cities,Pierce,Larger Cities
+53,4,67979.61831,125563.2006,33379.32277,61071.32277,5304,Pierce - Smaller Cities,Pierce,Smaller Cities
+53,5,111416.0587,270123.068,24677.23075,66689.23075,5305,Pierce - Unincorporated UGA,Pierce,Unincorporated UGA
+53,6,35660.31775,178658.0602,8375.956611,26867.95661,5306,Pierce - Rural,Pierce,Rural
+61,1,134123.7757,229882.5584,109259.8635,187818.8635,6101,Snohomish - Metropolitan Cities,Snohomish,Metropolitan Cities
+61,2,59877.77711,107923.2544,42384.97407,79317.97407,6102,Snohomish - Core Cities,Snohomish,Core Cities
+61,3,172314.2424,359998.5361,74170.09442,138700.0944,6103,Snohomish - Larger Cities,Snohomish,Larger Cities
+61,4,38233.56574,68155.23839,15096.25537,25967.25537,6104,Snohomish - Smaller Cities,Snohomish,Smaller Cities
+61,5,192290.0154,327540.3348,39051.33026,68794.33026,6105,Snohomish - Unincorporated UGA,Snohomish,Unincorporated UGA
+61,6,66770.16164,176133.6158,15363.08691,29166.08691,6106,Snohomish - Rural,Snohomish,Rural

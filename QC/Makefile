@@ -35,7 +35,9 @@ test : $(RESULT_TEST_PATH)/testreport.txt
 
 .PHONY : ind
 ind : 
+	python $(SCRIPT_PATH)/create_indicator_files_nearyr_outyr.py
 	python $(SCRIPT_PATH)/create_indicator_files.py
+
 	
 .PHONY : ind-maxdev
 ind-maxdev :

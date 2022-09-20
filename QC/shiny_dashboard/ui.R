@@ -12,19 +12,23 @@ ui <- function(request) {
                                 tags$b("Select the following to view or update Dashboard content")
                              ),
                              br(),
+                             tags$style(type='text/css',
+                                        ".selectize-dropdown-content {
+                                         max-height: 500px;
+                                        }"),
                              selectizeInput(inputId = "init_select_allruns",
                                             label = "Select Runs (minimum 2)",
                                             choices = allruns,
                                             width = "100%",
                                             multiple = TRUE),
-                             uiOutput("init_select_resultsdir"), # dynamic, lists dirs in QC/results
+                             # uiOutput("init_select_resultsdir"), # dynamic, lists dirs in QC/results
                              br(),
                              actionButton("goButton", "Submit"),
                              br(),
                              br(),
                              br(),
-                             verbatimTextOutput("submit_msg"),
-                             uiOutput('link')
+                             verbatimTextOutput("submit_msg")#,
+                             # uiOutput('link')
                       ), # end column
                       column(width = 4
  
@@ -86,6 +90,10 @@ ui <- function(request) {
                                                    
                                                    h4(class="header", checked=NA, tags$b("Largest RGCs")),
                                                    DT::dataTableOutput('tpsht_rgc'),
+                                                   br(),
+                                                   
+                                                   h4(class="header", checked=NA, tags$b("MICs")),
+                                                   DT::dataTableOutput('tpsht_mic'),
                                                    br(),
                                                    
                                                    h4(class="header", checked=NA, tags$b("Key Locations")),
@@ -160,6 +168,119 @@ ui <- function(request) {
                                              )# end column 
                                            )# end fluidRow
                                          )# end fluidPage
+                                ), ### end tabPanel
+                                tabPanel(title = "Other Summaries",
+                                         br(),
+                                         uiOutput("mk_tpsht_select_run_ui"),
+                                         navlistPanel(
+                                                      tabPanel("Control Total Mismatch",
+                                                               column(width = 1),
+                                                               column(width = 11,
+                                                                 h3("Control Total Mismatch"),
+                                                                 h4(em("(applicable to LUV runs only)")),
+                                                                 br(),
+                                                                 h4("Summary"),
+                                                                 div(DT::dataTableOutput("mk_tpsht_ctm"), style = "width: 95%"), # top level summary,
+                                                                 br(),
+                                                                 br(),
+                                                                 h4("Detail"),
+                                                                 br(),
+                                                                 div(DT::dataTableOutput("mk_tpsht_ctm_rec"), style = "width: 95%") # data
+                                                               ) # end column
+                                                              ), # end tabPanel
+                                                       tabPanel("Decreases",
+                                                                column(width = 1
+                                                                       ),# end column
+                                                                column(width = 11,
+                                                                       helpText("To view results, select a comparison year, run, and the following thresholds"),
+                                                                       fluidRow(
+                                                                         column(width = 4, numericInput("mk_tpsht_dec_abs", label = h6("Absolute Threshold"), value = 10)),
+                                                                         column(width = 4, numericInput("mk_tpsht_dec_per", label = h6("Percent Threshold"), value = 1)),
+                                                                         column(width = 4, 
+                                                                               h5("Text", style = "color: white"),
+                                                                                actionButton("mk_tpsht_dec_goButton", label = "Enter"))
+                                                                       ),# end column
+                                                                       fluidRow(
+                                                                         h3("Decreases"),
+                                                                         br(),
+                                                                         h4("Summary"),
+                                                                         div(DT::dataTableOutput("mk_tpsht_dec"), style = "width: 95%"), 
+                                                                         br(),
+                                                                         br(),
+                                                                         h4("Detail"),
+                                                                         br(),
+                                                                         div(DT::dataTableOutput("mk_tpsht_dec_rec"), style = "width: 95%")
+                                                                       )
+                                                                      ) # end column
+                                                                ), # end tabPanel
+                                                       tabPanel("Share of RGCs (by region & cities)",
+                                                                column(width = 1
+                                                                ), # end column
+                                                                column(width = 11,
+                                                                       h3("Allocation to RGCs"),
+                                                                       br(),
+                                                                       h4("Share of region (%)"),
+                                                                       div(DT::dataTableOutput("mk_tpsht_shr_reg"), style = "width: 95%"),
+                                                                       br(),
+                                                                       h4("Share of cities with RGCs (%)"),
+                                                                       div(DT::dataTableOutput("mk_tpsht_shr_city"), style = "width: 95%"),
+                                                                       br(),
+                                                                       h4("Details on Share of Cities with RGCs (%)"),
+                                                                       br(),
+                                                                       div(DT::dataTableOutput("mk_tpsht_shr_city_detail"), style = "width: 95%")
+                                                                ) # end column
+                                                                ), # end tabPanel
+                                                      tabPanel("Share of RGCs (by type & rest of region & cities)",
+                                                               column(width = 1
+                                                               ), # end column
+                                                               column(width = 11,
+                                                                      h3("Allocation to RGCs (by type & rest of region & cities)"),
+                                                                      br(),
+                                                                      div(DT::dataTableOutput("mk_tpsht_shr_rest"), style = "width: 95%")
+                                                               )# end column
+                                                      ), # end tabPanel
+                                                      tabPanel("Activity Units",
+                                                               column(width = 1
+                                                               ), # end column
+                                                               column(width = 11,
+                                                                      h3("Activity Units"),
+                                                                      br(),
+                                                                      h4("RGCs"),
+                                                                      div(DT::dataTableOutput("mk_tpsht_au_rgc"), style = "width: 95%"),
+                                                                      br(),
+                                                                      h4("MICs"),
+                                                                      div(DT::dataTableOutput("mk_tpsht_au_mic"), style = "width: 95%"),
+                                                                      br(),
+                                                                      h4("Details"),
+                                                                      div(DT::dataTableOutput("mk_tpsht_au_rec"), style = "width: 95%")
+                                                               )# end column
+                                                      ), # end tabPanel
+                                                      tabPanel("Employment in MICs",
+                                                               column(width = 1
+                                                               ), # end column
+                                                               column(width = 11,
+                                                                      h3("Employment in MICs"),
+                                                                      div(DT::dataTableOutput("mk_tpsht_emp_mic"), style = "width: 95%")
+                                                               )# end column
+                                                      ), # end tabPanel
+                                                      tabPanel("Special Places",
+                                                               column(width = 1
+                                                               ), # end column
+                                                               column(width = 11,
+                                                                      h3("Households"),
+                                                                      div(DT::dataTableOutput("mk_tpsht_sp_hh"), style = "width: 95%"),
+                                                                      br(),
+                                                                      h3("Population"),
+                                                                      div(DT::dataTableOutput("mk_tpsht_sp_pop"), style = "width: 95%"),
+                                                                      br(),
+                                                                      h3("Employment"),
+                                                                      div(DT::dataTableOutput("mk_tpsht_sp_emp"), style = "width: 95%")
+                                                               )# end column
+                                                      ), # end tabPanel
+                                                      widths = c(2, 10),
+                                                      well = FALSE
+                                                       # ) # end tabPanel  
+                                        ) # end navlistPanel
                                 )### end tabPanel
                     ) ### end tabSetPanel
                     ) ### end fluidPage
@@ -187,7 +308,8 @@ ui <- function(request) {
                                                        "Employment"=3,
                                                        "Residential Units"=4),
                                            selected = 1),
-                               conditionalPanel(condition = "(input.compare_select_indicator == 4 | input.compare_select_indicator == 2) && output.strdtavail",
+                               conditionalPanel(condition = "(input.compare_select_indicator == 4 | input.compare_select_indicator == 2) && output.strdtavail &&
+                                                input.compare_select_geography == 2",
                                                 radioButtons("compare_structure_type",
                                                             label = h5("Categories"),
                                                             choices = list("All" = 1, "Single Family" = 2, "Multi-Family" = 3),
@@ -242,19 +364,14 @@ ui <- function(request) {
                                                        "Employment"=3,
                                                        "Residential Units"=4),
                                            selected = 1),
-                               conditionalPanel(condition = "(input.growth_select_indicator == 4 | input.growth_select_indicator == 2) && output.gstrdtavail",
+                               conditionalPanel(condition = "(input.growth_select_indicator == 4 | input.growth_select_indicator == 2) && output.gstrdtavail &&
+                                                input.growth_select_geography == 2",
                                                 radioButtons("growth_structure_type",
                                                              label = h5("Categories"),
                                                              choices = list("All" = 1, "Single Family" = 2, "Multi-Family" = 3),
                                                              selected = 1)
                                                ),
-                               sliderInput(inputId = "growth_select_year",
-                                           label = "Time Period",
-                                           min = years[1],
-                                           max = years[length(years)],
-                                           value = c(years[1], years[length(years)]),
-                                           step = 1,
-                                           sep = ""),
+                               uiOutput("growth_select_year_ui"),
                                br(),
                                helpText("Use the 'Box Select' or 'Lasso Select' option in the scatterplot to select
                                         points and view its location on the map.")
