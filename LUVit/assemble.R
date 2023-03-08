@@ -209,7 +209,7 @@ geores <- assemble.hh.jobs("target", "target_id")
 geonames <- merge(county.names,
                   unique(control.names[, .(county_id, target_id, target_name)]),
                   by = "county_id")[, county_id := NULL]
-geores <- merge(geonames, geores, by = "target_id", all = TRUE)
+geores <- merge(geonames, geores, by = "target_id", all = TRUE)[order(County, target_id)]
 setcolorder(geores, "County") # make County the first column 
 
 nfreeze <- 3
@@ -232,7 +232,7 @@ geores <- assemble.hh.jobs("control", "control_id")
 geonames <- merge(county.names,
                   unique(control.names[, .(county_id, control_id, target_id, control_name)]),
                   by = "county_id")[, county_id := NULL]
-geores <- merge(geonames, geores, by = "control_id", all = TRUE)
+geores <- merge(geonames, geores, by = "control_id", all = TRUE)[order(County, control_id)]
 setcolorder(geores, "County") # make County the first column 
 
 nfreeze <- 4
@@ -259,7 +259,7 @@ setnames(geores, "subreg_id", "control_hct_id")
 geonames <- merge(county.names, 
                   unique(control.names[, .(county_id, control_hct_id, control_id, target_id, control_hct_name)]),
                     by = "county_id") [, county_id := NULL]
-geores <- merge(geonames, geores, by = "control_hct_id", all = TRUE)
+geores <- merge(geonames, geores, by = "control_hct_id", all = TRUE)[order(County, control_id, control_hct_id)]
 setcolorder(geores, "County") # make County the first column 
 
 nfreeze <- 5
