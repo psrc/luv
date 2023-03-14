@@ -21,22 +21,27 @@ if(!interactive()) { # running using Makefile
 	run1 <- "81_plus_r97.compiled"
 	run1 <- "run_89.run_2020_11_25_10_17"
 	run1 <- "run_98.run_2022_08_19_15_26"
+	run1 <- "run_110.run_2023_02_16_12_09"
 	base.dir <- "/Volumes/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
 	base.dir <- "~/n$/vision2050/opusgit/urbansim_data/data/psrc_parcel/runs/flatten"
 	#base.dir <- "~/n$/vision2050/opusgit/urbansim_data/data/psrc_parcel/runs/awsmodel04"
-	run.name <- "run98"
+	#run.name <- "run98"
 	#run.name <- "run89"
 	result.dir <- "."
 	#other.runs <- c('run_78.run_2016_06_23_09_47', 'run_170.run_2015_09_15_16_02')
 	#other.runs <- c("run_81.run_2016_07_05_16_00", "luv_1.compiled")
 	#other.runs <- c("run_47.run_2019_12_06_16_56", "run_64R.efined")
 	other.runs <- c("run_99.run_2022_08_21_10_18", "run_62.run_2021_09_16_11_35", "run_89.run_2020_11_25_10_17")
-	annual <- TRUE
+	other.runs <- c("run_62.run_2021_09_16_11_35", "run_89.run_2020_11_25_10_17")
+	annual <- FALSE
 }
 runs <- c(run1, other.runs)
+
 #run.numbers <- sapply(strsplit(sapply(strsplit(runs, '[.]'), function(x) x[1]), '_'), function(x) x[2])
 run.numbers <- sapply(strsplit(runs, '[.]'), function(x) x[1])
+run.numbers <- c("LUV-it", "RTP", "RGS")
 
+show.trend.data <- FALSE
 
 # CIs are switched off for LUV R reports
 ci.run <- c() # which run has confidence intervals 
@@ -63,8 +68,10 @@ output.file.name <- file.path(result.dir, paste(geography, 'reportLUVit', if(sho
 
 #years <- c(2014, seq(2015, 2050, by=5))
 years <- c(2018, seq(2020, 2050, by=5))
+years <- c(2014, 2018, seq(2020, 2040, by=5),2044,2050)
 #years.for.table <- c(2014, 2015, seq(2020, 2050, by=10))
 years.for.table <- c(2018, 2020, seq(2020, 2050, by=10))
+years.for.table <- c(2014, 2018, seq(2020, 2040, by=10),2044,2050)
 #all.years <- if(show.all.years) 2014:2050 else c()
 all.years <- if(show.all.years) 2018:2050 else c()
 
@@ -99,9 +106,12 @@ if(show.comments) source(file.path(wrkdir, 'data', paste0('commentsLUV',geograph
 
 
 
-remove.na <- function(data)
-	apply(data, c(1,2), function(x) if(trim(x)=='NA') '' else x)
-
+remove.na <- function(data){
+    for(i in seq_along(data))
+        if(!is.null(data[[i]]$label) && trim(data[[i]]$label)=='NA') data[[i]]$label <- ''
+	#apply(data, c(1,2), function(x) if(trim(x)=='NA') '' else x)
+    return(data)
+}
 
 
 sim <- fazids <- CIs <- saf <- trend.data <- lut.data <- fazids.tr <- fazids.lut <- fazids.saf <- list()
@@ -116,15 +126,17 @@ cities <- read.table(file.path(wrkdir, 'data', "citiesLUV.csv"), sep=',', header
 for (iwhat in seq_along(indicators)) {
     what <- indicators[iwhat]
 	# Load observed data
-	trend.file.name <- file.path(wrkdir, 'data',  paste(indicators.obs[[what]], '_observed_', geography, '.txt', sep=''))
-	if(file.exists(trend.file.name)) {
-		trend.data.raw <- data.frame(read.table(trend.file.name, sep='\t', header=TRUE))
-		fazids.tr[[what]] <- trend.data.raw[,1]
-		trend.data[[what]] <- trend.data.raw[order(fazids.tr[[what]]), 2:ncol(trend.data.raw)]
-		fazids.tr[[what]] <- sort(fazids.tr[[what]])
-		colnames(trend.data[[what]]) <- substr(colnames(trend.data[[what]]), 2,5)
-		trend.data[[what]] <- trend.data[[what]][,is.element(colnames(trend.data[[what]]), as.character(years))]
-	}
+    if(show.trend.data){
+	    trend.file.name <- file.path(wrkdir, 'data',  paste(indicators.obs[[what]], '_observed_', geography, '.txt', sep=''))
+	    if(file.exists(trend.file.name)) {
+		    trend.data.raw <- data.frame(read.table(trend.file.name, sep='\t', header=TRUE))
+		    fazids.tr[[what]] <- trend.data.raw[,1]
+		    trend.data[[what]] <- trend.data.raw[order(fazids.tr[[what]]), 2:ncol(trend.data.raw)]
+		    fazids.tr[[what]] <- sort(fazids.tr[[what]])
+		    colnames(trend.data[[what]]) <- substr(colnames(trend.data[[what]]), 2,5)
+		    trend.data[[what]] <- trend.data[[what]][,is.element(colnames(trend.data[[what]]), as.character(years))]
+	    }
+    }
 	lut.file.name <- file.path(wrkdir, 'data',  paste(indicators.obs[[what]], '_LUT_', geography, '.txt', sep=''))
 	if(show.lut && file.exists(lut.file.name)) {
 		lut.data.raw <- data.frame(read.table(lut.file.name, sep='\t', header=TRUE))
@@ -215,8 +227,10 @@ for(faz in zones) {
 		}
 		datafrs <- rbind(datafrs, obs.df, lut.df)
 		datafrs <- datafrs[!is.na(datafrs$amount),]
-		tabDF$Actual <- rep(NA, nrow(tabDF))
-		tabDF$Actual[tabDF$Time %in% as.integer(colnames(trend.data[[what]]))] <- trend.data[[what]][idxt,]
+		if(show.trend.data){
+		    tabDF$Actual <- rep(NA, nrow(tabDF))
+		    tabDF$Actual[tabDF$Time %in% as.integer(colnames(trend.data[[what]]))] <- trend.data[[what]][idxt,]
+		}
 		if(show.lut) {
 			tabDF$LUT <- rep(NA, nrow(tabDF))
 			tabDF$LUT[tabDF$Time %in% as.integer(colnames(lut.data[[what]]))] <- lut.data[[what]][idxl,]
@@ -226,10 +240,11 @@ for(faz in zones) {
 							scale_y_continuous('') + scale_x_continuous('') + 
 							scale_colour_discrete(name = '') +
 							ggtitle(titles[[what]]) + 
-							theme(legend.position=c(0,0.5), legend.justification=c(0,0), 
+							theme(legend.position=c(0,0.6), legend.justification=c(0,0), 
 									legend.key=element_blank(),
 									legend.key.size = unit(0.02, "npc"),
-									plot.title=element_text(size=12))
+									plot.title=element_text(size=12),
+									legend.background = element_rect(fill='transparent'))
 		if(length(all.years) > 0)
 			g[[what]] <- g[[what]] + geom_line(data=subset(datafrs, run %in% run.numbers & !(run %in% not.all.years) & Time %in% all.years), linetype=3)
 		if(length(add.data.from)>0) { # additional data points, e.g. 2014 data
@@ -248,7 +263,8 @@ for(faz in zones) {
 		last.row <- c()
 		for(column in colnames(tabDF)) tabDF[tidx.raw,column] <- as.integer(tabDF[tidx.raw,column])
 		lastcols <- c() # this removes low and high from the table
-		columns <- c('Actual')
+		columns <- c()
+		if(show.trend.data) columns <- c('Actual')
 		if(show.lut) columns <- c(columns, 'LUT')
 		columns <- c(columns,  unlist(strsplit(paste(paste(run.table.columns, collapse=','), sep=','), ',')), lastcols)
 		format.table <- format(tabDF[tidx.raw,columns],
@@ -266,7 +282,7 @@ for(faz in zones) {
 		#for(i in 1:3){
 		#	gtab[[what]][[i]] <- tableGrob(format(tabDF[tidx,columns[tabidxs[[i]]]],
 			gtab[[what]] <- tableGrob(format.table,
-						rows=rown,
+						rows=rown
     					#gpar.colfill = gpar(fill=NA,col=NA), 
 #    					gpar.rowfill = gpar(fill=NA,col=NA),
     					#show.box=TRUE, 
@@ -276,7 +292,7 @@ for(faz in zones) {
 #    					gpar.rowtext = gpar(col="black",  equal.width = TRUE, fontface='bold', # cex=0.8,
 #                        			show.vlines = TRUE, show.hlines = TRUE, separator="grey")                     
     		)
-    		#gtab[[what]]$d <- remove.na(gtab[[what]]$d)
+    		gtab[[what]]$grobs <- remove.na(gtab[[what]]$grobs)
     	#}
     	tabDF <- cbind(faz, tabDF)
     	colnames(tabDF)[1] <- 'area_id'
