@@ -10,7 +10,7 @@ from opus_core.indicator_framework.image_types.dataset_table import DatasetTable
 
 
 
-def get_indicators(cache_directory, run_description, years = range(2014,2051), base_year=2014):
+def get_indicators(cache_directory, run_description, years = range(2018,2051), base_year=2018):
     source_data = SourceData(
         cache_directory = cache_directory,
         run_description = run_description,
@@ -24,43 +24,78 @@ def get_indicators(cache_directory, run_description, years = range(2014,2051), b
     
     indicators=[
     
-    # FAZ indicators 
-    # =====================
+    # # FAZ indicators 
+    # # =====================
     
-       Table(
-           attribute = 'householdsAn=faz.aggregate(urbansim_parcel.building.number_of_households, intermediates=[parcel,zone])',
-           dataset_name = 'faz',
-           source_data = source_data,
-           ),
-       Table(
-           attribute = 'populationAn=faz.aggregate(urbansim_parcel.building.population, intermediates=[parcel,zone])',
-           dataset_name = 'faz',
-           source_data = source_data,
-           ),
-       Table(
-           attribute = 'employmentAn=faz.aggregate(urbansim_parcel.building.number_of_jobs, intermediates=[parcel,zone])',
-           dataset_name = 'faz',
-           source_data = source_data,
-           ),
+       # Table(
+           # attribute = 'householdsAn=faz.aggregate(urbansim_parcel.building.number_of_households, intermediates=[parcel,zone])',
+           # dataset_name = 'faz',
+           # source_data = source_data,
+           # ),
+       # Table(
+           # attribute = 'populationAn=faz.aggregate(urbansim_parcel.building.population, intermediates=[parcel,zone])',
+           # dataset_name = 'faz',
+           # source_data = source_data,
+           # ),
+       # Table(
+           # attribute = 'employmentAn=faz.aggregate(urbansim_parcel.building.number_of_jobs, intermediates=[parcel,zone])',
+           # dataset_name = 'faz',
+           # source_data = source_data,
+           # ),
+        # Table(
+            # attribute = 'residential_unitsAn=faz.aggregate(urbansim_parcel.building.residential_units, intermediates=[parcel])',
+            # dataset_name = 'faz',
+            # source_data = source_data,
+            # ),		   		   
                
-    # TAZ indicators 
-       Table(
-           attribute = 'householdsAn=zone.aggregate(urbansim_parcel.building.number_of_households, intermediates=[parcel])',
-           dataset_name = 'zone',
-           source_data = source_data,
-           ),
-       Table(
-           attribute = 'populationAn=zone.aggregate(urbansim_parcel.building.population, intermediates=[parcel])',
-           dataset_name = 'zone',
-           source_data = source_data,
-           ),
-       Table(
-           attribute = 'employmentAn=zone.aggregate(urbansim_parcel.building.number_of_jobs, intermediates=[parcel])',
-           dataset_name = 'zone',
-           source_data = source_data,
-           ),
+    # # TAZ indicators 
+       # Table(
+           # attribute = 'householdsAn=zone.aggregate(urbansim_parcel.building.number_of_households, intermediates=[parcel])',
+           # dataset_name = 'zone',
+           # source_data = source_data,
+           # ),
+       # Table(
+           # attribute = 'populationAn=zone.aggregate(urbansim_parcel.building.population, intermediates=[parcel])',
+           # dataset_name = 'zone',
+           # source_data = source_data,
+           # ),
+       # Table(
+           # attribute = 'employmentAn=zone.aggregate(urbansim_parcel.building.number_of_jobs, intermediates=[parcel])',
+           # dataset_name = 'zone',
+           # source_data = source_data,
+           # ),
+        # Table(
+            # attribute = 'residential_unitsAn=zone.aggregate(urbansim_parcel.building.residential_units, intermediates=[parcel])',
+            # dataset_name = 'zone',
+            # source_data = source_data,
+            # ),		   
+		   
+    # ## Subregs indicators
+    ##==================
     
-    # ## City indicators
+       Table(
+           attribute = 'householdsAn=subreg.aggregate(urbansim_parcel.building.number_of_households, intermediates=[parcel])',
+           dataset_name = 'subreg',
+           source_data = source_data,
+           ),
+       Table(
+           attribute = 'populationAn=subreg.aggregate(urbansim_parcel.building.population, intermediates=[parcel])',
+           dataset_name = 'subreg',
+           source_data = source_data,
+            ),
+       Table(
+           attribute = 'employmentAn=subreg.aggregate(urbansim_parcel.building.number_of_jobs, intermediates=[parcel])',
+           dataset_name = 'subreg',
+           source_data = source_data,
+           ),
+        Table(
+            attribute = 'residential_unitsAn=subreg.aggregate(urbansim_parcel.building.residential_units, intermediates=[parcel])',
+            dataset_name = 'subreg',
+            source_data = source_data,
+            ),		   
+		   
+		   
+    # # ## City indicators
     # ==================
     
        Table(
@@ -78,43 +113,120 @@ def get_indicators(cache_directory, run_description, years = range(2014,2051), b
            dataset_name = 'city',
            source_data = source_data,
            ),
-
-    # ## Tract-City indicators
+        Table(
+            attribute = 'residential_unitsAn=city.aggregate(urbansim_parcel.building.residential_units, intermediates=[parcel])',
+            dataset_name = 'city',
+            source_data = source_data,
+            ),	
+		   
+    # # ## target indicators
     # ==================
     
        Table(
-           attribute = 'householdsAn=tractcity.aggregate(urbansim_parcel.building.number_of_households, intermediates=[parcel])',
-           dataset_name = 'tractcity',
+           attribute = 'householdsAn=target.aggregate(urbansim_parcel.building.number_of_households, intermediates=[parcel])',
+           dataset_name = 'target',
            source_data = source_data,
            ),
        Table(
-           attribute = 'populationAn=tractcity.aggregate(urbansim_parcel.building.population, intermediates=[parcel])',
-           dataset_name = 'tractcity',
+           attribute = 'populationAn=target.aggregate(urbansim_parcel.building.population, intermediates=[parcel])',
+           dataset_name = 'target',
            source_data = source_data,
             ),
        Table(
-           attribute = 'employmentAn=tractcity.aggregate(urbansim_parcel.building.number_of_jobs, intermediates=[parcel])',
-           dataset_name = 'tractcity',
+           attribute = 'employmentAn=target.aggregate(urbansim_parcel.building.number_of_jobs, intermediates=[parcel])',
+           dataset_name = 'target',
            source_data = source_data,
            ),
+        Table(
+            attribute = 'residential_unitsAn=target.aggregate(urbansim_parcel.building.residential_units, intermediates=[parcel])',
+            dataset_name = 'target',
+            source_data = source_data,
+            ),	
+		   
+    # # ## controls indicators
+    # ==================
+    
+       Table(
+           attribute = 'householdsAn=control.aggregate(urbansim_parcel.building.number_of_households, intermediates=[parcel])',
+           dataset_name = 'control',
+           source_data = source_data,
+           ),
+       Table(
+           attribute = 'populationAn=control.aggregate(urbansim_parcel.building.population, intermediates=[parcel])',
+           dataset_name = 'control',
+           source_data = source_data,
+            ),
+       Table(
+           attribute = 'employmentAn=control.aggregate(urbansim_parcel.building.number_of_jobs, intermediates=[parcel])',
+           dataset_name = 'control',
+           source_data = source_data,
+           ),	
+        Table(
+            attribute = 'residential_unitsAn=control.aggregate(urbansim_parcel.building.residential_units, intermediates=[parcel])',
+            dataset_name = 'control',
+            source_data = source_data,
+            ),	
+		   
+    # # ## control_hct indicators
+    # ==================
+    
+       Table(
+           attribute = 'householdsAn=control_hct.aggregate(urbansim_parcel.building.number_of_households, intermediates=[parcel])',
+           dataset_name = 'control_hct',
+           source_data = source_data,
+           ),
+       Table(
+           attribute = 'populationAn=control_hct.aggregate(urbansim_parcel.building.population, intermediates=[parcel])',
+           dataset_name = 'control_hct',
+           source_data = source_data,
+            ),
+       Table(
+           attribute = 'employmentAn=control_hct.aggregate(urbansim_parcel.building.number_of_jobs, intermediates=[parcel])',
+           dataset_name = 'control_hct',
+           source_data = source_data,
+           ),	
+        Table(
+            attribute = 'residential_unitsAn=control_hct.aggregate(urbansim_parcel.building.residential_units, intermediates=[parcel])',
+            dataset_name = 'control_hct',
+            source_data = source_data,
+            ),	
+		   
+    # # ## Tract-City indicators
+    # # ==================
+    
+       # Table(
+           # attribute = 'householdsAn=tractcity.aggregate(urbansim_parcel.building.number_of_households, intermediates=[parcel])',
+           # dataset_name = 'tractcity',
+           # source_data = source_data,
+           # ),
+       # Table(
+           # attribute = 'populationAn=tractcity.aggregate(urbansim_parcel.building.population, intermediates=[parcel])',
+           # dataset_name = 'tractcity',
+           # source_data = source_data,
+            # ),
+       # Table(
+           # attribute = 'employmentAn=tractcity.aggregate(urbansim_parcel.building.number_of_jobs, intermediates=[parcel])',
+           # dataset_name = 'tractcity',
+           # source_data = source_data,
+           # ),
        
        # # County Regional Geography indicators 
        
-       Table(
-           attribute = 'populationAn = fips_rgs.aggregate(urbansim_parcel.parcel.population, intermediates=[city])',
-           dataset_name = 'fips_rgs',
-           source_data = source_data,
-            ),
-       Table(
-            attribute = 'householdsAn = fips_rgs.aggregate(urbansim_parcel.parcel.number_of_households, intermediates=[city])',
-            dataset_name = 'fips_rgs',
-            source_data = source_data,
-            ),
-        Table(
-            attribute = 'employmentAn = fips_rgs.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[city])',
-            dataset_name = 'fips_rgs',
-            source_data = source_data,
-            ),
+       # Table(
+           # attribute = 'populationAn = fips_rgs.aggregate(urbansim_parcel.parcel.population, intermediates=[city])',
+           # dataset_name = 'fips_rgs',
+           # source_data = source_data,
+            # ),
+       # Table(
+            # attribute = 'householdsAn = fips_rgs.aggregate(urbansim_parcel.parcel.number_of_households, intermediates=[city])',
+            # dataset_name = 'fips_rgs',
+            # source_data = source_data,
+            # ),
+        # Table(
+            # attribute = 'employmentAn = fips_rgs.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[city])',
+            # dataset_name = 'fips_rgs',
+            # source_data = source_data,
+            # ),
     ]
     return indicators
 

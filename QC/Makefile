@@ -35,9 +35,13 @@ test : $(RESULT_TEST_PATH)/testreport.txt
 
 .PHONY : ind
 ind : 
+	python $(SCRIPT_PATH)/create_annual_indicator_files.py
 	python $(SCRIPT_PATH)/create_indicator_files_nearyr_outyr.py
+	#python $(SCRIPT_PATH)/MHS_Local_copy_generic_annual_indicators.py
+	python $(SCRIPT_PATH)/create_indicator_files_luvit_geographies.py
 	python $(SCRIPT_PATH)/create_indicator_files.py
-
+	python $(SCRIPT_PATH)/create_indicator_files_equity.py
+	python $(SCRIPT_PATH)/create_indicator_files_supplemental_analysis.py
 	
 .PHONY : ind-maxdev
 ind-maxdev :
