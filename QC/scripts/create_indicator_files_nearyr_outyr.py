@@ -269,89 +269,24 @@ def get_indicators(cache_directory, run_description, years = [2014,2017,2050], b
         ),
 
 
-## TOD Level Indicators (regional)
+## TOD Level Indicators  
   
-    # Table(
-        # attribute = 'population = tod.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel])',
-        # dataset_name = 'tod',
-        # source_data = source_data,
-        # ),
-    # Table(
-        # attribute = 'households = tod.aggregate(urbansim_parcel.parcel.number_of_households, intermediates=[parcel])',
-        # dataset_name = 'tod',
-        # source_data = source_data,
-        # ),
-    # Table(
-        # attribute = 'employment = tod.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
-        # dataset_name = 'tod',
-        # source_data = source_data,
-        # ),
-
-# # # TOD by County Indicators - #30
-
     Table(
-        attribute = 'kin_population = tod.aggregate(urbansim_parcel.parcel.population * (parcel.county_id == 33))',
+        attribute = 'population = tod.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel])',
         dataset_name = 'tod',
         source_data = source_data,
-        ),		
-	Table(
-        attribute = 'kit_population = tod.aggregate(urbansim_parcel.parcel.population * (parcel.county_id == 35))',
-        dataset_name = 'tod',
-        source_data = source_data,
-        ),		
-	Table(
-        attribute = 'pie_population = tod.aggregate(urbansim_parcel.parcel.population * (parcel.county_id == 53))',
-        dataset_name = 'tod',
-        source_data = source_data,
-        ),		
-	Table(
-        attribute = 'sno_population = tod.aggregate(urbansim_parcel.parcel.population * (parcel.county_id == 61))',
-        dataset_name = 'tod',
-        source_data = source_data,
-        ),		
-
+        ),
     Table(
-        attribute = 'kin_households = tod.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.county_id == 33))',
+        attribute = 'households = tod.aggregate(urbansim_parcel.parcel.number_of_households, intermediates=[parcel])',
         dataset_name = 'tod',
         source_data = source_data,
-        ),		
-	Table(
-        attribute = 'kit_households = tod.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.county_id == 35))',
+        ),
+    Table(
+        attribute = 'employment = tod.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
         dataset_name = 'tod',
         source_data = source_data,
-        ),		
-	Table(
-        attribute = 'pie_households = tod.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.county_id == 53))',
-        dataset_name = 'tod',
-        source_data = source_data,
-        ),		
-	Table(
-        attribute = 'sno_households = tod.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.county_id == 61))',
-        dataset_name = 'tod',
-        source_data = source_data,
-        ),		
+        ),
 
- 	Table(
-        attribute = 'kin_employment = tod.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.county_id == 33))',
-        dataset_name = 'tod',
-        source_data = source_data,
-        ),		
-	Table(
-        attribute = 'kit_employment = tod.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.county_id == 35))',
-        dataset_name = 'tod',
-        source_data = source_data,
-        ),		
-	Table(
-        attribute = 'pie_employment = tod.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.county_id == 53))',
-        dataset_name = 'tod',
-        source_data = source_data,
-        ),		
-	Table(
-        attribute = 'sno_employment = tod.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.county_id == 61))',
-        dataset_name = 'tod',
-        source_data = source_data,
-        ),				
-		
 ## Impervious Area Indicators at County total and Regional category breakdown
 
 
@@ -374,16 +309,70 @@ def get_indicators(cache_directory, run_description, years = [2014,2017,2050], b
 
 ## Land Efficiency indicator
     
+    #    DatasetTable(
+    #    source_data = source_data,
+    #    dataset_name = 'alldata',
+    #    name =  'Acreage by development category',
+    #    attributes = [
+    #        'developed = alldata.aggregate_all(numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft,intermediates=[parcel])/43560.0',
+    #        'undeveloped = alldata.aggregate_all(numpy.logical_and((psrc_parcel.parcel.residential_units == 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary)==0)) * parcel.parcel_sqft,intermediates=[parcel])/43560.0',
+    #    ],
+    #),
+
+    #    DatasetTable(
+    #    source_data = source_data,
+    #    dataset_name = 'alldata',
+    #    name =  'Acreage by development category',
+    #    attributes = [
+    #        'built_by_2017_urban = alldata.aggregate_all((parcel.aggregate(building.year_built, function=maximum) < 2018) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft * (parcel.is_inside_urban_growth_boundary==1),intermediates=[parcel])/43560.0',
+    #        'built_after_2017_urban = alldata.aggregate_all((parcel.aggregate(building.year_built, function=maximum) > 2017) * parcel.parcel_sqft * (parcel.is_inside_urban_growth_boundary==1),intermediates=[parcel])/43560.0',
+    #        'undeveloped_urban = alldata.aggregate_all(numpy.logical_and((psrc_parcel.parcel.residential_units == 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary)==0)) * parcel.parcel_sqft * (parcel.is_inside_urban_growth_boundary==1),intermediates=[parcel])/43560.0',
+    #        'built_by_2017_rural = alldata.aggregate_all((parcel.aggregate(building.year_built, function=maximum) < 2018) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft * (parcel.is_inside_urban_growth_boundary==0),intermediates=[parcel])/43560.0',
+    #        'built_after_2017_rural = alldata.aggregate_all((parcel.aggregate(building.year_built, function=maximum) > 2017) * parcel.parcel_sqft * (parcel.is_inside_urban_growth_boundary==0),intermediates=[parcel])/43560.0',
+    #        'undeveloped_rural = alldata.aggregate_all(numpy.logical_and((psrc_parcel.parcel.residential_units == 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary)==0)) * parcel.parcel_sqft * (parcel.is_inside_urban_growth_boundary==0),intermediates=[parcel])/43560.0',
+    #    ],
+    #),
+
+
         DatasetTable(
         source_data = source_data,
         dataset_name = 'alldata',
-        name =  'Acreage by development category',
+        name =  'Acreage_by_built_res_density',
         attributes = [
-            'Prior_built = alldata.aggregate_all((parcel.aggregate(building.year_built, function=maximum) < 2018) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft,intermediates=[parcel])/43560.0',
-            'Affected = alldata.aggregate_all((parcel.aggregate(building.year_built, function=maximum) > 2017) * parcel.parcel_sqft,intermediates=[parcel])/43560.0',
-            'Undeveloped = alldata.aggregate_all(numpy.logical_and((psrc_parcel.parcel.residential_units == 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary)==0)) * parcel.parcel_sqft,intermediates=[parcel])/43560.0',
-        ],
-    ),
+            'Nonres_existing = alldata.aggregate_all((parcel.baseyear_built > 0) * (parcel.aggregate(building.year_built, function=maximum) < 2015) * (psrc_parcel.parcel.residential_units == 0) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft, intermediates=[parcel]) / 43560.0',
+            'Nonres_redev = alldata.aggregate_all((parcel.baseyear_built > 0) * (parcel.aggregate(building.year_built, function=maximum) > 2014) * (psrc_parcel.parcel.residential_units == 0) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft, intermediates=[parcel]) / 43560.0',
+            'Nonres_newdev = alldata.aggregate_all((parcel.baseyear_built < 1850) * (parcel.aggregate(building.year_built, function=maximum) > 2014) * (psrc_parcel.parcel.residential_units == 0) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft, intermediates=[parcel]) / 43560.0',
+            'Low_existing = alldata.aggregate_all((parcel.baseyear_built > 0) * (parcel.aggregate(building.year_built, function=maximum) < 2015) * (psrc_parcel.parcel.residential_units > 0) * (urbansim_parcel.parcel.parcel_sqft_per_unit > 3630) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft, intermediates=[parcel]) / 43560.0',
+            'Low_redev = alldata.aggregate_all((parcel.baseyear_built > 0) * (parcel.aggregate(building.year_built, function=maximum) > 2014) * (psrc_parcel.parcel.residential_units > 0) * (urbansim_parcel.parcel.parcel_sqft_per_unit > 3630) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft, intermediates=[parcel]) / 43560.0',
+            'Low_newdev = alldata.aggregate_all((parcel.baseyear_built < 1850) * (parcel.aggregate(building.year_built, function=maximum) > 2014) * (psrc_parcel.parcel.residential_units > 0) * (urbansim_parcel.parcel.parcel_sqft_per_unit > 3630) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft, intermediates=[parcel]) / 43560.0',
+            'Medium_existing = alldata.aggregate_all((parcel.baseyear_built > 0) * (parcel.aggregate(building.year_built, function=maximum) < 2015) * (psrc_parcel.parcel.residential_units > 0) * (urbansim_parcel.parcel.parcel_sqft_per_unit <= 3630) * (urbansim_parcel.parcel.parcel_sqft_per_unit > 871) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft, intermediates=[parcel]) / 43560.0',
+            'Medium_redev = alldata.aggregate_all((parcel.baseyear_built > 0) * (parcel.aggregate(building.year_built, function=maximum) > 2014) * (psrc_parcel.parcel.residential_units > 0) * (urbansim_parcel.parcel.parcel_sqft_per_unit <= 3630) * (urbansim_parcel.parcel.parcel_sqft_per_unit > 871) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft, intermediates=[parcel]) / 43560.0',
+            'Medium_newdev = alldata.aggregate_all((parcel.baseyear_built < 1850) * (parcel.aggregate(building.year_built, function=maximum) > 2014) * (psrc_parcel.parcel.residential_units > 0) * (urbansim_parcel.parcel.parcel_sqft_per_unit <= 3630) * (urbansim_parcel.parcel.parcel_sqft_per_unit > 871) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft, intermediates=[parcel]) / 43560.0',
+            'High_existing = alldata.aggregate_all((parcel.baseyear_built > 0) * (parcel.aggregate(building.year_built, function=maximum) < 2015) * (psrc_parcel.parcel.residential_units > 0) * (urbansim_parcel.parcel.parcel_sqft_per_unit <= 871) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft, intermediates=[parcel]) / 43560.0',
+            'High_redev = alldata.aggregate_all((parcel.baseyear_built > 0) * (parcel.aggregate(building.year_built, function=maximum) > 2014) * (psrc_parcel.parcel.residential_units > 0) * (urbansim_parcel.parcel.parcel_sqft_per_unit <= 871) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft, intermediates=[parcel]) / 43560.0',
+            'High_newdev = alldata.aggregate_all((parcel.baseyear_built < 1850) * (parcel.aggregate(building.year_built, function=maximum) > 2014) * (psrc_parcel.parcel.residential_units > 0) * (urbansim_parcel.parcel.parcel_sqft_per_unit <= 871) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft, intermediates=[parcel]) / 43560.0',
+            ],
+        ),
+
+        DatasetTable(
+        source_data = source_data,
+        dataset_name = 'county',
+        name =  'Acreage_by_built_res_density',
+        attributes = [
+            'Nonres_existing = county.aggregate((parcel.baseyear_built > 0) * (parcel.aggregate(building.year_built, function=maximum) < 2015) * (psrc_parcel.parcel.residential_units == 0) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft, intermediates=[parcel]) / 43560.0',
+            'Nonres_redev = county.aggregate((parcel.baseyear_built > 0) * (parcel.aggregate(building.year_built, function=maximum) > 2014) * (psrc_parcel.parcel.residential_units == 0) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft, intermediates=[parcel]) / 43560.0',
+            'Nonres_newdev = county.aggregate((parcel.baseyear_built < 1850) * (parcel.aggregate(building.year_built, function=maximum) > 2014) * (psrc_parcel.parcel.residential_units == 0) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft, intermediates=[parcel]) / 43560.0',
+            'Low_existing = county.aggregate((parcel.baseyear_built > 0) * (parcel.aggregate(building.year_built, function=maximum) < 2015) * (psrc_parcel.parcel.residential_units > 0) * (urbansim_parcel.parcel.parcel_sqft_per_unit > 3630) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft, intermediates=[parcel]) / 43560.0',
+            'Low_redev = county.aggregate((parcel.baseyear_built > 0) * (parcel.aggregate(building.year_built, function=maximum) > 2014) * (psrc_parcel.parcel.residential_units > 0) * (urbansim_parcel.parcel.parcel_sqft_per_unit > 3630) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft, intermediates=[parcel]) / 43560.0',
+            'Low_newdev = county.aggregate((parcel.baseyear_built < 1850) * (parcel.aggregate(building.year_built, function=maximum) > 2014) * (psrc_parcel.parcel.residential_units > 0) * (urbansim_parcel.parcel.parcel_sqft_per_unit > 3630) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft, intermediates=[parcel]) / 43560.0',
+            'Medium_existing = county.aggregate((parcel.baseyear_built > 0) * (parcel.aggregate(building.year_built, function=maximum) < 2015) * (psrc_parcel.parcel.residential_units > 0) * (urbansim_parcel.parcel.parcel_sqft_per_unit <= 3630) * (urbansim_parcel.parcel.parcel_sqft_per_unit > 871) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft, intermediates=[parcel]) / 43560.0',
+            'Medium_redev = county.aggregate((parcel.baseyear_built > 0) * (parcel.aggregate(building.year_built, function=maximum) > 2014) * (psrc_parcel.parcel.residential_units > 0) * (urbansim_parcel.parcel.parcel_sqft_per_unit <= 3630) * (urbansim_parcel.parcel.parcel_sqft_per_unit > 871) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft, intermediates=[parcel]) / 43560.0',
+            'Medium_newdev = county.aggregate((parcel.baseyear_built < 1850) * (parcel.aggregate(building.year_built, function=maximum) > 2014) * (psrc_parcel.parcel.residential_units > 0) * (urbansim_parcel.parcel.parcel_sqft_per_unit <= 3630) * (urbansim_parcel.parcel.parcel_sqft_per_unit > 871) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft, intermediates=[parcel]) / 43560.0',
+            'High_existing = county.aggregate((parcel.baseyear_built > 0) * (parcel.aggregate(building.year_built, function=maximum) < 2015) * (psrc_parcel.parcel.residential_units > 0) * (urbansim_parcel.parcel.parcel_sqft_per_unit <= 871) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft, intermediates=[parcel]) / 43560.0',
+            'High_redev = county.aggregate((parcel.baseyear_built > 0) * (parcel.aggregate(building.year_built, function=maximum) > 2014) * (psrc_parcel.parcel.residential_units > 0) * (urbansim_parcel.parcel.parcel_sqft_per_unit <= 871) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft, intermediates=[parcel]) / 43560.0',
+            'High_newdev = county.aggregate((parcel.baseyear_built < 1850) * (parcel.aggregate(building.year_built, function=maximum) > 2014) * (psrc_parcel.parcel.residential_units > 0) * (urbansim_parcel.parcel.parcel_sqft_per_unit <= 871) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft, intermediates=[parcel]) / 43560.0',
+            ],
+        ),
 
 ]
     return indicators
@@ -433,6 +422,7 @@ def get_end_year_indicators(cache_directory, run_description, years = [2017,2050
                  'building_sqft = parcel.aggregate(urbansim_parcel.building.building_sqft)',
                  'psrc_parcel.parcel.job_capacity',
                  'parcel.plan_type_id'
+                 'developed_sqft = parcel.parcel_sqft * (numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)))'
              ],
              ),
          ]

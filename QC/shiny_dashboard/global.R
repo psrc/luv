@@ -34,57 +34,21 @@ if(make) {
   result.name <- Sys.getenv('QC_NAME')
   wrkdir <- file.path(Sys.getenv('QC_SCRIPT_PATH'), "..")
 } else {
-  rund <- "/media/aws-prod-file01modeldata/vision2050/opusgit/urbansim_data/data/psrc_parcel/runs"
-  # rund <- "L:/vision2050/opusgit/urbansim_data/data/psrc_parcel/runs"
-  base <- list(LAws01 = file.path(rund, "awsmodel01"),
-               LAws02 = file.path(rund, "awsmodel02"),
-               LAws03 = file.path(rund, "awsmodel03"),
-               LAws04 = file.path(rund, "awsmodel04"),
-               LAws05 = file.path(rund, "awsmodel05"),
-               LAws06 = file.path(rund, "awsmodel06"),
-               LAws07 = file.path(rund, "awsmodel07"),
-               LAws08 = file.path(rund, "awsmodel08"),
-               Aws01 = "/media/aws-model01e/opusgit/urbansim_data/data/psrc_parcel/runs",
-               Aws02 = "/media/aws-model02e/opusgit/urbansim_data/data/psrc_parcel/runs",
-               Aws03 = "/media/aws-model03e/opusgit/urbansim_data/data/psrc_parcel/runs",
-               Aws04 = "/media/aws-model04e/opusgit/urbansim_data/data/psrc_parcel/runs",
-               Aws05 = "/media/aws-model05e/opusgit/urbansim_data/data/psrc_parcel/runs",
-               Aws06 = "/media/aws-model06e/opusgit/urbansim_data/data/psrc_parcel/runs",
-               Aws07 = "/media/aws-model07e/opusgit/urbansim_data/data/psrc_parcel/runs",
-               Aws08 = "/media/aws-model08e/opusgit/urbansim_data/data/psrc_parcel/runs",
-               # Aws09 = "/media/aws-model09e/opusgit/urbansim_data/data/psrc_parcel/runs",
-               Modelsrv5 = "/media/modelsrv5d/opusgit/urbansim_data/data/psrc_parcel/runs",
+  base <- list(Modelsrv5 = "/media/modelsrv5d/opusgit/urbansim_data/data/psrc_parcel/runs",
                Modelsrv6 = "/media/modelsrv6d/opusgit/urbansim_data/data/psrc_parcel/runs",
                Modelsrv8 = "/media/modelsrv8d/opusgit/urbansim_data/data/psrc_parcel/runs",
                Modelsrv3 = "/media/modelsrv3e/opusgit/urbansim_data/data/psrc_parcel/runs"
               )
-  # base <- list(Aws01 = file.path(rund, "awsmodel01"),
-  #              Aws02 = file.path(rund, "awsmodel02"),
-  #              Aws03 = file.path(rund, "awsmodel03"),
-  #              Aws04 = file.path(rund, "awsmodel04"),
-  #              Aws05 = file.path(rund, "awsmodel05"),
-  #              Aws06 = file.path(rund, "awsmodel06"),
-  #              Aws07 = file.path(rund, "awsmodel07"),
-  #              Aws08 = file.path(rund, "awsmodel08"),
-  #              # Aws01 = "//aws-model01/e$/opusgit/urbansim_data/data/psrc_parcel/runs",
-  #              # Aws02 = "//aws-model02/e$/opusgit/urbansim_data/data/psrc_parcel/runs",
-  #              # Aws03 = "//aws-model03/e$/opusgit/urbansim_data/data/psrc_parcel/runs",
-  #              # Aws04 = "//aws-model04/e$/opusgit/urbansim_data/data/psrc_parcel/runs",
-  #              # Aws05 = "//aws-model05/e$/opusgit/urbansim_data/data/psrc_parcel/runs",
-  #              # Aws06 = "//aws-model06/e$/opusgit/urbansim_data/data/psrc_parcel/runs",
-  #              # Aws07 = "//aws-model07/e$/opusgit/urbansim_data/data/psrc_parcel/runs",
-  #              # Aws08 = "//aws-model08/e$/opusgit/urbansim_data/data/psrc_parcel/runs",
-  #              # Aws09 = "//aws-model09/e$/opusgit/urbansim_data/data/psrc_parcel/runs",
-  #              Modelsrv5 = "//modelsrv5/d$/opusgit/urbansim_data/data/psrc_parcel/runs",
+  # base <- list(Modelsrv5 = "//modelsrv5/d$/opusgit/urbansim_data/data/psrc_parcel/runs",
   #              Modelsrv6 = "//modelsrv6/d$/opusgit/urbansim_data/data/psrc_parcel/runs",
   #              Modelsrv8 = "//MODELSRV8/d$/opusgit/urbansim_data/data/psrc_parcel/runs",
   #              Modelsrv3 = "//modelsrv3/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
   #              )
-  # base <- list(Modelsrv3 = "/Volumes/e$/opusgit/urbansim_data/data/psrc_parcel/runs",
-  #             Modelsrv8 = "/Volumes/d$/opusgit/urbansim_data/data/psrc_parcel/runs")
+   base <- list(Modelsrv5 = "/Users/hana/d5$/opusgit/urbansim_data/data/psrc_parcel/runs",
+               Modelsrv6 = "/Users/hana/d6$/opusgit/urbansim_data/data/psrc_parcel/runs")
   # wrkdir <- "C:/Users/CLam/Desktop/luv/QC"
   wrkdir <- "/home/shiny/apps/luv/QC"
-  #wrkdir <- "/Users/hana/ForecastProducts/LUV/QC"
+  wrkdir <- "/Users/hana/psrc/ForecastProducts/luv/QC"
 }
 
 dsn <- file.path(wrkdir, "data")
