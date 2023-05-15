@@ -3,6 +3,8 @@
 # March, 2015
 #
 
+setwd("C:/code_repos/luv/Rreports/")
+
 trim <- function (x) gsub("^\\s+|\\s+$", "", x) # function for triming whitespace 
 curdir <- getwd()
 
@@ -18,12 +20,13 @@ if(!interactive()) { # running using Makefile
 	other.runs <- trim(unlist(strsplit(other.runs, ",")))
 	annual <- as.logical(Sys.getenv('RREPORT_ANNUAL', 'FALSE'))
 } else { # running interactively
-	run1 <- "81_plus_r97.compiled"
-	run1 <- "run_89.run_2020_11_25_10_17"
-	run1 <- "run_98.run_2022_08_19_15_26"
+	#run1 <- "81_plus_r97.compiled"
+	#run1 <- "run_89.run_2020_11_25_10_17"
+	#run1 <- "run_98.run_2022_08_19_15_26"
 	run1 <- "run_110.run_2023_02_16_12_09"
-	base.dir <- "/Volumes/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
-	base.dir <- "~/n$/vision2050/opusgit/urbansim_data/data/psrc_parcel/runs/flatten"
+	#base.dir <- "/Volumes/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
+	base.dir <- "N:/vision2050/opusgit/urbansim_data/data/psrc_parcel/runs//flatten"
+	#base.dir <- "~/n$/vision2050/opusgit/urbansim_data/data/psrc_parcel/runs/flatten"
 	#base.dir <- "~/n$/vision2050/opusgit/urbansim_data/data/psrc_parcel/runs/awsmodel04"
 	#run.name <- "run98"
 	#run.name <- "run89"
@@ -31,15 +34,15 @@ if(!interactive()) { # running using Makefile
 	#other.runs <- c('run_78.run_2016_06_23_09_47', 'run_170.run_2015_09_15_16_02')
 	#other.runs <- c("run_81.run_2016_07_05_16_00", "luv_1.compiled")
 	#other.runs <- c("run_47.run_2019_12_06_16_56", "run_64R.efined")
-	other.runs <- c("run_99.run_2022_08_21_10_18", "run_62.run_2021_09_16_11_35", "run_89.run_2020_11_25_10_17")
-	other.runs <- c("run_62.run_2021_09_16_11_35", "run_89.run_2020_11_25_10_17")
+	#other.runs <- c("run_99.run_2022_08_21_10_18", "run_62.run_2021_09_16_11_35", "run_89.run_2020_11_25_10_17")
+	other.runs <- c("run_62.run_2021_09_16_11_35")
 	annual <- FALSE
 }
 runs <- c(run1, other.runs)
 
 #run.numbers <- sapply(strsplit(sapply(strsplit(runs, '[.]'), function(x) x[1]), '_'), function(x) x[2])
 run.numbers <- sapply(strsplit(runs, '[.]'), function(x) x[1])
-run.numbers <- c("LUV-it", "RTP", "RGS")
+run.numbers <- c("LUV-it", "RTP")
 
 show.trend.data <- FALSE
 
@@ -67,11 +70,11 @@ geography <- 'faz'
 output.file.name <- file.path(result.dir, paste(geography, 'reportLUVit', if(show.all.years) 'annual' else '', '_', paste(run.numbers, collapse='_'), sep=''))
 
 #years <- c(2014, seq(2015, 2050, by=5))
-years <- c(2018, seq(2020, 2050, by=5))
-years <- c(2014, 2018, seq(2020, 2040, by=5),2044,2050)
+#years <- c(2018, seq(2020, 2050, by=5))
+years <- c(2018, seq(2020, 2040, by=5),2044,2045,2050)
 #years.for.table <- c(2014, 2015, seq(2020, 2050, by=10))
-years.for.table <- c(2018, 2020, seq(2020, 2050, by=10))
-years.for.table <- c(2014, 2018, seq(2020, 2040, by=10),2044,2050)
+#years.for.table <- c(2018, 2020, seq(2020, 2050, by=10))
+years.for.table <- c(2014, 2018, seq(2020, 2040, by=10),2044,2045,2050)
 #all.years <- if(show.all.years) 2014:2050 else c()
 all.years <- if(show.all.years) 2018:2050 else c()
 

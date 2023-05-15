@@ -1,14 +1,17 @@
 library(data.table)
 library(openxlsx2)
 
+
 # set working directory to the location of this source file (e.g. in Rstudio or using setwd())
 #setwd("I:/LandUseForecast/luvrepo/LUVit")
 #setwd("~/psrc/ForecastProducts/luv/LUVit")
+#setwd("C:/code_repos/luv/LUVit")
 
 run <- "run_120.run_2023_05_11_12_57"
 run.dir <- "N:/vision2050/opusgit/urbansim_data/data/psrc_parcel/runs/awsmodel04"
 #run.dir <- "~/n$/vision2050/opusgit/urbansim_data/data/psrc_parcel/runs/awsmodel04"
 gq.file <- "Upd_OFM_SAEP_GQPop_Block_TAZ_Corres.xlsx" # whole path to the group-quarters Excel file
+#gq.file <- "M:/LandUseForecast/luvrepo/LUVit/Upd_OFM_SAEP_GQPop_Block_TAZ_Corres.xlsx" # whole path to the group-quarters Excel file
 
 indicators.dir <- file.path(run.dir, run, "indicators")
 
