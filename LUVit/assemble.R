@@ -1,7 +1,8 @@
 library(data.table)
 library(openxlsx2)
 
-# set working directory to the location of this source file (e.g. in Rstudio or using setwd)
+# set working directory to the location of this source file (e.g. in Rstudio or using setwd())
+#setwd("I:/LandUseForecast/luvrepo/LUVit")
 #setwd("~/psrc/ForecastProducts/luv/LUVit")
 
 run <- "run_120.run_2023_05_11_12_57"
