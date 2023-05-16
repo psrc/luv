@@ -314,6 +314,20 @@ geores <- assemble.hh.jobs("zone", "zone_id")
 
 # add county info
 geores <- merge(tazXwalk[, .(County, zone_id)], geores, by = "zone_id")
+
+# replace NAs (caused by missing zone_id in geores (TAZes with no parcels))
+na.rows <- c()
+for(col in setdiff(colnames(geores), c("County", "zone_id"))){
+    idx <- which(is.na(geores[[col]]))
+    if(length(idx) > 0){
+        geores[idx, (col) := 0]
+        na.rows <- c(na.rows, idx)
+    }
+}
+na.rows <- unique(na.rows)
+if(length(na.rows) > 0) warning("NAs found for zones ", paste(geores[na.rows, zone_id], collapse = ", "),
+                                ". Values set to 0.")
+
 setcolorder(geores, c("County", "zone_id"))
 setnames(geores, "zone_id", "TAZ")
 
