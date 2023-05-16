@@ -3,7 +3,7 @@
 # March, 2015
 #
 
-setwd("C:/code_repos/luv/Rreports/")
+#setwd("C:/code_repos/luv/Rreports/")
 
 trim <- function (x) gsub("^\\s+|\\s+$", "", x) # function for triming whitespace 
 curdir <- getwd()
@@ -23,10 +23,11 @@ if(!interactive()) { # running using Makefile
 	#run1 <- "81_plus_r97.compiled"
 	#run1 <- "run_89.run_2020_11_25_10_17"
 	#run1 <- "run_98.run_2022_08_19_15_26"
-	run1 <- "run_110.run_2023_02_16_12_09"
+	#run1 <- "run_110.run_2023_02_16_12_09"
+	run1 <- "run_120.run_2023_05_11_12_57"
 	#base.dir <- "/Volumes/e$/opusgit/urbansim_data/data/psrc_parcel/runs"
-	base.dir <- "N:/vision2050/opusgit/urbansim_data/data/psrc_parcel/runs//flatten"
-	#base.dir <- "~/n$/vision2050/opusgit/urbansim_data/data/psrc_parcel/runs/flatten"
+	base.dir <- "N:/vision2050/opusgit/urbansim_data/data/psrc_parcel/runs/flatten"
+	base.dir <- "~/n$/vision2050/opusgit/urbansim_data/data/psrc_parcel/runs/flatten"
 	#base.dir <- "~/n$/vision2050/opusgit/urbansim_data/data/psrc_parcel/runs/awsmodel04"
 	#run.name <- "run98"
 	#run.name <- "run89"
@@ -35,6 +36,7 @@ if(!interactive()) { # running using Makefile
 	#other.runs <- c("run_81.run_2016_07_05_16_00", "luv_1.compiled")
 	#other.runs <- c("run_47.run_2019_12_06_16_56", "run_64R.efined")
 	#other.runs <- c("run_99.run_2022_08_21_10_18", "run_62.run_2021_09_16_11_35", "run_89.run_2020_11_25_10_17")
+	#other.runs <- c("run_110.run_2023_02_16_12_09", "run_62.run_2021_09_16_11_35")
 	other.runs <- c("run_62.run_2021_09_16_11_35")
 	annual <- FALSE
 }
@@ -42,6 +44,7 @@ runs <- c(run1, other.runs)
 
 #run.numbers <- sapply(strsplit(sapply(strsplit(runs, '[.]'), function(x) x[1]), '_'), function(x) x[2])
 run.numbers <- sapply(strsplit(runs, '[.]'), function(x) x[1])
+#run.numbers <- c("LUV-it", "LUV-it-draft", "RTP")
 run.numbers <- c("LUV-it", "RTP")
 
 show.trend.data <- FALSE
@@ -122,9 +125,22 @@ sim <- fazids <- CIs <- saf <- trend.data <- lut.data <- fazids.tr <- fazids.lut
 id.correspondence <- data.frame(read.table(file.path(wrkdir, 'data', 'fazes.txt'), sep='\t', header=TRUE))
 id.correspondence <- id.correspondence[order(id.correspondence[,'faz_id']),]
 
-faz.city <- read.table(file.path(wrkdir, 'data', "faz_city_luv.txt"), sep='\t', header=TRUE)
+#faz.city <- read.table(file.path(wrkdir, 'data', "faz_city_luv.txt"), sep='\t', header=TRUE)
+faz.city <- read.table(file.path(wrkdir, 'data', "faz_control_luvit.csv"), sep=',', header=TRUE)
 faz_names <- read.table(file.path(wrkdir, 'data', 'faz_names.txt'), header=TRUE, sep='\t')
-cities <- read.table(file.path(wrkdir, 'data', "citiesLUV.csv"), sep=',', header=TRUE)
+#cities <- read.table(file.path(wrkdir, 'data', "citiesLUV.csv"), sep=',', header=TRUE)
+cities <- read.table(file.path(wrkdir, 'data', "control_hcts.csv"), sep=',', header=TRUE)
+
+# the next three lines is a hack to avoid changes everywhere where city_id is used
+cities$city_id <- cities$control_hct_id 
+cities$city_name <- cities$control_hct_name 
+faz.city$city_id <- faz.city$control_hct_id
+# some name edits to fit all names on one line and to distinguish HCTs
+cities[startsWith(cities$city_name, "Mid County"), "city_name"] <- "Mid County"
+cities[, "city_name"] <- gsub("Ag and Resource", "Ag&Res", cities$city_name)
+cities[, "city_name"] <- gsub("no growth UGA", "nGroUGA", cities$city_name)
+cities[cities$city_id > 1000, "city_name"] <- paste(cities[cities$city_id > 1000, "city_name"], "HCT")
+
 
 for (iwhat in seq_along(indicators)) {
     what <- indicators[iwhat]
