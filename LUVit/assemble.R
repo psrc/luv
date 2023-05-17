@@ -1,17 +1,29 @@
+# Script for assembling LUV-it spreadsheet from simulation results
+# Hana Sevcikova, PSRC
+# Last update: May 17, 2023
+
 library(data.table)
 library(openxlsx2)
-
 
 # set working directory to the location of this source file (e.g. in Rstudio or using setwd())
 #setwd("I:/LandUseForecast/luvrepo/LUVit")
 #setwd("~/psrc/ForecastProducts/luv/LUVit")
 #setwd("C:/code_repos/luv/LUVit")
 
-run <- "run_120.run_2023_05_11_12_57"
+# which run to use
+run <- "run_120.run_2023_05_11_12_57" 
+
+# where are the indicators
 run.dir <- "N:/vision2050/opusgit/urbansim_data/data/psrc_parcel/runs/awsmodel04"
 #run.dir <- "~/n$/vision2050/opusgit/urbansim_data/data/psrc_parcel/runs/awsmodel04"
-gq.file <- "Upd_OFM_SAEP_GQPop_Block_TAZ_Corres.xlsx" # whole path to the group-quarters Excel file
-#gq.file <- "M:/LandUseForecast/luvrepo/LUVit/Upd_OFM_SAEP_GQPop_Block_TAZ_Corres.xlsx" # whole path to the group-quarters Excel file
+
+# whole path to the group-quarters Excel file
+gq.file <- "Upd_OFM_SAEP_GQPop_Block_TAZ_Corres.xlsx" 
+#gq.file <- "M:/LandUseForecast/luvrepo/LUVit/Upd_OFM_SAEP_GQPop_Block_TAZ_Corres.xlsx" 
+
+# Name of the excel file that contains meta info
+# The LUV-it results will be attached to whatever sheets are already in this file
+metafile <- "LUVit_metadata.xlsx"
 
 indicators.dir <- file.path(run.dir, run, "indicators")
 
@@ -159,7 +171,7 @@ add.header.style <- function(wbk, ntime, nwhite = 1, nsectors = 6){
 # Read LUVit template that contains Metadata only
 #########################
 
-wb <- wb_load("LUVit_metadata.xlsx")
+wb <- wb_load(metafile)
 
 
 # assemble county results
