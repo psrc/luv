@@ -1,21 +1,21 @@
 # Script for assembling LUV-it spreadsheet from simulation results
 # Hana Sevcikova, PSRC
-# Last update: May 17, 2023
+# Last update: June 14, 2023
 
 library(data.table)
 library(openxlsx2)
 
 # set working directory to the location of this source file (e.g. in Rstudio or using setwd())
 #setwd("I:/LandUseForecast/luvrepo/LUVit")
-#setwd("~/psrc/ForecastProducts/luv/LUVit")
+setwd("~/psrc/ForecastProducts/luv/LUVit")
 #setwd("C:/code_repos/luv/LUVit")
 
 # which run to use
 run <- "run_120.run_2023_05_11_12_57" 
 
 # where are the indicators
-run.dir <- "N:/vision2050/opusgit/urbansim_data/data/psrc_parcel/runs/awsmodel04"
-#run.dir <- "~/n$/vision2050/opusgit/urbansim_data/data/psrc_parcel/runs/awsmodel04"
+#run.dir <- "N:/vision2050/opusgit/urbansim_data/data/psrc_parcel/runs/awsmodel04"
+run.dir <- "~/n$/vision2050/opusgit/urbansim_data/data/psrc_parcel/runs/awsmodel04"
 
 # whole path to the group-quarters Excel file
 gq.file <- "Upd_OFM_SAEP_GQPop_Block_TAZ_Corres.xlsx" 
@@ -30,37 +30,45 @@ indicators.dir <- file.path(run.dir, run, "indicators")
 # load BG crosswalks
 # (contains columns county_id, census_2010_block_id, census_block_id, census_tract_id, 
 # faz_id, zone_id, city_id, control_id, control_hct_id, target_id, census_2010_tract_id)
-bgXwalk <- fread("data/2010_census_block_crosswalk.csv")
-bgXwalk[, census_2010_block_id := as.character(census_2010_block_id)]
-bgXwalk[, census_2010_tract_id := as.character(census_2010_tract_id)]
-bgXwalk[, subreg_id := control_hct_id]
+bgXwalk10 <- fread("data/2010_census_block_crosswalk.csv")
+bgXwalk10[, census_2010_block_id := as.character(census_2010_block_id)]
+bgXwalk10[, census_2010_tract_id := as.character(census_2010_tract_id)]
+bgXwalk10[, subreg_id := control_hct_id]
+
+bgXwalk20 <- fread("data/2020_census_block_crosswalk.csv")
+#bgXwalk20[, census_2020_block_id := as.character(census_2020_block_id)]
+#bgXwalk20[, census_2020_tract_id := as.character(census_2020_tract_id)]
+bgXwalk20[, census_2020_block_geoid := as.character(census_2020_block_geoid)]
+bgXwalk20[, census_2020_tract_geoid := as.character(census_2020_tract_geoid)]
+bgXwalk20[, subreg_id := control_hct_id]
 
 county.names <- data.table(county_id = c(33, 35, 53, 61), 
                             County = c("King", "Kitsap", "Pierce", "Snohomish"))
 
 # load GQ info and merge with various geo cross walks
 #gq <- data.table(read_xlsx(gq.file, startRow = 5, cols = c(22, 25, 27, 30:33, 28))) # read the actual numbers
-gq <- data.table(read_xlsx(gq.file, startRow = 3, cols = 1:9)) # read the actual numbers
-gq[, census_2010_block_id := as.character(Blocks2010)][, Blocks2010 := NULL]
-gqcols <- colnames(gq)[-ncol(gq)]
-gq <- merge(bgXwalk, gq, by = "census_2010_block_id")
-#gqXwalk <- data.table(read_xlsx(gq.file, sheet = "Block10_taz_corres"))
-#gqXwalk[, `:=`(census_2010_block_id = as.character(geoid10), county_id = as.numeric(countyfp10))]
-#gqall <- merge(bgXwalk[, .(census_2010_block_id, zone_id, county_id, tractce10)], gq, by = "census_2010_block_id")
-tazXwalk <- fread("data/zones.txt")
-#setnames(gqall, "taz", "zone_id")
-#gqall <- merge(tazXwalk[, .(zone_id, faz_id)], gqall, by = "zone_id")
-#gqcols <- colnames(gqall)[grepl("^GQ", colnames(gqall))]
-tractXwalk <- fread("data/census_tracts.csv")
+gq10 <- data.table(read_xlsx(gq.file, startRow = 3, cols = 1:9, sheet = "updated_block10_gqpop")) # read the actual numbers
+gq10[, census_2010_block_id := as.character(Blocks2010)][, Blocks2010 := NULL]
+gqcols10 <- colnames(gq10)[-ncol(gq10)]
+gq10 <- merge(bgXwalk10, gq10, by = "census_2010_block_id")
 
+gq20 <- data.table(read_xlsx(gq.file, startRow = 3, cols = 1:9, sheet = "updated_block20_gqpop")) # read the actual numbers
+gq20[, census_2020_block_geoid := as.character(Blocks2020)][, Blocks2020 := NULL]
+gqcols20 <- colnames(gq20)[-ncol(gq20)]
+gq20 <- merge(bgXwalk20, gq20, by = "census_2020_block_geoid")
+
+tazXwalk <- fread("data/zones.txt")
+tractXwalk10 <- fread("data/census_tracts.csv")
+tractXwalk20 <- fread("data/census_2020_tracts.csv")
 
 # load military
-mil <- data.table(read_xlsx(gq.file, sheet = "enlisted personnel"))
-setnames(mil, "2017", "2018") # use 2017 as 2018
-setnames(mil, "2045", "2044") # use 2045 as 2044
+mil <- data.table(read_xlsx(gq.file, sheet = "enlisted w 2020 census block"))
+setnames(mil, c("2017", "2045"), c("2018", "2044")) # use 2017 as 2018 and 2045 as 2044
 miltimecols <- colnames(mil)[(ncol(mil)-7) : ncol(mil)]
-mil <- mil[, c("census_block_id", miltimecols), with = FALSE]
-mil <- merge(bgXwalk, mil, by = "census_block_id")
+mil <- mil[, c("census_block_id 2010", "geoid20", miltimecols), with = FALSE]
+setnames(mil, c("census_block_id 2010", "geoid20"), c("census_block_id", "census_2020_block_geoid"))
+mil10 <- merge(bgXwalk10, mil, by = "census_block_id")
+mil20 <- merge(bgXwalk20, mil, by = "census_2020_block_geoid")
 
 # derive number of time points and the actual years
 hh <- fread(file.path(indicators.dir, "county__table__households.csv"))
@@ -93,6 +101,13 @@ assemble.residential.table <- function(file.hh, file.hhpop, id.name){
     # Incorporate GQ (convert hhpop and gq into long format and join)
     hhpopl <- melt(hhpop, id.vars = id.name)
     hhpopl[, year := as.integer(substr(variable, 7, 10))]
+    if(id.name == "census_2020_tract_id"){
+        gq <-  gq20
+        gqcols <- gqcols20
+    } else {
+        gq <-  gq10
+        gqcols <- gqcols10
+    }
     GQl <- melt(gq[, c(id.name, gqcols), with = FALSE], id.vars = id.name, variable.factor = FALSE)
     #GQl[, year := as.integer(substr(variable, 3,6))]
     GQl[, year := as.integer(variable)]
@@ -116,6 +131,7 @@ assemble.employment.table <- function(file.jobs, file.jobs.by.sector, id.name){
     # account for enlisted personnel (convert to long format and join with total jobs)
     jobsl <- melt(jobs, id.vars = id.name)
     jobsl[, year := as.integer(substr(variable, 8, 11))]
+    mil <- if(id.name == "census_2020_tract_id") mil20 else mil10
     mill <- melt(mil[, c(id.name, miltimecols), with = FALSE], id.vars = id.name, variable.factor = FALSE)
     mill[, year := as.integer(variable)]
     mils <- mill[, .(mil = round(sum(value), 0)), by = c(id.name, "year")] # aggregate to the desired geography
@@ -355,12 +371,14 @@ wb <- add.header.style(wb, ntime = ntime, nwhite = nfreeze)
 #wb <- wb_add_filter(wb, rows = 1, cols = 1:2)
 
 
-# assemble Tract results
+# assemble 2010 Tract results
 #########################
+cat("\nAssembling 2010 Tract results ...")
+
 geores <- assemble.hh.jobs("census_tract", "census_tract_id")
 
 # add county info
-geores <- merge(tractXwalk[, .(county_id, census_tract_id, geoid10)], geores, by = "census_tract_id")
+geores <- merge(tractXwalk10[, .(county_id, census_tract_id, geoid10)], geores, by = "census_tract_id")
 geores <- merge(county.names, geores, by = "county_id")[, `:=`(county_id = NULL, census_tract_id = NULL)]
 #setcolorder(res, c("County", "zone_id"))
 setnames(geores, "geoid10", "Tract")
@@ -375,6 +393,30 @@ wb <- wb_add_worksheet(wb, "Tract")$
 
 wb <- add.header.style(wb, ntime = ntime, nwhite = nfreeze)
 #wb <- wb_add_filter(wb, rows = 1, cols = 1:2)
+
+# assemble 2020 Tract results
+#########################
+cat("\nAssembling 2020 Tract results ...")
+
+geores <- assemble.hh.jobs("census_2020_tract", "census_2020_tract_id")
+
+# add county info
+geores <- merge(tractXwalk20[, .(county_id, census_2020_tract_id, census_2020_tract_geoid)], 
+                geores, by = "census_2020_tract_id")
+geores <- merge(county.names, geores, by = "county_id")[, `:=`(county_id = NULL, census_2020_tract_id = NULL)]
+setnames(geores, "census_2020_tract_geoid", "Tract2020")
+
+nfreeze <- 2
+wb <- wb_add_worksheet(wb, "Tract2020")$
+    freeze_pane(firstActiveCol = nfreeze + 1, firstActiveRow = 2)$
+    add_data_table(x = geores, withFilter = FALSE, bandedRows = FALSE)$
+    set_col_widths(cols = (nfreeze + 1):(ncol(geores)+nfreeze), widths = 15)$ # width of numeric columns
+    set_col_widths(cols = 1, widths = 10)$  # width of County column
+    set_col_widths(cols = 2:nfreeze, widths = 15)  # width of id columns
+
+wb <- add.header.style(wb, ntime = ntime, nwhite = nfreeze)
+#wb <- wb_add_filter(wb, rows = 1, cols = 1:2)
+
 
 
 # save results
