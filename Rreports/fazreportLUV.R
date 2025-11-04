@@ -45,7 +45,7 @@ runs <- c(run1, other.runs)
 #run.numbers <- sapply(strsplit(sapply(strsplit(runs, '[.]'), function(x) x[1]), '_'), function(x) x[2])
 run.numbers <- sapply(strsplit(runs, '[.]'), function(x) x[1])
 #run.numbers <- c("LUV-it", "LUV-it-draft", "RTP")
-run.numbers <- c("LUV-it", "RTP")
+#run.numbers <- c("LUV-it", "RTP")
 
 show.trend.data <- FALSE
 
@@ -74,12 +74,13 @@ output.file.name <- file.path(result.dir, paste(geography, 'reportLUVit', if(sho
 
 #years <- c(2014, seq(2015, 2050, by=5))
 #years <- c(2018, seq(2020, 2050, by=5))
-years <- c(2018, seq(2020, 2040, by=5),2044,2045,2050)
+years <- c(2023, seq(2025, 2040, by=5),2044,2045,2050)
 #years.for.table <- c(2014, 2015, seq(2020, 2050, by=10))
 #years.for.table <- c(2018, 2020, seq(2020, 2050, by=10))
 years.for.table <- c(2014, 2018, seq(2020, 2040, by=10),2044,2045,2050)
+years.for.table <- c(2023, seq(2030, 2040, by=10),2044,2045,2050)
 #all.years <- if(show.all.years) 2014:2050 else c()
-all.years <- if(show.all.years) 2018:2050 else c()
+all.years <- if(show.all.years) 2023:2050 else c()
 
 save.data.as.ascii <- FALSE
 add.data.from <- list("2014"= c("2014_faz_data_for_R_Report_No_Adj_or_Military.csv", "black"))

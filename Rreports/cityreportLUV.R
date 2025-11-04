@@ -49,9 +49,11 @@ not.all.years <- c() # if show.all.years is TRUE, put here runs that are excepti
 geography <- 'city'
 output.file.name <- file.path(result.dir, paste(geography, 'reportLUV', if(show.all.years) 'annual' else '', '_', paste(run.numbers, collapse='_'), sep=''))
 
-years <- c(2014, seq(2015, 2050, by=5))
-years.for.table <- c(2014, 2015, seq(2020, 2050, by=10))
-all.years <- if(show.all.years) 2014:2050 else c()
+#years <- c(2014, seq(2015, 2050, by=5))
+years <- c(2023, seq(2025, 2040, by=5), 2044, 2050)
+#years.for.table <- c(2014, 2015, seq(2020, 2050, by=10))
+years.for.table <- c(2023, seq(2030, 2040, by=10),2044,2045,2050)
+all.years <- if(show.all.years) 2023:2050 else c()
 
 # Runs with CIs
 ci.run.name <- list()
