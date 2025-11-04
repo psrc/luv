@@ -559,7 +559,7 @@ def get_end_year_indicators(cache_directory, run_description, years = [2023,2050
                  'non_residential_sqft = parcel.aggregate(building.non_residential_sqft)',
                  'building_sqft = parcel.aggregate(urbansim_parcel.building.building_sqft)',
                  'psrc_parcel.parcel.job_capacity',
-                 'parcel.plan_type_id'
+                 'parcel.plan_type_id',
                  'developed_sqft = parcel.parcel_sqft * (numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)))'
                  ],
              ),

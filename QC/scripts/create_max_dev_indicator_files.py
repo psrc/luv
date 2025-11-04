@@ -9,7 +9,7 @@ from opus_core.indicator_framework.image_types.dataset_table import DatasetTable
 # When run for the first year after base year, the indicators based on project proposals
 # capture the available development capacity at the base year.
 
-def get_indicators(cache_directory, run_description, years = [2015], base_year=2014):
+def get_indicators(cache_directory, run_description, years = [2024], base_year=2023):
     source_data = SourceData(
         cache_directory = cache_directory,
         run_description = run_description,
@@ -157,4 +157,5 @@ if __name__ == '__main__':
     IndicatorFactory().create_indicators(
         indicators = indicators,
         display_error_box = False, 
-        show_results = False)
+        show_results = False,
+		file_name_for_indicator_results = 'indicator_results_maxdev.html')

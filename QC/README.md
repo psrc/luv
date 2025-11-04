@@ -53,7 +53,6 @@ On Windows machines you will most likely need to install [pandoc](http://pandoc.
 
 For generating indicators (optional), [Opus needs to be installed](http://twiki/DSA/InstallingUrbanSim). 
 
-Note that eveything should be installed and working on modelsrv3 in ``d://luvgit``.
  
 
 ## Running the Makefile
@@ -117,7 +116,9 @@ Currently, the following phonies are implemented:
 
    * **test**: test the system
    * **clean**: delete test outputs and output files of the current run (defined by QC\_NAME in inputs.txt)
-   * **ind**: run python indicator script (in scripts/create\_indicator\_files.py) on cache defined via QC\_BASE_DIRECTORY/QC\_RUN1 in inputs.txt (needs Opus installed)
+   * **ind**: run all python indicator scripts
+   * **ind-base**: run python indicators for standard geographies
+   * **ind-end**: run python end year indicators (e.g. new buildings)
    * **ind-maxdev**: run indicators for maximum developable capacity (in scripts/create\_max\_dev\_indicator\_files.py). Usually takes much longer than ordinary indicators.
    * **ind-an**: generate annual indicators implemented in scripts/create\_annual\_indicator\_files.py (useful for R-reports, see Section R-Reports). As above, Opus needs to be installed.
    * **rtables**: run R code in scripts/qc\_rtable\_\*.R

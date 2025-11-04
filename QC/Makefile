@@ -2,10 +2,10 @@ SHELL := /bin/bash
 
 # how to execute python scripts
 #PYTHON_COMMAND = python
-PYTHON_COMMAND = "conda run -n py39 python"
+PYTHON_COMMAND = conda run -n py39 python
 
 # how to execute R scripts
-R_COMMAND = "R CMD BATCH"
+R_COMMAND = R CMD BATCH
 
 # read input file 
 INPUT_FILE=inputs.txt
@@ -66,7 +66,7 @@ ind-an :
 
 .PHONY : ind-end
 ind-end :
-        $(PYTHON_COMMAND) $(SCRIPT_PATH)/create_annual_indicator_files_nearyr_outyr.py
+	$(PYTHON_COMMAND) $(SCRIPT_PATH)/create_indicator_files_nearyr_outyr.py
 
 .PHONY : all
 all: rtables_raw rplots_raw rmaps_raw emplots_raw index

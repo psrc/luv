@@ -1,5 +1,5 @@
 # Create a table with locations that have negative change 
-# between 2014 and 2040 in given indicators
+# between 2023 and 2050 in given indicators
 
 # Obtain inputs from the environment
 run1 <- Sys.getenv('QC_RUN1')
@@ -9,7 +9,7 @@ absolute.threshold <- as.integer(Sys.getenv('DECREASE_THRESHOLD'))
 percent.threshold <- as.integer(Sys.getenv('DECREASE_THRESHOLD_PERCENT'))
 if(is.na(absolute.threshold)) absolute.threshold <- 0
 if(is.na(percent.threshold)) percent.threshold <- 0
-years <- c(2014, 2040)
+years <- c(2023, 2050)
 
 if(!dir.exists(result.dir)) dir.create(result.dir)
 

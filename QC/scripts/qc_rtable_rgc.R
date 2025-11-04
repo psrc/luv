@@ -12,8 +12,8 @@ if(!interactive()) { # running using Makefile
 	run.name <- "run81_test"
 	result.dir <- file.path("results", run.name)
 }
-year <- 2040
-base.year <- 2014
+year <- 2050
+base.year <- 2023
 if(!dir.exists(result.dir)) dir.create(result.dir)
 indicator.path.run1 <- file.path(base.dir, run1, 'indicators')
 freport <- file.path(result.dir, paste0('rtables_rgc.Rmd'))
