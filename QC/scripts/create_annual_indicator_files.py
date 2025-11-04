@@ -10,7 +10,7 @@ from opus_core.indicator_framework.image_types.dataset_table import DatasetTable
 
 
 
-def get_indicators(cache_directory, run_description, years = range(2018,2051), base_year=2018):
+def get_indicators(cache_directory, run_description, years = range(2023,2051), base_year=2023):
     source_data = SourceData(
         cache_directory = cache_directory,
         run_description = run_description,
@@ -27,48 +27,48 @@ def get_indicators(cache_directory, run_description, years = range(2018,2051), b
     # # FAZ indicators 
     # # =====================
     
-       # Table(
-           # attribute = 'householdsAn=faz.aggregate(urbansim_parcel.building.number_of_households, intermediates=[parcel,zone])',
-           # dataset_name = 'faz',
-           # source_data = source_data,
-           # ),
-       # Table(
-           # attribute = 'populationAn=faz.aggregate(urbansim_parcel.building.population, intermediates=[parcel,zone])',
-           # dataset_name = 'faz',
-           # source_data = source_data,
-           # ),
-       # Table(
-           # attribute = 'employmentAn=faz.aggregate(urbansim_parcel.building.number_of_jobs, intermediates=[parcel,zone])',
-           # dataset_name = 'faz',
-           # source_data = source_data,
-           # ),
-        # Table(
-            # attribute = 'residential_unitsAn=faz.aggregate(urbansim_parcel.building.residential_units, intermediates=[parcel])',
-            # dataset_name = 'faz',
-            # source_data = source_data,
-            # ),		   		   
+       Table(
+           attribute = 'householdsAn=faz.aggregate(urbansim_parcel.building.number_of_households, intermediates=[parcel,zone])',
+           dataset_name = 'faz',
+           source_data = source_data,
+           ),
+       Table(
+           attribute = 'populationAn=faz.aggregate(urbansim_parcel.building.population, intermediates=[parcel,zone])',
+           dataset_name = 'faz',
+           source_data = source_data,
+           ),
+       Table(
+           attribute = 'employmentAn=faz.aggregate(urbansim_parcel.building.number_of_jobs, intermediates=[parcel,zone])',
+           dataset_name = 'faz',
+           source_data = source_data,
+           ),
+        Table(
+            attribute = 'residential_unitsAn=faz.aggregate(urbansim_parcel.building.residential_units, intermediates=[parcel])',
+            dataset_name = 'faz',
+            source_data = source_data,
+            ),		   		   
                
-    # # TAZ indicators 
-       # Table(
-           # attribute = 'householdsAn=zone.aggregate(urbansim_parcel.building.number_of_households, intermediates=[parcel])',
-           # dataset_name = 'zone',
-           # source_data = source_data,
-           # ),
-       # Table(
-           # attribute = 'populationAn=zone.aggregate(urbansim_parcel.building.population, intermediates=[parcel])',
-           # dataset_name = 'zone',
-           # source_data = source_data,
-           # ),
-       # Table(
-           # attribute = 'employmentAn=zone.aggregate(urbansim_parcel.building.number_of_jobs, intermediates=[parcel])',
-           # dataset_name = 'zone',
-           # source_data = source_data,
-           # ),
-        # Table(
-            # attribute = 'residential_unitsAn=zone.aggregate(urbansim_parcel.building.residential_units, intermediates=[parcel])',
-            # dataset_name = 'zone',
-            # source_data = source_data,
-            # ),		   
+    # TAZ indicators 
+       Table(
+           attribute = 'householdsAn=zone.aggregate(urbansim_parcel.building.number_of_households, intermediates=[parcel])',
+           dataset_name = 'zone',
+           source_data = source_data,
+           ),
+       Table(
+           attribute = 'populationAn=zone.aggregate(urbansim_parcel.building.population, intermediates=[parcel])',
+           dataset_name = 'zone',
+           source_data = source_data,
+           ),
+       Table(
+           attribute = 'employmentAn=zone.aggregate(urbansim_parcel.building.number_of_jobs, intermediates=[parcel])',
+           dataset_name = 'zone',
+           source_data = source_data,
+           ),
+        Table(
+            attribute = 'residential_unitsAn=zone.aggregate(urbansim_parcel.building.residential_units, intermediates=[parcel])',
+            dataset_name = 'zone',
+            source_data = source_data,
+            ),		   
 		   
     # ## Subregs indicators
     ##==================
@@ -239,4 +239,5 @@ if __name__ == '__main__':
     IndicatorFactory().create_indicators(
         indicators = indicators,
         display_error_box = False, 
-        show_results = False)
+        show_results = False,
+        file_name_for_indicator_results = 'indicator_results_annual.html')

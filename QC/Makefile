@@ -1,3 +1,12 @@
+SHELL := /bin/bash
+
+# how to execute python scripts
+#PYTHON_COMMAND = python
+PYTHON_COMMAND = "conda run -n py39 python"
+
+# how to execute R scripts
+R_COMMAND = "R CMD BATCH"
+
 # read input file 
 INPUT_FILE=inputs.txt
 include $(INPUT_FILE)
@@ -5,6 +14,7 @@ include $(INPUT_FILE)
 # export into environment so that all scripts have access to it
 export $(shell grep -v '^\#' $(INPUT_FILE) | cut -d= -f1)
 
+# set various paths 
 SCRIPT_PATH=scripts
 RESULT_BASE_PATH=results
 RREPORT_PATH=../Rreports
@@ -12,10 +22,12 @@ RREPORT_PATH=../Rreports
 RESULT_PATH=$(RESULT_BASE_PATH)/$(shell echo $(QC_NAME) | xargs)
 RESULT_TEST_PATH=$(RESULT_BASE_PATH)/test
 
+# names of R scripts
 RTABLE_SCRIPT_FILES=$(wildcard $(SCRIPT_PATH)/qc_rtable_*.R)
 RPLOT_SCRIPT_FILES=$(wildcard $(SCRIPT_PATH)/rplots_*.R)
 RMAP_SCRIPT_FILES=$(wildcard $(SCRIPT_PATH)/rmaps_*.R)
 
+# names of R output files
 RTABLE_SCRIPTOUT_FILES=$(patsubst $(SCRIPT_PATH)/qc_rtable_%.R, $(SCRIPT_PATH)/qc_rtable_%.Rout, \
 				$(RTABLE_SCRIPT_FILES))
 RPLOT_SCRIPTOUT_FILES=$(patsubst $(SCRIPT_PATH)/rplots_%.R, $(SCRIPT_PATH)/rplots_%.Rout, \
@@ -34,33 +46,38 @@ export QC_RESULT_PATH=$(WRKDIR)/$(RESULT_PATH)
 test : $(RESULT_TEST_PATH)/testreport.txt
 
 .PHONY : ind
-ind : 
-	python $(SCRIPT_PATH)/create_annual_indicator_files.py
-	python $(SCRIPT_PATH)/create_indicator_files_nearyr_outyr.py
-	#python $(SCRIPT_PATH)/MHS_Local_copy_generic_annual_indicators.py
-	python $(SCRIPT_PATH)/create_indicator_files_luvit_geographies.py
-	python $(SCRIPT_PATH)/create_indicator_files.py
-	python $(SCRIPT_PATH)/create_indicator_files_equity.py
-	python $(SCRIPT_PATH)/create_indicator_files_supplemental_analysis.py
-	
+ind : ind-base ind-an ind-end ind-maxdev
+
+.PHONY : ind-base
+ind-base : 
+	$(PYTHON_COMMAND) $(SCRIPT_PATH)/create_indicator_files_luvit_geographies.py
+        #$(PYTHON_COMMAND) $(SCRIPT_PATH)/MHS_Local_copy_generic_annual_indicators.py                                                                            
+        #$(PYTHON_COMMAND) $(SCRIPT_PATH)/create_indicator_files.py
+        #$(PYTHON_COMMAND) $(SCRIPT_PATH)/create_indicator_files_equity.py                                                                                                    
+        #$(PYTHON_COMMAND) $(SCRIPT_PATH)/create_indicator_files_supplemental_analysis.py
+
 .PHONY : ind-maxdev
 ind-maxdev :
-	python $(SCRIPT_PATH)/create_max_dev_indicator_files.py
+	$(PYTHON_COMMAND) $(SCRIPT_PATH)/create_max_dev_indicator_files.py
 
 .PHONY : ind-an
 ind-an :
-	python $(SCRIPT_PATH)/create_annual_indicator_files.py
+	$(PYTHON_COMMAND) $(SCRIPT_PATH)/create_annual_indicator_files.py
+
+.PHONY : ind-end
+ind-end :
+        $(PYTHON_COMMAND) $(SCRIPT_PATH)/create_annual_indicator_files_nearyr_outyr.py
 
 .PHONY : all
 all: rtables_raw rplots_raw rmaps_raw emplots_raw index
 
 .PHONY : dash
 dash: 
-	R CMD BATCH $(SCRIPT_PATH)/run_dash.R $(SCRIPT_PATH)/run_dash.Rout
+	$(R_COMMAND) $(SCRIPT_PATH)/run_dash.R $(SCRIPT_PATH)/run_dash.Rout
 
 .PHONY : shiny
 shiny:
-	R CMD BATCH $(SCRIPT_PATH)/run_shiny.R $(SCRIPT_PATH)/run_shiny.Rout
+	$(R_COMMAND) $(SCRIPT_PATH)/run_shiny.R $(SCRIPT_PATH)/run_shiny.Rout
 
 .PHONY : rtables
 rtables : rtables_raw index
@@ -87,8 +104,8 @@ emplots : emplots_raw index
 emplots_raw : $(RESULT_PATH)/qc_ts_emp_cnty.html
 
 $(RESULT_PATH)/qc_ts_emp_cnty.html : $(SCRIPT_PATH)/qc_tsplot_emp_cnty.py inputs.txt
-	python $(SCRIPT_PATH)/qc_tsplot_emp_cnty.py -m
-	python $(SCRIPT_PATH)/qc_tsplot_emp_cnty.py -m -s
+	$(PYTHON_COMMAND) $(SCRIPT_PATH)/qc_tsplot_emp_cnty.py -m
+	$(PYTHON_COMMAND) $(SCRIPT_PATH)/qc_tsplot_emp_cnty.py -m -s
 
 .PHONY : rreport-faz
 rreport-faz : $(RREPORT_PATH)/fazreportLUV.Rout
@@ -98,22 +115,22 @@ rreport-city : $(RREPORT_PATH)/cityreportLUV.Rout
 
 
 index : $(SCRIPT_PATH)/create_index_file.R inputs.txt
-	R CMD BATCH $(SCRIPT_PATH)/create_index_file.R  $(SCRIPT_PATH)/create_index_file.Rout
+	$(R_COMMAND) $(SCRIPT_PATH)/create_index_file.R  $(SCRIPT_PATH)/create_index_file.Rout
 
 $(SCRIPT_PATH)/qc_rtable_%.Rout : $(SCRIPT_PATH)/qc_rtable_%.R inputs.txt
-	R CMD BATCH $(SCRIPT_PATH)/qc_rtable_$*.R  $(SCRIPT_PATH)/qc_rtable_$*.Rout
+	$(R_COMMAND) $(SCRIPT_PATH)/qc_rtable_$*.R  $(SCRIPT_PATH)/qc_rtable_$*.Rout
 
 $(SCRIPT_PATH)/rplots_%.Rout : $(SCRIPT_PATH)/rplots_%.R inputs.txt
-	R CMD BATCH $(SCRIPT_PATH)/rplots_$*.R  $(SCRIPT_PATH)/rplots_$*.Rout
+	$(R_COMMAND) $(SCRIPT_PATH)/rplots_$*.R  $(SCRIPT_PATH)/rplots_$*.Rout
 
 $(SCRIPT_PATH)/rmaps_%.Rout : $(SCRIPT_PATH)/rmaps_%.R inputs.txt
-	R CMD BATCH $(SCRIPT_PATH)/rmaps_$*.R  $(SCRIPT_PATH)/rmaps_$*.Rout
+	$(R_COMMAND) $(SCRIPT_PATH)/rmaps_$*.R  $(SCRIPT_PATH)/rmaps_$*.Rout
 
 $(RREPORT_PATH)/fazreportLUV.Rout : $(RREPORT_PATH)/fazreportLUV.R inputs.txt
-	R CMD BATCH $(RREPORT_PATH)/fazreportLUV.R $(RREPORT_PATH)/fazreportLUV.Rout
+	$(R_COMMAND) $(RREPORT_PATH)/fazreportLUV.R $(RREPORT_PATH)/fazreportLUV.Rout
 
 $(RREPORT_PATH)/cityreportLUV.Rout : $(RREPORT_PATH)/cityreportLUV.R inputs.txt
-	R CMD BATCH $(RREPORT_PATH)/cityreportLUV.R $(RREPORT_PATH)/cityreportLUV.Rout
+	$(R_COMMAND) $(RREPORT_PATH)/cityreportLUV.R $(RREPORT_PATH)/cityreportLUV.Rout
 
 
 .PHONY : clean
@@ -131,12 +148,12 @@ clean-index :
 # Otherwise it would be one sub-process per line.
 $(RESULT_TEST_PATH)/testreport.txt : $(SCRIPT_PATH)/create_testreport.R
 	export QC_RESULT_PATH=$(WRKDIR)/$(RESULT_TEST_PATH); \
-	R CMD BATCH $(SCRIPT_PATH)/create_testreport.R $(SCRIPT_PATH)/create_testreport.Rout
+	$(R_COMMAND) $(SCRIPT_PATH)/create_testreport.R $(SCRIPT_PATH)/create_testreport.Rout
 
 # placeholder (not implemented)
 .PHONY : maps
 maps : map.png
 
 map.png : create_map.py
-	python create_map.py
+	$(PYTHON_COMMAND) create_map.py
 

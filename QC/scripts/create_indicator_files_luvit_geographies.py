@@ -8,18 +8,18 @@ from opus_core.indicator_framework.image_types.dataset_table import DatasetTable
 
 
 def jobs_by_luv_sector(geo, package="psrc_parcel"):
-     return [
-                "Con_Res = %s.%s.number_of_jobs_of_sector_1 + %s.%s.number_of_jobs_of_sector_2" % (package, geo, package, geo),
+    return [
+         "Con_Res = %s.%s.number_of_jobs_of_sector_1 + %s.%s.number_of_jobs_of_sector_2" % (package, geo, package, geo),
                 "Manuf_WTU = %s.%s.number_of_jobs_of_sector_3 + %s.%s.number_of_jobs_of_sector_4" % (package, geo, package, geo),
                 "Retail = %s.%s.number_of_jobs_of_sector_5 + %s.%s.number_of_jobs_of_sector_10" % (package, geo, package, geo),
                 "FIRES = %s.%s.number_of_jobs_of_sector_7 + %s.%s.number_of_jobs_of_sector_9 + %s.%s.number_of_jobs_of_sector_11" % (package, geo, package, geo, package, geo),
                 "Gov = %s.%s.number_of_jobs_of_sector_12" % (package, geo),
                 "Edu = %s.%s.number_of_jobs_of_sector_13 + %s.%s.number_of_jobs_of_sector_8" % (package, geo, package, geo)
-            ]
+     ]
 
 def jobs_by_sector(geo, package="psrc_parcel"):
-     return [
-                "Natural_resources = %s.%s.number_of_jobs_of_sector_1" % (package, geo),
+    return [
+         "Natural_resources = %s.%s.number_of_jobs_of_sector_1" % (package, geo),
                 "Construction = %s.%s.number_of_jobs_of_sector_2" % (package, geo),
                 "Manuf = %s.%s.number_of_jobs_of_sector_3" % (package, geo),
                 "WTU = %s.%s.number_of_jobs_of_sector_4" % (package, geo),
@@ -31,15 +31,10 @@ def jobs_by_sector(geo, package="psrc_parcel"):
                 "Personal_Services = %s.%s.number_of_jobs_of_sector_11" % (package, geo),
                 "government = %s.%s.number_of_jobs_of_sector_12" % (package, geo),
                 "edu = %s.%s.number_of_jobs_of_sector_13" % (package, geo)
-            ]
+     ]
 
-#def get_indicators(cache_directory, run_description, years = [2014,2015,2017,2020,2025,2030,2035,2040,2045,2050], base_year=2014):
-def get_indicators(cache_directory, run_description, years = [2018,2020,2025,2030,2035,2040,2044,2050], base_year=2018):
-#def get_indicators(cache_directory, run_description, years = [2018,2050], base_year=2018):
-#def get_indicators(cache_directory, run_description, years = [2014,2015,2017,2020,2025,2030,2035], base_year=2014):
-#def get_indicators(cache_directory, run_description, years = [2014,2015,2017,2020,2021,2022,2023,2024,2025,2030,2035,2040,2045,2046,2047,2048,2049,2050], base_year=2014):
-#def get_indicators(cache_directory, run_description, years = [2050], base_year=2014):
-#def get_indicators(cache_directory, run_description, years = [2014,2017,2050], base_year=2014):
+def get_indicators(cache_directory, run_description, years = [2023,2025,2030,2035,2040,2044,2050], base_year=2023):
+    
     source_data = SourceData(
         cache_directory = cache_directory,
         run_description = run_description,
@@ -50,11 +45,11 @@ def get_indicators(cache_directory, run_description, years = [2018,2020,2025,203
             package_order_exceptions={},
             ),       
     )
-    
+
     indicators=[
-    
-     DatasetTable(
-        source_data = source_data,
+
+        DatasetTable(
+         source_data = source_data,
         dataset_name = 'faz',
         name =  'DU_and_HH_by_bld_type_by_faz_by_year',
         attributes = [
@@ -69,43 +64,43 @@ def get_indicators(cache_directory, run_description, years = [2018,2020,2025,203
             'HH_MH_11=faz.aggregate(urbansim_parcel.building.number_of_households * (building.building_type_id==11), intermediates=[parcel])',
             'HH_Total=faz.aggregate(urbansim_parcel.building.number_of_households, intermediates=[parcel])',
             ],
-       ),
+        ),
 
 # ## RGID_22 Indicators - added 3.9.2023
 
-       # Table(
-            # attribute = 'population = rgid_22.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel])',
+# Table(
+       # attribute = 'population = rgid_22.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel])',
             # dataset_name = 'rgid_22',
             # source_data = source_data,
             # ),
-       # Table(
-            # attribute = 'households = rgid_22.aggregate(urbansim_parcel.parcel.number_of_households, intermediates=[parcel])',
+            # Table(
+       # attribute = 'households = rgid_22.aggregate(urbansim_parcel.parcel.number_of_households, intermediates=[parcel])',
             # dataset_name = 'rgid_22',
             # source_data = source_data,
             # ),
-       # Table(
-            # attribute = 'employment = rgid_22.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
+            # Table(
+       # attribute = 'employment = rgid_22.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
             # dataset_name = 'rgid_22',
             # source_data = source_data,
             # ),
-       # Table(
-            # attribute = 'activity_units = rgid_22.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel]) + rgid_22.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
+            # Table(
+       # attribute = 'activity_units = rgid_22.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel]) + rgid_22.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
             # dataset_name = 'rgid_22',
             # source_data = source_data,
             # ),
-        # Table(
-            # attribute = 'nonres_sqft=rgid_22.aggregate(urbansim_parcel.building.non_residential_sqft, intermediates=[parcel])',
+            # Table(
+        # attribute = 'nonres_sqft=rgid_22.aggregate(urbansim_parcel.building.non_residential_sqft, intermediates=[parcel])',
             # dataset_name = 'rgid_22',
             # source_data = source_data,
             # ),	   
-        # Table(
-            # attribute = 'residential_units=rgid_22.aggregate(urbansim_parcel.building.residential_units, intermediates=[parcel])',
+            # Table(
+        # attribute = 'residential_units=rgid_22.aggregate(urbansim_parcel.building.residential_units, intermediates=[parcel])',
             # dataset_name = 'rgid_22',
             # source_data = source_data,
             # ),	   
 
-        # DatasetTable(
-            # source_data = source_data,
+            # DatasetTable(
+        # source_data = source_data,
             # dataset_name = 'rgid_22',
             # name = 'employment_by_aggr_sector',
             # attributes = jobs_by_luv_sector("rgid_22"),
@@ -114,27 +109,27 @@ def get_indicators(cache_directory, run_description, years = [2018,2020,2025,203
 
 ## County Level Control indicators  - added 4.17.2018
 
-       Table(
-            attribute = 'population = county.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel, target])',
+Table(
+           attribute = 'population = county.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel, target])',
             dataset_name = 'county',
             source_data = source_data,
             ),
        Table(
-            attribute = 'households = county.aggregate(urbansim_parcel.parcel.number_of_households, intermediates=[parcel, target])',
+           attribute = 'households = county.aggregate(urbansim_parcel.parcel.number_of_households, intermediates=[parcel, target])',
             dataset_name = 'county',
             source_data = source_data,
             ),
        Table(
-            attribute = 'employment = county.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel, target])',
+           attribute = 'employment = county.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel, target])',
             dataset_name = 'county',
             source_data = source_data,
             ),
        Table(
-            attribute = 'activity_units = county.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel, target]) + county.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel, target])',
+           attribute = 'activity_units = county.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel, target]) + county.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel, target])',
             dataset_name = 'county',
             source_data = source_data,
             ),
-        Table(
+       Table(
             attribute = 'nonres_sqft=county.aggregate(urbansim_parcel.building.non_residential_sqft, intermediates=[parcel, target])',
             dataset_name = 'county',
             source_data = source_data,
@@ -155,27 +150,27 @@ def get_indicators(cache_directory, run_description, years = [2018,2020,2025,203
 
 # Sub-regional Geography indicators  
 
-       Table(
-            attribute = 'population = subreg.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel])',
+Table(
+           attribute = 'population = subreg.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel])',
             dataset_name = 'subreg',
             source_data = source_data,
             ),
        Table(
-            attribute = 'households = subreg.aggregate(urbansim_parcel.parcel.number_of_households, intermediates=[parcel])',
+           attribute = 'households = subreg.aggregate(urbansim_parcel.parcel.number_of_households, intermediates=[parcel])',
             dataset_name = 'subreg',
             source_data = source_data,
             ),
        Table(
-            attribute = 'employment = subreg.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
+           attribute = 'employment = subreg.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
             dataset_name = 'subreg',
             source_data = source_data,
             ),
        Table(
-            attribute = 'activity_units = subreg.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel]) + subreg.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
+           attribute = 'activity_units = subreg.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel]) + subreg.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
             dataset_name = 'subreg',
             source_data = source_data,
             ),
-        Table(
+       Table(
             attribute = 'nonres_sqft=subreg.aggregate(urbansim_parcel.building.non_residential_sqft, intermediates=[parcel])',
             dataset_name = 'subreg',
             source_data = source_data,
@@ -193,30 +188,30 @@ def get_indicators(cache_directory, run_description, years = [2018,2020,2025,203
             attributes = jobs_by_luv_sector("subreg"),
             output_type = 'tab'
             ),						
-			
+
 # Target Geography indicators  
 
-       Table(
-            attribute = 'population = target.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel])',
+Table(
+           attribute = 'population = target.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel])',
             dataset_name = 'target',
             source_data = source_data,
             ),
        Table(
-            attribute = 'households = target.aggregate(urbansim_parcel.parcel.number_of_households, intermediates=[parcel])',
+           attribute = 'households = target.aggregate(urbansim_parcel.parcel.number_of_households, intermediates=[parcel])',
             dataset_name = 'target',
             source_data = source_data,
             ),
        Table(
-            attribute = 'employment = target.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
+           attribute = 'employment = target.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
             dataset_name = 'target',
             source_data = source_data,
             ),
        Table(
-            attribute = 'activity_units = target.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel]) + target.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
+           attribute = 'activity_units = target.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel]) + target.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
             dataset_name = 'target',
             source_data = source_data,
             ),
-        Table(
+       Table(
             attribute = 'nonres_sqft=target.aggregate(urbansim_parcel.building.non_residential_sqft, intermediates=[parcel])',
             dataset_name = 'target',
             source_data = source_data,
@@ -237,27 +232,27 @@ def get_indicators(cache_directory, run_description, years = [2018,2020,2025,203
 
 # Control Geography indicators  
 
-       Table(
-            attribute = 'population = control.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel])',
+Table(
+           attribute = 'population = control.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel])',
             dataset_name = 'control',
             source_data = source_data,
             ),
        Table(
-            attribute = 'households = control.aggregate(urbansim_parcel.parcel.number_of_households, intermediates=[parcel])',
+           attribute = 'households = control.aggregate(urbansim_parcel.parcel.number_of_households, intermediates=[parcel])',
             dataset_name = 'control',
             source_data = source_data,
             ),
        Table(
-            attribute = 'employment = control.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
+           attribute = 'employment = control.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
             dataset_name = 'control',
             source_data = source_data,
             ),
        Table(
-            attribute = 'activity_units = control.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel]) + control.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
+           attribute = 'activity_units = control.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel]) + control.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
             dataset_name = 'control',
             source_data = source_data,
             ),
-        Table(
+       Table(
             attribute = 'nonres_sqft=control.aggregate(urbansim_parcel.building.non_residential_sqft, intermediates=[parcel])',
             dataset_name = 'control',
             source_data = source_data,
@@ -278,27 +273,27 @@ def get_indicators(cache_directory, run_description, years = [2018,2020,2025,203
 
 ## Control_hct Geography indicators  
 
-       Table(
-            attribute = 'population = control_hct.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel])',
+Table(
+           attribute = 'population = control_hct.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel])',
             dataset_name = 'control_hct',
             source_data = source_data,
             ),
        Table(
-            attribute = 'households = control_hct.aggregate(urbansim_parcel.parcel.number_of_households, intermediates=[parcel])',
+           attribute = 'households = control_hct.aggregate(urbansim_parcel.parcel.number_of_households, intermediates=[parcel])',
             dataset_name = 'control_hct',
             source_data = source_data,
             ),
        Table(
-            attribute = 'employment = control_hct.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
+           attribute = 'employment = control_hct.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
             dataset_name = 'control_hct',
             source_data = source_data,
             ),
        Table(
-            attribute = 'activity_units = control_hct.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel]) + control_hct.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
+           attribute = 'activity_units = control_hct.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel]) + control_hct.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
             dataset_name = 'control_hct',
             source_data = source_data,
             ),
-        Table(
+       Table(
             attribute = 'nonres_sqft=control_hct.aggregate(urbansim_parcel.building.non_residential_sqft, intermediates=[parcel])',
             dataset_name = 'control_hct',
             source_data = source_data,
@@ -316,48 +311,48 @@ def get_indicators(cache_directory, run_description, years = [2018,2020,2025,203
             attributes = jobs_by_luv_sector("control_hct"),
             output_type = 'tab'
             ),	
-			
+
 # ## County Regional Geography indicators  - added 1.23.2018
 
-        # Table(
-            # attribute = 'population = fips_rgs_proposed.aggregate(urbansim_parcel.parcel.population, intermediates=[city])',
+# Table(
+        # attribute = 'population = fips_rgs_proposed.aggregate(urbansim_parcel.parcel.population, intermediates=[city])',
             # dataset_name = 'fips_rgs_proposed',
             # source_data = source_data,
             # ),
-        # Table(
-            # attribute = 'households = fips_rgs_proposed.aggregate(urbansim_parcel.parcel.number_of_households, intermediates=[city])',
+            # Table(
+        # attribute = 'households = fips_rgs_proposed.aggregate(urbansim_parcel.parcel.number_of_households, intermediates=[city])',
             # dataset_name = 'fips_rgs_proposed',
             # source_data = source_data,
             # ),
-        # Table(
-            # attribute = 'employment = fips_rgs_proposed.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[city])',
+            # Table(
+        # attribute = 'employment = fips_rgs_proposed.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[city])',
             # dataset_name = 'fips_rgs_proposed',
             # source_data = source_data,
             # ),
-        # Table(
-            # attribute = 'activity_units = fips_rgs_proposed.aggregate(urbansim_parcel.parcel.population, intermediates=[city]) + fips_rgs_proposed.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[city])',
+            # Table(
+        # attribute = 'activity_units = fips_rgs_proposed.aggregate(urbansim_parcel.parcel.population, intermediates=[city]) + fips_rgs_proposed.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[city])',
             # dataset_name = 'fips_rgs_proposed',
             # source_data = source_data,
             # ),
-        # Table(
-            # attribute = 'nonres_sqft=fips_rgs_proposed.aggregate(urbansim_parcel.building.non_residential_sqft, intermediates=[city])',
+            # Table(
+        # attribute = 'nonres_sqft=fips_rgs_proposed.aggregate(urbansim_parcel.building.non_residential_sqft, intermediates=[city])',
             # dataset_name = 'fips_rgs_proposed',
             # source_data = source_data,
             # ),
-        # Table(
-            # attribute = 'residential_units=fips_rgs_proposed.aggregate(urbansim_parcel.building.residential_units, intermediates=[city])',
+            # Table(
+        # attribute = 'residential_units=fips_rgs_proposed.aggregate(urbansim_parcel.building.residential_units, intermediates=[city])',
             # dataset_name = 'fips_rgs_proposed',
             # source_data = source_data,
             # ),
-			
+
 ## County MHS vacancy indicators - added 11.1.2017
-    DatasetTable (
-       source_data = source_data,
+DatasetTable (
+        source_data = source_data,
        dataset_name = 'county',
        name = 'eoy_vacancy_by_building_type',
        output_type = 'csv',
        attributes = [
-            'res_4_VR=numpy.safe_array_divide(county.aggregate(urbansim_parcel.building.vacant_residential_units*(building.building_type_id==4)),county.aggregate(urbansim_parcel.building.residential_units*(building.building_type_id==4)))',
+           'res_4_VR=numpy.safe_array_divide(county.aggregate(urbansim_parcel.building.vacant_residential_units*(building.building_type_id==4)),county.aggregate(urbansim_parcel.building.residential_units*(building.building_type_id==4)))',
             'res_12_VR=numpy.safe_array_divide(county.aggregate(urbansim_parcel.building.vacant_residential_units*(building.building_type_id==12)),county.aggregate(urbansim_parcel.building.residential_units*(building.building_type_id==12)))',
             'res_19_VR=numpy.safe_array_divide(county.aggregate(urbansim_parcel.building.vacant_residential_units*(building.building_type_id==19)),county.aggregate(urbansim_parcel.building.residential_units*(building.building_type_id==19)))',
             'nonres_3_VR=numpy.safe_array_divide(county.aggregate(psrc_parcel.building.vacant_non_home_based_job_space*(psrc_parcel.building.building_type_id==3)),county.aggregate(psrc_parcel.building.total_non_home_based_job_space*(psrc_parcel.building.building_type_id==3)))',
@@ -368,13 +363,13 @@ def get_indicators(cache_directory, run_description, years = [2018,2020,2025,203
             ],
        ),
 
-   DatasetTable (
+    DatasetTable (
        source_data = source_data,
        dataset_name = 'county',
        name = 'units_and_nonres_sqft_by_building_type',
        output_type = 'csv',
        attributes = [
-            'res_4_units=county.aggregate(urbansim_parcel.building.residential_units*(building.building_type_id==4))',
+           'res_4_units=county.aggregate(urbansim_parcel.building.residential_units*(building.building_type_id==4))',
             'res_12_units=county.aggregate(urbansim_parcel.building.residential_units*(building.building_type_id==12))',
             'res_19_units=county.aggregate(urbansim_parcel.building.residential_units*(building.building_type_id==19))',
             'nonres_3_spaces=county.aggregate(psrc_parcel.building.total_non_home_based_job_space*(psrc_parcel.building.building_type_id==3))',
@@ -390,10 +385,10 @@ def get_indicators(cache_directory, run_description, years = [2018,2020,2025,203
             ],
        ),
 
-    ## FAZ indicators 
+   ## FAZ indicators 
     ## =====================
-    
-        Table(
+
+    Table(
             attribute = 'households=faz.aggregate(urbansim_parcel.building.number_of_households, intermediates=[parcel,zone])',
             dataset_name = 'faz',
             source_data = source_data,
@@ -423,7 +418,7 @@ def get_indicators(cache_directory, run_description, years = [2018,2020,2025,203
             dataset_name = 'faz',
             source_data = source_data,
             ),
-			
+
         DatasetTable(
             source_data = source_data,
             dataset_name = 'faz',
@@ -432,8 +427,8 @@ def get_indicators(cache_directory, run_description, years = [2018,2020,2025,203
             output_type = 'tab'
             ),			
 
-     ## TAZ indicators 
-        Table(
+        ## TAZ indicators 
+     Table(
             attribute = 'residential_units=zone.aggregate(urbansim_parcel.building.residential_units, intermediates=[parcel])',
             dataset_name = 'zone',
             source_data = source_data,
@@ -472,10 +467,10 @@ def get_indicators(cache_directory, run_description, years = [2018,2020,2025,203
             output_type = 'tab'
             ),
 
-     ## City indicators
+        ## City indicators
      ## ==================
-    
-        Table(
+
+     Table(
             attribute = 'households=city.aggregate(urbansim_parcel.building.number_of_households, intermediates=[parcel])',
             dataset_name = 'city',
             source_data = source_data,
@@ -484,7 +479,7 @@ def get_indicators(cache_directory, run_description, years = [2018,2020,2025,203
             attribute = 'population=city.aggregate(urbansim_parcel.building.population, intermediates=[parcel])',
             dataset_name = 'city',
             source_data = source_data,
-             ),
+            ),
         Table(
             attribute = 'employment=city.aggregate(urbansim_parcel.building.number_of_jobs, intermediates=[parcel])',
             dataset_name = 'city',
@@ -506,12 +501,12 @@ def get_indicators(cache_directory, run_description, years = [2018,2020,2025,203
             source_data = source_data,
             ),           
         Table(
-           attribute = 'acres=city.aggregate(parcel.parcel_sqft/43560.)',
+            attribute = 'acres=city.aggregate(parcel.parcel_sqft/43560.)',
            dataset_name = 'city',
            source_data = source_data,
            ),
         Table(
-           attribute =  'activity_units = city.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel]) + city.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
+            attribute =  'activity_units = city.aggregate(urbansim_parcel.parcel.population, intermediates=[parcel]) + city.aggregate(urbansim_parcel.parcel.number_of_jobs, intermediates=[parcel])',
            dataset_name = 'city',
            source_data = source_data,
            ),
@@ -524,44 +519,44 @@ def get_indicators(cache_directory, run_description, years = [2018,2020,2025,203
             output_type = 'tab'
             ),         
 
-    ## Tract-City indicators
-    
-    
-       # Table(
-           # attribute = 'households=tractcity.aggregate(urbansim_parcel.building.number_of_households, intermediates=[parcel])',
+        ## Tract-City indicators
+
+
+    # Table(
+       # attribute = 'households=tractcity.aggregate(urbansim_parcel.building.number_of_households, intermediates=[parcel])',
            # dataset_name = 'tractcity',
            # source_data = source_data,
            # ),
-       # Table(
-           # attribute = 'population=tractcity.aggregate(urbansim_parcel.building.population, intermediates=[parcel])',
-           # dataset_name = 'tractcity',
-           # source_data = source_data,
-            # ),
-       # Table(
-           # attribute = 'employment=tractcity.aggregate(urbansim_parcel.building.number_of_jobs, intermediates=[parcel])',
+           # Table(
+       # attribute = 'population=tractcity.aggregate(urbansim_parcel.building.population, intermediates=[parcel])',
            # dataset_name = 'tractcity',
            # source_data = source_data,
            # ),
-       # Table(
-           # attribute = 'residential_units=tractcity.aggregate(urbansim_parcel.building.residential_units, intermediates=[parcel])',
+            # Table(
+       # attribute = 'employment=tractcity.aggregate(urbansim_parcel.building.number_of_jobs, intermediates=[parcel])',
            # dataset_name = 'tractcity',
            # source_data = source_data,
            # ),
-       # Table(
-           # attribute = 'nonres_sqft=tractcity.aggregate(urbansim_parcel.building.non_residential_sqft, intermediates=[parcel])',
+           # Table(
+       # attribute = 'residential_units=tractcity.aggregate(urbansim_parcel.building.residential_units, intermediates=[parcel])',
            # dataset_name = 'tractcity',
            # source_data = source_data,
            # ),
-       # Table(
-           # attribute = 'building_sqft=tractcity.aggregate(urbansim_parcel.parcel.building_sqft)',
+           # Table(
+       # attribute = 'nonres_sqft=tractcity.aggregate(urbansim_parcel.building.non_residential_sqft, intermediates=[parcel])',
+           # dataset_name = 'tractcity',
+           # source_data = source_data,
+           # ),
+           # Table(
+       # attribute = 'building_sqft=tractcity.aggregate(urbansim_parcel.parcel.building_sqft)',
            # dataset_name = 'tractcity',
            # source_data = source_data,
            # ),       
-               
-     ## Growth Centers Indicators
+
+           ## Growth Centers Indicators
      ## ============================
-      
-        Table(
+
+     Table(
             attribute = 'residential_units=growth_center.aggregate(urbansim_parcel.building.residential_units, intermediates=[parcel])',
             dataset_name = 'growth_center',
             source_data = source_data,
@@ -571,12 +566,12 @@ def get_indicators(cache_directory, run_description, years = [2018,2020,2025,203
             dataset_name = 'growth_center',
             source_data = source_data,
             ),
-       Table(
+        Table(
            attribute = 'population=growth_center.aggregate(urbansim_parcel.building.population, intermediates=[parcel])',
            dataset_name = 'growth_center',
            source_data = source_data,
-            ),
-        Table(
+           ),
+       Table(
             attribute = 'employment=growth_center.aggregate(urbansim_parcel.building.number_of_jobs, intermediates=[parcel])',
             dataset_name = 'growth_center',
             source_data = source_data,
@@ -591,28 +586,28 @@ def get_indicators(cache_directory, run_description, years = [2018,2020,2025,203
             dataset_name = 'growth_center',
             source_data = source_data,
             ),          
-       
+
         Table(
-           attribute = 'acres=growth_center.aggregate(parcel.parcel_sqft/43560.)',
+            attribute = 'acres=growth_center.aggregate(parcel.parcel_sqft/43560.)',
            dataset_name = 'growth_center',
            source_data = source_data,
            ),       
-    
-     ## Large Area Indicators
+
+        ## Large Area Indicators
      ## ============================
-    
-         DatasetTable(
-            source_data = source_data,
+
+     DatasetTable(
+             source_data = source_data,
             dataset_name = 'large_area',
             name = 'employment_by_aggr_sector',
             attributes = ['large_area.county_id'] + jobs_by_sector("large_area"),
             output_type = 'tab'
             ),    
 
-      ## Census Block indicators
+         ## Census Block indicators
       ##============================
 
-        Table(
+      Table(
             attribute = 'households=census_block.aggregate(urbansim_parcel.parcel.number_of_households)',
             dataset_name = 'census_block',
             source_data = source_data,
@@ -628,28 +623,28 @@ def get_indicators(cache_directory, run_description, years = [2018,2020,2025,203
             source_data = source_data,
             ),
         # Table(
-            # attribute = 'nonres_sqft=fcensus_tract.aggregate(urbansim_parcel.parcel.non_residential_sqft, intermediates=[census_block_group])',
+        # attribute = 'nonres_sqft=fcensus_tract.aggregate(urbansim_parcel.parcel.non_residential_sqft, intermediates=[census_block_group])',
             # dataset_name = 'census_tract',
             # source_data = source_data,
             # )
-        Table(
+            Table(
             attribute = 'residential_units=census_tract.aggregate(urbansim_parcel.parcel.residential_units)',
             dataset_name = 'census_tract',
             source_data = source_data,
             ),
-			
+
         DatasetTable(
-           source_data = source_data,
+            source_data = source_data,
            dataset_name = 'census_block',
            name = 'employment_by_aggr_sector',
            attributes = jobs_by_luv_sector("census_block"),
            output_type = 'tab'
            ),			
-			
-      ## Tract indicators
+
+        ## Tract indicators
       ##============================
 
-        Table(
+      Table(
             attribute = 'households=census_tract.aggregate(urbansim_parcel.parcel.number_of_households)',
             dataset_name = 'census_tract',
             source_data = source_data,
@@ -665,18 +660,18 @@ def get_indicators(cache_directory, run_description, years = [2018,2020,2025,203
             source_data = source_data,
             ),
         # Table(
-            # attribute = 'nonres_sqft=fcensus_tract.aggregate(urbansim_parcel.parcel.non_residential_sqft, intermediates=[census_block_group])',
+        # attribute = 'nonres_sqft=fcensus_tract.aggregate(urbansim_parcel.parcel.non_residential_sqft, intermediates=[census_block_group])',
             # dataset_name = 'census_tract',
             # source_data = source_data,
             # )
-        Table(
+            Table(
             attribute = 'residential_units=census_tract.aggregate(urbansim_parcel.parcel.residential_units)',
             dataset_name = 'census_tract',
             source_data = source_data,
             ),
 
         DatasetTable(
-           source_data = source_data,
+            source_data = source_data,
            dataset_name = 'census_tract',
            name = 'employment_by_aggr_sector',
            attributes = jobs_by_luv_sector("census_tract"),
@@ -684,9 +679,9 @@ def get_indicators(cache_directory, run_description, years = [2018,2020,2025,203
            ),
 
 
-  ##------Liming's Unplaced Households and Jobs in the Region-----------
+        ##------Liming's Unplaced Households and Jobs in the Region-----------
 
-        Table(
+  Table(
             attribute = 'num_unplaced_hhs=alldata.aggregate_all(household.building_id<=0)',
             dataset_name = 'alldata',
             source_data = source_data,
@@ -699,7 +694,7 @@ def get_indicators(cache_directory, run_description, years = [2018,2020,2025,203
 
 ##       Regional Total Tables	 
 
-       Table(
+Table(
            attribute = 'residential_units=alldata.aggregate_all(urbansim_parcel.building.residential_units)',
            dataset_name = 'alldata',
            source_data = source_data,
@@ -725,15 +720,15 @@ def get_indicators(cache_directory, run_description, years = [2018,2020,2025,203
            source_data = source_data,
            ),
 
-      ## Demographic indicators
+       ## Demographic indicators
       ## ======================
       # DatasetTable(
-             # source_data = source_data,
+      # source_data = source_data,
              # dataset_name = 'alldata',
              # name =  'pptyp',
              # output_type = 'csv',
              # attributes = [
-                     # 'full_time_worker = alldata.aggregate_all(person.employment_status==1)',
+             # 'full_time_worker = alldata.aggregate_all(person.employment_status==1)',
                      # 'part_time_worker = alldata.aggregate_all(numpy.logical_and(person.employment_status==2,person.student==0))',
                      # 'non_working_adult_age_65_plus = alldata.aggregate_all(numpy.logical_and(person.employment_status<1,numpy.logical_and(person.student==0,person.age>64)))',
                      # 'non_working_adult_age_16_64 = alldata.aggregate_all(numpy.logical_and(person.employment_status<1,numpy.logical_and(person.student==0,numpy.logical_and(person.age<65,person.age>15))))',
@@ -741,35 +736,35 @@ def get_indicators(cache_directory, run_description, years = [2018,2020,2025,203
                      # 'hs_student_age_15_up = alldata.aggregate_all(numpy.logical_and(person.employment_status<>1,numpy.logical_and(person.student==1,numpy.logical_and(person.age>15,person.age<19))))',
                      # 'child_age_5_15 = alldata.aggregate_all(numpy.logical_and(person.age>4,person.age<16))',
                      # 'child_age_0_4 = alldata.aggregate_all(person.age<5)',
-      # ##                'age_6_to_10 = alldata.aggregate_all(numpy.logical_and(person.age<11,person.age>=6))',
+                     # ##                'age_6_to_10 = alldata.aggregate_all(numpy.logical_and(person.age<11,person.age>=6))',
       # ##                'age_11_to_15 = alldata.aggregate_all(numpy.logical_and(person.age<16,person.age>=11))',
       # ##                'age_16_to_20 = alldata.aggregate_all(numpy.logical_and(person.age<21,person.age>=16))',
       # ##                'age_21_to_25 = alldata.aggregate_all(numpy.logical_and(person.age<26,person.age>=21))',
       # ##                'income = households.income',
-                # ],
-           # ), 
-      # DatasetTable(
-          # source_data = source_data,
-              # dataset_name = 'alldata',
+      # ],
+                # ), 
+           # DatasetTable(
+      # source_data = source_data,
+          # dataset_name = 'alldata',
               # name =  'persons_by_age_groups_of_interest',
               # output_type = 'csv',
               # attributes = [
-                  # 'Under5 = alldata.aggregate_all(person.age<5)',
-                      # 'Five_18 = alldata.aggregate_all(numpy.logical_and(person.age<19,person.age>=5))',
+              # 'Under5 = alldata.aggregate_all(person.age<5)',
+                  # 'Five_18 = alldata.aggregate_all(numpy.logical_and(person.age<19,person.age>=5))',
                       # 'Nineteen_24 = alldata.aggregate_all(numpy.logical_and(person.age<25,person.age>=19))',
                       # 'Twentyfive_60 = alldata.aggregate_all(numpy.logical_and(person.age<61,person.age>=25))',
                       # 'Over_60 = alldata.aggregate_all(person.age>=61)',
                       # ],
-              # ),
+                      # ),
 
-          # DatasetTable(
-              # source_data = source_data,
+              # DatasetTable(
+          # source_data = source_data,
               # dataset_name = 'alldata',
               # name =  'persons_by_5year_age_groups',
               # output_type = 'csv',
               # attributes = [
-                  # 'age_0_to_5 = alldata.aggregate_all(person.age<6)',
-                      # 'age_6_to_10 = alldata.aggregate_all(numpy.logical_and(person.age<11,person.age>=6))',
+              # 'age_0_to_5 = alldata.aggregate_all(person.age<6)',
+                  # 'age_6_to_10 = alldata.aggregate_all(numpy.logical_and(person.age<11,person.age>=6))',
                       # 'age_11_to_15 = alldata.aggregate_all(numpy.logical_and(person.age<16,person.age>=11))',
                       # 'age_16_to_20 = alldata.aggregate_all(numpy.logical_and(person.age<21,person.age>=16))',
                       # 'age_21_to_25 = alldata.aggregate_all(numpy.logical_and(person.age<26,person.age>=21))',
@@ -789,50 +784,50 @@ def get_indicators(cache_directory, run_description, years = [2018,2020,2025,203
                       # 'age_91_to_95 = alldata.aggregate_all(numpy.logical_and(person.age<96,person.age>=91))',
                       # 'age_96_and_up = alldata.aggregate_all(person.age>=96)',
                       # ],
-              # ),
+                      # ),
 
-          # DatasetTable(
-              # source_data = source_data,
+              # DatasetTable(
+          # source_data = source_data,
               # dataset_name = 'alldata',
               # name =  'regional_total_hhs_by_new_14incomegroups',
               # output_type = 'csv',
               # #output_type = 'sql',
               # #storage_location = database,
               # attributes = [
-                  # 'Group1_Under50K = alldata.aggregate_all(household.income<50000)',
-                      # 'Group2_50_75K = alldata.aggregate_all(numpy.logical_and(household.income<75001,household.income>=50000))',
+              # 'Group1_Under50K = alldata.aggregate_all(household.income<50000)',
+                  # 'Group2_50_75K = alldata.aggregate_all(numpy.logical_and(household.income<75001,household.income>=50000))',
                       # 'Group3_75_100K = alldata.aggregate_all(numpy.logical_and(household.income<100001,household.income>=75000))',
                       # 'Group4_Over100K = alldata.aggregate_all(household.income>=100001)',
                       # ],
-              # ),
+                      # ),
 
-          # DatasetTable(
-              # source_data = source_data,
+              # DatasetTable(
+          # source_data = source_data,
               # dataset_name = 'alldata',
               # name =  'regional_total_hhs_by_30_60_90_in_14dollars_groups',
               # output_type = 'csv',
               # #output_type = 'sql',
               # #storage_location = database,
               # attributes = [
-                  # 'Group1_Under36870K = alldata.aggregate_all(household.income<36870)',
-                      # 'Group2_UpTo73700 = alldata.aggregate_all(numpy.logical_and(household.income<73700,household.income>=36870))',
+              # 'Group1_Under36870K = alldata.aggregate_all(household.income<36870)',
+                  # 'Group2_UpTo73700 = alldata.aggregate_all(numpy.logical_and(household.income<73700,household.income>=36870))',
                       # 'Group3_UpTo110600 = alldata.aggregate_all(numpy.logical_and(household.income<110600,household.income>=73700))',
                       # 'Group4_Over110600 = alldata.aggregate_all(household.income>=110600)',
                       # ],
-              # ),
+                      # ),
 
-          # DatasetTable(
-              # source_data = source_data,
+              # DatasetTable(
+          # source_data = source_data,
               # dataset_name = 'alldata',
               # name =  'pwtyp',
               # output_type = 'csv',
               # attributes = [
-                        # 'full_time = alldata.aggregate_all((person.employment_status==1)*(urbansim_parcel.person.job_id > 0))',
+              # 'full_time = alldata.aggregate_all((person.employment_status==1)*(urbansim_parcel.person.job_id > 0))',
                         # 'part_time = alldata.aggregate_all((person.employment_status==2)*(urbansim_parcel.person.job_id > 0))',
                         # 'workers_no_job = alldata.aggregate_all((person.employment_status >0)*(urbansim_parcel.person.job_id < 0))',
                         # 'non_workers_no_job = alldata.aggregate_all((person.employment_status <1)*(urbansim_parcel.person.job_id < 0))',
-                      # ],
-              # ),
+                        # ],
+                      # ),
 
     ]
     return indicators
@@ -852,8 +847,8 @@ def write_info(directory, description, restrictions):
     restrfile = open(os.path.join(path, "Restrictions.txt"), "w")
     restrfile.write(restrictions)
     restrfile.close()        
-    
-    
+
+
 if __name__ == '__main__':
     ind_cache = os.path.join(os.environ['QC_BASE_DIRECTORY'], os.environ['QC_RUN1'])
     indicators = get_indicators(ind_cache, os.getenv('QC_RUN1_DESCR', '')#, years = [2014,2015,2020]
@@ -861,7 +856,8 @@ if __name__ == '__main__':
     IndicatorFactory().create_indicators(
         indicators = indicators,
         display_error_box = False, 
-        show_results = False)
-
+        show_results = False,
+        file_name_for_indicator_results = 'indicator_results_luvit.html'        
+    )
 
     write_info(ind_cache, os.getenv('QC_RUN1_DESCR', ''), os.getenv('QC_RUN1_RESTR', ''))
