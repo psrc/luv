@@ -43,7 +43,7 @@ Make sure [R](https://www.r-project.org) is installed. Also, check that R is wor
 While R is open, install the packages ``shinythemes``, ``htmltools``, ``flexdashboard``, ``shiny``, ``magrittr``, ``plotly``, ``data.table``, ``leaflet``, ``rgdal``, ``sp``, ``stringr``, ``DT``, ``scales``, ``lemon`` using
 
 ```
-install.packages(c('shinythemes', 'htmltools', 'flexdashboard', 'shiny', 'magrittr', 'plotly', 'data.table', 'leaflet', 'rgdal', 'sp', 'stringr', 'DT', 'scales', 'lemon'), dependencies=TRUE)
+install.packages(c('shinythemes', 'htmltools', 'flexdashboard', 'shiny', 'magrittr', 'plotly', 'data.table', 'leaflet', 'sp', 'stringr', 'DT', 'scales', 'lemon'), dependencies=TRUE)
 ```
 
 If you plan to generate R-reports, you will also need ``ggplot2``, ``grid`` and ``gridExtra``. I believe they should be installed as dependencies in the previous step.
