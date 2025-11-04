@@ -33,8 +33,9 @@ def jobs_by_sector(geo, package="psrc_parcel"):
             ]
 
 #def get_indicators(cache_directory, run_description, years = [2014,2015,2017,2020,2025,2030,2035,2040,2045,2050], base_year=2014):
-def get_indicators(cache_directory, run_description, years = [2018,2020,2025,2030,2035,2040,2044,2050], base_year=2018):
-#def get_indicators(cache_directory, run_description, years = [2018,2020], base_year=2018):
+#def get_indicators(cache_directory, run_description, years = [2018,2020,2025,2030,2035,2040,2044,2050], base_year=2018):
+#def get_indicators(cache_directory, run_description, years = [2023,2025,2030,2035,2040,2044,2050], base_year=2023):
+def get_indicators(cache_directory, run_description, years = [2023], base_year=2023):
 #def get_indicators(cache_directory, run_description, years = range(2018,2051), base_year=2018):
 #def get_indicators(cache_directory, run_description, years = [2014,2015,2017,2020,2025,2030,2035], base_year=2014):
 #def get_indicators(cache_directory, run_description, years = [2014,2015,2017,2020,2021,2022,2023,2024,2025,2030,2035,2040,2045,2046,2047,2048,2049,2050], base_year=2014):
@@ -666,13 +667,14 @@ def write_info(directory, description, restrictions):
     
     
 if __name__ == '__main__':
-    ind_cache = os.path.join(os.environ['QC_BASE_DIRECTORY'], os.environ['QC_RUN1'])
-    indicators = get_indicators(ind_cache, os.getenv('QC_RUN1_DESCR', '')#, years = [2014,2015,2020]
-                                )
-    IndicatorFactory().create_indicators(
-        indicators = indicators,
-        display_error_box = False, 
-        show_results = False)
+	ind_cache = os.path.join(os.environ['QC_BASE_DIRECTORY'], os.environ['QC_RUN1'])
+	#ind_cache = os.path.join('e$\\opusgit\\urbansim_data\\data\\psrc_parcel\\','run4.base_year_data')
+	#ind_cache = os.path.join('/aws-model06/e$$/opusgit/urbansim_data/data/psrc_parcel','run4.base_year_data')	
+	indicators = get_indicators(ind_cache, os.getenv('QC_RUN1_DESCR', '')#, years = [2014,2015,2020]
+								)
+	IndicatorFactory().create_indicators(
+		indicators = indicators,
+		display_error_box = False, 
+		show_results = False)
+	write_info(ind_cache, os.getenv('QC_RUN1_DESCR', ''), os.getenv('QC_RUN1_RESTR', ''))
 
-
-    write_info(ind_cache, os.getenv('QC_RUN1_DESCR', ''), os.getenv('QC_RUN1_RESTR', ''))

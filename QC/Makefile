@@ -1,3 +1,7 @@
+SHELL := /bin/bash
+
+CONDA_ENV_NAME = py39
+
 # read input file 
 INPUT_FILE=inputs.txt
 include $(INPUT_FILE)
@@ -30,18 +34,24 @@ export QC_SCRIPT_PATH=$(WRKDIR)/$(SCRIPT_PATH)
 export QC_RESULT_PATH=$(WRKDIR)/$(RESULT_PATH)
 
 
-.PHONY : test
-test : $(RESULT_TEST_PATH)/testreport.txt
+
+#.PHONY : test
+#test : $(RESULT_TEST_PATH)/testreport.txt
 
 .PHONY : ind
 ind : 
-	python $(SCRIPT_PATH)/create_annual_indicator_files.py
-	python $(SCRIPT_PATH)/create_indicator_files_nearyr_outyr.py
-	#python $(SCRIPT_PATH)/MHS_Local_copy_generic_annual_indicators.py
-	python $(SCRIPT_PATH)/create_indicator_files_luvit_geographies.py
-	python $(SCRIPT_PATH)/create_indicator_files.py
-	python $(SCRIPT_PATH)/create_indicator_files_equity.py
-	python $(SCRIPT_PATH)/create_indicator_files_supplemental_analysis.py
+	conda run -n $(CONDA_ENV_NAME) python $(SCRIPT_PATH)/create_indicator_files.py
+	#python $(SCRIPT_PATH)/create_indicator_files.py
+	#python $(SCRIPT_PATH)/create_indicator_files.py
+	#python $(SCRIPT_PATH)/create_annual_indicator_files.py
+	#python $(SCRIPT_PATH)/create_indicator_files_nearyr_outyr.py
+	# #python $(SCRIPT_PATH)/MHS_Local_copy_generic_annual_indicators.py
+	# python $(SCRIPT_PATH)/create_indicator_files_luvit_geographies.py
+	#source C:/Users/Modeller.PSRC/AppData/Local/anaconda3/pkgs/conda-24.9.2-py312haa95532_0/etc/profile.d/conda.sh
+	#conda activate py39
+	#python $(SCRIPT_PATH)/create_indicator_files.py
+	# python $(SCRIPT_PATH)/create_indicator_files_equity.py
+	# python $(SCRIPT_PATH)/create_indicator_files_supplemental_analysis.py
 	
 .PHONY : ind-maxdev
 ind-maxdev :
