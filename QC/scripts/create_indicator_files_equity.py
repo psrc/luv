@@ -33,7 +33,7 @@ def get_indicators(cache_directory, run_description, years = [2023,2050], base_y
             'pop_other = faz.aggregate(person.race_id == 4, intermediates=[parcel, building, household])',
             'pop_nhsp = faz.aggregate(person.race_id == 5, intermediates=[parcel, building, household])',
             'pop_hsp = faz.aggregate(numpy.in1d(person.race_id, [6,7]), intermediates=[parcel, building, household])',
-            'pop_total = faz.number_of_agents(person, intermediates=[parcel, building, household])'
+            'pop_total = faz.aggregate(household.persons, intermediates=[parcel, building])'
             ],
         ),
         
