@@ -8,6 +8,15 @@ from opus_core.indicator_framework.image_types.matplotlib_map import Map
 from opus_core.indicator_framework.image_types.table import Table
 from opus_core.indicator_framework.image_types.dataset_table import DatasetTable
 
+def jobs_by_luv_sector(geo, package="psrc_parcel"):
+    return [
+         "Con_Res = %s.%s.number_of_jobs_of_sector_1 + %s.%s.number_of_jobs_of_sector_2" % (package, geo, package, geo),
+                "Manuf_WTU = %s.%s.number_of_jobs_of_sector_3 + %s.%s.number_of_jobs_of_sector_4" % (package, geo, package, geo),
+                "Retail = %s.%s.number_of_jobs_of_sector_5 + %s.%s.number_of_jobs_of_sector_10" % (package, geo, package, geo),
+                "FIRES = %s.%s.number_of_jobs_of_sector_7 + %s.%s.number_of_jobs_of_sector_9 + %s.%s.number_of_jobs_of_sector_11" % (package, geo, package, geo, package, geo),
+                "Gov = %s.%s.number_of_jobs_of_sector_12" % (package, geo),
+                "Edu = %s.%s.number_of_jobs_of_sector_13 + %s.%s.number_of_jobs_of_sector_8" % (package, geo, package, geo)
+     ]
 
 
 def get_indicators(cache_directory, run_description, years = range(2023,2051), base_year=2023):
@@ -228,6 +237,96 @@ def get_indicators(cache_directory, run_description, years = range(2023,2051), b
             # dataset_name = 'fips_rgs',
             # source_data = source_data,
             # ),
+            
+        DatasetTable(
+             source_data = source_data,
+            dataset_name = 'faz',
+            name =  'DU_and_HH_by_bld_type_by_faz_by_year',
+            attributes = [
+                'DU_SF_19=faz.aggregate(urbansim_parcel.building.residential_units * (building.building_type_id==19), intermediates=[parcel])',
+                'DU_MF_12=faz.aggregate(urbansim_parcel.building.residential_units * (building.building_type_id==12), intermediates=[parcel])',
+                'DU_CO_4=faz.aggregate(urbansim_parcel.building.residential_units * (building.building_type_id==4), intermediates=[parcel])',
+                'DU_MH_11=faz.aggregate(urbansim_parcel.building.residential_units * (building.building_type_id==11), intermediates=[parcel])',
+                'DU_Total=faz.aggregate(urbansim_parcel.building.residential_units, intermediates=[parcel])',
+                'HH_SF_19=faz.aggregate(urbansim_parcel.building.number_of_households * (building.building_type_id==19), intermediates=[parcel])',
+                'HH_MF_12=faz.aggregate(urbansim_parcel.building.number_of_households * (building.building_type_id==12), intermediates=[parcel])',
+                'HH_CO_4=faz.aggregate(urbansim_parcel.building.number_of_households * (building.building_type_id==4), intermediates=[parcel])',
+                'HH_MH_11=faz.aggregate(urbansim_parcel.building.number_of_households * (building.building_type_id==11), intermediates=[parcel])',
+                'HH_Total=faz.aggregate(urbansim_parcel.building.number_of_households, intermediates=[parcel])',
+                ],
+            ),
+        
+        DatasetTable(
+            source_data = source_data,
+            dataset_name = 'county',
+            name = 'employment_by_aggr_sector',
+            attributes = jobs_by_luv_sector("county"),
+            output_type = 'tab'
+            ),
+        
+        DatasetTable(
+            source_data = source_data,
+            dataset_name = 'subreg',
+            name = 'employment_by_aggr_sector',
+            attributes = jobs_by_luv_sector("subreg"),
+            output_type = 'tab'
+            ),	        
+    
+        DatasetTable(
+            source_data = source_data,
+            dataset_name = 'target',
+            name = 'employment_by_aggr_sector',
+            attributes = jobs_by_luv_sector("target"),
+            output_type = 'tab'
+            ),
+        
+        DatasetTable(
+            source_data = source_data,
+            dataset_name = 'control',
+            name = 'employment_by_aggr_sector',
+            attributes = jobs_by_luv_sector("control"),
+            output_type = 'tab'
+            ),
+        
+        DatasetTable(
+            source_data = source_data,
+            dataset_name = 'control_hct',
+            name = 'employment_by_aggr_sector',
+            attributes = jobs_by_luv_sector("control_hct"),
+            output_type = 'tab'
+            ),
+        
+        DatasetTable(
+            source_data = source_data,
+            dataset_name = 'faz',
+            name = 'employment_by_aggr_sector',
+            attributes = jobs_by_luv_sector("faz"),
+            output_type = 'tab'
+            ),
+        
+        DatasetTable(
+            source_data = source_data,
+            dataset_name = 'zone',
+            name = 'employment_by_aggr_sector',
+            attributes = jobs_by_luv_sector("zone", "urbansim_parcel"),
+            output_type = 'tab'
+            ),
+        
+        DatasetTable(
+            source_data = source_data,
+            dataset_name = 'city',
+            name = 'employment_by_aggr_sector',
+            attributes = jobs_by_luv_sector("city"),
+            output_type = 'tab'
+            ),
+        
+        DatasetTable(
+               source_data = source_data,
+               dataset_name = 'large_area',
+               name = 'employment_by_aggr_sector',
+               attributes = ['large_area.county_id'] + jobs_by_luv_sector("large_area"),
+               output_type = 'tab'
+               ),           
     ]
     return indicators
 
