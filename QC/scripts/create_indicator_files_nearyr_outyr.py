@@ -647,8 +647,8 @@ if __name__ == '__main__':
     # runs buildings indicator only for the simulation end year
     IndicatorFactory().create_indicators(
         indicators = get_end_year_indicators(ind_cache, os.getenv('QC_RUN1_DESCR', ''),
-                                             years = [os.getenv('RUN1_END_YEAR', 2050)],
-                                             base_year = os.getenv('RUN1_BASE_YEAR', 2023)),
+                                             years = [int(os.getenv('RUN1_END_YEAR', 2050))],
+                                             base_year = int(os.getenv('RUN1_BASE_YEAR', 2023))),
         display_error_box = False,
         show_results = False,
         file_name_for_indicator_results = 'indicator_results_end_year.html'

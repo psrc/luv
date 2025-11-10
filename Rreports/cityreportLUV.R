@@ -19,8 +19,8 @@ if(!interactive()) { # running using Makefile
 	annual <- as.logical(Sys.getenv('RREPORT_ANNUAL', 'FALSE'))
 	ci.runs <- c()
 	ci.dir <- "/modelsrv6/d$/opusgit/urbansim_data/data/psrc_parcel/runs"
-	base.year <- Sys.getenv('RUN1_BASE_YEAR')
-	end.year <- Sys.getenv('RUN1_END_YEAR')
+	base.year <- as.integer(Sys.getenv('RUN1_BASE_YEAR'))
+	end.year <- as.integer(Sys.getenv('RUN1_END_YEAR'))
 } else { # running interactively
     #run1 <- "run_134.run_2018_05_12_13_11"
     run1 <- "run_8.run_2018_05_08_16_46"

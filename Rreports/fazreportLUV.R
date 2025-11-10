@@ -19,8 +19,8 @@ if(!interactive()) { # running using Makefile
 	other.runs <- Sys.getenv('RREPORT_RUNS')
 	other.runs <- trim(unlist(strsplit(other.runs, ",")))
 	annual <- as.logical(Sys.getenv('RREPORT_ANNUAL', 'FALSE'))
-	base.year <- Sys.getenv('RUN1_BASE_YEAR')
-	end.year <- Sys.getenv('RUN1_END_YEAR')
+	base.year <- as.integer(Sys.getenv('RUN1_BASE_YEAR'))
+	end.year <- as.integer(Sys.getenv('RUN1_END_YEAR'))
 } else { # running interactively
 	#run1 <- "81_plus_r97.compiled"
 	#run1 <- "run_89.run_2020_11_25_10_17"
