@@ -121,6 +121,7 @@ Currently, the following phonies are implemented:
    * **ind-end**: run python end year indicators (e.g. new buildings)
    * **ind-maxdev**: run indicators for maximum developable capacity (in scripts/create\_max\_dev\_indicator\_files.py). Usually takes much longer than ordinary indicators.
    * **ind-an**: generate annual indicators implemented in scripts/create\_annual\_indicator\_files.py (useful for R-reports, see Section R-Reports).
+   * **ind-equity**: run additional equity indicators
    * **ind-cpct**: converts control totals tables into csv files and copies them into the indicators directory. 
    * **rtables**: run R code in scripts/qc\_rtable\_\*.R
    * **rplots**: run R code in scripts/rplots\_\*.R

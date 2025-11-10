@@ -1,6 +1,7 @@
 SHELL := /bin/bash
 
 # how to execute python scripts
+# (make sure the command is on the PATH)
 #PYTHON_COMMAND = python
 PYTHON_COMMAND = conda run -n py39 python
 
@@ -52,9 +53,12 @@ ind : ind-base ind-an ind-end ind-maxdev ind-cpct
 ind-base : 
 	$(PYTHON_COMMAND) $(SCRIPT_PATH)/create_indicator_files_luvit_geographies.py
         #$(PYTHON_COMMAND) $(SCRIPT_PATH)/MHS_Local_copy_generic_annual_indicators.py                                                                            
-        #$(PYTHON_COMMAND) $(SCRIPT_PATH)/create_indicator_files.py
-        #$(PYTHON_COMMAND) $(SCRIPT_PATH)/create_indicator_files_equity.py                                                                                                    
+        #$(PYTHON_COMMAND) $(SCRIPT_PATH)/create_indicator_files.py                                                                                                   
         #$(PYTHON_COMMAND) $(SCRIPT_PATH)/create_indicator_files_supplemental_analysis.py
+
+.PHONY : ind-equity
+ind-equity :
+	$(PYTHON_COMMAND) $(SCRIPT_PATH)/create_indicator_files_equity.py 
 
 .PHONY : ind-maxdev
 ind-maxdev :

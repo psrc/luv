@@ -7,30 +7,6 @@ from opus_core.indicator_framework.image_types.table import Table
 from opus_core.indicator_framework.image_types.dataset_table import DatasetTable
 
 
-def jobs_by_sector(geo, package="psrc_parcel"):
-    return [
-        "Natural_resources = %s.%s.number_of_jobs_of_sector_1" % (package, geo),
-               "Construction = %s.%s.number_of_jobs_of_sector_2" % (package, geo),
-               "Manuf = %s.%s.number_of_jobs_of_sector_3" % (package, geo),
-               "WTU = %s.%s.number_of_jobs_of_sector_4" % (package, geo),
-               "Retail = %s.%s.number_of_jobs_of_sector_5" % (package, geo),
-               "Business_Services = %s.%s.number_of_jobs_of_sector_7" % (package, geo),
-               "Private_Ed = %s.%s.number_of_jobs_of_sector_8" % (package, geo),
-               "Healthcare = %s.%s.number_of_jobs_of_sector_9" % (package, geo),
-               "Food_Services = %s.%s.number_of_jobs_of_sector_10" % (package, geo),
-               "Personal_Services = %s.%s.number_of_jobs_of_sector_11" % (package, geo),
-               "government = %s.%s.number_of_jobs_of_sector_12" % (package, geo),
-               "edu = %s.%s.number_of_jobs_of_sector_13" % (package, geo)               
-               # Old Employment Sectors
-               # "construction_resources = %s.%s.number_of_jobs_of_sector_1 + %s.%s.number_of_jobs_of_sector_2" % (2*(package, geo)),
-               # "manuf_WTU = %s.%s.number_of_jobs_of_sector_3 + %s.%s.number_of_jobs_of_sector_4 + %s.%s.number_of_jobs_of_sector_5 + %s.%s.number_of_jobs_of_sector_6 + %s.%s.number_of_jobs_of_sector_8 + %s.%s.number_of_jobs_of_sector_9" % (6*(package, geo)),
-               # "retail_food_services = %s.%s.number_of_jobs_of_sector_7 + %s.%s.number_of_jobs_of_sector_14" % (2*(package, geo)),
-               # "FIRE_services = %s.%s.number_of_jobs_of_sector_12 + %s.%s.number_of_jobs_of_sector_10 + %s.%s.number_of_jobs_of_sector_11 + %s.%s.number_of_jobs_of_sector_13 + %s.%s.number_of_jobs_of_sector_15 + %s.%s.number_of_jobs_of_sector_16 + %s.%s.number_of_jobs_of_sector_17" % (7*(package, geo)),
-               # "government = %s.%s.number_of_jobs_of_sector_18" % (package, geo),
-               # "edu = %s.%s.number_of_jobs_of_sector_19" % (package, geo)
-    ]
-
-
 def get_indicators(cache_directory, run_description, years = [2023,2050], base_year=2023):
 
     source_data = SourceData(
@@ -46,227 +22,243 @@ def get_indicators(cache_directory, run_description, years = [2023,2050], base_y
 
     indicators=[		
 
+        DatasetTable(
+            source_data = source_data,
+            dataset_name = 'faz',
+            name =  'persons_charactristics',
+        attributes = [
+            'pop_white = faz.aggregate(person.race_id == 1, intermediates=[parcel, building, household])',
+            'pop_black = faz.aggregate(person.race_id == 2, intermediates=[parcel, building, household])',
+            'pop_asian = faz.aggregate(person.race_id == 3, intermediates=[parcel, building, household])', 
+            'pop_other = faz.aggregate(person.race_id == 4, intermediates=[parcel, building, household])',
+            'pop_nhsp = faz.aggregate(person.race_id == 5, intermediates=[parcel, building, household])',
+            'pop_hsp = faz.aggregate(numpy.in1d(person.race_id, [6,7]), intermediates=[parcel, building, household])',
+            'pop_total = faz.number_of_agents(person, intermediates=[parcel, building, household])'
+            ],
+        ),
+        
+
 # subreg by TOD types
 
-Table(
-    attribute = 'population_hct_1 = subreg.aggregate(urbansim_parcel.parcel.population * (parcel.tod_id == 1))',
-        dataset_name = 'subreg',
-        source_data = source_data,
-        ),	
+#Table(
+    #attribute = 'population_hct_1 = subreg.aggregate(urbansim_parcel.parcel.population * (parcel.tod_id == 1))',
+        #dataset_name = 'subreg',
+        #source_data = source_data,
+        #),	
 
-Table(
-    attribute = 'population_hct_2 = subreg.aggregate(urbansim_parcel.parcel.population * (parcel.tod_id == 2))',
-        dataset_name = 'subreg',
-        source_data = source_data,
-        ),	
+#Table(
+    #attribute = 'population_hct_2 = subreg.aggregate(urbansim_parcel.parcel.population * (parcel.tod_id == 2))',
+        #dataset_name = 'subreg',
+        #source_data = source_data,
+        #),	
 
-# Table(
-# attribute = 'population_hct_3 = city.aggregate(urbansim_parcel.parcel.population * (parcel.tod_id == 3))',
-        # dataset_name = 'city',
-        # source_data = source_data,
-        # ),	
+## Table(
+## attribute = 'population_hct_3 = city.aggregate(urbansim_parcel.parcel.population * (parcel.tod_id == 3))',
+        ## dataset_name = 'city',
+        ## source_data = source_data,
+        ## ),	
 
-Table(
-    attribute = 'population_hct_4 = subreg.aggregate(urbansim_parcel.parcel.population * (parcel.tod_id == 4))',
-        dataset_name = 'subreg',
-        source_data = source_data,
-        ),	
+#Table(
+    #attribute = 'population_hct_4 = subreg.aggregate(urbansim_parcel.parcel.population * (parcel.tod_id == 4))',
+        #dataset_name = 'subreg',
+        #source_data = source_data,
+        #),	
 
-Table(
-    attribute = 'population_hct_5 = subreg.aggregate(urbansim_parcel.parcel.population * (parcel.tod_id == 5))',
-        dataset_name = 'subreg',
-        source_data = source_data,
-        ),	
+#Table(
+    #attribute = 'population_hct_5 = subreg.aggregate(urbansim_parcel.parcel.population * (parcel.tod_id == 5))',
+        #dataset_name = 'subreg',
+        #source_data = source_data,
+        #),	
 
-Table(
-    attribute = 'population_hct_6 = subreg.aggregate(urbansim_parcel.parcel.population * (parcel.tod_id == 6))',
-        dataset_name = 'subreg',
-        source_data = source_data,
-        ),	
+#Table(
+    #attribute = 'population_hct_6 = subreg.aggregate(urbansim_parcel.parcel.population * (parcel.tod_id == 6))',
+        #dataset_name = 'subreg',
+        #source_data = source_data,
+        #),	
 
-# Table(
-# attribute = 'population_hct_7 = city.aggregate(urbansim_parcel.parcel.population * (parcel.tod_id == 7))',
-        # dataset_name = 'city',
-        # source_data = source_data,
-        # ),	
+## Table(
+## attribute = 'population_hct_7 = city.aggregate(urbansim_parcel.parcel.population * (parcel.tod_id == 7))',
+        ## dataset_name = 'city',
+        ## source_data = source_data,
+        ## ),	
 
-# Table(
-# attribute = 'population_hct_8 = city.aggregate(urbansim_parcel.parcel.population * (parcel.tod_id == 8))',
-        # dataset_name = 'city',
-        # source_data = source_data,
-        # ),	
+## Table(
+## attribute = 'population_hct_8 = city.aggregate(urbansim_parcel.parcel.population * (parcel.tod_id == 8))',
+        ## dataset_name = 'city',
+        ## source_data = source_data,
+        ## ),	
 
-# Table(
-# attribute = 'population_hct_9 = city.aggregate(urbansim_parcel.parcel.population * (parcel.tod_id == 9))',
-        # dataset_name = 'city',
-        # source_data = source_data,
-        # ),	
+## Table(
+## attribute = 'population_hct_9 = city.aggregate(urbansim_parcel.parcel.population * (parcel.tod_id == 9))',
+        ## dataset_name = 'city',
+        ## source_data = source_data,
+        ## ),	
 
-Table(
-    attribute = 'population_hct_0 = subreg.aggregate(urbansim_parcel.parcel.population * (parcel.tod_id == 0))',
-        dataset_name = 'subreg',
-        source_data = source_data,
-        ),	
+#Table(
+    #attribute = 'population_hct_0 = subreg.aggregate(urbansim_parcel.parcel.population * (parcel.tod_id == 0))',
+        #dataset_name = 'subreg',
+        #source_data = source_data,
+        #),	
 
-Table(
-    attribute = 'households_hct_1 = subreg.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.tod_id == 1))',
-        dataset_name = 'subreg',
-        source_data = source_data,
-        ),	
+#Table(
+    #attribute = 'households_hct_1 = subreg.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.tod_id == 1))',
+        #dataset_name = 'subreg',
+        #source_data = source_data,
+        #),	
 
-Table(
-    attribute = 'households_hct_2 = subreg.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.tod_id == 2))',
-        dataset_name = 'subreg',
-        source_data = source_data,
-        ),	
+#Table(
+    #attribute = 'households_hct_2 = subreg.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.tod_id == 2))',
+        #dataset_name = 'subreg',
+        #source_data = source_data,
+        #),	
 
-# Table(
-# attribute = 'households_hct_3 = city.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.tod_id == 3))',
-        # dataset_name = 'city',
-        # source_data = source_data,
-        # ),	
+## Table(
+## attribute = 'households_hct_3 = city.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.tod_id == 3))',
+        ## dataset_name = 'city',
+        ## source_data = source_data,
+        ## ),	
 
-Table(
-    attribute = 'households_hct_4 = subreg.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.tod_id == 4))',
-        dataset_name = 'subreg',
-        source_data = source_data,
-        ),	
+#Table(
+    #attribute = 'households_hct_4 = subreg.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.tod_id == 4))',
+        #dataset_name = 'subreg',
+        #source_data = source_data,
+        #),	
 
-Table(
-    attribute = 'households_hct_5 = subreg.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.tod_id == 5))',
-        dataset_name = 'subreg',
-        source_data = source_data,
-        ),	
+#Table(
+    #attribute = 'households_hct_5 = subreg.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.tod_id == 5))',
+        #dataset_name = 'subreg',
+        #source_data = source_data,
+        #),	
 
-Table(
-    attribute = 'households_hct_6 = subreg.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.tod_id == 6))',
-        dataset_name = 'subreg',
-        source_data = source_data,
-        ),	
+#Table(
+    #attribute = 'households_hct_6 = subreg.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.tod_id == 6))',
+        #dataset_name = 'subreg',
+        #source_data = source_data,
+        #),	
 
-# Table(
-# attribute = 'households_hct_7 = city.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.tod_id == 7))',
-        # dataset_name = 'city',
-        # source_data = source_data,
-        # ),	
+## Table(
+## attribute = 'households_hct_7 = city.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.tod_id == 7))',
+        ## dataset_name = 'city',
+        ## source_data = source_data,
+        ## ),	
 
-# Table(
-# attribute = 'households_hct_8 = city.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.tod_id == 8))',
-        # dataset_name = 'city',
-        # source_data = source_data,
-        # ),	
+## Table(
+## attribute = 'households_hct_8 = city.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.tod_id == 8))',
+        ## dataset_name = 'city',
+        ## source_data = source_data,
+        ## ),	
 
-# Table(
-# attribute = 'households_hct_9 = city.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.tod_id == 9))',
-        # dataset_name = 'city',
-        # source_data = source_data,
-        # ),	
+## Table(
+## attribute = 'households_hct_9 = city.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.tod_id == 9))',
+        ## dataset_name = 'city',
+        ## source_data = source_data,
+        ## ),	
 
-Table(
-    attribute = 'households_hct_0 = subreg.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.tod_id == 0))',
-        dataset_name = 'subreg',
-        source_data = source_data,
-        ),	
+#Table(
+    #attribute = 'households_hct_0 = subreg.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.tod_id == 0))',
+        #dataset_name = 'subreg',
+        #source_data = source_data,
+        #),	
 
-Table(
-    attribute = 'employment_hct_1 = subreg.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.tod_id == 1))',
-        dataset_name = 'subreg',
-        source_data = source_data,
-        ),	
+#Table(
+    #attribute = 'employment_hct_1 = subreg.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.tod_id == 1))',
+        #dataset_name = 'subreg',
+        #source_data = source_data,
+        #),	
 
-Table(
-    attribute = 'employment_hct_2 = subreg.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.tod_id == 2))',
-        dataset_name = 'subreg',
-        source_data = source_data,
-        ),	
+#Table(
+    #attribute = 'employment_hct_2 = subreg.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.tod_id == 2))',
+        #dataset_name = 'subreg',
+        #source_data = source_data,
+        #),	
 
-# Table(
-# attribute = 'employment_hct_3 = city.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.tod_id == 3))',
-        # dataset_name = 'city',
-        # source_data = source_data,
-        # ),	
+## Table(
+## attribute = 'employment_hct_3 = city.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.tod_id == 3))',
+        ## dataset_name = 'city',
+        ## source_data = source_data,
+        ## ),	
 
-Table(
-    attribute = 'employment_hct_4 = subreg.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.tod_id == 4))',
-        dataset_name = 'subreg',
-        source_data = source_data,
-        ),	
+#Table(
+    #attribute = 'employment_hct_4 = subreg.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.tod_id == 4))',
+        #dataset_name = 'subreg',
+        #source_data = source_data,
+        #),	
 
-Table(
-    attribute = 'employment_hct_5 = subreg.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.tod_id == 5))',
-        dataset_name = 'subreg',
-        source_data = source_data,
-        ),	
+#Table(
+    #attribute = 'employment_hct_5 = subreg.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.tod_id == 5))',
+        #dataset_name = 'subreg',
+        #source_data = source_data,
+        #),	
 
-Table(
-    attribute = 'employment_hct_6 = subreg.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.tod_id == 6))',
-        dataset_name = 'subreg',
-        source_data = source_data,
-        ),	
+#Table(
+    #attribute = 'employment_hct_6 = subreg.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.tod_id == 6))',
+        #dataset_name = 'subreg',
+        #source_data = source_data,
+        #),	
 
-# Table(
-# attribute = 'employment_hct_7 = city.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.tod_id == 7))',
-        # dataset_name = 'city',
-        # source_data = source_data,
-        # ),	
+## Table(
+## attribute = 'employment_hct_7 = city.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.tod_id == 7))',
+        ## dataset_name = 'city',
+        ## source_data = source_data,
+        ## ),	
 
-# Table(
-# attribute = 'employment_hct_8 = city.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.tod_id == 8))',
-        # dataset_name = 'city',
-        # source_data = source_data,
-        # ),	
+## Table(
+## attribute = 'employment_hct_8 = city.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.tod_id == 8))',
+        ## dataset_name = 'city',
+        ## source_data = source_data,
+        ## ),	
 
-# Table(
-# attribute = 'employment_hct_9 = city.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.tod_id == 9))',
-        # dataset_name = 'city',
-        # source_data = source_data,
-        # ),	
+## Table(
+## attribute = 'employment_hct_9 = city.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.tod_id == 9))',
+        ## dataset_name = 'city',
+        ## source_data = source_data,
+        ## ),	
 
-Table(
-    attribute = 'employment_hct_0 = subreg.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.tod_id == 0))',
-        dataset_name = 'subreg',
-        source_data = source_data,
-        ),			
+#Table(
+    #attribute = 'employment_hct_0 = subreg.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.tod_id == 0))',
+        #dataset_name = 'subreg',
+        #source_data = source_data,
+        #),			
 
-# # City by TOD (inside) - population, households, employment
+## # City by TOD (inside) - population, households, employment
 
-Table(
-    attribute = 'population_inside_hct = subreg.aggregate(urbansim_parcel.parcel.population * (parcel.tod_id <> 0))',
-        dataset_name = 'subreg',
-        source_data = source_data,
-        ),
+#Table(
+    #attribute = 'population_inside_hct = subreg.aggregate(urbansim_parcel.parcel.population * (parcel.tod_id <> 0))',
+        #dataset_name = 'subreg',
+        #source_data = source_data,
+        #),
 
-Table(
-       attribute = 'households_inside_hct = subreg.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.tod_id <> 0))',
-       dataset_name = 'subreg',
-       source_data = source_data,
-       ),
+#Table(
+       #attribute = 'households_inside_hct = subreg.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.tod_id <> 0))',
+       #dataset_name = 'subreg',
+       #source_data = source_data,
+       #),
 
-   Table(
-        attribute = 'employment_inside_hct = subreg.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.tod_id <> 0))',
-        dataset_name = 'subreg',
-        source_data = source_data,
-        ),  
+   #Table(
+        #attribute = 'employment_inside_hct = subreg.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.tod_id <> 0))',
+        #dataset_name = 'subreg',
+        #source_data = source_data,
+        #),  
 
-# # City by TOD (outside) - population, households, employment
+## # City by TOD (outside) - population, households, employment
 
-Table(
-    attribute = 'population_outside_hct = subreg.aggregate(urbansim_parcel.parcel.population * (parcel.tod_id == 0))',
-        dataset_name = 'subreg',
-        source_data = source_data,
-        ),
+#Table(
+    #attribute = 'population_outside_hct = subreg.aggregate(urbansim_parcel.parcel.population * (parcel.tod_id == 0))',
+        #dataset_name = 'subreg',
+        #source_data = source_data,
+        #),
 
-Table(
-       attribute = 'households_outside_hct = subreg.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.tod_id == 0))',
-       dataset_name = 'subreg',
-       source_data = source_data,
-       ),
+#Table(
+       #attribute = 'households_outside_hct = subreg.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.tod_id == 0))',
+       #dataset_name = 'subreg',
+       #source_data = source_data,
+       #),
 
-   Table(
-        attribute = 'employment_outside_hct = subreg.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.tod_id == 0))',
-        dataset_name = 'subreg',
-        source_data = source_data,
-        ), 		
+   #Table(
+        #attribute = 'employment_outside_hct = subreg.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.tod_id == 0))',
+        #dataset_name = 'subreg',
+        #source_data = source_data,
+        #), 		
 
 
 # # # Minority - population, households, employment, and activity units
@@ -771,103 +763,51 @@ Table(
 
 
 # # Poverty = 2
-Table(
-        attribute = 'poverty_population = tod.aggregate(urbansim_parcel.parcel.population * (parcel.poverty_id == 2))',
-        dataset_name = 'tod',
-        source_data = source_data,
-        ),
-    Table(
-        attribute = 'poverty_households = tod.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.poverty_id == 2))',
-        dataset_name = 'tod',
-        source_data = source_data,
-        ),
-    Table(
-        attribute = 'poverty_employment = tod.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.poverty_id == 2))',
-        dataset_name = 'tod',
-        source_data = source_data,
-        ),
+#Table(
+        #attribute = 'poverty_population = tod.aggregate(urbansim_parcel.parcel.population * (parcel.poverty_id == 2))',
+        #dataset_name = 'tod',
+        #source_data = source_data,
+        #),
+    #Table(
+        #attribute = 'poverty_households = tod.aggregate(urbansim_parcel.parcel.number_of_households * (parcel.poverty_id == 2))',
+        #dataset_name = 'tod',
+        #source_data = source_data,
+        #),
+    #Table(
+        #attribute = 'poverty_employment = tod.aggregate(urbansim_parcel.parcel.number_of_jobs * (parcel.poverty_id == 2))',
+        #dataset_name = 'tod',
+        #source_data = source_data,
+        #),
 
-    Table(
-      attribute = 'developed_acres = poverty.aggregate(numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft,intermediates=[parcel])/43560.0',
-        dataset_name = 'poverty',
-        source_data = source_data,
-        ),    
+    #Table(
+      #attribute = 'developed_acres = poverty.aggregate(numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft,intermediates=[parcel])/43560.0',
+        #dataset_name = 'poverty',
+        #source_data = source_data,
+        #),    
 
-  DatasetTable(
-            source_data = source_data,
-        dataset_name = 'poverty',
-        name =  'Acreage_by_built_res_density',
-        attributes = [
-            'Nonres_existing = poverty.aggregate((parcel.baseyear_built > 0) * (parcel.aggregate(building.year_built, function=maximum) < 2015) * (psrc_parcel.parcel.residential_units == 0) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft, intermediates=[parcel]) / 43560.0',
-            'Nonres_redev = poverty.aggregate((parcel.baseyear_built > 0) * (parcel.aggregate(building.year_built, function=maximum) > 2014) * (psrc_parcel.parcel.residential_units == 0) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft, intermediates=[parcel]) / 43560.0',
-            'Nonres_newdev = poverty.aggregate((parcel.baseyear_built < 1850) * (parcel.aggregate(building.year_built, function=maximum) > 2014) * (psrc_parcel.parcel.residential_units == 0) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft, intermediates=[parcel]) / 43560.0',
-            'Low_existing = poverty.aggregate((parcel.baseyear_built > 0) * (parcel.aggregate(building.year_built, function=maximum) < 2015) * (psrc_parcel.parcel.residential_units > 0) * (urbansim_parcel.parcel.parcel_sqft_per_unit > 3630) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft, intermediates=[parcel]) / 43560.0',
-            'Low_redev = poverty.aggregate((parcel.baseyear_built > 0) * (parcel.aggregate(building.year_built, function=maximum) > 2014) * (psrc_parcel.parcel.residential_units > 0) * (urbansim_parcel.parcel.parcel_sqft_per_unit > 3630) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft, intermediates=[parcel]) / 43560.0',
-            'Low_newdev = poverty.aggregate((parcel.baseyear_built < 1850) * (parcel.aggregate(building.year_built, function=maximum) > 2014) * (psrc_parcel.parcel.residential_units > 0) * (urbansim_parcel.parcel.parcel_sqft_per_unit > 3630) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft, intermediates=[parcel]) / 43560.0',
-            'Medium_existing = poverty.aggregate((parcel.baseyear_built > 0) * (parcel.aggregate(building.year_built, function=maximum) < 2015) * (psrc_parcel.parcel.residential_units > 0) * (urbansim_parcel.parcel.parcel_sqft_per_unit <= 3630) * (urbansim_parcel.parcel.parcel_sqft_per_unit > 871) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft, intermediates=[parcel]) / 43560.0',
-            'Medium_redev = poverty.aggregate((parcel.baseyear_built > 0) * (parcel.aggregate(building.year_built, function=maximum) > 2014) * (psrc_parcel.parcel.residential_units > 0) * (urbansim_parcel.parcel.parcel_sqft_per_unit <= 3630) * (urbansim_parcel.parcel.parcel_sqft_per_unit > 871) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft, intermediates=[parcel]) / 43560.0',
-            'Medium_newdev = poverty.aggregate((parcel.baseyear_built < 1850) * (parcel.aggregate(building.year_built, function=maximum) > 2014) * (psrc_parcel.parcel.residential_units > 0) * (urbansim_parcel.parcel.parcel_sqft_per_unit <= 3630) * (urbansim_parcel.parcel.parcel_sqft_per_unit > 871) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft, intermediates=[parcel]) / 43560.0',
-            'High_existing = poverty.aggregate((parcel.baseyear_built > 0) * (parcel.aggregate(building.year_built, function=maximum) < 2015) * (psrc_parcel.parcel.residential_units > 0) * (urbansim_parcel.parcel.parcel_sqft_per_unit <= 871) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft, intermediates=[parcel]) / 43560.0',
-            'High_redev = poverty.aggregate((parcel.baseyear_built > 0) * (parcel.aggregate(building.year_built, function=maximum) > 2014) * (psrc_parcel.parcel.residential_units > 0) * (urbansim_parcel.parcel.parcel_sqft_per_unit <= 871) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft, intermediates=[parcel]) / 43560.0',
-            'High_newdev = poverty.aggregate((parcel.baseyear_built < 1850) * (parcel.aggregate(building.year_built, function=maximum) > 2014) * (psrc_parcel.parcel.residential_units > 0) * (urbansim_parcel.parcel.parcel_sqft_per_unit <= 871) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft, intermediates=[parcel]) / 43560.0',
-            ],
-        ),
+  #DatasetTable(
+            #source_data = source_data,
+        #dataset_name = 'poverty',
+        #name =  'Acreage_by_built_res_density',
+        #attributes = [
+            #'Nonres_existing = poverty.aggregate((parcel.baseyear_built > 0) * (parcel.aggregate(building.year_built, function=maximum) < 2015) * (psrc_parcel.parcel.residential_units == 0) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft, intermediates=[parcel]) / 43560.0',
+            #'Nonres_redev = poverty.aggregate((parcel.baseyear_built > 0) * (parcel.aggregate(building.year_built, function=maximum) > 2014) * (psrc_parcel.parcel.residential_units == 0) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft, intermediates=[parcel]) / 43560.0',
+            #'Nonres_newdev = poverty.aggregate((parcel.baseyear_built < 1850) * (parcel.aggregate(building.year_built, function=maximum) > 2014) * (psrc_parcel.parcel.residential_units == 0) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft, intermediates=[parcel]) / 43560.0',
+            #'Low_existing = poverty.aggregate((parcel.baseyear_built > 0) * (parcel.aggregate(building.year_built, function=maximum) < 2015) * (psrc_parcel.parcel.residential_units > 0) * (urbansim_parcel.parcel.parcel_sqft_per_unit > 3630) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft, intermediates=[parcel]) / 43560.0',
+            #'Low_redev = poverty.aggregate((parcel.baseyear_built > 0) * (parcel.aggregate(building.year_built, function=maximum) > 2014) * (psrc_parcel.parcel.residential_units > 0) * (urbansim_parcel.parcel.parcel_sqft_per_unit > 3630) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft, intermediates=[parcel]) / 43560.0',
+            #'Low_newdev = poverty.aggregate((parcel.baseyear_built < 1850) * (parcel.aggregate(building.year_built, function=maximum) > 2014) * (psrc_parcel.parcel.residential_units > 0) * (urbansim_parcel.parcel.parcel_sqft_per_unit > 3630) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft, intermediates=[parcel]) / 43560.0',
+            #'Medium_existing = poverty.aggregate((parcel.baseyear_built > 0) * (parcel.aggregate(building.year_built, function=maximum) < 2015) * (psrc_parcel.parcel.residential_units > 0) * (urbansim_parcel.parcel.parcel_sqft_per_unit <= 3630) * (urbansim_parcel.parcel.parcel_sqft_per_unit > 871) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft, intermediates=[parcel]) / 43560.0',
+            #'Medium_redev = poverty.aggregate((parcel.baseyear_built > 0) * (parcel.aggregate(building.year_built, function=maximum) > 2014) * (psrc_parcel.parcel.residential_units > 0) * (urbansim_parcel.parcel.parcel_sqft_per_unit <= 3630) * (urbansim_parcel.parcel.parcel_sqft_per_unit > 871) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft, intermediates=[parcel]) / 43560.0',
+            #'Medium_newdev = poverty.aggregate((parcel.baseyear_built < 1850) * (parcel.aggregate(building.year_built, function=maximum) > 2014) * (psrc_parcel.parcel.residential_units > 0) * (urbansim_parcel.parcel.parcel_sqft_per_unit <= 3630) * (urbansim_parcel.parcel.parcel_sqft_per_unit > 871) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft, intermediates=[parcel]) / 43560.0',
+            #'High_existing = poverty.aggregate((parcel.baseyear_built > 0) * (parcel.aggregate(building.year_built, function=maximum) < 2015) * (psrc_parcel.parcel.residential_units > 0) * (urbansim_parcel.parcel.parcel_sqft_per_unit <= 871) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft, intermediates=[parcel]) / 43560.0',
+            #'High_redev = poverty.aggregate((parcel.baseyear_built > 0) * (parcel.aggregate(building.year_built, function=maximum) > 2014) * (psrc_parcel.parcel.residential_units > 0) * (urbansim_parcel.parcel.parcel_sqft_per_unit <= 871) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft, intermediates=[parcel]) / 43560.0',
+            #'High_newdev = poverty.aggregate((parcel.baseyear_built < 1850) * (parcel.aggregate(building.year_built, function=maximum) > 2014) * (psrc_parcel.parcel.residential_units > 0) * (urbansim_parcel.parcel.parcel_sqft_per_unit <= 871) * numpy.logical_or((psrc_parcel.parcel.residential_units > 0),(parcel.aggregate(psrc_parcel.building.job_capacity_computed_if_necessary) > 0)) * parcel.parcel_sqft, intermediates=[parcel]) / 43560.0',
+            #],
+        #),
 ]
     return indicators
 
-def get_end_year_indicators(cache_directory, run_description, years = [2023,2050], base_year=2023):
 
-    source_data = SourceData(
-         cache_directory = cache_directory,
-         run_description = run_description,
-         years = years,
-         base_year = base_year,
-         dataset_pool_configuration = DatasetPoolConfiguration(
-             package_order=['psrc_parcel','urbansim_parcel','psrc', 'urbansim','opus_core'],
-             package_order_exceptions={},
-             ),       
-     )
-
-    indicators=[
-         DatasetTable(
-             source_data = source_data,
-             dataset_name = 'building',
-             name =  'new_buildings',
-             attributes = [
-                 'building.building_type_id',
-                 'building.parcel_id',
-                 'urbansim_parcel.building.unit_price',
-                 'urbansim_parcel.building.residential_units',
-                 'urbansim_parcel.building.non_residential_sqft',
-                 'urbansim_parcel.building.year_built',
-                 'building.template_id',
-                 'urbansim_parcel.building.building_sqft'
-                 ],
-             exclude_condition = 'building.year_built<2023',
-             ),
-
-         DatasetTable(
-             source_data = source_data,
-             dataset_name = 'parcel',
-             name =  'households_jobs',
-             attributes = [
-                 'parcel.county_id',
-                 'parcel.minority_id',
-                 'parcel.poverty_id',
-                                 'households = urbansim_parcel.parcel.number_of_households',
-                                 'urbansim_parcel.parcel.population',
-                 'urbansim_parcel.parcel.residential_units',
-                 'urbansim_parcel.parcel.employment',
-                 'non_home_based_employment = parcel.aggregate(psrc_parcel.building.number_of_non_home_based_jobs)',
-                 'non_residential_sqft = parcel.aggregate(building.non_residential_sqft)',
-                 'building_sqft = parcel.aggregate(urbansim_parcel.building.building_sqft)',
-                 'psrc_parcel.parcel.job_capacity',
-                 'parcel.plan_type_id'
-                 #'residential_units_base = parcel.aggregate(building.residential_units * (building.year_built < 2015))'
-                 ],
-             ),
-     ]
-    return indicators
 
 import os
 from opus_core.indicator_framework.core.indicator_factory import IndicatorFactory
@@ -885,21 +825,16 @@ def write_info(directory, description, restrictions):
 
 if __name__ == '__main__':
     ind_cache = os.path.join(os.environ['QC_BASE_DIRECTORY'], os.environ['QC_RUN1'])
-    indicators = get_indicators(ind_cache, os.getenv('QC_RUN1_DESCR', '')#, years = [2014,2015,2020]
+    base_year = int(os.getenv('RUN1_BASE_YEAR', 2023))
+    indicators = get_indicators(ind_cache, os.getenv('QC_RUN1_DESCR', ''),
+                                years=[base_year, int(os.getenv('RUN1_END_YEAR', 2050))], 
+                                base_year = base_year
                                 )
     IndicatorFactory().create_indicators(
         indicators = indicators,
         display_error_box = False, 
         show_results = False,
         file_name_for_indicator_results = 'indicator_results_equity.html'
-    )
-
-    # runs buildings indicator only for the simulation end year
-    IndicatorFactory().create_indicators(
-        indicators = get_end_year_indicators(ind_cache, os.getenv('QC_RUN1_DESCR', ''),years = [2023,2050]),
-        display_error_box = False,
-        show_results = False,
-        file_name_for_indicator_results = 'indicator_results_equity2.html'
     )
 
     write_info(ind_cache, os.getenv('QC_RUN1_DESCR', ''), os.getenv('QC_RUN1_RESTR', ''))
