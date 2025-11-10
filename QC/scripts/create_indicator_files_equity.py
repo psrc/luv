@@ -42,7 +42,7 @@ def get_indicators(cache_directory, run_description, years = [2023,2050], base_y
             dataset_name = 'faz',
             name =  'households_characteristics',
         attributes = [
-            'mean_income = faz.aggregate(household.income * (household.income > 0), intermediates=[building, parcel, zone]) / faz.aggregate((household.household_id > 0) * (household.income > 0), intermediates=[building,parcel,zone])',
+            'mean_income = numpy.safe_array_divide(faz.aggregate(household.income * (household.income > 0), intermediates=[building, parcel, zone]), faz.aggregate((household.household_id > 0) * (household.income > 0), intermediates=[building,parcel,zone]))',
             'low_income = faz.aggregate(household.income < 56000, intermediates=[building, parcel, zone])',
             'high_income = faz.aggregate(household.income > 180000, intermediates=[building, parcel, zone])', 
             'hh_total =  faz.aggregate(urbansim_parcel.building.number_of_households, intermediates=[parcel,zone])'
@@ -69,7 +69,7 @@ def get_indicators(cache_directory, run_description, years = [2023,2050], base_y
             dataset_name = 'zone',
             name =  'households_characteristics',
         attributes = [
-            'mean_income = zone.aggregate(household.income * (household.income > 0), intermediates=[building, parcel]) / zone.aggregate((household.household_id > 0) * (household.income > 0), intermediates=[building,parcel])',
+            'mean_income = numpy.safe_array_divide(zone.aggregate(household.income * (household.income > 0), intermediates=[building, parcel]), zone.aggregate((household.household_id > 0) * (household.income > 0), intermediates=[building,parcel]))',
             'low_income = zone.aggregate(household.income < 56000, intermediates=[building, parcel])',
             'high_income = zone.aggregate(household.income > 180000, intermediates=[building, parcel])', 
             'hh_total =  zone.aggregate(urbansim_parcel.building.number_of_households, intermediates=[parcel])'
@@ -96,7 +96,7 @@ def get_indicators(cache_directory, run_description, years = [2023,2050], base_y
             dataset_name = 'city',
             name =  'households_characteristics',
         attributes = [
-            'mean_income = city.aggregate(household.income * (household.income > 0), intermediates=[building, parcel]) / city.aggregate((household.household_id > 0) * (household.income > 0), intermediates=[building,parcel])',
+            'mean_income = numpy.safe_array_divide(city.aggregate(household.income * (household.income > 0), intermediates=[building, parcel]), city.aggregate((household.household_id > 0) * (household.income > 0), intermediates=[building,parcel]))',
             'low_income = city.aggregate(household.income < 56000, intermediates=[building, parcel])',
             'high_income = city.aggregate(household.income > 180000, intermediates=[building, parcel])', 
             'hh_total =  city.aggregate(urbansim_parcel.building.number_of_households, intermediates=[parcel])'
@@ -123,7 +123,7 @@ def get_indicators(cache_directory, run_description, years = [2023,2050], base_y
             dataset_name = 'control',
             name =  'households_characteristics',
         attributes = [
-            'mean_income = control.aggregate(household.income * (household.income > 0), intermediates=[building, parcel]) / control.aggregate((household.household_id > 0) * (household.income > 0), intermediates=[building,parcel])',
+            'mean_income = numpy.safe_array_divide(control.aggregate(household.income * (household.income > 0), intermediates=[building, parcel]), control.aggregate((household.household_id > 0) * (household.income > 0), intermediates=[building,parcel]))',
             'low_income = control.aggregate(household.income < 56000, intermediates=[building, parcel])',
             'high_income = control.aggregate(household.income > 180000, intermediates=[building, parcel])', 
             'hh_total =  control.aggregate(urbansim_parcel.building.number_of_households, intermediates=[parcel])'

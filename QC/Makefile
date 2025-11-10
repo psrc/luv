@@ -47,7 +47,7 @@ export QC_RESULT_PATH=$(WRKDIR)/$(RESULT_PATH)
 test : $(RESULT_TEST_PATH)/testreport.txt
 
 .PHONY : ind
-ind : ind-base ind-an ind-end ind-maxdev ind-cpct
+ind : ind-base ind-an ind-end ind-maxdev ind-equity ind-cpct
 
 .PHONY : ind-base
 ind-base : 
