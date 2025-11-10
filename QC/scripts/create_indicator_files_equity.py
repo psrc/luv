@@ -25,7 +25,7 @@ def get_indicators(cache_directory, run_description, years = [2023,2050], base_y
         DatasetTable(
             source_data = source_data,
             dataset_name = 'faz',
-            name =  'persons_charactristics',
+            name =  'persons_characteristics',
         attributes = [
             'pop_white = faz.aggregate(person.race_id == 1, intermediates=[household, building, parcel, zone])',
             'pop_black = faz.aggregate(person.race_id == 2, intermediates=[household, building, parcel, zone])',
@@ -35,6 +35,18 @@ def get_indicators(cache_directory, run_description, years = [2023,2050], base_y
             'pop_hsp = faz.aggregate(numpy.in1d(person.race_id, [6,7]), intermediates=[household, building, parcel, zone])',
             'pop_total = faz.aggregate(urbansim_parcel.building.population, intermediates=[parcel,zone])'
             ],
+        ), 
+        
+        DatasetTable(
+            source_data = source_data,
+            dataset_name = 'faz',
+            name =  'households_characteristics',
+        attributes = [
+            'mean_income = faz.aggregate(household.income * (household.income > 0), intermediates=[building, parcel, zone]) / faz.aggregate((household.household_id > 0) * (household.income > 0), intermediates=[building,parcel,zone])',
+            'low_income = faz.aggregate(household.income < 56000, intermediates=[building, parcel, zone])',
+            'high_income = faz.aggregate(household.income > 180000, intermediates=[building, parcel, zone])', 
+            'hh_total =  faz.aggregate(urbansim_parcel.building.number_of_households, intermediates=[parcel,zone])'
+            ],        
         ),
         
 
