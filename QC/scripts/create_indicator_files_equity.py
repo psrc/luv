@@ -49,7 +49,87 @@ def get_indicators(cache_directory, run_description, years = [2023,2050], base_y
             ],        
         ),
         
-
+        DatasetTable(
+            source_data = source_data,
+            dataset_name = 'zone',
+            name =  'persons_characteristics',
+        attributes = [
+            'pop_white = zone.aggregate(person.race_id == 1, intermediates=[household, building, parcel])',
+            'pop_black = zone.aggregate(person.race_id == 2, intermediates=[household, building, parcel])',
+            'pop_asian = zone.aggregate(person.race_id == 3, intermediates=[household, building, parcel])', 
+            'pop_other = zone.aggregate(person.race_id == 4, intermediates=[household, building, parcel])',
+            'pop_nhsp = zone.aggregate(person.race_id == 5, intermediates=[household, building, parcel])',
+            'pop_hsp = zone.aggregate(numpy.in1d(person.race_id, [6,7]), intermediates=[household, building, parcel])',
+            'pop_total = zone.aggregate(urbansim_parcel.building.population, intermediates=[parcel])'
+            ],
+        ), 
+        
+        DatasetTable(
+            source_data = source_data,
+            dataset_name = 'zone',
+            name =  'households_characteristics',
+        attributes = [
+            'mean_income = zone.aggregate(household.income * (household.income > 0), intermediates=[building, parcel]) / zone.aggregate((household.household_id > 0) * (household.income > 0), intermediates=[building,parcel])',
+            'low_income = zone.aggregate(household.income < 56000, intermediates=[building, parcel])',
+            'high_income = zone.aggregate(household.income > 180000, intermediates=[building, parcel])', 
+            'hh_total =  zone.aggregate(urbansim_parcel.building.number_of_households, intermediates=[parcel])'
+            ],        
+        ),
+        
+        DatasetTable(
+            source_data = source_data,
+            dataset_name = 'city',
+            name =  'persons_characteristics',
+        attributes = [
+            'pop_white = city.aggregate(person.race_id == 1, intermediates=[household, building, parcel])',
+            'pop_black = city.aggregate(person.race_id == 2, intermediates=[household, building, parcel])',
+            'pop_asian = city.aggregate(person.race_id == 3, intermediates=[household, building, parcel])', 
+            'pop_other = city.aggregate(person.race_id == 4, intermediates=[household, building, parcel])',
+            'pop_nhsp = city.aggregate(person.race_id == 5, intermediates=[household, building, parcel])',
+            'pop_hsp = city.aggregate(numpy.in1d(person.race_id, [6,7]), intermediates=[household, building, parcel])',
+            'pop_total = city.aggregate(urbansim_parcel.building.population, intermediates=[parcel])'
+            ],
+        ), 
+        
+        DatasetTable(
+            source_data = source_data,
+            dataset_name = 'city',
+            name =  'households_characteristics',
+        attributes = [
+            'mean_income = city.aggregate(household.income * (household.income > 0), intermediates=[building, parcel]) / city.aggregate((household.household_id > 0) * (household.income > 0), intermediates=[building,parcel])',
+            'low_income = city.aggregate(household.income < 56000, intermediates=[building, parcel])',
+            'high_income = city.aggregate(household.income > 180000, intermediates=[building, parcel])', 
+            'hh_total =  city.aggregate(urbansim_parcel.building.number_of_households, intermediates=[parcel])'
+            ],        
+        ),
+        
+        DatasetTable(
+            source_data = source_data,
+            dataset_name = 'control',
+            name =  'persons_characteristics',
+        attributes = [
+            'pop_white = control.aggregate(person.race_id == 1, intermediates=[household, building, parcel])',
+            'pop_black = control.aggregate(person.race_id == 2, intermediates=[household, building, parcel])',
+            'pop_asian = control.aggregate(person.race_id == 3, intermediates=[household, building, parcel])', 
+            'pop_other = control.aggregate(person.race_id == 4, intermediates=[household, building, parcel])',
+            'pop_nhsp = control.aggregate(person.race_id == 5, intermediates=[household, building, parcel])',
+            'pop_hsp = control.aggregate(numpy.in1d(person.race_id, [6,7]), intermediates=[household, building, parcel])',
+            'pop_total = control.aggregate(urbansim_parcel.building.population, intermediates=[parcel])'
+            ],
+        ), 
+        
+        DatasetTable(
+            source_data = source_data,
+            dataset_name = 'control',
+            name =  'households_characteristics',
+        attributes = [
+            'mean_income = control.aggregate(household.income * (household.income > 0), intermediates=[building, parcel]) / control.aggregate((household.household_id > 0) * (household.income > 0), intermediates=[building,parcel])',
+            'low_income = control.aggregate(household.income < 56000, intermediates=[building, parcel])',
+            'high_income = control.aggregate(household.income > 180000, intermediates=[building, parcel])', 
+            'hh_total =  control.aggregate(urbansim_parcel.building.number_of_households, intermediates=[parcel])'
+            ],        
+        ),        
+        
 # subreg by TOD types
 
 #Table(
