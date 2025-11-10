@@ -1,6 +1,6 @@
 # Script for generating LUV R report on regional geography level
 # Hana Sevcikova, PSRC
-# May, 2018
+# November, 2025
 #
 
 trim <- function (x)  sub("^\\s+", "", x)
@@ -19,6 +19,8 @@ if(!interactive()) { # running using Makefile
 	annual <- as.logical(Sys.getenv('RREPORT_ANNUAL', 'FALSE'))
 	ci.runs <- c()
 	ci.dir <- "/modelsrv6/d$/opusgit/urbansim_data/data/psrc_parcel/runs"
+	base.year <- Sys.getenv('RUN1_BASE_YEAR')
+	end.year <- Sys.getenv('RUN1_END_YEAR')
 } else { # running interactively
 	#run1 <- "run_134.run_2018_05_12_13_11"
 	run1 <- "run_8.run_2018_05_08_16_46"
@@ -31,6 +33,8 @@ if(!interactive()) { # running using Makefile
 	ci.dir <- "~/d6$/opusgit/urbansim_data/data/psrc_parcel/runs"
 	ci.runs <- c("8_5runs")
 	annual <- FALSE
+	base.year <- 2023
+	end.year <- 2050
 }
 runs <- c(run1, other.runs)
 #run.numbers <- sapply(strsplit(sapply(strsplit(runs, '[.]'), function(x) x[1]), '_'), function(x) x[2])
@@ -47,9 +51,13 @@ not.all.years <- c() # if show.all.years is TRUE, put here runs that are excepti
 geography <- 'fips_rgs'
 output.file.name <- file.path(result.dir, paste(geography, 'reportLUV', if(show.all.years) 'annual' else '', '_', paste(run.numbers, collapse='_'), sep=''))
 
-years <- c(2014, seq(2015, 2050, by=5))
-years.for.table <- c(2014, 2015, seq(2020, 2050, by=10))
-all.years <- if(show.all.years) 2014:2050 else c()
+#years <- c(2014, seq(2015, 2050, by=5))
+years <- c(2023, seq(2025, 2040, by=5),2044,2045,2050)
+years <- years[years >= base.year & years <= end.year]
+#years.for.table <- c(2014, 2015, seq(2020, 2050, by=10))
+years.for.table <- c(2023, seq(2030, 2040, by=10),2044,2045,2050)
+years.for.table <- years.for.table[years.for.table >= base.year & years.for.table <= end.year]
+all.years <- if(show.all.years) base.year:end.year else c()
 
 # Runs with CIs
 ci.run.name <- list()

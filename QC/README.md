@@ -40,7 +40,7 @@ $ pip install plotly
 
 Make sure [R](https://www.r-project.org) is installed. Also, check that R is working from the command line by typing R into the bash terminal. If it is not found, add the location of R.exe into your Path environment (on modelsrv3 it's ``C:\Program Files\R\R-3.3.1\bin``).
 
-While R is open, install the packages ``shinythemes``, ``htmltools``, ``flexdashboard``, ``shiny``, ``magrittr``, ``plotly``, ``data.table``, ``leaflet``, ``rgdal``, ``sp``, ``stringr``, ``DT``, ``scales``, ``lemon`` using
+While R is open, install the packages ``shinythemes``, ``htmltools``, ``flexdashboard``, ``shiny``, ``magrittr``, ``plotly``, ``data.table``, ``leaflet``, ``sp``, ``stringr``, ``DT``, ``scales``, ``lemon`` using
 
 ```
 install.packages(c('shinythemes', 'htmltools', 'flexdashboard', 'shiny', 'magrittr', 'plotly', 'data.table', 'leaflet', 'sp', 'stringr', 'DT', 'scales', 'lemon'), dependencies=TRUE)
@@ -57,7 +57,7 @@ For generating indicators (optional), [Opus needs to be installed](http://twiki/
 
 ## Running the Makefile
 
-Navigate into the luv/QC directory. The Makefile here is a collection of scripts that do some part of the QC. To test the script, first locate where LUV results are located. Open the file input.txt and modify the 'QC\_BASE\_DIRECTORY' and 'QC\_RUN1' lines appropriately. (If your file system is connected to the E drive on modelsrv3, you might not need any changes). You can use comments to comment out unused rows. Note that the file is space sensitive, so make sure there are no spaces at the end of the lines.
+Navigate into the luv/QC directory. The Makefile here is a collection of scripts that do some part of the QC. To test the script, first locate where LUV results are located. Open the file input.txt and modify the lines 'QC\_BASE\_DIRECTORY', 'QC\_RUN1', 'RUN1\_BASE\_YEAR`, and  'RUN1\_END\_YEAR' appropriately. You can use comments to comment out unused rows. Note that the file is space sensitive, so make sure there are no spaces at the end of the lines.
 Then run the following line from your bash terminal:
 
 ```
@@ -72,14 +72,14 @@ To delete the created files, type
 make clean
 ```
 
-After an UrbanSim run is finished, indicator files need to be created. Make sure the 'QC\_RUN1' entry in input.txt points to the right run. Optionally, put a description of the run, possibly restrictions, into 'QC\_RUN1\_DESCR' and 'QC\_RUN1\_RESTR'. Then type
+After an UrbanSim run is finished, indicator files need to be created. Make sure that the 'QC\_RUN1' entry in input.txt points to the right run, and that 'RUN1\_BASE\_YEAR` and  'RUN1\_END\_YEAR' entries are correct. Optionally, put a description of the run, possibly restrictions, into 'QC\_RUN1\_DESCR' and 'QC\_RUN1\_RESTR'. Then type
 
 
 ```
 make ind
 ```
 
-Note that the above step need Opus to be installed.
+Note that the above step need Opus to be installed. This will run all indicators and might take a long time to process. See the list below for running only selected parts. 
 
 To view results, navigate to the internal shiny server front page and open the LUV Dashboard app.
 
@@ -120,7 +120,8 @@ Currently, the following phonies are implemented:
    * **ind-base**: run python indicators for standard geographies
    * **ind-end**: run python end year indicators (e.g. new buildings)
    * **ind-maxdev**: run indicators for maximum developable capacity (in scripts/create\_max\_dev\_indicator\_files.py). Usually takes much longer than ordinary indicators.
-   * **ind-an**: generate annual indicators implemented in scripts/create\_annual\_indicator\_files.py (useful for R-reports, see Section R-Reports). As above, Opus needs to be installed.
+   * **ind-an**: generate annual indicators implemented in scripts/create\_annual\_indicator\_files.py (useful for R-reports, see Section R-Reports).
+   * **ind-cpct**: converts control totals tables into csv files and copies them into the indicators directory. 
    * **rtables**: run R code in scripts/qc\_rtable\_\*.R
    * **rplots**: run R code in scripts/rplots\_\*.R
    * **rmaps**: run R code in scripts/rmaps\_\*.R
@@ -129,6 +130,8 @@ Currently, the following phonies are implemented:
    * **clean-index**: removes the index output file
    * **rreport-city**: generate R-report on the city level (see Section R-Reports)
    * **rreport-faz**: generate R-report on the faz level (see Section R-Reports)
+
+Note that all phonies that start with "ind" need Opus to be installed.
 
 The following phonies are obsolete:
 
@@ -167,7 +170,13 @@ and
 make rreport-faz
 ```
 
-The scripts uses the run from QC\_RUN1. In addition, comparison runs can be given in an entry of input.txt called RREPORT\_RUNS which should be given as a comma-separated character string. (Do not include the same value as QC\_RUN1 into RREPORT\_RUNS as QC\_RUN1 is automatically included.) The entry RREPORT\_ANNUAL should be either TRUE or FALSE and it determines, if intermediate years are shown in the plots. Note that usually we create 5-year indicators only. In order to get annual indicators if  RREPORT\_ANNUAL is set to TRUE (and if they haven't been created yet), run 
+and
+
+```
+make rreport-rgs
+```
+
+The scripts use the run from QC\_RUN1. In addition, comparison runs can be given in an entry of input.txt called RREPORT\_RUNS which should be given as a comma-separated character string. (Do not include the same value as QC\_RUN1 into RREPORT\_RUNS as QC\_RUN1 is automatically included.) The entry RREPORT\_ANNUAL should be either TRUE or FALSE and it determines, if intermediate years are shown in the plots. Note that usually we create 5-year indicators only. In order to get annual indicators if  RREPORT\_ANNUAL is set to TRUE (and if they haven't been created yet), run 
 
 ```
 make ind-an
@@ -196,6 +205,7 @@ If you have local changes you want to discard, e.g. in Makefile, do (from the QC
 ```
 git checkout Makefile
 ```
+
 Repeat this for all files for which you want to discard your changes. Or, to discard all local changes, do
 
 ```

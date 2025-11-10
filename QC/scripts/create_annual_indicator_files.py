@@ -11,6 +11,7 @@ from opus_core.indicator_framework.image_types.dataset_table import DatasetTable
 
 
 def get_indicators(cache_directory, run_description, years = range(2023,2051), base_year=2023):
+    years = [i for i in years if i >= base_year]
     source_data = SourceData(
         cache_directory = cache_directory,
         run_description = run_description,
@@ -234,8 +235,11 @@ import os
 from opus_core.indicator_framework.core.indicator_factory import IndicatorFactory
 
 if __name__ == '__main__':
+    base_year = os.getenv('RUN1_BASE_YEAR', 2023)
     indicators = get_indicators(os.path.join(os.environ['QC_BASE_DIRECTORY'], os.environ['QC_RUN1']), 
-                                os.getenv('QC_RUN1_DESCR', ''))
+                                os.getenv('QC_RUN1_DESCR', ''),
+                                years = range(base_year, os.getenv('RUN1_END_YEAR', 2050)+1),
+                                base_year = os.getenv('RUN1_BASE_YEAR', 2023))
     IndicatorFactory().create_indicators(
         indicators = indicators,
         display_error_box = False, 

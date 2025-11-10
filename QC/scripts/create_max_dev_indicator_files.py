@@ -152,8 +152,11 @@ import os
 from opus_core.indicator_framework.core.indicator_factory import IndicatorFactory
 
 if __name__ == '__main__':
+    base_year = os.getenv('RUN1_BASE_YEAR', 2023)
     indicators = get_indicators(os.path.join(os.environ['QC_BASE_DIRECTORY'], os.environ['QC_RUN1']), 
-                                os.getenv('QC_RUN1_DESCR', ''))
+                                os.getenv('QC_RUN1_DESCR', ''),
+                                years = [base_year+1], 
+                                base_year = base_year)
     IndicatorFactory().create_indicators(
         indicators = indicators,
         display_error_box = False, 

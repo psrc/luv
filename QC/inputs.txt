@@ -8,6 +8,8 @@ QC_BASE_DIRECTORY=//aws-model04/e$$/opusgit/urbansim_data/data/psrc_parcel/runs
 #QC_BASE_DIRECTORY=/Volumes/d$$/opusgit/urbansim_data/data/psrc_parcel/runs
 
 QC_RUN1=run_3.run_2018_08_17_13_06
+RUN1_BASE_YEAR=2023
+RUN1_END_YEAR=2050
 
 # Optional description of the run
 QC_RUN1_DESCR= run_3 STC integrated

@@ -33,6 +33,7 @@ def jobs_by_sector(geo, package="psrc_parcel"):
 
 def get_indicators(cache_directory, run_description, years = [2023,2050], base_year=2023):
 
+    years = [i for i in years if i >= base_year]
     source_data = SourceData(
         cache_directory = cache_directory,
         run_description = run_description,
@@ -633,7 +634,8 @@ def write_info(directory, description, restrictions):
 
 if __name__ == '__main__':
     ind_cache = os.path.join(os.environ['QC_BASE_DIRECTORY'], os.environ['QC_RUN1'])
-    indicators = get_indicators(ind_cache, os.getenv('QC_RUN1_DESCR', '')#, years = [2014,2015,2020]
+    indicators = get_indicators(ind_cache, os.getenv('QC_RUN1_DESCR', ''),
+                                base_year = os.getenv('RUN1_BASE_YEAR', 2023)
                                 )
     IndicatorFactory().create_indicators(
         indicators = indicators,
@@ -644,7 +646,9 @@ if __name__ == '__main__':
 
     # runs buildings indicator only for the simulation end year
     IndicatorFactory().create_indicators(
-        indicators = get_end_year_indicators(ind_cache, os.getenv('QC_RUN1_DESCR', ''),years = [2050]),
+        indicators = get_end_year_indicators(ind_cache, os.getenv('QC_RUN1_DESCR', ''),
+                                             years = [os.getenv('RUN1_END_YEAR', 2050)],
+                                             base_year = os.getenv('RUN1_BASE_YEAR', 2023)),
         display_error_box = False,
         show_results = False,
         file_name_for_indicator_results = 'indicator_results_end_year.html'

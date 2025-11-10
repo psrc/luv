@@ -3,6 +3,8 @@
 # Obtain inputs from the environment
 run1 <- Sys.getenv('QC_RUN1')
 base.dir <- Sys.getenv('QC_BASE_DIRECTORY')
+base.year <- Sys.getenv('RUN1_BASE_YEAR')
+end.year <- Sys.getenv('RUN1_END_YEAR')
 result.dir <- Sys.getenv('QC_RESULT_PATH')
 if(!dir.exists(result.dir)) dir.create(result.dir)
 
@@ -15,7 +17,7 @@ indicator.path.run1 <- file.path(base.dir, run1, 'indicators')
 # Check decreases
 cat("\nChecking for decreases ...")
 result <- NULL
-years <- c(2023, 2050)
+years <- c(base.year, end.year)
 for (ind in indicator.names) {
 	for (geo in geographies) {
 		filename <- file.path(indicator.path.run1, paste0(geo, '__table__', ind, '.csv'))

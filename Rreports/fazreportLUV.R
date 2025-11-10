@@ -1,11 +1,11 @@
 # Script for generating LUV R report on faz level
 # Hana Sevcikova, PSRC
-# March, 2015
+# November, 2025
 #
 
 #setwd("C:/code_repos/luv/Rreports/")
 
-trim <- function (x) gsub("^\\s+|\\s+$", "", x) # function for triming whitespace 
+trim <- function (x) gsub("^\\s+|\\s+$", "", x) # function for trimming whitespace 
 curdir <- getwd()
 
 ##### BEGIN USER SETTINGS ######
@@ -19,6 +19,8 @@ if(!interactive()) { # running using Makefile
 	other.runs <- Sys.getenv('RREPORT_RUNS')
 	other.runs <- trim(unlist(strsplit(other.runs, ",")))
 	annual <- as.logical(Sys.getenv('RREPORT_ANNUAL', 'FALSE'))
+	base.year <- Sys.getenv('RUN1_BASE_YEAR')
+	end.year <- Sys.getenv('RUN1_END_YEAR')
 } else { # running interactively
 	#run1 <- "81_plus_r97.compiled"
 	#run1 <- "run_89.run_2020_11_25_10_17"
@@ -39,6 +41,8 @@ if(!interactive()) { # running using Makefile
 	#other.runs <- c("run_110.run_2023_02_16_12_09", "run_62.run_2021_09_16_11_35")
 	other.runs <- c("run_62.run_2021_09_16_11_35")
 	annual <- FALSE
+	base.year <- 2023
+	end.year <- 2050
 }
 runs <- c(run1, other.runs)
 
@@ -75,12 +79,14 @@ output.file.name <- file.path(result.dir, paste(geography, 'reportLUVit', if(sho
 #years <- c(2014, seq(2015, 2050, by=5))
 #years <- c(2018, seq(2020, 2050, by=5))
 years <- c(2023, seq(2025, 2040, by=5),2044,2045,2050)
+years <- years[years >= base.year & years <= end.year]
 #years.for.table <- c(2014, 2015, seq(2020, 2050, by=10))
 #years.for.table <- c(2018, 2020, seq(2020, 2050, by=10))
 years.for.table <- c(2014, 2018, seq(2020, 2040, by=10),2044,2045,2050)
 years.for.table <- c(2023, seq(2030, 2040, by=10),2044,2045,2050)
+years.for.table <- years.for.table[years.for.table >= base.year & years.for.table <= end.year]
 #all.years <- if(show.all.years) 2014:2050 else c()
-all.years <- if(show.all.years) 2023:2050 else c()
+all.years <- if(show.all.years) base.year:end.year else c()
 
 save.data.as.ascii <- FALSE
 add.data.from <- list("2014"= c("2014_faz_data_for_R_Report_No_Adj_or_Military.csv", "black"))

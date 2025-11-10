@@ -46,7 +46,7 @@ export QC_RESULT_PATH=$(WRKDIR)/$(RESULT_PATH)
 test : $(RESULT_TEST_PATH)/testreport.txt
 
 .PHONY : ind
-ind : ind-base ind-an ind-end ind-maxdev
+ind : ind-base ind-an ind-end ind-maxdev ind-cpct
 
 .PHONY : ind-base
 ind-base : 
@@ -67,6 +67,11 @@ ind-an :
 .PHONY : ind-end
 ind-end :
 	$(PYTHON_COMMAND) $(SCRIPT_PATH)/create_indicator_files_nearyr_outyr.py
+
+.PHONY : ind-cpct
+ind-cpct :
+	$(PYTHON_COMMAND) -m opus_core.tools.convert_table flt csv -d $(QC_BASE_DIRECTORY)/$(QC_RUN1)/$(RUN1_BASE_YEAR) -o $(QC_BASE_DIRECTORY)/$(QC_RUN1)/indicators --no-type-info -t annual_household_control_totals
+	$(PYTHON_COMMAND) -m opus_core.tools.convert_table flt csv -d $(QC_BASE_DIRECTORY)/$(QC_RUN1)/$(RUN1_BASE_YEAR) -o $(QC_BASE_DIRECTORY)/$(QC_RUN1)/indicators --no-type-info -t annual_employment_control_totals
 
 .PHONY : all
 all: rtables_raw rplots_raw rmaps_raw emplots_raw index
@@ -112,6 +117,9 @@ rreport-faz : $(RREPORT_PATH)/fazreportLUV.Rout
 
 .PHONY : rreport-city
 rreport-city : $(RREPORT_PATH)/cityreportLUV.Rout
+
+.PHONY : rreport-rgs
+rreport-rgs : $(RREPORT_PATH)/regeoreportLUV.Rout
 
 
 index : $(SCRIPT_PATH)/create_index_file.R inputs.txt
