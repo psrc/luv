@@ -27,13 +27,13 @@ def get_indicators(cache_directory, run_description, years = [2023,2050], base_y
             dataset_name = 'faz',
             name =  'persons_charactristics',
         attributes = [
-            'pop_white = faz.aggregate(person.race_id == 1, intermediates=[parcel, building, household])',
-            'pop_black = faz.aggregate(person.race_id == 2, intermediates=[parcel, building, household])',
-            'pop_asian = faz.aggregate(person.race_id == 3, intermediates=[parcel, building, household])', 
-            'pop_other = faz.aggregate(person.race_id == 4, intermediates=[parcel, building, household])',
-            'pop_nhsp = faz.aggregate(person.race_id == 5, intermediates=[parcel, building, household])',
-            'pop_hsp = faz.aggregate(numpy.in1d(person.race_id, [6,7]), intermediates=[parcel, building, household])',
-            'pop_total = faz.aggregate(household.persons, intermediates=[parcel, building])'
+            'pop_white = faz.aggregate(person.race_id == 1, intermediates=[household, building, parcel, zone])',
+            'pop_black = faz.aggregate(person.race_id == 2, intermediates=[household, building, parcel, zone])',
+            'pop_asian = faz.aggregate(person.race_id == 3, intermediates=[household, building, parcel, zone])', 
+            'pop_other = faz.aggregate(person.race_id == 4, intermediates=[household, building, parcel, zone])',
+            'pop_nhsp = faz.aggregate(person.race_id == 5, intermediates=[household, building, parcel, zone])',
+            'pop_hsp = faz.aggregate(numpy.in1d(person.race_id, [6,7]), intermediates=[household, building, parcel, zone])',
+            'pop_total = faz.aggregate(urbansim_parcel.building.population, intermediates=[parcel,zone])'
             ],
         ),
         
