@@ -79,7 +79,7 @@ ind-cpct :
 
 .PHONY : ind-access
 ind-access :
-	$(PYTHON_COMMAND) $(SCRIPT_PATH)/create_indicator_accessibility.py
+	$(PYTHON_COMMAND) $(SCRIPT_PATH)/create_indicator_files_accessibility.py
 
 .PHONY : all
 all: rtables_raw rplots_raw rmaps_raw emplots_raw index
