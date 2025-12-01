@@ -180,7 +180,18 @@ Table(
             attribute = 'residential_units=subreg.aggregate(urbansim_parcel.building.residential_units, intermediates=[parcel])',
             dataset_name = 'subreg',
             source_data = source_data,
-            ),	   
+            ),
+        
+        Table(
+            attribute = 'building_sqft=subreg.aggregate(urbansim_parcel.parcel.building_sqft)',
+            dataset_name = 'subreg',
+            source_data = source_data,
+            ),           
+        Table(
+            attribute = 'acres=subreg.aggregate(parcel.parcel_sqft/43560.)',
+           dataset_name = 'subreg',
+           source_data = source_data,
+           ),        
 
         DatasetTable(
             source_data = source_data,

@@ -77,6 +77,10 @@ ind-cpct :
 	$(PYTHON_COMMAND) -m opus_core.tools.convert_table flt csv -d $(QC_BASE_DIRECTORY)/$(QC_RUN1)/$(RUN1_BASE_YEAR) -o $(QC_BASE_DIRECTORY)/$(QC_RUN1)/indicators --no-type-info -t annual_household_control_totals
 	$(PYTHON_COMMAND) -m opus_core.tools.convert_table flt csv -d $(QC_BASE_DIRECTORY)/$(QC_RUN1)/$(RUN1_BASE_YEAR) -o $(QC_BASE_DIRECTORY)/$(QC_RUN1)/indicators --no-type-info -t annual_employment_control_totals
 
+.PHONY : ind-access
+ind-access :
+	$(PYTHON_COMMAND) $(SCRIPT_PATH)/create_indicator_accessibility.py
+
 .PHONY : all
 all: rtables_raw rplots_raw rmaps_raw emplots_raw index
 
