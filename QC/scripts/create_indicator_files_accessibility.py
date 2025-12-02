@@ -97,8 +97,19 @@ def get_indicators(cache_directory, run_description, years = [2023, 2050], base_
             dataset_name = 'parcel',
             source_data = source_data,
             storage_location = storage_loc
-            ),             
-    
+            ),
+        Table(
+            attribute = 'lnretailden_wwd = ln(urbansim_parcel.gridcell.employment_retail_within_walking_distance / urbansim.gridcell.acres_within_walking_distance)',
+            dataset_name = 'gridcell',
+            source_data = source_data,
+            storage_location = storage_loc
+            ),
+        Table(
+            attribute = 'lnpopden_wwd = ln(urbansim_parcel.gridcell.population_within_walking_distance / urbansim.gridcell.acres_within_walking_distance)',
+            dataset_name = 'gridcell',
+            source_data = source_data,
+            storage_location = storage_loc
+            ), 
     ]
     return indicators
 
