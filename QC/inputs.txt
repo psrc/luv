@@ -1,17 +1,19 @@
 # QC_NAME is obligatory entry; defines subdirectory for the QC results
 #QC_NAME= run_20
 #QC_NAME= run_12
-QC_NAME= run_21
+#QC_NAME= run_21
+QC_NAME= run_18
 
 #QC_BASE_DIRECTORY=//aws-model04/e$$/opusgit/urbansim_data/data/psrc_parcel/runs
 #QC_BASE_DIRECTORY=//MODELSRV8/d$$/opusgit/urbansim_data/data/psrc_parcel/runs
 #QC_BASE_DIRECTORY=/Volumes/d$$/opusgit/urbansim_data/data/psrc_parcel/runs
-QC_BASE_DIRECTORY=//aws-model06/e$$/opusgit/urbansim_data/data/psrc_parcel
-#QC_BASE_DIRECTORY=//aws-model10/Model Data 2/vision2050/opusgit/urbansim_data/data/psrc_parcel/runs/awsmodel06
+#QC_BASE_DIRECTORY=//aws-model06/e$$/opusgit/urbansim_data/data/psrc_parcel
+QC_BASE_DIRECTORY=//aws-model10/Model Data 2/vision2050/opusgit/urbansim_data/data/psrc_parcel/runs/awsmodel06
 
 #QC_RUN1=run_20.base_year_data
 #QC_RUN1=run_12.base_year_data
-QC_RUN1=run_21.base_year_data
+#QC_RUN1=run_21.base_year_data
+QC_RUN1=run_18.base_year_data
 
 RUN1_BASE_YEAR=2023
 RUN1_END_YEAR=2050
@@ -19,8 +21,8 @@ RUN1_END_YEAR=2050
 # Optional description of the run
 #QC_RUN1_DESCR= run_20 sim no boosts
 #QC_RUN1_DESCR= run_12 allocation
-#QC_RUN1_DESCR= run_18 sim with boosts
-QC_RUN1_DESCR= run_21 re-run run 12 adjusted job relocation rates
+QC_RUN1_DESCR= run_18 sim with boosts
+#QC_RUN1_DESCR= run_21 re-run run 12 adjusted job relocation rates
 
 # Optional info about any restrictions
 QC_RUN1_RESTR=Test run!
