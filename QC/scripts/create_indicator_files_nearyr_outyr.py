@@ -543,7 +543,7 @@ def get_end_year_indicators(cache_directory, run_description, years = [2023,2050
                  'building.template_id',
                  'urbansim_parcel.building.building_sqft'
                  ],
-             exclude_condition = 'building.year_built< %i' % base_year,
+             exclude_condition = 'building.year_built< %i' % (base_year + 1),
              ),
 
          DatasetTable(
