@@ -863,8 +863,15 @@ def write_info(directory, description, restrictions):
 
 if __name__ == '__main__':
     ind_cache = os.path.join(os.environ['QC_BASE_DIRECTORY'], os.environ['QC_RUN1'])
+    base_year = int(os.getenv('RUN1_BASE_YEAR', 2023))
+    end_year = int(os.getenv('RUN1_END_YEAR', 2050))
+    all_years = list(range(2000, 2105, 5)) + [2044] + [base_year, end_year] # all possible years
+    all_years = list(set(all_years)) # make it unique
+    all_years.sort()
+    years = [y for y in all_years if y >= base_year and y <= end_year] # limit it to be within base year and end year
     indicators = get_indicators(ind_cache, os.getenv('QC_RUN1_DESCR', ''), 
-                                base_year = int(os.getenv('RUN1_BASE_YEAR', 2023))
+                                base_year = base_year, 
+                                years = years
                                 )
     IndicatorFactory().create_indicators(
         indicators = indicators,

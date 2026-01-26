@@ -119,8 +119,11 @@ from opus_core.indicator_framework.core.indicator_factory import IndicatorFactor
 
 if __name__ == '__main__':
     ind_cache = os.path.join(os.environ['QC_BASE_DIRECTORY'], os.environ['QC_RUN1'])
+    base_year =  int(os.getenv('RUN1_BASE_YEAR', 2023))
+    end_year =  int(os.getenv('RUN1_END_YEAR', 2050))
     indicators = get_indicators(ind_cache, os.getenv('QC_RUN1_DESCR', ''), 
-                                base_year = int(os.getenv('RUN1_BASE_YEAR', 2023)),
+                                base_year = base_year,
+                                years = [base_year, end_year], 
                                 output_subdir ="indicators_accessibility"
                                 )
     IndicatorFactory().create_indicators(
